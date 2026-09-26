@@ -20,7 +20,7 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 
 | Página | Qué es |
 |---|---|
-| `index.html` | Portada |
+| `index.html` | Portada (incluye demo animada del grupo en un móvil `#app` y preguntas frecuentes `#faq` con FAQPage) |
 | `paises.html` | Destinos (+30 países) |
 | `split.html` | Split y Ultra Europe (vídeo `ultra.mp4`) |
 | `rutas.html` | Planificador de rutas en 4 pasos → crea una fila en `rutas` |
@@ -79,4 +79,4 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   hacer que el bot escriba y gaste). Debería ser obligatorio.
 - **WhatsApp**: la fecha con minutos va al principio del prompt del sistema → la caché de prompts de la IA
   se invalida cada minuto. Mover la fecha a un bloque aparte, después de la parte cacheada.
-- Tiempo de respuesta incoherente: la web dice «máx. 30 min» y el bot «hasta 1 hora».
+- Tiempo de respuesta incoherente: la web dice «máx. 30 min», el aviso emergente y el bot «hasta 1 hora».
