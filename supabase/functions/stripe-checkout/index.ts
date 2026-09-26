@@ -8,6 +8,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const env = (k: string, d = '') => Deno.env.get(k) ?? d;
 const SITE = env('SITE_URL', 'https://iberail.com').replace(/\/$/, '');
+if (!env('STRIPE_SECRET_KEY')) console.error('Falta el secret STRIPE_SECRET_KEY');
 const sb = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };
@@ -25,7 +26,13 @@ function form(o: Record<string, unknown>, pre = '', out = new URLSearchParams())
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
-  if (req.method !== 'POST') return json({ error: 'Método no permitido.' }, 405);
+  if (req.method !== 'POST') return json({ ok: true, info: 'Función de pago de Iberail activa.' });
+  // cualquier fallo inesperado vuelve con CORS y un mensaje, para que la web lo pueda enseñar
+  try { return await pagar(req); }
+  catch (e) { console.error('stripe-checkout', e); return json({ error: 'Error en el servidor de pagos: ' + String((e as Error)?.message || e).slice(0, 200) }, 500); }
+});
+
+async function pagar(req: Request) {
 
   // quién paga: la sesión de su cuenta
   const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
@@ -78,7 +85,7 @@ Deno.serve(async (req) => {
   const s = await r.json().catch(() => ({}));
   if (!r.ok || !s.url) {
     console.error('stripe', r.status, JSON.stringify(s).slice(0, 400));
-    return json({ error: 'No se ha podido abrir el pago. Inténtalo en un momento.' }, 502);
+    return json({ error: 'Stripe no ha aceptado el pago: ' + (s.error?.message || `error ${r.status}`) }, 502);
   }
   return json({ url: s.url });
-});
+}

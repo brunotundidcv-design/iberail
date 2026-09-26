@@ -25,7 +25,9 @@
     }catch(e){
       btn.disabled = false;
       btn.innerHTML = label;
-      alert('No hemos podido abrir el pago: ' + (e.message || 'error desconocido'));
+      const red = /NetworkError|Failed to fetch|Load failed/i.test(e.message || '');
+      alert('No hemos podido abrir el pago: ' + (red ? 'no hay conexión con el servidor de pagos. Prueba en un momento y, si sigue, escríbenos por WhatsApp.' : (e.message || 'error desconocido')));
+      console.error('Pago Stripe:', e);
     }
   }
 
