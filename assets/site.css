@@ -2784,3 +2784,21 @@ html.gmx-lock,html.gmx-lock body{overflow:hidden}
 .pay-note span{grid-column:1;font-size:.88rem;color:var(--on-dark-soft)}
 .pay-note button{grid-column:2;grid-row:1/3;background:none;border:0;color:var(--cream);font-size:1.4rem;line-height:1;cursor:pointer;padding:2px 4px}
 .gx-pay-cta[disabled]{opacity:.7;cursor:wait;transform:none}
+
+/* botón «Pagar» repetido en el grupo: portada del grupo, tu fila en «Pagos del grupo», tarjeta del mapa y mapa a pantalla completa */
+.gx-pay-cta,.gx-hero-pay,.gx-route-pay,.gmx-pay,.gx-st--pay{gap:7px;border:0;cursor:pointer;font-family:inherit;text-decoration:none}
+.gx-pay-cta svg,.gx-hero-pay svg,.gx-route-pay svg,.gmx-pay svg,.gx-st--pay svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.gx-pay-cta:disabled,.gx-hero-pay:disabled,.gx-route-pay:disabled,.gmx-pay:disabled,.gx-st--pay:disabled{opacity:.7;cursor:progress}
+.gx-hero-pay{display:inline-flex;align-items:center;min-height:44px;margin:-4px 0 16px;padding:0 20px;border-radius:999px;background:var(--coral);color:#fff;font-size:.92rem;font-weight:700;box-shadow:0 12px 26px -12px rgba(240,83,47,.9);transition:transform .2s var(--ease),background .2s}
+.gx-hero-pay:hover{transform:translateY(-2px);background:var(--coral-d)}
+.gx-route-pay{display:flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:14px;background:var(--coral);color:#fff;font-size:.92rem;font-weight:700;transition:background .2s}
+.gx-route-pay:hover{background:var(--coral-d)}
+.gx-st.gx-st--pay{background:var(--coral);color:#fff;padding:7px 13px;font-size:.78rem}
+.gx-st.gx-st--pay svg{width:14px;height:14px}
+.gx-st.gx-st--pay:hover{background:var(--coral-d)}
+.gmx-pay{display:inline-flex;align-items:center;flex-shrink:0;min-height:42px;padding:0 16px;border-radius:999px;background:var(--coral);color:#fff;font-size:.86rem;font-weight:700}
+.gmx-pay:hover{background:var(--coral-d)}
+@media (max-width:640px){
+  .gx-hero-pay{width:100%;justify-content:center}
+  .gmx-pay{min-height:38px;padding:0 13px}
+}

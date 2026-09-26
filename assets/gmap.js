@@ -560,7 +560,7 @@
   }
   addEventListener('popstate', () => { if(openBox) close(true); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape' && openBox) close(); });
-  function open(route, title){
+  function open(route, title, extra){
     if(openBox) close();
     const M = model(route);
     if(M.cities.length < 2) return;
@@ -572,6 +572,7 @@
         <header class="gmx-head">
           <span class="gmx-ic">${icon('tren')}</span>
           <div><small>${esc(title || 'Vuestra ruta')}</small><b>${esc(M.cities.map(c => c.n).join(' → '))}</b></div>
+          ${extra || ''}
           <button type="button" class="gmx-x" data-gmx-close aria-label="Cerrar el mapa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </header>
         <div class="gm gmx-body"></div>

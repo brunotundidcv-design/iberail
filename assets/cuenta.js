@@ -306,11 +306,27 @@
   const AV_COLORS = ['#F0532F', '#FFC53D', '#8FB8A8', '#C9A2F2', '#7FB3E8', '#F29E7F', '#B7D36B'];
   const avColor = s => { let h = 0; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; };
   const daysTo = iso => Math.round((new Date(iso + 'T12:00:00') - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
-  function payBox(g){
-    if(!V.v7) return '';
+  // lo que le queda por pagar a la persona que mira la página en ese grupo
+  function myDue(g){
     const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
     const list = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
     const pag = list.reduce((a, p) => a + Number(p.importe), 0), marcado = !!m.pagado, falta = marcado ? 0 : Math.max(0, imp - pag);
+    return { m, imp, list, pag, marcado, falta };
+  }
+  // botón «Pagar» (tarjeta con Stripe); solo si queda algo por pagar. Se puede poner en varios sitios del grupo.
+  // Si el pago con tarjeta se desactiva a propósito (STRIPE_ON: false), se paga por WhatsApp.
+  function payCta(g, cls, label){
+    if(!V.v7 || g._preview) return '';
+    const { falta } = myDue(g);
+    if(!(falta > 0)) return '';
+    const txt = label || `Pagar ${eur(falta)}`;
+    return IB.cfg && IB.cfg.STRIPE_ON === false
+      ? `<a class="${cls}" href="${esc(IB.wa(`Hola Iberail, soy de «${g.nombre}». Quiero pagar lo que me falta (${eur(falta)}).`))}" target="_blank" rel="noopener">${I_EURO}<span>${txt}</span></a>`
+      : `<button type="button" class="${cls}" data-stripe-group="${esc(g.id)}">${I_EURO}<span>${txt}</span></button>`;
+  }
+  function payBox(g){
+    if(!V.v7) return '';
+    const { imp, list, pag, marcado, falta } = myDue(g);
     if(marcado && !imp) return `<div class="gx-card gx-pay is-done"><div class="gx-ring gx-ring--ok" role="img" aria-label="Todo pagado"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" class="gx-ring-fg"/></svg><span>${I_CHECK}</span></div><div class="gx-pay-main"><small>Tu parte del viaje</small><b class="gx-pay-big is-ok">Todo pagado</b><p>Lo tienes todo pagado. ¡Ya solo queda disfrutar del viaje!</p></div></div>`;
     if(!imp && !list.length) return `<div class="gx-card gx-pay is-empty"><span class="gx-ic">${I_EURO}</span><div><b>Tu parte del viaje</b><p>Cuando cerremos el precio, aquí verás lo que te toca pagar y lo que llevas pagado.</p></div></div>`;
     const done = marcado || (imp > 0 && falta <= 0), pct = done ? 100 : imp ? Math.min(100, Math.round(pag / imp * 100)) : 100;
@@ -326,9 +342,7 @@
         <p>${marcado && pag < imp ? 'Iberail lo ha marcado como pagado. ¡Ya solo queda disfrutar del viaje!' : imp && pag > imp ? `${eur(pag)} pagados de ${eur(imp)}: hay ${eur(pag - imp)} de más, lo revisamos contigo.` : `${eur(pag)} pagados de ${eur(imp)}`}</p>
         ${list.length ? `<details class="gx-log"><summary>${list.length} ${plural(list.length, 'pago', 'pagos')}</summary><ul>${list.map(p => `<li><span>${esc(fshort(p.fecha))}</span><b>${eur(p.importe)}</b>${p.nota ? `<em>${esc(p.nota)}</em>` : ''}</li>`).join('')}</ul></details>` : ''}
       </div>
-      ${!done ? (IB.cfg && IB.cfg.STRIPE_ON && falta > 0
-        ? `<button type="button" class="gx-pay-cta" data-stripe-group="${esc(g.id)}">Pagar ${eur(falta)}</button>`
-        : `<a class="gx-pay-cta" href="${esc(IB.wa(`Hola Iberail, soy de «${g.nombre}». ¿Cómo os pago lo que me falta (${eur(falta)})?`))}" target="_blank" rel="noopener">¿Cómo pago?</a>`) : ''}
+      ${!done ? payCta(g, 'gx-pay-cta') : ''}
     </div>`;
   }
   // cómo va cada persona del grupo (solo totales; el grupo decide si se comparte)
@@ -349,7 +363,8 @@
       ${tot ? `<p class="gx-team-sum">Entre todos lleváis <b>${eur(paid)}</b> de ${eur(tot)} <span>· ${pct}%</span></p>` : ''}
       <ul class="gx-team-list">${sorted.map(r => {
         const imp = Number(r.importe || 0), pag = Number(r.pagado || 0), falta = Math.max(0, imp - pag), p = r.completo ? 100 : imp ? Math.min(100, Math.round(pag / imp * 100)) : 0;
-        const st = r.completo ? `<span class="gx-st is-ok">${I_CHECK}Todo pagado</span>` : imp ? `<span class="gx-st is-due">Faltan ${eur(falta)}</span>` : '<span class="gx-st">Sin precio aún</span>';
+        const mePay = r.soy_yo && !r.completo && falta > 0 ? payCta(g, 'gx-st gx-st--pay', `Pagar ${eur(falta)}`) : '';
+        const st = r.completo ? `<span class="gx-st is-ok">${I_CHECK}Todo pagado</span>` : mePay || (imp ? `<span class="gx-st is-due">Faltan ${eur(falta)}</span>` : '<span class="gx-st">Sin precio aún</span>');
         return `<li class="${r.completo ? 'is-ok' : ''}${r.soy_yo ? ' is-me' : ''}">
           <i class="gx-av" style="--c:${avColor(r.user_id)}">${esc(initials(r.nombre))}</i>
           <div class="gx-team-main"><b>${esc(String(r.nombre).split(' ')[0])}${r.soy_yo ? ' <small>(tú)</small>' : ''}</b>${imp ? `<small>${eur(Math.min(pag, imp) || (r.completo ? imp : 0))} de ${eur(imp)}</small>` : ''}${imp || r.completo ? `<span class="gx-mini"><i style="width:${p}%"></i></span>` : ''}</div>
@@ -380,11 +395,14 @@
   // la ruta del grupo en un mapa interactivo (gmap.js); si no se puede dibujar, se queda la lista de paradas
   function routeMapCard(r){
     const st = STATUS[r.estado] || STATUS.nueva;
+    const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null;
+    const pay = g ? payCta(g, 'gx-route-pay') : '';
     const stops = [{ c: cityName(r.salida), d: '' }].concat((r.paradas || []).map(p => ({ c: cityName(p.ciudad), d: p.dias })));
     return `<div class="gx-card gx-route gx-map-card">
       <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>Vuestra ruta</b><em class="gx-pill">${esc(st[0])}</em></div>
       <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'día', 'días')}`}</small></li>`).join('')}</ol>
       ${window.IBGroupMap ? IBGroupMap.button(r) : ''}
+      ${pay}
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}${MODE === 'grupos' || r.grupo_id ? '' : ` · <button type="button" class="pl-link" data-goto-route="${esc(r.id)}">Ver la ficha</button>`}</p>
     </div>`;
   }
@@ -415,6 +433,7 @@
       <header class="gx-hero">
         <div class="gx-top"><span class="gx-top-left"><span class="gx-kicker"><i></i>${prev ? 'Vista del equipo · así lo ven ellos' : 'Tu grupo de viaje'}</span>${vip ? `<span class="gx-vip" title="Grupo VIP">${I_STAR}VIP</span>` : ''}</span>${edit}</div>
         <h2>${esc(g.nombre)}</h2>
+        ${prev ? '' : payCta(g, 'gx-hero-pay')}
         ${stack}
         <dl class="gx-stats">${stats}</dl>
       </header>
@@ -650,7 +669,7 @@
     const tb = e.target.closest('#dashTabs [data-t], [data-tab]'); if(tb) return setTab(tb.dataset.t || tb.dataset.tab);
     const gr = e.target.closest('[data-goto-route]'); if(gr){ setTab('rutas'); const c = $(`.rcard[data-id="${gr.dataset.gotoRoute}"]`); if(c){ c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('is-flash'); void c.offsetWidth; c.classList.add('is-flash'); } return; }
     const gmo = e.target.closest('[data-gm-open]');
-    if(gmo && window.IBGroupMap){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === gmo.dataset.gmOpen); if(r){ const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null; IBGroupMap.open(r, g ? `Ruta de «${g.nombre}»` : `Tu ruta ${r.ref || ''}`); } return; }
+    if(gmo && window.IBGroupMap){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === gmo.dataset.gmOpen); if(r){ const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null; IBGroupMap.open(r, g ? `Ruta de «${g.nombre}»` : `Tu ruta ${r.ref || ''}`, g ? payCta(g, 'gmx-pay', 'Pagar') : ''); } return; }
     const ic = e.target.closest('[data-inv-copy]');
     if(ic && V.inv){ const okc = await IB.copy(invLink()); ic.textContent = okc ? '¡Copiado!' : 'No se pudo'; ic.classList.toggle('is-done', okc); setTimeout(() => { ic.textContent = 'Copiar'; ic.classList.remove('is-done'); }, 1800); return; }
     const is = e.target.closest('[data-inv-share]');
