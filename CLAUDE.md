@@ -52,6 +52,20 @@ RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invit
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
+### Edge function `whatsapp` (`supabase/functions/whatsapp/index.ts`)
+
+Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defecto `claude-sonnet-5`).
+- Recibe el webhook de Meta (o Dualhook / 360dialog según `WA_PROVIDER`), guarda en `wa_chats` / `wa_mensajes`
+  y responde. Herramientas: `consultar_mi_viaje`, `crear_solicitud`, `avisar_equipo`, `pasar_a_humano`.
+- Si el equipo contesta desde el móvil (eco), el bot se aparta de ese chat `horas_pausa` horas.
+- Acciones del panel (`enviar`, `aviso`, `probar`) solo para el equipo: comprueba la tabla `admins`.
+- Usa además: tabla `admins`, RPC `wa_cliente`, `wa_crear_solicitud`, `wa_destinatarios`.
+- El texto `CONOCIMIENTO` lo genera `tools/build_conocimiento.py` (no está en el repo): si cambia la web,
+  hay que regenerarlo. Es también la mejor descripción de cómo funciona la web para el cliente.
+- Secretos: `WA_TOKEN`, `WA_PHONE_ID`, `WA_APP_SECRET`, `WA_VERIFY_TOKEN`, `WA_WEBHOOK_KEY`,
+  `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+- Desplegar: `supabase functions deploy whatsapp --no-verify-jwt`.
+
 ## Pendientes detectados
 
 - **Pagos Stripe sin terminar** (`payment.js`):
@@ -61,3 +75,8 @@ El esquema SQL / políticas RLS **no están en el repo**.
   - `data-stripe-payment="${id}-${importe}"` se parte con `split('-')`: falla si el id tiene guiones.
 - Falta `build.py` y el esquema de Supabase para tener el proyecto completo.
 - `sitemap.xml` sin `lastmod`.
+- **WhatsApp**: si `WA_APP_SECRET` no está puesto, el webhook acepta peticiones sin firmar (cualquiera puede
+  hacer que el bot escriba y gaste). Debería ser obligatorio.
+- **WhatsApp**: la fecha con minutos va al principio del prompt del sistema → la caché de prompts de la IA
+  se invalida cada minuto. Mover la fecha a un bloque aparte, después de la parte cacheada.
+- Tiempo de respuesta incoherente: la web dice «máx. 30 min» y el bot «hasta 1 hora».
