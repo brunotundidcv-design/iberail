@@ -282,28 +282,3 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
     requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add('is-in')));
   }, 2200);
 })();
-
-/* ---------- portada: demo del viaje en el móvil ---------- */
-(function(){
-  const box = document.querySelector('[data-app-demo]');
-  if(!box) return;
-  const days = box.querySelector('[data-ph-days]');
-  const target = new Date('2027-07-08T00:00:00');
-  const left = Math.max(0, Math.ceil((target - new Date()) / 864e5));
-  const motion = box.querySelector('animateMotion');
-  const play = () => {
-    box.classList.add('is-play');
-    if(reduceMotion){ if(days) days.textContent = left; return; }
-    // la cuenta atrás sube hasta los días que faltan de verdad para el Ultra
-    if(days){
-      const t0 = performance.now(), dur = 1600;
-      const tick = t => { const k = Math.min(1, (t - t0) / dur); days.textContent = Math.round(left * (1 - Math.pow(1 - k, 3))); if(k < 1) requestAnimationFrame(tick); };
-      requestAnimationFrame(tick);
-    }
-    setTimeout(() => { try{ motion && motion.beginElement(); }catch(e){} }, 3000);
-    setTimeout(() => box.classList.add('is-toast'), 4200);
-  };
-  if(!('IntersectionObserver' in window)) return play();
-  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ io.disconnect(); play(); } }), { threshold: .35 });
-  io.observe(box);
-})();

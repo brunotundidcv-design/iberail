@@ -326,8 +326,8 @@
         <p>${marcado && pag < imp ? 'Iberail lo ha marcado como pagado. ¡Ya solo queda disfrutar del viaje!' : imp && pag > imp ? `${eur(pag)} pagados de ${eur(imp)}: hay ${eur(pag - imp)} de más, lo revisamos contigo.` : `${eur(pag)} pagados de ${eur(imp)}`}</p>
         ${list.length ? `<details class="gx-log"><summary>${list.length} ${plural(list.length, 'pago', 'pagos')}</summary><ul>${list.map(p => `<li><span>${esc(fshort(p.fecha))}</span><b>${eur(p.importe)}</b>${p.nota ? `<em>${esc(p.nota)}</em>` : ''}</li>`).join('')}</ul></details>` : ''}
       </div>
-      ${!done ? (IB.cfg && IB.cfg.STRIPE_PUBLIC_KEY
-        ? `<button type="button" class="gx-pay-cta" data-stripe-payment="${esc(g.id)}-${falta}">Pagar ${eur(falta)}</button>`
+      ${!done ? (IB.cfg && IB.cfg.STRIPE_ON && falta > 0
+        ? `<button type="button" class="gx-pay-cta" data-stripe-group="${esc(g.id)}">Pagar ${eur(falta)}</button>`
         : `<a class="gx-pay-cta" href="${esc(IB.wa(`Hola Iberail, soy de «${g.nombre}». ¿Cómo os pago lo que me falta (${eur(falta)})?`))}" target="_blank" rel="noopener">¿Cómo pago?</a>`) : ''}
     </div>`;
   }

@@ -20,7 +20,7 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 
 | Página | Qué es |
 |---|---|
-| `index.html` | Portada (incluye demo animada del grupo en un móvil `#app` y preguntas frecuentes `#faq` con FAQPage) |
+| `index.html` | Portada |
 | `paises.html` | Destinos (+30 países) |
 | `split.html` | Split y Ultra Europe (vídeo `ultra.mp4`) |
 | `rutas.html` | Planificador de rutas en 4 pasos → crea una fila en `rutas` |
@@ -41,7 +41,8 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 - `panel.js` — panel del equipo: solicitudes en directo, clientes, grupos, documentos, pagos,
   comisiones/RRPP, bot de WhatsApp.
 - `notif.js` — campana de notificaciones.
-- `payment.js` — Stripe (sin activar: falta `STRIPE_PUBLIC_KEY` en config).
+- `payment.js` — pago con tarjeta (Stripe Checkout): llama a `stripe-checkout` con la sesión y redirige a Stripe.
+  Se activa con `STRIPE_ON: true` en `config.js`. Al volver (`grupos.html?pago=ok|cancelado`) muestra un aviso.
 
 ## Supabase
 
@@ -51,6 +52,15 @@ RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invit
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`.
 El esquema SQL / políticas RLS **no están en el repo**.
+
+### Pagos con Stripe (Checkout alojado por Stripe)
+
+- `supabase/functions/stripe-checkout`: comprueba la sesión, **recalcula lo que falta** (`grupo_miembros.importe`
+  − suma de `pagos`) y crea la sesión de Checkout. Nunca se fía del importe del navegador.
+- `supabase/functions/stripe-webhook`: verifica la firma de Stripe y apunta el pago en `pagos`
+  (una vez por sesión: columna `stripe_session` única, ver `supabase/sql/stripe.sql`).
+- Secretos: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SITE_URL` (opcional, por defecto https://iberail.com).
+- Ambas se despliegan con `--no-verify-jwt`.
 
 ### Edge function `whatsapp` (`supabase/functions/whatsapp/index.ts`)
 
@@ -68,11 +78,6 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 ## Pendientes detectados
 
-- **Pagos Stripe sin terminar** (`payment.js`):
-  - el importe se calcula en el navegador y se envía al servidor → la edge function debe recalcularlo;
-  - la llamada a `stripe-checkout` no envía `Authorization`/`apikey` (Supabase la rechazará con 401);
-  - usa `stripe.redirectToCheckout`, que Stripe ha retirado → mejor devolver `session.url` y redirigir;
-  - `data-stripe-payment="${id}-${importe}"` se parte con `split('-')`: falla si el id tiene guiones.
 - Falta `build.py` y el esquema de Supabase para tener el proyecto completo.
 - `sitemap.xml` sin `lastmod`.
 - **WhatsApp**: si `WA_APP_SECRET` no está puesto, el webhook acepta peticiones sin firmar (cualquiera puede
