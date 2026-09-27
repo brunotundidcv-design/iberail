@@ -94,6 +94,7 @@
 
   /* vuelta desde Stripe: grupos.html?pago=ok | ?pago=cancelado */
   const estado = new URLSearchParams(location.search).get('pago');
+  window.__ibPago = estado;   // live.js lo lee (esta URL se limpia enseguida)
   if(estado === 'ok' || estado === 'cancelado'){
     const ok = estado === 'ok';
     const n = document.createElement('div');

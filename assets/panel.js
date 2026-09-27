@@ -154,7 +154,7 @@
     view = v;
     $$('#admViews [data-v]').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v));
     $$('.adm-view').forEach(el => el.hidden = el.dataset.view !== v);
-    $('#admH').textContent = { sol: 'Solicitudes', cli: 'Clientes', gru: 'Grupos', avi: 'Avisos', rrp: 'Invita y gana', wha: 'WhatsApp', cor: 'Correos' }[v];
+    $('#admH').textContent = { sol: 'Solicitudes', cli: 'Clientes', gru: 'Grupos', avi: 'Avisos', rrp: 'Invita y gana', wha: 'WhatsApp', cor: 'Correos', liv: 'En directo' }[v];
     $('#admCsv').hidden = v !== 'sol';
     if(v === 'cli'){ loadClients(); paintClients(); }
     if(v === 'gru'){ loadClients(); paintGroups(); }
@@ -162,6 +162,7 @@
     if(v === 'rrp'){ loadClients(); paintRrpp(); }
     if(v === 'wha') paintWa();
     if(v === 'cor' && window.IBCorreos) IBCorreos.show();
+    if(v === 'liv' && window.IBLive) IBLive.show();
   }
 
   /* ---------- solicitudes ---------- */

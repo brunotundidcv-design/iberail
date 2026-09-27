@@ -54,6 +54,11 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   Se activa con `STRIPE_ON: true` en `config.js`. Al volver (`grupos.html?pago=ok|cancelado`) muestra un aviso.
   «Pagar una parte» (mínimo 20 €). Enlace desde los correos: `grupos.html?pagar=ID` (`&parte=1` abre el pago parcial).
 - `correos-panel.js` — pestaña «Correos» del panel: ver los correos automáticos y mandar campañas.
+- `live.js` — (todas las páginas públicas, no el panel) presencia en tiempo real en el canal `iberail-en-directo`,
+  una fila en `visitas` por página (sin identificar) y, con sesión, acciones en `actividad`. El equipo no cuenta.
+- `live-panel.js` — pestaña «En directo» del panel: quién está ahora, últimas visitas, lo más visto hoy y
+  actividad de clientes con filtro. SQL: `supabase/sql/actividad.sql` (borrado automático a 90 días).
+  Recogido en la política de privacidad (apartados 2 y 3) y en la de cookies.
 - `alojamientos.js` — alojamientos del grupo: tarjetas por ciudad + galería en «Mis grupos» (`[data-aloj]`)
   y editor con subida de fotos en el panel (`[data-aloj-admin]`). Se engancha solo con un MutationObserver.
   Tabla `alojamientos` + bucket privado `alojamientos/<grupo>/…` (`supabase/sql/alojamientos.sql`).
@@ -67,7 +72,7 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
-Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`; columna `pagos.stripe_session`; bucket `alojamientos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`; columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)

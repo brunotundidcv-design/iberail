@@ -134,7 +134,8 @@
     thumbs.innerHTML = fotos.length > 1 ? fotos.map((u, i) => `<button type="button" data-al-go="${i}" aria-label="Foto ${i + 1}"><img src="${esc(u)}" alt="" loading="lazy"></button>`).join('') : '';
     lb.querySelectorAll('.al-lb-nav').forEach(b => b.hidden = fotos.length < 2);
     const cur = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
-    const paint = () => { const c = cur(); count.textContent = `${c + 1} / ${fotos.length}`; thumbs.querySelectorAll('button').forEach((b, i) => b.classList.toggle('is-on', i === c)); };
+    lb._seen = new Set(); lb._ciudad = a.ciudad; lb._total = fotos.length;
+    const paint = () => { const c = cur(); lb && lb._seen && lb._seen.add(c); count.textContent = `${c + 1} / ${fotos.length}`; thumbs.querySelectorAll('button').forEach((b, i) => b.classList.toggle('is-on', i === c)); };
     track.addEventListener('scroll', () => requestAnimationFrame(paint), { passive: true });
     lb._go = i => track.scrollTo({ left: Math.max(0, Math.min(fotos.length - 1, i)) * track.clientWidth, behavior: 'smooth' });
     lb._step = d => lb._go(cur() + d);
@@ -143,6 +144,8 @@
   function closeGallery(){
     if(!lb) return;
     const el = lb; lb = null;
+    // para la pestaña «En directo»: cuántas fotos ha visto
+    if(el._total) dispatchEvent(new CustomEvent('ib:aloj-fotos', { detail: { ciudad: el._ciudad, vistas: el._seen.size, total: el._total } }));
     el.classList.remove('is-in');
     document.body.classList.remove('al-lock');
     setTimeout(() => el.remove(), 250);
