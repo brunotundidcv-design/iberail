@@ -3082,3 +3082,8 @@ body.al-lock{overflow:hidden}
   .ct-card{flex-wrap:wrap}
   .ct-card .btn{width:100%}
 }
+.ct-tutor{flex-basis:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft);background:var(--cream);border-radius:var(--r-sm);padding:6px 10px}
+.ct-tutor svg{width:14px;height:14px;stroke:var(--coral);fill:none;stroke-width:2;flex-shrink:0}
+.ct-tutor span{flex:1;min-width:0}
+.ct-wa{font-weight:700;color:#1F8A4C;text-decoration:none;white-space:nowrap}
+.ct-wa:hover{text-decoration:underline}

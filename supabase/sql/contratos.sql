@@ -50,3 +50,17 @@ grant execute on function public.firmar_contrato(bigint, jsonb, text, text, json
 do $$ begin
   alter publication supabase_realtime add table public.contratos;
 exception when duplicate_object then null; end $$;
+
+-- Teléfonos de padres/madres/tutores que han firmado (para escribirles por WhatsApp).
+-- Solo lo ve el equipo (security_invoker → se aplican las políticas de «contratos»).
+create or replace view public.contactos_tutores with (security_invoker = true) as
+  select c.grupo_id, g.nombre as grupo, c.user_id,
+         c.datos->'viajero'->>'nombre' as menor,
+         c.datos->'tutor'->>'nombre'   as tutor,
+         c.datos->'tutor'->>'relacion' as relacion,
+         c.datos->'tutor'->>'telefono' as telefono,
+         c.datos->'tutor'->>'email'    as email,
+         c.firmado_at
+    from public.contratos c join public.grupos g on g.id = c.grupo_id
+   where c.tipo = 'menor' and c.estado = 'firmado';
+revoke all on public.contactos_tutores from anon;

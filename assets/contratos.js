@@ -21,6 +21,7 @@
     doc: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>',
     pen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
     ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
     x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
   };
   const fd = iso => iso ? new Date(String(iso).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -179,7 +180,7 @@
             ${f('t.nombre', 'Nombre y apellidos')}
             ${f('t.dni', 'DNI')}
             <label class="ct-f"><span>Relación con el menor</span><select data-k="t.relacion" required><option value="">Elige…</option><option>padre</option><option>madre</option><option>tutor/a legal</option></select></label>
-            ${f('t.telefono', 'Teléfono', 'tel')}
+            ${f('t.telefono', 'Teléfono móvil (WhatsApp)', 'tel', '', 'inputmode="tel" autocomplete="tel"')}
             ${f('t.email', 'Correo', 'email')}
           </div>` : ''}
           <div class="ct-sign"><div class="ct-sign-h"><b>${menor ? 'Firma del padre, madre o tutor' : 'Tu firma'}</b><button type="button" class="ct-clear" data-pad="0">Borrar</button></div><canvas data-pad-c="0"></canvas><span class="ct-sign-ph">Firma aquí con el dedo o el ratón</span></div>
@@ -202,6 +203,8 @@
       const d = read();
       const miss = [...form.querySelectorAll('[required]')].find(i => !i.value.trim());
       if(miss){ err.textContent = 'Rellena todos los datos.'; miss.focus(); return; }
+      const badTel = [...form.querySelectorAll('[type="tel"]')].find(i => String(i.value).replace(/\D/g, '').length < 9);
+      if(badTel){ err.textContent = 'Revisa el teléfono: tiene que ser un número completo (por ejemplo, 612 345 678).'; badTel.focus(); return; }
       const age = edad(d.viajero.nacimiento);   // cuenta la edad al firmar, no la del viaje
       if(!menor && age != null && age < 18){ err.textContent = 'Todavía eres menor de edad, así que el contrato lo tiene que firmar tu padre, madre o tutor. Pide a Iberail por WhatsApp el contrato para menores.'; return; }
       if(!pads[0].has()){ err.textContent = 'Falta la firma.'; return; }
@@ -250,7 +253,7 @@
   async function loadAdm(gid){
     const [m, c, cl] = await Promise.all([
       IB.sb.from('grupo_miembros').select('user_id').eq('grupo_id', Number(gid)),
-      IB.sb.from('contratos').select('id, user_id, tipo, estado, enviado_at, firmado_at').eq('grupo_id', Number(gid)).neq('estado', 'anulado'),
+      IB.sb.from('contratos').select('id, user_id, tipo, estado, enviado_at, firmado_at, datos').eq('grupo_id', Number(gid)).neq('estado', 'anulado'),
       IB.sb.rpc('buscar_clientes', { q: '' })
     ]);
     const nombres = {}; (cl.data || []).forEach(x => nombres[x.id] = x);
@@ -267,9 +270,12 @@
       const st = !k ? `<select class="ct-tipo" data-ct-tipo="${esc(uid)}"><option value="adulto">Mayor de edad</option><option value="menor">Menor de edad</option></select><button type="button" class="btn btn--dark btn--sm" data-ct-send="${esc(gid)}:${esc(uid)}">Enviar</button>`
         : k.estado === 'firmado' ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(new Date(k.firmado_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(k.id)}">PDF</button>`
         : `<span class="ct-st">Pendiente · ${k.tipo === 'menor' ? 'menor' : 'mayor'}</span><button type="button" class="ct-link" data-ct-void="${esc(gid)}:${esc(k.id)}" title="Anular para volver a enviarlo (por ejemplo, con otro tipo)">Anular</button>`;
-      return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${st}</div></div>`;
+      const tu = k && k.tipo === 'menor' && k.datos && k.datos.tutor;
+      const tut = tu && tu.telefono ? `<div class="ct-tutor">${I.phone}<span><b>${esc(tu.nombre || 'Tutor')}</b> (${esc(tu.relacion || 'tutor')}) · ${esc(tu.telefono)}</span><a class="ct-wa" href="${esc(waLink(tu.telefono))}" target="_blank" rel="noopener">WhatsApp</a></div>` : '';
+      return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${st}</div>${tut}</div>`;
     }).join('');
     const faltan = a.miembros.filter(uid => !a.contratos.some(x => x.user_id === uid)).length;
+    const tels = tutores(a);
     return head + `
       <details class="ct-cond"${a.abierto ? ' open' : ''}><summary>Condiciones de este grupo <small>(se ponen en el contrato al enviarlo)</small></summary>
         <div class="ct-cond-grid" data-ct-cond="${esc(gid)}">
@@ -282,9 +288,12 @@
         <p class="adm-hint">El precio, la ruta y los alojamientos se cogen solos del grupo.</p>
       </details>
       ${a.miembros.length ? `<div class="ct-list">${rows}</div>` : '<p class="adm-docs-empty">Añade primero a los viajeros al grupo.</p>'}
+      ${tels.length ? `<button type="button" class="btn btn--ghost btn--sm" data-ct-copytel="${esc(gid)}">Copiar teléfonos de los padres (${tels.length})</button>` : ''}
       ${faltan > 1 ? `<button type="button" class="btn btn--ghost btn--sm" data-ct-sendall="${esc(gid)}">Enviar a los ${faltan} que faltan (con el tipo elegido)</button>` : ''}
       <p class="ct-msg" data-ct-msg="${esc(gid)}"></p>`;
   }
+  const waLink = tel => { let n = String(tel).replace(/\D/g, '').replace(/^00/, ''); if(n.length === 9) n = '34' + n; return 'https://wa.me/' + n; };
+  const tutores = a => a.contratos.filter(k => k.tipo === 'menor' && k.datos && k.datos.tutor && k.datos.tutor.telefono).map(k => ({ ...k.datos.tutor, menor: (k.datos.viajero || {}).nombre || '' }));
   const paintAdm = gid => document.querySelectorAll(`[data-contratos-admin="${gid}"]`).forEach(el => { el.innerHTML = admHtml(gid); });
   async function mountAdm(el){
     const gid = el.dataset.contratosAdmin; el.dataset.ctMounted = '1';
@@ -314,6 +323,9 @@
     const sa = t.closest('[data-ct-sendall]'); if(sa){ const gid = sa.dataset.ctSendall, a = adm[gid]; if(!a) return;
       const list = a.miembros.filter(uid => !a.contratos.some(x => x.user_id === uid)).map(uid => [uid, (document.querySelector(`[data-ct-tipo="${uid}"]`) || {}).value || 'adulto']);
       if(!confirm(`¿Enviar el contrato a ${list.length} personas? (cada una con el tipo que tenga elegido)`)) return; sa.disabled = true; return send(gid, list); }
+    const ct = t.closest('[data-ct-copytel]'); if(ct){ const a = adm[ct.dataset.ctCopytel]; if(!a) return;
+      const txt = tutores(a).map(x => `${x.nombre} (${x.relacion} de ${x.menor}): ${x.telefono}`).join('\n');
+      try{ await navigator.clipboard.writeText(txt); ct.textContent = '¡Copiados!'; }catch(e){ prompt('Copia los teléfonos:', txt); } return; }
     const vd = t.closest('[data-ct-void]'); if(vd){ const [gid, id] = vd.dataset.ctVoid.split(':'); if(!confirm('¿Anular este contrato pendiente? Luego podrás enviarlo otra vez.')) return;
       await IB.sb.from('contratos').update({ estado: 'anulado' }).eq('id', Number(id)).eq('estado', 'pendiente'); await loadAdm(gid); paintAdm(gid); }
   });
