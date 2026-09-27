@@ -163,21 +163,43 @@
     const { data: rs, error } = await IB.sb.from('rutas').select('id, fecha_salida, dias, paradas').eq('grupo_id', Number(gid));
     if(error) throw error;
     let changed = 0;
+    const dd = (x, y) => Math.round((new Date(y + 'T12:00:00') - new Date(x + 'T12:00:00')) / 864e5);
     for(const r of rs || []){
-      const stops = (r.paradas || []).map(p => ({ ...p })), used = new Set();
-      for(const p of stops){
+      // 1) cada parada de la ruta con su alojamiento (si lo tiene)
+      const orig = (r.paradas || []).map(p => ({ ...p })), used = new Set();
+      for(const p of orig){
         const a = list.find(x => !used.has(x.id) && sameCity(x.ciudad, p.ciudad));
-        if(a){ used.add(a.id); p.dias = noches(a); p._e = a.entrada; }
+        if(a){ used.add(a.id); p._a = a; }
       }
       // alojamientos de ciudades que no estaban en la ruta: se añaden como parada
-      for(const a of list) if(!used.has(a.id)) stops.push({ ciudad: String(a.ciudad).split(',').pop().trim(), pais: '', dias: noches(a), _e: a.entrada });
-      // orden: las paradas con alojamiento por su fecha; las demás se quedan detrás de la que tenían delante
-      let last = '';
-      stops.forEach((p, i) => { const n = String(i).padStart(3, '0'); if(p._e){ last = p._e; p._k = `${p._e}|0|${n}`; } else p._k = `${last || '0000'}|1|${n}`; });
-      stops.sort((a, b) => a._k < b._k ? -1 : a._k > b._k ? 1 : 0);
-      const first = stops.find(p => p._e);
-      const paradas = stops.map(({ _e, _k, ...p }) => p);
-      const fecha_salida = first ? first._e : r.fecha_salida;
+      for(const a of list) if(!used.has(a.id)) orig.push({ ciudad: String(a.ciudad).split(',').pop().trim(), pais: '', _a: a });
+      // 2) las paradas con alojamiento, en orden de fechas; las demás van con la que tenían delante
+      const lead = [], blocks = [];
+      let cur = null;
+      for(const p of orig){
+        if(p._a){ cur = { m: p, tras: [] }; blocks.push(cur); }
+        else if(cur) cur.tras.push(p); else lead.push(p);
+      }
+      blocks.sort((x, y) => x.m._a.entrada < y.m._a.entrada ? -1 : x.m._a.entrada > y.m._a.entrada ? 1 : 0);
+      // reparte un hueco de días entre las paradas sin alojamiento que caben; las que no caben se quitan
+      const fill = (ps, gap) => { const out = []; for(const p of ps){ if(gap <= 0) break; const d = Math.min(gap, Math.max(1, parseInt(p.dias, 10) || 1)); out.push({ ...p, dias: d }); gap -= d; } return { out, left: gap }; };
+      const first = blocks[0].m._a.entrada;
+      const before = r.fecha_salida && r.fecha_salida < first ? dd(r.fecha_salida, first) : 0;
+      const L = fill(lead, before);
+      const paradas = [...L.out];
+      blocks.forEach((bl, i) => {
+        const a = bl.m._a, next = blocks[i + 1];
+        const stop = { ...bl.m, dias: noches(a) };
+        paradas.push(stop);
+        if(next){
+          const gap = dd(a.salida, next.m._a.entrada);
+          const F = fill(bl.tras, gap);
+          paradas.push(...F.out);
+          if(F.left > 0) stop.dias += F.left;   // noche sin alojamiento (p. ej. tren nocturno): cuadran las fechas
+        }else paradas.push(...bl.tras);           // tras el último alojamiento se respeta lo que hubiera
+      });
+      paradas.forEach(p => { delete p._a; });
+      const fecha_salida = L.out.length ? (() => { const d = new Date(first + 'T12:00:00'); d.setDate(d.getDate() - L.out.reduce((t, p) => t + p.dias, 0)); return d.toISOString().slice(0, 10); })() : first;
       const dias = paradas.reduce((t, p) => t + (parseInt(p.dias, 10) || 0), 0) || r.dias;
       if(JSON.stringify(paradas) === JSON.stringify(r.paradas || []) && fecha_salida === r.fecha_salida && dias === r.dias) continue;
       const { error: e2 } = await IB.sb.from('rutas').update({ paradas, fecha_salida, dias }).eq('id', r.id);
@@ -252,6 +274,22 @@
     el.innerHTML = cache[gid] ? adminHtml(gid, cache[gid]) : `<div class="adm-docs-head"><h3>${I.bed}Alojamientos</h3></div><div class="auth-spin"></div>`;
     await load(gid);
     if(el.isConnected){ el.innerHTML = adminHtml(gid, cache[gid]); signImgs(el); }
+    // al abrir el grupo, la ruta se ajusta sola a los alojamientos (solo escribe si algo no cuadra)
+    if(!autoDone[gid]){ autoDone[gid] = 1; syncAndTell(gid); }
+  }
+  const autoDone = {};
+  // en el panel, nada más entrar: se ajustan las rutas de todos los grupos que tengan alojamientos
+  async function syncAll(){
+    if(!document.getElementById('admApp') || !IB.sb) return;
+    const { data: ok } = await IB.sb.rpc('is_admin').then(r => r, () => ({ data: false }));
+    if(!ok) return;
+    const { data, error } = await IB.sb.from('alojamientos').select('grupo_id');
+    if(error || !data) return;
+    for(const gid of [...new Set(data.map(x => String(x.grupo_id)))]){
+      if(autoDone[gid]) continue;
+      autoDone[gid] = 1;
+      try{ await load(gid, true); await syncRoute(gid); }catch(e){ console.warn('ruta del grupo', gid, e); }
+    }
   }
 
   // fotos: se reducen en el navegador (lado largo 1800 px, JPEG) para que suban rápido y carguen rápido
@@ -395,5 +433,6 @@
   };
   new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   scan();
+  setTimeout(syncAll, 2500);
   window.IBAloj = { load, openGallery };
 })();
