@@ -148,6 +148,47 @@
     setTimeout(() => el.remove(), 250);
   }
 
+  /* ============ las fechas de los alojamientos mandan sobre la ruta ============ */
+  // «Croacia, Split» ↔ «Split», «Amsterdam» ↔ «Ámsterdam»…
+  const normC = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z ,]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cityKey = s => { const p = normC(s).split(',').map(x => x.trim()).filter(Boolean); return p[p.length - 1] || ''; };
+  const sameCity = (a, b) => { const x = cityKey(a), y = cityKey(b); return !!x && !!y && (x === y || x.includes(y) || y.includes(x)); };
+  const syncMsg = {};
+  async function syncRoute(gid){
+    const list = (cache[gid] || []).filter(a => a.entrada && a.salida && a.salida > a.entrada).sort(byDate);
+    if(!list.length) return 0;
+    const { data: rs, error } = await IB.sb.from('rutas').select('id, fecha_salida, dias, paradas').eq('grupo_id', Number(gid));
+    if(error) throw error;
+    let changed = 0;
+    for(const r of rs || []){
+      const stops = (r.paradas || []).map(p => ({ ...p })), used = new Set();
+      for(const p of stops){
+        const a = list.find(x => !used.has(x.id) && sameCity(x.ciudad, p.ciudad));
+        if(a){ used.add(a.id); p.dias = noches(a); p._e = a.entrada; }
+      }
+      // alojamientos de ciudades que no estaban en la ruta: se añaden como parada
+      for(const a of list) if(!used.has(a.id)) stops.push({ ciudad: String(a.ciudad).split(',').pop().trim(), pais: '', dias: noches(a), _e: a.entrada });
+      // orden: las paradas con alojamiento por su fecha; las demás se quedan detrás de la que tenían delante
+      let last = '';
+      stops.forEach((p, i) => { const n = String(i).padStart(3, '0'); if(p._e){ last = p._e; p._k = `${p._e}|0|${n}`; } else p._k = `${last || '0000'}|1|${n}`; });
+      stops.sort((a, b) => a._k < b._k ? -1 : a._k > b._k ? 1 : 0);
+      const first = stops.find(p => p._e);
+      const paradas = stops.map(({ _e, _k, ...p }) => p);
+      const fecha_salida = first ? first._e : r.fecha_salida;
+      const dias = paradas.reduce((t, p) => t + (parseInt(p.dias, 10) || 0), 0) || r.dias;
+      if(JSON.stringify(paradas) === JSON.stringify(r.paradas || []) && fecha_salida === r.fecha_salida && dias === r.dias) continue;
+      const { error: e2 } = await IB.sb.from('rutas').update({ paradas, fecha_salida, dias }).eq('id', r.id);
+      if(e2) throw e2;
+      changed++;
+    }
+    return changed;
+  }
+  async function syncAndTell(gid){
+    try{ const n = await syncRoute(gid); syncMsg[gid] = n ? { ok: true, t: 'Ruta del grupo actualizada con las fechas de los alojamientos (mapa, días y fecha de salida).' } : null; }
+    catch(err){ syncMsg[gid] = { ok: false, t: 'No se ha podido actualizar la ruta: ' + (err.message || err) }; }
+    paintAdmin(gid);
+  }
+
   /* ================== panel: editor ================== */
   const blank = () => ({ id: null, v: { ciudad: '', nombre: '', enlace: '', direccion: '', entrada: '', salida: '', notas: '' }, fotos: [], subiendo: 0, open: true, err: '' });
   function adminHtml(gid, list){
@@ -160,7 +201,8 @@
       </div>`).join('');
     return `<div class="adm-docs-head"><h3>${I.bed}Alojamientos</h3><small>${list.length ? `${list.length} · ` : ''}los ve todo el grupo en «Mis grupos»</small></div>
       ${rows ? `<div class="al-adm-list">${rows}</div>` : '<p class="adm-docs-empty">Aún no hay alojamientos. Añade uno por ciudad con sus fotos.</p>'}
-      ${e && e.open ? formHtml(gid, e) : `<button type="button" class="btn btn--dark btn--sm al-adm-add" data-al-new="${esc(gid)}">${I.plus}<span>Añadir alojamiento</span></button>`}`;
+      ${syncMsg[gid] ? `<p class="al-sync${syncMsg[gid].ok ? '' : ' is-err'}">${esc(syncMsg[gid].t)}</p>` : ''}
+      ${e && e.open ? formHtml(gid, e) : `<div class="al-adm-acts"><button type="button" class="btn btn--dark btn--sm al-adm-add" data-al-new="${esc(gid)}">${I.plus}<span>Añadir alojamiento</span></button>${list.some(a => a.entrada && a.salida) ? `<button type="button" class="btn btn--ghost btn--sm" data-al-sync="${esc(gid)}" title="Pone en la ruta del grupo las fechas y noches de los alojamientos">Actualizar la ruta con estas fechas</button>` : ''}</div>`}`;
   }
   function formHtml(gid, e){
     const v = e.v, f = (k, label, type = 'text', extra = '') => `<label class="al-f"><span>${label}</span><input data-al-k="${k}" type="${type}" value="${esc(v[k] || '')}" ${extra}></label>`;
@@ -256,6 +298,7 @@
     if(gone.length) IB.sb.storage.from(BUCKET).remove(gone).catch(() => {});
     delete edit[gid];
     await load(gid, true); paintAdmin(gid);
+    syncAndTell(gid);
   }
   async function del(gid){
     const e = edit[gid]; if(!e || !e.id) return;
@@ -266,6 +309,7 @@
     if(a && (a.fotos || []).length) IB.sb.storage.from(BUCKET).remove(a.fotos).catch(() => {});
     delete edit[gid];
     await load(gid, true); paintAdmin(gid);
+    syncAndTell(gid);
   }
   async function cancel(gid){
     const e = edit[gid];
@@ -298,6 +342,7 @@
       const nv = t.closest('[data-al-nav]'); if(nv && lb._step) return lb._step(Number(nv.dataset.alNav));
       const go = t.closest('[data-al-go]'); if(go && lb._go) return lb._go(Number(go.dataset.alGo));
     }
+    const sy = t.closest('[data-al-sync]'); if(sy){ sy.disabled = true; sy.textContent = 'Actualizando…'; syncAndTell(sy.dataset.alSync); return; }
     const nw = t.closest('[data-al-new]'); if(nw){ const g = nw.dataset.alNew; edit[g] = blank(); paintAdmin(g); loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); return; }
     const ed = t.closest('[data-al-edit]'); if(ed){
       const [g, id] = ed.dataset.alEdit.split(':'), a = (cache[g] || []).find(x => String(x.id) === id);

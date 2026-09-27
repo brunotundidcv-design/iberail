@@ -57,6 +57,8 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 - `alojamientos.js` — alojamientos del grupo: tarjetas por ciudad + galería en «Mis grupos» (`[data-aloj]`)
   y editor con subida de fotos en el panel (`[data-aloj-admin]`). Se engancha solo con un MutationObserver.
   Tabla `alojamientos` + bucket privado `alojamientos/<grupo>/…` (`supabase/sql/alojamientos.sql`).
+  **Las fechas de los alojamientos mandan**: al guardar/borrar (o con «Actualizar la ruta con estas fechas»)
+  se reescriben `paradas[].dias`, el orden, `fecha_salida` y `dias` de las rutas del grupo (`syncRoute`).
 
 ## Supabase
 
