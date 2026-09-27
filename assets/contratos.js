@@ -300,8 +300,8 @@
     const rows = a.miembros.map(uid => {
       const k = a.contratos.find(x => x.user_id === uid);
       const st = !k ? `<select class="ct-tipo" data-ct-tipo="${esc(uid)}"><option value="adulto">Mayor de edad</option><option value="menor">Menor de edad</option></select><button type="button" class="btn btn--dark btn--sm" data-ct-send="${esc(gid)}:${esc(uid)}">Enviar</button>`
-        : k.estado === 'firmado' ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(new Date(k.firmado_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(k.id)}">PDF</button>`
-        : `<span class="ct-st">Pendiente · ${k.tipo === 'menor' ? 'menor' : 'mayor'}</span><button type="button" class="ct-link" data-ct-void="${esc(gid)}:${esc(k.id)}" title="Anular para volver a enviarlo (por ejemplo, con otro tipo)">Anular</button>`;
+        : k.estado === 'firmado' ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(new Date(k.firmado_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(k.id)}">PDF</button><button type="button" class="ct-link ct-link--redo" data-ct-redo="${esc(gid)}:${esc(k.id)}:${esc(k.user_id)}:${esc(k.tipo)}" title="Anula este contrato y le envía uno nuevo para que lo vuelva a firmar">Repetir</button>`
+        : `<span class="ct-st">Pendiente · ${k.tipo === 'menor' ? 'menor' : 'mayor'}</span><button type="button" class="ct-link ct-link--redo" data-ct-redo="${esc(gid)}:${esc(k.id)}:${esc(k.user_id)}:${esc(k.tipo)}" title="Anula este contrato y le envía uno nuevo para que lo vuelva a firmar">Repetir</button><button type="button" class="ct-link" data-ct-void="${esc(gid)}:${esc(k.id)}" title="Anular para volver a enviarlo (por ejemplo, con otro tipo)">Anular</button>`;
       const tu = k && k.tipo === 'menor' && k.datos && k.datos.tutor;
       const tut = tu && tu.telefono ? `<div class="ct-tutor">${I.phone}<span><b>${esc(tu.nombre || 'Tutor')}</b> (${esc(tu.relacion || 'tutor')}) · ${esc(tu.telefono)}</span><a class="ct-wa" href="${esc(waLink(tu.telefono))}" target="_blank" rel="noopener">WhatsApp</a></div>` : '';
       return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${st}</div>${tut}</div>`;
@@ -338,18 +338,18 @@
     if(adm[gid]) el.innerHTML = admHtml(gid);
     await loadAdm(gid); if(el.isConnected) el.innerHTML = admHtml(gid);
   }
-  async function send(gid, list){
+  async function send(gid, list, repetir){
     const cond = getCond(gid), msg = document.querySelector(`[data-ct-msg="${gid}"]`);
     let ok = 0, err = '';
     for(const [uid, tipo] of list){
       const { error } = await IB.sb.from('contratos').insert({ grupo_id: Number(gid), user_id: uid, tipo, condiciones: cond });
       if(error){ err = error.message; continue; }
       ok++;
-      await IB.sb.from('avisos').insert({ titulo: 'Tienes el contrato del viaje listo para firmar', cuerpo: tipo === 'menor' ? 'Entra en Mis grupos y pulsa «Leer y firmar». Como eres menor de edad, tiene que firmarlo tu padre, madre o tutor.' : 'Entra en Mis grupos y pulsa «Leer y firmar». Tarda un minuto.', importante: true, para_todos: false, user_id: uid }).then(() => {}, () => {});
+      await IB.sb.from('avisos').insert({ titulo: repetir ? 'Tienes que volver a firmar el contrato del viaje' : 'Tienes el contrato del viaje listo para firmar', cuerpo: repetir ? `Hemos actualizado el contrato del viaje y hay que firmarlo de nuevo. Entra en Mis grupos y pulsa «Leer y firmar».${tipo === 'menor' ? ' Como eres menor de edad, tiene que firmarlo tu padre, madre o tutor.' : ''}` : tipo === 'menor' ? 'Entra en Mis grupos y pulsa «Leer y firmar». Como eres menor de edad, tiene que firmarlo tu padre, madre o tutor.' : 'Entra en Mis grupos y pulsa «Leer y firmar». Tarda un minuto.', importante: true, para_todos: false, user_id: uid }).then(() => {}, () => {});
     }
     await loadAdm(gid); paintAdm(gid);
     const m2 = document.querySelector(`[data-ct-msg="${gid}"]`);
-    if(m2) m2.textContent = err ? `Enviados ${ok}. Error: ${err}` : `Contrato enviado a ${ok} ${ok === 1 ? 'persona' : 'personas'}. Les ha llegado el aviso.`;
+    if(m2) m2.textContent = err ? `Enviados ${ok}. Error: ${err}` : repetir ? 'Contrato anulado y enviado de nuevo. Le ha llegado el aviso para volver a firmarlo.' : `Contrato enviado a ${ok} ${ok === 1 ? 'persona' : 'personas'}. Les ha llegado el aviso.`;
   }
 
   /* ======================= eventos ======================= */
@@ -365,6 +365,15 @@
     const ct = t.closest('[data-ct-copytel]'); if(ct){ const a = adm[ct.dataset.ctCopytel]; if(!a) return;
       const txt = tutores(a).map(x => `${x.nombre} (${x.relacion} de ${x.menor}): ${x.telefono}`).join('\n');
       try{ await navigator.clipboard.writeText(txt); ct.textContent = '¡Copiados!'; }catch(e){ prompt('Copia los teléfonos:', txt); } return; }
+    const rd = t.closest('[data-ct-redo]'); if(rd){ const [gid, id, uid, tipo] = rd.dataset.ctRedo.split(':');
+      if(!confirm('¿Anular este contrato y que lo vuelva a firmar?\n\nEl actual queda guardado como anulado (no se borra) y le llega un aviso para firmar el nuevo.')) return;
+      if(!confirmInc(gid, 1)) return;
+      rd.disabled = true;
+      const { error } = await IB.sb.from('contratos').update({ estado: 'anulado' }).eq('id', Number(id));
+      if(error){ rd.disabled = false; return alert('No se ha podido anular: ' + error.message); }
+      await send(gid, [[uid, tipo === 'menor' ? 'menor' : 'adulto']], true);
+      if(document.getElementById('conView') && !document.getElementById('conView').hidden){ await loadAll(); paintAll(); }
+      return; }
     const vd = t.closest('[data-ct-void]'); if(vd){ const [gid, id] = vd.dataset.ctVoid.split(':'); if(!confirm('¿Anular este contrato pendiente? Luego podrás enviarlo otra vez.')) return;
       await IB.sb.from('contratos').update({ estado: 'anulado' }).eq('id', Number(id)).eq('estado', 'pendiente'); await loadAdm(gid); paintAdm(gid); }
   });
@@ -412,8 +421,8 @@
       return `<div class="ct-row">
         <div><b>${esc(who(r))}</b><small>${esc((V.nombres[r.user_id] || {}).email || '')}${d.viajero && d.viajero.dni ? ` · DNI ${esc(d.viajero.dni)}` : ''}</small></div>
         <div class="ct-acts"><span class="ct-kind">${r.tipo === 'menor' ? 'Menor' : 'Mayor'}</span>${r.estado === 'firmado'
-          ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(fecha(r.firmado_at))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(r.id)}">PDF</button>`
-          : `<span class="ct-st">Pendiente · enviado ${esc(fecha(r.enviado_at))}</span>`}</div>
+          ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(fecha(r.firmado_at))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(r.id)}">PDF</button><button type="button" class="ct-link ct-link--redo" data-ct-redo="${esc(r.grupo_id)}:${esc(r.id)}:${esc(r.user_id)}:${esc(r.tipo)}" title="Anula este contrato y le envía uno nuevo para que lo vuelva a firmar">Repetir</button>`
+          : `<span class="ct-st">Pendiente · enviado ${esc(fecha(r.enviado_at))}</span><button type="button" class="ct-link ct-link--redo" data-ct-redo="${esc(r.grupo_id)}:${esc(r.id)}:${esc(r.user_id)}:${esc(r.tipo)}" title="Anula este contrato y le envía uno nuevo para que lo vuelva a firmar">Repetir</button>`}</div>
         ${tu && tu.telefono ? `<div class="ct-tutor">${I.phone}<span><b>${esc(tu.nombre || 'Tutor')}</b> (${esc(tu.relacion || 'tutor')}) · ${esc(tu.telefono)}</span><a class="ct-wa" href="${esc(waLink(tu.telefono))}" target="_blank" rel="noopener">WhatsApp</a></div>` : ''}
       </div>`;
     };

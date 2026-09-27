@@ -3103,3 +3103,4 @@ body.al-lock{overflow:hidden}
 .ct-chk{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--line);border-radius:99px;font-size:.84rem;cursor:pointer;background:var(--paper)}
 .ct-chk input{accent-color:var(--coral);width:16px;height:16px;margin:0}
 .ct-chk:has(input:not(:checked)){color:var(--muted);text-decoration:line-through;background:transparent}
+.ct-link--redo{color:var(--coral-d);font-weight:600}
