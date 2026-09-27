@@ -10,9 +10,16 @@
   const esc = IB.esc;
   const VERSION = '2026-09';
   const AGENCIA = { nombre: 'Iberail', nif: '54214650Q', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
+  // qué incluye el grupo (menú del panel). Por defecto, todo.
+  const INCLUYE = [
+    ['inc_ida', 'Vuelo de ida'], ['inc_vuelta', 'Vuelo de vuelta'], ['inc_maleta', 'Maleta facturada 23 kg'],
+    ['inc_pase', 'Pase Interrail'], ['inc_aloj', 'Alojamientos'], ['inc_otros', 'Buses / ferris de la ruta']
+  ];
+  const inc = (cd, k) => cd[k] !== false;   // contratos antiguos (sin la marca) = incluido
   const COND_DEF = {
+    inc_ida: true, inc_vuelta: true, inc_maleta: true, inc_pase: true, inc_aloj: true, inc_otros: true,
     gastos: '50',
-    vuelos: 'Vuelos de ida y vuelta desde España, con equipaje de mano y maleta facturada de 23 kg',
+    vuelos: '',
     pase: 'Pase Interrail Global en 2.ª clase, válido en los trenes incluidos en el pase',
     otros: 'Trayectos en autobús o ferri indicados en la ruta',
     calendario: '',
@@ -51,6 +58,25 @@
     return { version: VERSION, grupo: (g.data || {}).nombre || '', ref: ruta.ref || '', salida: ruta.salida || '', inicio, fin, dias: ruta.dias || '', viajeros: ruta.viajeros || '', precio: Number((m.data || {}).importe || 0), paradas, cond: { ...COND_DEF, ...(row.condiciones || {}) }, tipo: row.tipo };
   }
 
+  /* ======================= lo incluido según el menú del grupo ======================= */
+  function vuelosTxt(cd){
+    if(cd.inc_ida === undefined && cd.vuelos) return cd.vuelos;   // contratos de antes del menú
+    const ida = inc(cd, 'inc_ida'), vta = inc(cd, 'inc_vuelta');
+    if(!ida && !vta) return '';
+    const t = ida && vta ? 'Vuelos de ida y vuelta desde España' : ida ? 'Vuelo de ida desde España (el de vuelta no está incluido)' : 'Vuelo de vuelta a España (el de ida no está incluido)';
+    return t + (inc(cd, 'inc_maleta') ? ', con equipaje de mano y maleta facturada de 23 kg' : ', con equipaje de mano (sin maleta facturada)');
+  }
+  function noIncl(cd){
+    if(cd.inc_ida === undefined) return '';
+    const ida = inc(cd, 'inc_ida'), vta = inc(cd, 'inc_vuelta'), l = [];
+    if(!ida && !vta) l.push('vuelos'); else if(!ida) l.push('vuelo de ida'); else if(!vta) l.push('vuelo de vuelta');
+    if((ida || vta) && !inc(cd, 'inc_maleta')) l.push('maleta facturada');
+    if(!inc(cd, 'inc_pase')) l.push('pase Interrail y billetes de tren');
+    if(!inc(cd, 'inc_aloj')) l.push('alojamiento');
+    return l.length ? `<b>${esc(l.join(', '))}</b>, ` : '';
+  }
+  const resumen = cd => INCLUYE.filter(([k]) => inc(cd, k) && !(k === 'inc_maleta' && !inc(cd, 'inc_ida') && !inc(cd, 'inc_vuelta'))).map(([, t]) => t).concat(cd.seguro ? ['Seguro de viaje'] : [], ['Asistencia 24 h']);
+
   /* ======================= el texto del contrato ======================= */
   function texto(c, d){
     d = d || {}; const v = d.viajero || {}, tu = d.tutor || {}, cd = c.cond, menor = c.tipo === 'menor';
@@ -74,15 +100,15 @@
       ${c.paradas.length ? `<table class="ct-tb ct-tb--it"><thead><tr><th>Ciudad</th><th>Entrada</th><th>Salida</th><th>Noches</th></tr></thead><tbody>${c.paradas.map(p => `<tr><td>${esc(p.ciudad)}</td><td>${esc(fd(p.entrada))}</td><td>${esc(fd(p.salida))}</td><td>${esc(p.noches)}</td></tr>`).join('')}</tbody></table>` : ''}
       ${S(3, 'Servicios incluidos')}
       <ul>
-        <li><b>Vuelos:</b> ${esc(cd.vuelos)}.</li>
-        <li><b>Pase Interrail:</b> ${esc(cd.pase)}.</li>
-        <li><b>Alojamiento</b> en apartamentos (Airbnb u otras plataformas) en las ciudades y fechas indicadas, compartidos por los miembros del grupo.</li>
-        ${cd.otros ? `<li><b>Otros:</b> ${esc(cd.otros)}.</li>` : ''}
+        ${vuelosTxt(cd) ? `<li><b>Vuelos:</b> ${esc(vuelosTxt(cd))}.</li>` : ''}
+        ${inc(cd, 'inc_pase') ? `<li><b>Pase Interrail:</b> ${esc(cd.pase || COND_DEF.pase)}.</li>` : ''}
+        ${inc(cd, 'inc_aloj') ? '<li><b>Alojamiento</b> en apartamentos (Airbnb u otras plataformas) en las ciudades y fechas indicadas, compartidos por los miembros del grupo.</li>' : ''}
+        ${inc(cd, 'inc_otros') && cd.otros ? `<li><b>Otros:</b> ${esc(cd.otros)}.</li>` : ''}
         ${cd.seguro ? `<li><b>Seguro de viaje:</b> ${esc(cd.seguro)}${cd.seguro_precio ? ` (${esc(eur(String(cd.seguro_precio).replace(',', '.')))} por persona, incluido en el precio total)` : ''}. Lo presta la aseguradora, que es quien cubre los siniestros según las condiciones de la póliza; Iberail lo gestiona y entrega al Viajero el certificado del seguro.</li>` : ''}
         <li><b>Asistencia Iberail 24 h</b> por WhatsApp durante todo el viaje para ayudar a gestionar incidencias (reclamaciones, cambios de billetes, contacto con los anfitriones, orientación médica o por pérdida de documentación). Es un servicio de ayuda y gestión, no un seguro, y no incluye el pago de los gastos que se deriven de esas incidencias.</li>
         <li>Acceso a la ficha del grupo en iberail.com con la ruta, los alojamientos, los billetes, los avisos y el estado de los pagos.</li>
       </ul>
-      <p><b>No incluido:</b> entradas a festivales o eventos (incluido el Ultra Europe), comidas y bebidas, transporte urbano, reservas de asiento o suplementos de trenes no indicados, tasas turísticas que se cobren en destino, ${cd.seguro ? 'fianzas de los alojamientos y' : 'fianzas de los alojamientos, seguro de viaje y'} cualquier servicio no mencionado en este apartado.</p>
+      <p><b>No incluido:</b> ${noIncl(cd)}entradas a festivales o eventos (incluido el Ultra Europe), comidas y bebidas, transporte urbano, reservas de asiento o suplementos de trenes no indicados, tasas turísticas que se cobren en destino, ${cd.seguro ? 'fianzas de los alojamientos y' : 'fianzas de los alojamientos, seguro de viaje y'} cualquier servicio no mencionado en este apartado.</p>
       ${S(4, 'Precio y pagos')}
       <p><b>Precio total por persona: ${c.precio ? esc(eur(c.precio)) : hueco('')}</b>, impuestos incluidos (régimen especial de las agencias de viajes). El precio es cerrado y no se revisará al alza.</p>
       ${cd.calendario ? `<p><b>Calendario de pagos:</b></p><p class="ct-pre">${esc(cd.calendario)}</p>` : ''}
@@ -255,7 +281,7 @@
   const adm = {};   // grupo → { miembros, contratos, nombres, abierto }
   const condKey = gid => 'ib-contrato-cond-' + gid;
   const getCond = gid => { let v = {}; try{ v = JSON.parse(localStorage.getItem(condKey(gid)) || localStorage.getItem('ib-contrato-cond') || '{}'); }catch(e){} return { ...COND_DEF, ...v }; };
-  const setCond = (gid, v) => { try{ localStorage.setItem(condKey(gid), JSON.stringify(v)); const { calendario, ...comun } = v; localStorage.setItem('ib-contrato-cond', JSON.stringify(comun)); }catch(e){} };
+  const setCond = (gid, v) => { try{ localStorage.setItem(condKey(gid), JSON.stringify(v)); const { calendario, seguro, seguro_precio, inc_ida, inc_vuelta, inc_maleta, inc_pase, inc_aloj, inc_otros, ...comun } = v; localStorage.setItem('ib-contrato-cond', JSON.stringify(comun)); }catch(e){} };
   async function loadAdm(gid){
     const [m, c, cl] = await Promise.all([
       IB.sb.from('grupo_miembros').select('user_id').eq('grupo_id', Number(gid)),
@@ -283,12 +309,16 @@
     const faltan = a.miembros.filter(uid => !a.contratos.some(x => x.user_id === uid)).length;
     const tels = tutores(a);
     return head + `
-      <details class="ct-cond"${a.abierto ? ' open' : ''}><summary>Condiciones de este grupo <small>(se ponen en el contrato al enviarlo)</small></summary>
+      <div class="ct-inc" data-ct-cond="${esc(gid)}">
+        <b>¿Qué incluye este grupo?</b>
+        <div class="ct-inc-opts">${INCLUYE.map(([k, t]) => `<label class="ct-chk"><input type="checkbox" data-c="${k}"${inc(cd, k) ? ' checked' : ''}><span>${esc(t)}</span></label>`).join('')}</div>
+        <small>Así sale en el contrato de todos los del grupo. La asistencia 24 h va siempre.</small>
+      </div>
+      <details class="ct-cond"${a.abierto ? ' open' : ''}><summary>Más condiciones <small>(cancelación, seguro, calendario de pagos…)</small></summary>
         <div class="ct-cond-grid" data-ct-cond="${esc(gid)}">
           <label>Gastos de gestión si cancelan (€)<input data-c="gastos" type="number" min="0" value="${esc(cd.gastos)}"></label>
-          <label>Vuelos<input data-c="vuelos" value="${esc(cd.vuelos)}"></label>
-          <label>Pase Interrail<input data-c="pase" value="${esc(cd.pase)}"></label>
-          <label>Otros incluidos<input data-c="otros" value="${esc(cd.otros)}"></label>
+          <label>Tipo de pase Interrail<input data-c="pase" value="${esc(cd.pase)}"></label>
+          <label>Buses / ferris (texto)<input data-c="otros" value="${esc(cd.otros)}"></label>
           <label>Seguro de viaje (vacío = no incluido)<input data-c="seguro" value="${esc(cd.seguro)}" placeholder="Ej.: Intermundial, asistencia médica, repatriación y equipaje"></label>
           <label>Precio del seguro por persona (€)<input data-c="seguro_precio" inputmode="decimal" value="${esc(cd.seguro_precio)}" placeholder="35,47"></label>
           <label class="ct-wide">Calendario de pagos<textarea data-c="calendario" rows="3" placeholder="1.º En 7 días: 280 €&#10;2.º Antes del 31 de octubre: 470 €&#10;3.º Antes del 30 de noviembre: el total">${esc(cd.calendario)}</textarea></label>
@@ -327,19 +357,21 @@
     const t = e.target;
     const op = t.closest('[data-ct-open]'); if(op) return openSign(op.dataset.ctOpen);
     const pr = t.closest('[data-ct-print]'); if(pr) return printContract(pr.dataset.ctPrint);
-    const sd = t.closest('[data-ct-send]'); if(sd){ const [gid, uid] = sd.dataset.ctSend.split(':'); const sel = document.querySelector(`[data-ct-tipo="${uid}"]`); sd.disabled = true; return send(gid, [[uid, sel ? sel.value : 'adulto']]); }
+    const sd = t.closest('[data-ct-send]'); if(sd){ const [gid, uid] = sd.dataset.ctSend.split(':'); const sel = document.querySelector(`[data-ct-tipo="${uid}"]`);
+      if(!confirmInc(gid, 1)) return; sd.disabled = true; return send(gid, [[uid, sel ? sel.value : 'adulto']]); }
     const sa = t.closest('[data-ct-sendall]'); if(sa){ const gid = sa.dataset.ctSendall, a = adm[gid]; if(!a) return;
       const list = a.miembros.filter(uid => !a.contratos.some(x => x.user_id === uid)).map(uid => [uid, (document.querySelector(`[data-ct-tipo="${uid}"]`) || {}).value || 'adulto']);
-      if(!confirm(`¿Enviar el contrato a ${list.length} personas? (cada una con el tipo que tenga elegido)`)) return; sa.disabled = true; return send(gid, list); }
+      if(!confirmInc(gid, list.length)) return; sa.disabled = true; return send(gid, list); }
     const ct = t.closest('[data-ct-copytel]'); if(ct){ const a = adm[ct.dataset.ctCopytel]; if(!a) return;
       const txt = tutores(a).map(x => `${x.nombre} (${x.relacion} de ${x.menor}): ${x.telefono}`).join('\n');
       try{ await navigator.clipboard.writeText(txt); ct.textContent = '¡Copiados!'; }catch(e){ prompt('Copia los teléfonos:', txt); } return; }
     const vd = t.closest('[data-ct-void]'); if(vd){ const [gid, id] = vd.dataset.ctVoid.split(':'); if(!confirm('¿Anular este contrato pendiente? Luego podrás enviarlo otra vez.')) return;
       await IB.sb.from('contratos').update({ estado: 'anulado' }).eq('id', Number(id)).eq('estado', 'pendiente'); await loadAdm(gid); paintAdm(gid); }
   });
+  const confirmInc = (gid, n) => confirm(`¿Enviar el contrato a ${n === 1 ? '1 persona' : n + ' personas'}?\n\nEl contrato dirá que el viaje incluye:\n• ${resumen(getCond(gid)).join('\n• ')}\n\nSi algo no está bien, cancela y cámbialo en «¿Qué incluye este grupo?».`);
   document.addEventListener('input', e => {
     const box = e.target.closest && e.target.closest('[data-ct-cond]'); if(!box) return;
-    const gid = box.dataset.ctCond, v = getCond(gid); v[e.target.dataset.c] = e.target.value; setCond(gid, v);
+    const gid = box.dataset.ctCond, v = getCond(gid); v[e.target.dataset.c] = e.target.type === 'checkbox' ? e.target.checked : e.target.value; setCond(gid, v);
     if(adm[gid]) adm[gid].abierto = true;
   });
   document.addEventListener('keydown', e => { if(modal && e.key === 'Escape') closeModal(); });
