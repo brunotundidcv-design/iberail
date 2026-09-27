@@ -15,7 +15,8 @@
     vuelos: 'Vuelos de ida y vuelta desde España, con equipaje de mano y maleta facturada de 23 kg',
     pase: 'Pase Interrail Global en 2.ª clase, válido en los trenes incluidos en el pase',
     otros: 'Trayectos en autobús o ferri indicados en la ruta',
-    calendario: ''
+    calendario: '',
+    seguro: '', seguro_precio: ''
   };
   const I = {
     doc: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>',
@@ -77,10 +78,11 @@
         <li><b>Pase Interrail:</b> ${esc(cd.pase)}.</li>
         <li><b>Alojamiento</b> en apartamentos (Airbnb u otras plataformas) en las ciudades y fechas indicadas, compartidos por los miembros del grupo.</li>
         ${cd.otros ? `<li><b>Otros:</b> ${esc(cd.otros)}.</li>` : ''}
+        ${cd.seguro ? `<li><b>Seguro de viaje:</b> ${esc(cd.seguro)}${cd.seguro_precio ? ` (${esc(eur(String(cd.seguro_precio).replace(',', '.')))} por persona, incluido en el precio total)` : ''}. Lo presta la aseguradora, que es quien cubre los siniestros según las condiciones de la póliza; Iberail lo gestiona y entrega al Viajero el certificado del seguro.</li>` : ''}
         <li><b>Asistencia Iberail 24 h</b> por WhatsApp durante todo el viaje para ayudar a gestionar incidencias (reclamaciones, cambios de billetes, contacto con los anfitriones, orientación médica o por pérdida de documentación). Es un servicio de ayuda y gestión, no un seguro, y no incluye el pago de los gastos que se deriven de esas incidencias.</li>
         <li>Acceso a la ficha del grupo en iberail.com con la ruta, los alojamientos, los billetes, los avisos y el estado de los pagos.</li>
       </ul>
-      <p><b>No incluido:</b> entradas a festivales o eventos (incluido el Ultra Europe), comidas y bebidas, transporte urbano, reservas de asiento o suplementos de trenes no indicados, tasas turísticas que se cobren en destino, fianzas de los alojamientos, seguro de viaje y cualquier servicio no mencionado en este apartado.</p>
+      <p><b>No incluido:</b> entradas a festivales o eventos (incluido el Ultra Europe), comidas y bebidas, transporte urbano, reservas de asiento o suplementos de trenes no indicados, tasas turísticas que se cobren en destino, ${cd.seguro ? 'fianzas de los alojamientos y' : 'fianzas de los alojamientos, seguro de viaje y'} cualquier servicio no mencionado en este apartado.</p>
       ${S(4, 'Precio y pagos')}
       <p><b>Precio total por persona: ${c.precio ? esc(eur(c.precio)) : hueco('')}</b>, impuestos incluidos (régimen especial de las agencias de viajes). El precio es cerrado y no se revisará al alza.</p>
       ${cd.calendario ? `<p><b>Calendario de pagos:</b></p><p class="ct-pre">${esc(cd.calendario)}</p>` : ''}
@@ -94,7 +96,7 @@
       ${S(8, 'Durante el viaje')}
       <p>Iberail responde de la correcta ejecución de los servicios incluidos. Si alguno no se presta como se ha contratado, el Viajero debe comunicarlo cuanto antes por WhatsApp para que pueda solucionarse. El Viajero se compromete a respetar las normas de los alojamientos y transportes; los daños que cause serán de su cuenta.</p>
       ${S(9, 'Documentación')}
-      <p>Cada Viajero debe llevar su DNI o pasaporte en vigor. Se recomienda la Tarjeta Sanitaria Europea (gratuita) y un seguro de viaje. Los menores que viajen sin sus padres deben llevar además la autorización de viaje al extranjero, que se tramita en la Policía Nacional o la Guardia Civil.</p>
+      <p>Cada Viajero debe llevar su DNI o pasaporte en vigor. Se recomienda la Tarjeta Sanitaria Europea (gratuita)${cd.seguro ? '' : ' y un seguro de viaje'}. Los menores que viajen sin sus padres deben llevar además la autorización de viaje al extranjero, que se tramita en la Policía Nacional o la Guardia Civil.</p>
       ${S(10, 'Información previa y datos personales')}
       <p>El Viajero declara haber recibido antes de firmar el formulario de información normalizada que figura al final de este contrato. Sus datos se tratarán conforme a la política de privacidad de iberail.com para organizar y gestionar el viaje.</p>
       ${S(11, 'Reclamaciones y ley aplicable')}
@@ -287,6 +289,8 @@
           <label>Vuelos<input data-c="vuelos" value="${esc(cd.vuelos)}"></label>
           <label>Pase Interrail<input data-c="pase" value="${esc(cd.pase)}"></label>
           <label>Otros incluidos<input data-c="otros" value="${esc(cd.otros)}"></label>
+          <label>Seguro de viaje (vacío = no incluido)<input data-c="seguro" value="${esc(cd.seguro)}" placeholder="Ej.: Intermundial, asistencia médica, repatriación y equipaje"></label>
+          <label>Precio del seguro por persona (€)<input data-c="seguro_precio" inputmode="decimal" value="${esc(cd.seguro_precio)}" placeholder="35,47"></label>
           <label class="ct-wide">Calendario de pagos<textarea data-c="calendario" rows="3" placeholder="1.º En 7 días: 280 €&#10;2.º Antes del 31 de octubre: 470 €&#10;3.º Antes del 30 de noviembre: el total">${esc(cd.calendario)}</textarea></label>
         </div>
         <p class="adm-hint">El precio, la ruta y los alojamientos se cogen solos del grupo.</p>
