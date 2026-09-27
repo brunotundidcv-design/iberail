@@ -3087,3 +3087,12 @@ body.al-lock{overflow:hidden}
 .ct-tutor span{flex:1;min-width:0}
 .ct-wa{font-weight:700;color:#1F8A4C;text-decoration:none;white-space:nowrap}
 .ct-wa:hover{text-decoration:underline}
+.ct-stats{margin-bottom:12px}
+.ct-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.ct-filters input,.ct-filters select{font:inherit;font-size:.9rem;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);color:var(--ink);min-width:0}
+.ct-filters input{flex:1 1 220px}
+.ct-group{margin-bottom:12px}
+.ct-group-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.ct-group-h h3{font-family:var(--body);font-size:1rem;margin:0}
+.ct-group-h small{font-size:.8rem;color:var(--muted)}
+.ct-kind{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 8px}

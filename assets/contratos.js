@@ -215,6 +215,7 @@
       const go = form.querySelector('.ct-go'); go.disabled = true; go.textContent = 'Firmando…';
       const { data: fecha, error } = await IB.sb.rpc('firmar_contrato', { p_id: row.id, p_datos: d, p_firma: pads[0].png(), p_firma_menor: pads[1] && pads[1].has() ? pads[1].png() : null, p_contenido: c, p_ua: navigator.userAgent });
       if(error){ go.disabled = false; go.textContent = 'Firmar contrato'; err.textContent = 'No se ha podido firmar: ' + (error.message || 'inténtalo de nuevo'); return; }
+      dispatchEvent(new CustomEvent('ib:contrato-firmado', { detail: { tipo: row.tipo } }));
       await loadMine(row.grupo_id); repaintCards(row.grupo_id);
       modal.querySelector('.ct-body').innerHTML = `<div class="ct-done"><span>${I.ok}</span><b>¡Contrato firmado!</b><p>Firmado el ${esc(fdt(fecha))}. Puedes verlo y descargarlo cuando quieras desde Mis grupos.</p><button type="button" class="btn btn--dark" data-ct-print="${esc(row.id)}">Ver o descargar</button></div>`;
     });
@@ -345,5 +346,66 @@
   };
   new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
   scan();
-  window.IBContratos = { texto, contexto, printContract };
+
+  /* ======================= panel: pestaña «Contratos» (todos los grupos) ======================= */
+  const V = { rows: [], grupos: {}, nombres: {}, grupo: '', estado: '', q: '', err: '' };
+  async function loadAll(){
+    const [c, g, cl] = await Promise.all([
+      IB.sb.from('contratos').select('id, grupo_id, user_id, tipo, estado, enviado_at, firmado_at, datos').neq('estado', 'anulado').order('enviado_at', { ascending: false }).limit(2000),
+      IB.sb.from('grupos').select('id, nombre'),
+      IB.sb.rpc('buscar_clientes', { q: '' })
+    ]);
+    V.err = c.error ? c.error.message : '';
+    V.rows = c.data || [];
+    V.grupos = {}; (g.data || []).forEach(x => V.grupos[x.id] = x.nombre);
+    V.nombres = {}; (cl.data || []).forEach(x => V.nombres[x.id] = x);
+  }
+  function paintAll(){
+    const root = document.getElementById('conView'); if(!root) return;
+    if(V.err){ root.innerHTML = `<div class="adm-empty"><b>Falta crear la tabla de contratos.</b><span>${esc(V.err)} · Ejecuta <b>supabase/sql/contratos.sql</b> en Supabase.</span></div>`; return; }
+    const who = r => { const d = r.datos || {}, v = d.viajero || {}, c = V.nombres[r.user_id] || {}; return v.nombre || c.nombre || String(c.email || '').split('@')[0] || 'Viajero'; };
+    const q = V.q.toLowerCase();
+    const rows = V.rows.filter(r => (!V.grupo || String(r.grupo_id) === V.grupo) && (!V.estado || r.estado === V.estado)
+      && (!q || [who(r), (V.nombres[r.user_id] || {}).email, V.grupos[r.grupo_id], ((r.datos || {}).tutor || {}).nombre].join(' ').toLowerCase().includes(q)));
+    const n = { total: V.rows.length, ok: V.rows.filter(r => r.estado === 'firmado').length };
+    const gids = [...new Set(V.rows.map(r => String(r.grupo_id)))].sort((a, b) => String(V.grupos[a] || '').localeCompare(String(V.grupos[b] || '')));
+    const byG = {}; rows.forEach(r => (byG[r.grupo_id] = byG[r.grupo_id] || []).push(r));
+    const fecha = iso => iso ? new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const item = r => {
+      const d = r.datos || {}, tu = r.tipo === 'menor' ? d.tutor : null;
+      return `<div class="ct-row">
+        <div><b>${esc(who(r))}</b><small>${esc((V.nombres[r.user_id] || {}).email || '')}${d.viajero && d.viajero.dni ? ` · DNI ${esc(d.viajero.dni)}` : ''}</small></div>
+        <div class="ct-acts"><span class="ct-kind">${r.tipo === 'menor' ? 'Menor' : 'Mayor'}</span>${r.estado === 'firmado'
+          ? `<span class="ct-st is-ok">${I.ok}Firmado ${esc(fecha(r.firmado_at))}</span><button type="button" class="btn btn--ghost btn--sm" data-ct-print="${esc(r.id)}">PDF</button>`
+          : `<span class="ct-st">Pendiente · enviado ${esc(fecha(r.enviado_at))}</span>`}</div>
+        ${tu && tu.telefono ? `<div class="ct-tutor">${I.phone}<span><b>${esc(tu.nombre || 'Tutor')}</b> (${esc(tu.relacion || 'tutor')}) · ${esc(tu.telefono)}</span><a class="ct-wa" href="${esc(waLink(tu.telefono))}" target="_blank" rel="noopener">WhatsApp</a></div>` : ''}
+      </div>`;
+    };
+    root.innerHTML = `
+      <div class="lv-stats ct-stats">
+        <div class="lv-stat"><b>${n.total}</b><small>contratos enviados</small></div>
+        <div class="lv-stat"><b>${n.ok}</b><small>firmados</small></div>
+        <div class="lv-stat"><b>${n.total - n.ok}</b><small>pendientes de firma</small></div>
+        <div class="lv-stat"><b>${gids.length}</b><small>grupos</small></div>
+      </div>
+      <div class="ct-filters">
+        <input type="search" data-ctf="q" placeholder="Buscar viajero, tutor o grupo…" value="${esc(V.q)}">
+        <select data-ctf="grupo"><option value="">Todos los grupos</option>${gids.map(g => `<option value="${esc(g)}"${g === V.grupo ? ' selected' : ''}>${esc(V.grupos[g] || 'Grupo ' + g)}</option>`).join('')}</select>
+        <select data-ctf="estado"><option value="">Firmados y pendientes</option><option value="firmado"${V.estado === 'firmado' ? ' selected' : ''}>Solo firmados</option><option value="pendiente"${V.estado === 'pendiente' ? ' selected' : ''}>Solo pendientes</option></select>
+        <button type="button" class="btn btn--ghost btn--sm" data-ctf-reload>Actualizar</button>
+      </div>
+      ${Object.keys(byG).length ? Object.keys(byG).sort((a, b) => String(V.grupos[a] || '').localeCompare(String(V.grupos[b] || ''))).map(g => {
+        const list = byG[g], ok = V.rows.filter(r => String(r.grupo_id) === String(g) && r.estado === 'firmado').length, tot = V.rows.filter(r => String(r.grupo_id) === String(g)).length;
+        return `<section class="lv-card ct-group"><div class="ct-group-h"><h3>${esc(V.grupos[g] || 'Grupo ' + g)}</h3><small>${ok} de ${tot} firmados</small></div><div class="ct-list">${list.map(item).join('')}</div></section>`;
+      }).join('') : `<p class="lv-empty">${V.rows.length ? 'No hay contratos con esos filtros.' : 'Todavía no has enviado ningún contrato. Se envían desde cada grupo (pestaña Grupos → Contratos).'}</p>`}`;
+  }
+  document.addEventListener('input', e => { const f = e.target.closest && e.target.closest('#conView [data-ctf]'); if(!f) return; V[f.dataset.ctf] = f.value;
+    if(f.dataset.ctf === 'q'){ clearTimeout(V._t); V._t = setTimeout(() => { paintAll(); const i = document.querySelector('#conView [data-ctf="q"]'); if(i){ i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 200); } else paintAll(); });
+  document.addEventListener('click', async e => { if(e.target.closest('#conView [data-ctf-reload]')){ await loadAll(); paintAll(); } });
+  async function showAll(){
+    const root = document.getElementById('conView'); if(!root) return;
+    if(!V.rows.length && !V.err) root.innerHTML = '<div class="auth-spin"></div>';
+    await loadAll(); paintAll();
+  }
+  window.IBContratos = { texto, contexto, printContract, show: showAll };
 })();
