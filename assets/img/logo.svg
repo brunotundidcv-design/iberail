@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-label="Iberail">
+  <rect width="1200" height="1200" rx="270" fill="#C43730"/>
+  <path d="M493 516a107 107 0 0 1 214 0z" fill="#F0B02A"/>
+  <path d="M441 516h318" stroke="#F0B02A" stroke-width="26" stroke-linecap="round"/>
+  <g stroke="#F7F0E3" stroke-linecap="round" fill="none">
+    <path d="M429 820L592 620M771 820L608 620" stroke-width="28"/>
+    <path d="M552 700h96M511 751h178M470 802h260" stroke-width="18"/>
+  </g>
+</svg>

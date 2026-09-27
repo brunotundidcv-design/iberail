@@ -16,6 +16,15 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   Hasta tenerlo, se editan a mano.
 - Supabase JS se carga desde jsDelivr solo en las páginas con cuenta (`cuenta`, `grupos`, `rutas`, `panel`).
 
+## Marca
+
+- Logo oficial en `assets/img/marca/` (los PNG originales). Recreado en vector: `assets/img/logo.svg` (fiel)
+  e `icon.svg` (mismo dibujo con el símbolo más grande, para cabecera y favicon).
+- Colores del logo: rojo `#C43730`, ámbar `#F0B02A`, crema `#F7F0E3`, casi negro `#1A1614`.
+- Logotipo en texto: `<span class="brand-word">ibe<b>rail</b></span>` en Poppins 800 minúscula
+  («rail» rojo sobre claro, ámbar sobre oscuro). Lema: «Tu Europa en tren, desde España».
+- `logo.png`, `favicon.png`, `apple-touch-icon.png` y `og.jpg` se generan desde esos archivos.
+
 ## Páginas
 
 | Página | Qué es |

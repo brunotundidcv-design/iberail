@@ -86,6 +86,11 @@ button,input,textarea{font:inherit;color:inherit}
 .topbar .container{display:flex;align-items:center;justify-content:space-between;gap:20px;height:72px}
 .brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:1.32rem;letter-spacing:-.03em}
 .brand img{width:30px;height:30px;border-radius:8px}
+/* logotipo: «ibe» + «rail» en Poppins, como el logo oficial */
+.brand-word{font-family:'Poppins',var(--display);font-weight:800;font-size:1.42rem;letter-spacing:-.045em;line-height:1;text-transform:lowercase;color:var(--brand-ink,#1A1614)}
+.brand-word b{font-weight:inherit;color:var(--brand-red,#C43730)}
+.footer .brand-word{color:#F7F0E3}
+.footer .brand-word b,.dark .brand-word b{color:#F0B02A}
 .nav{display:flex;gap:4px;list-style:none;background:rgba(255,255,255,.55);border:1px solid var(--line);padding:5px;border-radius:999px}
 .nav a{display:block;padding:8px 16px;border-radius:999px;font-size:.92rem;font-weight:500;color:var(--ink-soft);transition:background-color .2s,color .2s}
 .nav a:hover{background:rgba(31,18,14,.06);color:var(--ink)}
@@ -389,7 +394,7 @@ body.menu-open .mbar{transform:translateY(160%)}
 .footer ul{list-style:none;display:grid;gap:10px}
 .footer ul a{color:var(--cream);transition:color .2s}
 .footer ul a:hover{color:var(--amber)}
-.footer-big{font-family:var(--display);font-weight:800;font-size:clamp(4rem,17vw,15rem);line-height:.8;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(247,242,232,.12);text-align:center;user-select:none;overflow:hidden;padding-top:10px;margin-bottom:0}
+.footer-big{font-family:'Poppins',var(--display);font-weight:800;font-size:clamp(4rem,17vw,15rem);line-height:.8;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(247,242,232,.12);text-align:center;user-select:none;overflow:hidden;padding-top:10px;margin-bottom:0}
 .footer-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:22px;border-top:1px solid var(--maroon-line);font-size:.82rem;color:var(--on-dark-soft)}
 
 /* ---------- floating help ---------- */
@@ -2827,3 +2832,4 @@ html.gmx-lock,html.gmx-lock body{overflow:hidden}
 .cor-modal-h button{border:0;background:var(--paper);width:34px;height:34px;border-radius:50%;font-size:1.3rem;cursor:pointer}
 .cor-modal iframe{height:min(78vh,760px)}
 @media (max-width:900px){.cor-camp{grid-template-columns:1fr}.cor-prev{position:static}.cor-row{grid-template-columns:1fr}}
+.footer-big b{font-weight:inherit;-webkit-text-stroke-color:rgba(240,176,42,.22)}

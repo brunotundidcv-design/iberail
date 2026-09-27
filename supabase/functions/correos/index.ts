@@ -50,6 +50,7 @@ const bajaUrl = async (email: string) => `${SELF}?baja=${b64u(email.toLowerCase(
 const F_DISPLAY = "'Bricolage Grotesque','Helvetica Neue',Helvetica,Arial,sans-serif";
 const F_BODY = "Inter,'Helvetica Neue',Helvetica,Arial,sans-serif";
 const F_MONO = "'IBM Plex Mono',Menlo,Consolas,monospace";
+const F_LOGO = "Poppins,'Arial Black','Helvetica Neue',Arial,sans-serif";   // tipografía del logotipo
 
 type Correo = {
   asunto: string; previa: string; etiqueta: string; titulo: string; acento?: string;
@@ -118,7 +119,7 @@ function plantilla(c: Correo) {
   return `<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light">
 <title>${esc(c.asunto)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@500&family=Poppins:wght@800&display=swap" rel="stylesheet">
 <style>@media (max-width:620px){.card{border-radius:0!important}.pad{padding-left:22px!important;padding-right:22px!important}.h1{font-size:34px!important}}</style>
 </head>
 <body style="margin:0;padding:0;background:#F7F2E8">
@@ -128,7 +129,7 @@ function plantilla(c: Correo) {
     <!-- cabecera -->
     <tr><td style="background:#260C08;background-image:radial-gradient(60% 80% at 100% 0%,rgba(240,83,47,.45),transparent 70%);padding:26px 36px 34px" class="pad">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-        <td><a href="${SITE}" style="text-decoration:none"><img src="${SITE}/assets/img/logo.png" width="34" height="34" alt="" style="vertical-align:middle;border-radius:9px;border:0"> <span style="vertical-align:middle;font-family:${F_DISPLAY};font-size:22px;font-weight:800;color:#F7F2E8;letter-spacing:-.5px">&nbsp;Iberail</span></a></td>
+        <td><a href="${SITE}" style="text-decoration:none"><img src="${SITE}/assets/img/logo.png" width="36" height="36" alt="Iberail" style="vertical-align:middle;border-radius:10px;border:0"> <span style="vertical-align:middle;font-family:${F_LOGO};font-size:24px;font-weight:800;color:#F7F0E3;letter-spacing:-1px">&nbsp;ibe<span style="color:#F0B02A">rail</span></span></a></td>
         <td align="right" style="font-family:${F_MONO};font-size:11px;letter-spacing:2px;color:#D9C3B3;text-transform:uppercase">Interrail a tu medida</td>
       </tr></table>
       <p style="margin:34px 0 10px;font-family:${F_MONO};font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:#FFC53D">— ${esc(c.etiqueta)}</p>
