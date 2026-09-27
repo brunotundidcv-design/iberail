@@ -204,8 +204,8 @@
       const d = read();
       const miss = [...form.querySelectorAll('[required]')].find(i => !i.value.trim());
       if(miss){ err.textContent = 'Rellena todos los datos.'; miss.focus(); return; }
-      const age = edad(d.viajero.nacimiento, c.inicio);
-      if(!menor && age != null && age < 18){ err.textContent = 'En la fecha del viaje todavía serás menor de edad: pide a Iberail por WhatsApp el contrato para menores, que lo firma tu padre, madre o tutor.'; return; }
+      const age = edad(d.viajero.nacimiento);   // cuenta la edad al firmar, no la del viaje
+      if(!menor && age != null && age < 18){ err.textContent = 'Todavía eres menor de edad, así que el contrato lo tiene que firmar tu padre, madre o tutor. Pide a Iberail por WhatsApp el contrato para menores.'; return; }
       if(!pads[0].has()){ err.textContent = 'Falta la firma.'; return; }
       if(!form.querySelector('[data-k="acepto"]').checked){ err.textContent = 'Marca la casilla de aceptación.'; return; }
       const go = form.querySelector('.ct-go'); go.disabled = true; go.textContent = 'Firmando…';

@@ -70,7 +70,7 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   «Condiciones de este grupo» (nº registro, garantía, gastos de cancelación, calendario de pagos; se guardan en el
   navegador) y, por viajero, elegir **Mayor / Menor de edad** → Enviar (crea fila en `contratos` + aviso al viajero).
   En «Mis grupos» (`[data-contrato]`): «Leer y firmar» → datos + firma con el dedo (canvas). Si es menor firma el
-  padre/madre/tutor y el contrato lleva la autorización. Si un «mayor» tendrá <18 en la salida, no le deja firmar.
+  padre/madre/tutor y el contrato lleva la autorización. Si un «mayor» tiene <18 **al firmar**, no le deja (cuenta la edad al firmar, no la del viaje).
   Firma con RPC `firmar_contrato` (solo el propio, solo pendiente). PDF = ventana de impresión. SQL: `supabase/sql/contratos.sql`.
 
 ## Supabase
