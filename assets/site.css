@@ -2944,3 +2944,13 @@ body.al-lock{overflow:hidden}
 .al-form-acts span{flex:1}
 .al-del{color:var(--coral-d)}
 @media (max-width:560px){.al-form-grid{grid-template-columns:1fr}}
+/* panel: paradas de la ruta para rellenar el alojamiento */
+.al-stops{display:grid;gap:8px}
+.al-stops > span{font-size:.78rem;font-weight:600;color:var(--ink-soft)}
+.al-stops > div{display:flex;flex-wrap:wrap;gap:8px}
+.al-stop{display:grid;gap:1px;text-align:left;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;cursor:pointer;transition:border-color .2s,background .2s}
+.al-stop b{font-size:.9rem}
+.al-stop small{font-size:.72rem;color:var(--muted)}
+.al-stop:hover{border-color:var(--coral)}
+.al-stop.is-on{border-color:#C43730;background:#FBEDEB}
+.al-stop.is-done{opacity:.55}

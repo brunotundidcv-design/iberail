@@ -28,6 +28,17 @@
   const flong = iso => { if(!iso) return ''; const t = new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }); return t.charAt(0).toUpperCase() + t.slice(1); };
   const noches = a => a.entrada && a.salida ? Math.max(0, Math.round((new Date(a.salida) - new Date(a.entrada)) / 864e5)) : 0;
   const plural = (n, a, b) => n === 1 ? a : b;
+  const isoAdd = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const paradas = {};          // grupo → paradas de su ruta con fechas (panel)
+  async function loadStops(gid){
+    if(paradas[gid]) return paradas[gid];
+    const { data } = await IB.sb.from('rutas').select('fecha_salida, paradas, created_at').eq('grupo_id', Number(gid)).order('created_at', { ascending: false }).limit(1);
+    const r = (data || [])[0];
+    let cur = r && r.fecha_salida;
+    // cada parada empieza el día que se deja la anterior; «días» = noches en esa ciudad
+    paradas[gid] = r ? (r.paradas || []).filter(x => x && x.ciudad).map(x => { const d = Math.max(0, parseInt(x.dias, 10) || 0), a = cur; if(cur) cur = isoAdd(cur, d); return { ciudad: x.ciudad, entrada: a || '', salida: a ? cur : '', noches: d }; }) : [];
+    return paradas[gid];
+  }
   const byDate = (a, b) => String(a.entrada || '9').localeCompare(String(b.entrada || '9')) || a.id - b.id;
 
   async function load(gid, force){
@@ -153,7 +164,11 @@
   }
   function formHtml(gid, e){
     const v = e.v, f = (k, label, type = 'text', extra = '') => `<label class="al-f"><span>${label}</span><input data-al-k="${k}" type="${type}" value="${esc(v[k] || '')}" ${extra}></label>`;
+    const hechas = new Set((cache[gid] || []).filter(a => a.id !== e.id).map(a => String(a.ciudad).toLowerCase()));
+    const st = paradas[gid] || [];
+    const chips = st.length ? `<div class="al-stops"><span>Elige la parada de la ruta y se rellena sola:</span><div>${st.map((x, i) => `<button type="button" class="al-stop${String(v.ciudad).toLowerCase() === String(x.ciudad).toLowerCase() ? ' is-on' : ''}${hechas.has(String(x.ciudad).toLowerCase()) ? ' is-done' : ''}" data-al-stop="${i}"><b>${esc(x.ciudad)}</b><small>${x.entrada ? `${esc(fd(x.entrada))} → ${esc(fd(x.salida))}` : `${x.noches} ${plural(x.noches, 'noche', 'noches')}`}${hechas.has(String(x.ciudad).toLowerCase()) ? ' · ya añadido' : ''}</small></button>`).join('')}</div></div>` : '';
     return `<div class="al-form" data-al-form="${esc(gid)}">
+      ${chips}
       <div class="al-form-grid">
         ${f('ciudad', 'Ciudad *', 'text', 'list="admCities" placeholder="Split" required')}
         ${f('nombre', 'Nombre', 'text', 'placeholder="Apartamento junto al Palacio de Diocleciano"')}
@@ -283,14 +298,16 @@
       const nv = t.closest('[data-al-nav]'); if(nv && lb._step) return lb._step(Number(nv.dataset.alNav));
       const go = t.closest('[data-al-go]'); if(go && lb._go) return lb._go(Number(go.dataset.alGo));
     }
-    const nw = t.closest('[data-al-new]'); if(nw){ edit[nw.dataset.alNew] = blank(); return paintAdmin(nw.dataset.alNew); }
+    const nw = t.closest('[data-al-new]'); if(nw){ const g = nw.dataset.alNew; edit[g] = blank(); paintAdmin(g); loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); return; }
     const ed = t.closest('[data-al-edit]'); if(ed){
       const [g, id] = ed.dataset.alEdit.split(':'), a = (cache[g] || []).find(x => String(x.id) === id);
-      if(a){ edit[g] = { id: a.id, v: { ciudad: a.ciudad || '', nombre: a.nombre || '', enlace: a.enlace || '', direccion: a.direccion || '', entrada: a.entrada || '', salida: a.salida || '', notas: a.notas || '' }, fotos: (a.fotos || []).slice(), subiendo: 0, open: true, err: '' }; paintAdmin(g); }
+      if(a){ loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); edit[g] = { id: a.id, v: { ciudad: a.ciudad || '', nombre: a.nombre || '', enlace: a.enlace || '', direccion: a.direccion || '', entrada: a.entrada || '', salida: a.salida || '', notas: a.notas || '' }, fotos: (a.fotos || []).slice(), subiendo: 0, open: true, err: '' }; paintAdmin(g); }
       return;
     }
     const form = t.closest('[data-al-form]'), g = form && form.dataset.alForm;
     if(!g || !edit[g]) return;
+    const sp = t.closest('[data-al-stop]');
+    if(sp){ const x = (paradas[g] || [])[Number(sp.dataset.alStop)]; if(x){ Object.assign(edit[g].v, { ciudad: x.ciudad, entrada: x.entrada || edit[g].v.entrada, salida: x.salida || edit[g].v.salida }); edit[g].err = ''; paintAdmin(g); } return; }
     if(t.closest('[data-al-drop]')) return form.querySelector('[data-al-file]').click();
     const rm = t.closest('[data-al-rm]'); if(rm){ edit[g].fotos.splice(Number(rm.dataset.alRm), 1); return paintAdmin(g); }
     const fi = t.closest('[data-al-first]'); if(fi){ const f = edit[g].fotos; f.unshift(f.splice(Number(fi.dataset.alFirst), 1)[0]); return paintAdmin(g); }
