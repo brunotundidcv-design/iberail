@@ -134,7 +134,10 @@
   /* ======================= «Mis grupos»: tarjeta del contrato ======================= */
   const mine = {};
   async function loadMine(gid){
-    const { data, error } = await IB.sb.from('contratos').select('*').eq('grupo_id', Number(gid)).neq('estado', 'anulado').order('enviado_at', { ascending: false }).limit(1);
+    // solo el mío: el equipo (is_admin) ve los contratos de todos y cogería el de otro viajero
+    const { data: s } = await IB.sb.auth.getSession(), uid = s && s.session && s.session.user ? s.session.user.id : null;
+    if(!uid){ mine[gid] = null; return null; }
+    const { data, error } = await IB.sb.from('contratos').select('*').eq('grupo_id', Number(gid)).eq('user_id', uid).neq('estado', 'anulado').order('enviado_at', { ascending: false }).limit(1);
     mine[gid] = error ? null : (data || [])[0] || null;
     return mine[gid];
   }
