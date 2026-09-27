@@ -424,6 +424,7 @@
         ${prev ? '' : payBox(g)}
         ${teamBox(g)}
         ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>Estamos preparando vuestra ruta</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
+        <div class="al-slot" data-aloj="${esc(g.id)}"></div>
         ${avs.length ? `<div class="gx-avisos"><div class="gx-sec-h"><span class="gx-ic">${I_BELL}</span><b>Avisos del grupo</b></div>${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : ''}
         ${docs.length ? `<div class="gx-docs">${docsBlock(docs, V.urls, true)}</div>` : `<div class="gx-card gx-soon"><span class="gx-ic">${I_PLANE}</span><div><b>Billetes y documentos</b><p>Aún no hay nada subido. Os avisamos en cuanto estén.</p></div></div>`}
       </div>

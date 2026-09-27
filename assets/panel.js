@@ -1153,6 +1153,7 @@
         ${avisosHtml(avisos.filter(a => String(a.grupo_id) === String(g.id)), `data-new-aviso-group="${esc(g.id)}"`, 'Nuevo aviso al grupo')}
       </section>
       <section class="adm-docs" data-docs="g:${esc(g.id)}">${docsHtml('g:' + g.id, g)}</section>
+      <section class="adm-docs al-adm" data-aloj-admin="${esc(g.id)}"></section>
       <div class="adm-p-danger"><button type="button" class="pl-link dash-del" data-del-group>Eliminar grupo (y su ruta y documentos)</button></div>`;
   }
   function paintCands(){
