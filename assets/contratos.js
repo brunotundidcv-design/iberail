@@ -9,9 +9,9 @@
   if(!IB) return;
   const esc = IB.esc;
   const VERSION = '2026-09';
-  const AGENCIA = { nombre: 'Bruno Tundidor (nombre comercial IBERAIL)', nif: '54214650Q', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
+  const AGENCIA = { nombre: 'Iberail', nif: '54214650Q', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
   const COND_DEF = {
-    registro: '', garantia: '', gastos: '50',
+    gastos: '50',
     vuelos: 'Vuelos de ida y vuelta desde España, con equipaje de mano y maleta facturada de 23 kg',
     pase: 'Pase Interrail Global en 2.ª clase, válido en los trenes incluidos en el pase',
     otros: 'Trayectos en autobús o ferri indicados en la ruta',
@@ -58,9 +58,8 @@
       <p class="ct-kicker">Contrato de viaje combinado</p>
       <p class="ct-sub">Grupo <b>${hueco(c.grupo)}</b>${c.ref ? ` · Ref. ${esc(c.ref)}` : ''}</p>
       ${S(1, 'Las partes')}
-      <p><b>Organizador y minorista:</b> ${esc(AGENCIA.nombre)}, con NIF ${AGENCIA.nif} y domicilio en ${esc(AGENCIA.domicilio)}. Teléfono y WhatsApp: ${AGENCIA.tel}. Correo: ${AGENCIA.email}. Web: ${AGENCIA.web} (en adelante, «Iberail»).</p>
-      <p><b>Registro como agencia de viajes:</b> ${hueco(cd.registro)}. <b>Garantía de insolvencia:</b> ${hueco(cd.garantia, 24)}.</p>
-      <p><b>Viajero/a:</b> ${hueco(v.nombre, 24)}, con DNI/pasaporte ${hueco(v.dni)}, nacido/a el ${hueco(v.nacimiento ? fd(v.nacimiento) : '')}, con domicilio en ${hueco(v.domicilio, 24)}${menor ? '' : `, teléfono ${hueco(v.telefono)} y correo ${hueco(v.email)}`}.</p>
+      <p><b>De una parte, IBERAIL</b>, con NIF ${AGENCIA.nif} y domicilio en ${esc(AGENCIA.domicilio)}. Teléfono y WhatsApp: ${AGENCIA.tel}. Correo: ${AGENCIA.email}. Web: ${AGENCIA.web} (en adelante, «Iberail»).</p>
+      <p><b>Y de otra parte, el/la viajero/a:</b> ${hueco(v.nombre, 24)}, con DNI/pasaporte ${hueco(v.dni)}, nacido/a el ${hueco(v.nacimiento ? fd(v.nacimiento) : '')}, con domicilio en ${hueco(v.domicilio, 24)}${menor ? '' : `, teléfono ${hueco(v.telefono)} y correo ${hueco(v.email)}`}.</p>
       ${menor ? `<p><b>Al ser menor de edad, contrata en su nombre su representante legal:</b> ${hueco(tu.nombre, 24)}, con DNI ${hueco(tu.dni)}, en calidad de ${hueco(tu.relacion)}, teléfono ${hueco(tu.telefono)} y correo ${hueco(tu.email)}.</p>` : ''}
       ${S(2, 'Objeto del contrato')}
       <p>Iberail organiza y el Viajero contrata un viaje combinado por Europa en tren dentro del grupo indicado, con las características de este contrato y de la ficha del grupo en iberail.com («Mis grupos»), que forma parte de él.</p>
@@ -102,20 +101,19 @@
       ${menor ? `${S(12, 'Autorización del padre, madre o tutor')}
       <p>Yo, ${hueco(tu.nombre, 24)}, con DNI ${hueco(tu.dni)}, como ${hueco(tu.relacion)} de ${hueco(v.nombre, 24)}, <b>autorizo</b> a que realice este viaje con el grupo «${hueco(c.grupo)}» en las fechas indicadas, a que se aloje con el resto del grupo en los alojamientos contratados y a desplazarse con él en los transportes incluidos, y asumo en su nombre las obligaciones de este contrato. Me comprometo a tramitar la autorización oficial de viaje al extranjero en la Policía Nacional o la Guardia Civil.</p>` : ''}
       <h3 class="ct-annex">Anexo · Formulario de información normalizada</h3>
-      <p>La combinación de servicios de viaje que se le ofrece es un viaje combinado en el sentido de la Directiva (UE) 2015/2302, por lo que se beneficiará de todos los derechos de la UE que se aplican a los viajes combinados. Iberail será plenamente responsable de la correcta ejecución del viaje combinado en su conjunto. Además, como exige la legislación, Iberail está cubierta por una protección para devolver sus pagos y, si el transporte está incluido, garantizar su repatriación en caso de insolvencia.</p>
+      <p>La combinación de servicios de viaje que se le ofrece es un viaje combinado en el sentido de la Directiva (UE) 2015/2302, por lo que se beneficiará de todos los derechos de la UE que se aplican a los viajes combinados. Iberail será plenamente responsable de la correcta ejecución del viaje combinado en su conjunto.</p>
       <ul class="ct-small">
         <li>Recibirá toda la información esencial sobre el viaje combinado antes de celebrar el contrato.</li>
         <li>Siempre habrá como mínimo un empresario responsable de la correcta ejecución de todos los servicios de viaje incluidos en el contrato.</li>
-        <li>Tendrá un número de teléfono de emergencia o un punto de contacto con el organizador.</li>
+        <li>Tendrá un número de teléfono de emergencia o un punto de contacto con Iberail.</li>
         <li>Podrá ceder el viaje combinado a otra persona, con un preaviso razonable y, en su caso, con costes adicionales.</li>
         <li>El precio solo podrá aumentarse si se producen gastos específicos previstos en el contrato y, en todo caso, a más tardar veinte días antes del inicio del viaje; si el aumento excede del 8 %, podrá poner fin al contrato. En este contrato el precio es cerrado.</li>
-        <li>Podrá poner fin al contrato sin penalización y con reembolso completo si se modifica significativamente alguno de los elementos esenciales, salvo el precio. Si el organizador cancela antes del inicio, tendrá derecho al reembolso y, cuando proceda, a una indemnización.</li>
+        <li>Podrá poner fin al contrato sin penalización y con reembolso completo si se modifica significativamente alguno de los elementos esenciales, salvo el precio. Si Iberail cancela antes del inicio, tendrá derecho al reembolso y, cuando proceda, a una indemnización.</li>
         <li>En circunstancias excepcionales, como graves problemas de seguridad en el destino, podrá poner fin al contrato sin penalización antes del inicio del viaje.</li>
         <li>Podrá poner fin al contrato en cualquier momento antes del inicio del viaje mediante el pago de una penalización adecuada y justificable.</li>
-        <li>Si, tras el inicio del viaje, no pueden prestarse elementos significativos, deberán ofrecerse alternativas adecuadas sin coste adicional; podrá poner fin al contrato sin penalización si los servicios no se ejecutan conforme al contrato, esto afecta sustancialmente al viaje y el organizador no lo soluciona.</li>
+        <li>Si, tras el inicio del viaje, no pueden prestarse elementos significativos, deberán ofrecerse alternativas adecuadas sin coste adicional; podrá poner fin al contrato sin penalización si los servicios no se ejecutan conforme al contrato, esto afecta sustancialmente al viaje y Iberail no lo soluciona.</li>
         <li>Tendrá derecho a una reducción del precio o a una indemnización por daños y perjuicios en caso de no ejecución o ejecución incorrecta de los servicios.</li>
-        <li>El organizador deberá proporcionar asistencia si se encuentra en dificultades.</li>
-        <li>Si el organizador incurre en insolvencia, se reembolsarán los pagos y, si incluye el transporte y ya ha comenzado el viaje, se garantizará la repatriación. Entidad garante: ${hueco(cd.garantia, 24)}.</li>
+        <li>Iberail deberá proporcionar asistencia si se encuentra en dificultades.</li>
       </ul>
     </div>`;
   }
@@ -235,7 +233,7 @@
       <div class="top"><img src="${location.origin}/assets/img/logo.png" alt=""><b>ibe<i>rail</i></b></div>
       ${texto(c, d)}
       <div class="sig">
-        <div><small>Por Iberail</small><b>Bruno Tundidor</b><small>Organizador</small></div>
+        <div><small>Por Iberail</small><b>IBERAIL</b><small>NIF ${AGENCIA.nif}</small></div>
         <div><small>${menor ? 'Padre, madre o tutor' : 'El Viajero'}</small>${row.firma ? `<img src="${row.firma}" alt="Firma">` : ''}<b>${esc(menor ? (d.tutor || {}).nombre || '' : (d.viajero || {}).nombre || '')}</b><small>DNI ${esc(menor ? (d.tutor || {}).dni || '' : (d.viajero || {}).dni || '')}</small></div>
         ${menor && row.firma_menor ? `<div><small>El menor</small><img src="${row.firma_menor}" alt="Firma del menor"><b>${esc((d.viajero || {}).nombre || '')}</b></div>` : ''}
       </div>
@@ -275,8 +273,6 @@
     return head + `
       <details class="ct-cond"${a.abierto ? ' open' : ''}><summary>Condiciones de este grupo <small>(se ponen en el contrato al enviarlo)</small></summary>
         <div class="ct-cond-grid" data-ct-cond="${esc(gid)}">
-          <label>Nº de registro de agencia<input data-c="registro" value="${esc(cd.registro)}" placeholder="Ej.: CICMA 1234"></label>
-          <label>Garantía de insolvencia (entidad y nº)<input data-c="garantia" value="${esc(cd.garantia)}" placeholder="Ej.: Aseguradora X, póliza 123"></label>
           <label>Gastos de gestión si cancelan (€)<input data-c="gastos" type="number" min="0" value="${esc(cd.gastos)}"></label>
           <label>Vuelos<input data-c="vuelos" value="${esc(cd.vuelos)}"></label>
           <label>Pase Interrail<input data-c="pase" value="${esc(cd.pase)}"></label>
