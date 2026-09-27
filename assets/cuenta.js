@@ -374,7 +374,7 @@
     const tag = MODE === 'grupos' ? 'div' : 'button';
     return `<${tag}${tag === 'button' ? ` type="button" data-goto-route="${esc(r.id)}"` : ''} class="gx-card gx-route">
       <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>Vuestra ruta</b><em class="gx-pill">${esc(st[0])}</em></div>
-      <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'día', 'días')}`}</small></li>`).join('')}</ol>
+      <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}</p>
     </${tag}>`;
   }
@@ -384,7 +384,7 @@
     const stops = [{ c: cityName(r.salida), d: '' }].concat((r.paradas || []).map(p => ({ c: cityName(p.ciudad), d: p.dias })));
     return `<div class="gx-card gx-route gx-map-card">
       <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>Vuestra ruta</b><em class="gx-pill">${esc(st[0])}</em></div>
-      <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'día', 'días')}`}</small></li>`).join('')}</ol>
+      <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
       ${window.IBGroupMap ? IBGroupMap.button(r) : ''}
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}${MODE === 'grupos' || r.grupo_id ? '' : ` · <button type="button" class="pl-link" data-goto-route="${esc(r.id)}">Ver la ficha</button>`}</p>
     </div>`;
