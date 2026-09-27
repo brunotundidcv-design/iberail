@@ -1201,6 +1201,8 @@
   /* ---------- nueva ruta (para un cliente o un grupo) ---------- */
   // solicitudes que han llegado de clientes (web o WhatsApp) y se pueden asignar
   const solicitudes = () => rows.filter(r => !r.creada_por_equipo && r.estado !== 'descartada' && (r.paradas || []).length);
+  // rutas de otros grupos, para usarlas de plantilla (se copian: al otro grupo no se le toca)
+  const rutasGrupos = () => rows.filter(r => r.grupo_id && (r.paradas || []).length && !(nf && nf.para === 'grupo' && String(r.grupo_id) === String(nf.gid)) && !solicitudes().includes(r));
   const chainOf = r => [r.salida].concat((r.paradas || []).map(p => p.ciudad)).filter(Boolean).join(' → ');
   const srcLabel = r => `${r.ref} · ${r.nombre} · ${chainOf(r)} · ${r.viajeros} pax${r.fecha_salida ? ' · ' + fdate(r.fecha_salida) : ''}`;
   const groupOfUser = uid => uid ? groups.find(g => members.some(m => String(m.grupo_id) === String(g.id) && m.user_id === uid)) : null;
@@ -1245,7 +1247,9 @@
   }
   // una solicitud se asigna tal cual (la misma ruta, sin copias) si va a su grupo o a la misma persona
   const srcRow = () => nf && nf.src ? rows.find(r => String(r.id) === String(nf.src)) : null;
-  const reuseSrc = () => { const s = srcRow(); return !!s && (nf.para === 'grupo' || (s.user_id && s.user_id === nf.uid)); };
+  const reuseSrc = () => { const s = srcRow(); if(!s) return false;
+    if(s.grupo_id && !(nf.para === 'grupo' && String(s.grupo_id) === String(nf.gid))) return false;   // es de otro grupo → se copia
+    return nf.para === 'grupo' ? !s.creada_por_equipo : !!(s.user_id && s.user_id === nf.uid); };
 
   function stopDates(i, it){
     if(!it) return '<small class="adm-stop-dates is-empty">Pon la fecha de salida y te calculo los días</small>';
@@ -1320,11 +1324,12 @@
   function srcHtml(){
     const s = srcRow();
     if(s) return `<div class="adm-src is-set">${I_ROUTE_S}<span><b>${esc(s.ref)} · ${esc(s.nombre)}</b><small>${esc(chainOf(s))} · ${esc(s.viajeros)} pax${s.fecha_salida ? ' · ' + esc(fdate(s.fecha_salida)) : ''}</small></span><button type="button" class="pl-link" data-unsrc>Quitar</button></div>
-      <p class="adm-hint">${reuseSrc() ? (nf.para === 'grupo' ? 'Se asigna esta misma solicitud al grupo: la verán todos y a quien la pidió no le sale repetida. Puedes cambiar paradas, días y fecha antes de guardar.' : 'Se actualiza esta misma solicitud en su perfil (sin copias).') : 'Se crea una ruta nueva para este cliente con los datos de la solicitud.'}</p>`;
-    const cand = srcCandidates(), all = solicitudes();
-    if(!all.length) return '<p class="adm-hint">No hay solicitudes de clientes. Rellena la ruta abajo.</p>';
+      <p class="adm-hint">${reuseSrc() ? (nf.para === 'grupo' ? 'Se asigna esta misma solicitud al grupo: la verán todos y a quien la pidió no le sale repetida. Puedes cambiar paradas, días y fecha antes de guardar.' : 'Se actualiza esta misma solicitud en su perfil (sin copias).') : s.grupo_id && !(nf.para === 'grupo' && String(s.grupo_id) === String(nf.gid)) ? `Se copia la ruta del grupo «${esc((groupById(s.grupo_id) || {}).nombre || s.nombre)}». A ellos no les cambia nada; aquí puedes ajustar paradas, días y fecha antes de guardar.` : 'Se crea una ruta nueva para este cliente con los datos de la solicitud.'}</p>`;
+    const cand = srcCandidates(), all = solicitudes(), gr = rutasGrupos();
+    if(!all.length && !gr.length) return '<p class="adm-hint">No hay solicitudes de clientes. Rellena la ruta abajo.</p>';
+    const gName = r => (groupById(r.grupo_id) || {}).nombre || r.nombre;
     return `${cand.length ? `<div class="adm-src-cands">${cand.map(r => `<button type="button" class="adm-cand" data-src="${esc(r.id)}">${I_ROUTE_S}<span class="adm-cli-who"><b>${esc(r.ref)} · ${esc(r.nombre)}</b><small>${esc(chainOf(r))} · ${esc(r.viajeros)} pax</small></span>${I_PLUS}</button>`).join('')}</div>` : ''}
-      <select class="adm-select adm-f-wide" id="nfSrc" aria-label="Partir de una solicitud"><option value="">${cand.length ? 'U otra solicitud…' : 'Elige una solicitud para no escribir nada…'}</option>${all.map(r => `<option value="${esc(r.id)}">${esc(srcLabel(r))}</option>`).join('')}</select>`;
+      <select class="adm-select adm-f-wide" id="nfSrc" aria-label="Partir de una solicitud"><option value="">${cand.length ? 'U otra solicitud o ruta…' : 'Elige una solicitud o la ruta de otro grupo…'}</option>${all.length ? `<optgroup label="Solicitudes de clientes">${all.map(r => `<option value="${esc(r.id)}">${esc(srcLabel(r))}</option>`).join('')}</optgroup>` : ''}${gr.length ? `<optgroup label="Rutas de otros grupos (se copia, al otro grupo no le cambia nada)">${gr.map(r => `<option value="${esc(r.id)}">${esc(`${gName(r)} · ${chainOf(r)}${r.fecha_salida ? ' · ' + fdate(r.fecha_salida) : ''}`)}</option>`).join('')}</optgroup>` : ''}</select>`;
   }
   function paintNew(p){
     // si los clientes aún se estaban cargando al abrir, se elige ahora
