@@ -360,7 +360,7 @@
   }
   function avisoItem(a, compact, preview){
     const seen = preview || V.read.has(String(a.id));
-    const from = a.para_todos ? 'Iberail' : a.user_id && !a.grupo_id && !a.ruta_id ? 'Invita y gana' : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `Ruta ${r.ref}` : 'Tu ruta'; })();
+    const from = a.para_todos ? 'Iberail' : a.user_id && !a.grupo_id && !a.ruta_id ? (/contrato/i.test(a.titulo || '') ? 'Iberail' : 'Invita y gana') : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `Ruta ${r.ref}` : 'Tu ruta'; })();
     return `<article class="aviso${a.importante ? ' is-imp' : ''}${seen ? ' is-seen' : ''}" data-aviso="${esc(a.id)}">
       <div class="aviso-top">${compact ? '' : `<span>${I_BELL}${esc(from)}</span>`}<small>${esc(ago(a.created_at))}</small></div>
       <h4>${a.importante ? '<em>Importante</em>' : ''}${esc(a.titulo)}</h4>
@@ -424,6 +424,7 @@
       </header>
       <div class="gx-body">
         ${vipBar}
+        ${prev ? '' : `<div class="ct-slot" data-contrato="${esc(g.id)}"></div>`}
         ${prev ? '' : payBox(g)}
         ${teamBox(g)}
         ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>Estamos preparando vuestra ruta</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}

@@ -1155,6 +1155,7 @@
       </section>
       <section class="adm-docs" data-docs="g:${esc(g.id)}">${docsHtml('g:' + g.id, g)}</section>
       <section class="adm-docs al-adm" data-aloj-admin="${esc(g.id)}"></section>
+      <section class="adm-docs ct-adm" data-contratos-admin="${esc(g.id)}"></section>
       <div class="adm-p-danger"><button type="button" class="pl-link dash-del" data-del-group>Eliminar grupo (y su ruta y documentos)</button></div>`;
   }
   function paintCands(){

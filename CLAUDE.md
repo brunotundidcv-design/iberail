@@ -66,6 +66,13 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   y `dias` de las rutas del grupo. Paradas sin alojamiento: solo se quedan si caben en un hueco de fechas.
   Se ejecuta al abrir el panel (todos los grupos), al abrir un grupo y al guardar/borrar un alojamiento.
 
+- `contratos.js` — contratos de viaje firmados en la web. En el panel (`[data-contratos-admin]`, en cada grupo):
+  «Condiciones de este grupo» (nº registro, garantía, gastos de cancelación, calendario de pagos; se guardan en el
+  navegador) y, por viajero, elegir **Mayor / Menor de edad** → Enviar (crea fila en `contratos` + aviso al viajero).
+  En «Mis grupos» (`[data-contrato]`): «Leer y firmar» → datos + firma con el dedo (canvas). Si es menor firma el
+  padre/madre/tutor y el contrato lleva la autorización. Si un «mayor» tendrá <18 en la salida, no le deja firmar.
+  Firma con RPC `firmar_contrato` (solo el propio, solo pendiente). PDF = ventana de impresión. SQL: `supabase/sql/contratos.sql`.
+
 ## Supabase
 
 Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `avisos`, `avisos_leidos`,
@@ -73,7 +80,7 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
-Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`; columna `pagos.stripe_session`; bucket `alojamientos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`); columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)
