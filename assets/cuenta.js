@@ -306,6 +306,7 @@
   const AV_COLORS = ['#F0532F', '#FFC53D', '#8FB8A8', '#C9A2F2', '#7FB3E8', '#F29E7F', '#B7D36B'];
   const avColor = s => { let h = 0; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; };
   const daysTo = iso => Math.round((new Date(iso + 'T12:00:00') - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
+  const PART_MIN = 20;   // pago a cuenta mínimo (Stripe cobra 0,25 € fijos por pago)
   function payBox(g){
     if(!V.v7) return '';
     const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
@@ -327,7 +328,7 @@
         ${list.length ? `<details class="gx-log"><summary>${list.length} ${plural(list.length, 'pago', 'pagos')}</summary><ul>${list.map(p => `<li><span>${esc(fshort(p.fecha))}</span><b>${eur(p.importe)}</b>${p.nota ? `<em>${esc(p.nota)}</em>` : ''}</li>`).join('')}</ul></details>` : ''}
       </div>
       ${!done ? (IB.cfg && IB.cfg.STRIPE_ON && falta > 0
-        ? `<button type="button" class="gx-pay-cta" data-stripe-group="${esc(g.id)}">Pagar ${eur(falta)}</button>`
+        ? `<div class="gx-pay-acts"><button type="button" class="gx-pay-cta" data-stripe-group="${esc(g.id)}">Pagar ${eur(falta)}</button>${falta > 2 * PART_MIN ? `<button type="button" class="gx-pay-part" data-pay-part="${esc(g.id)}" data-max="${falta}">Pagar una parte</button>` : ''}</div>`
         : `<a class="gx-pay-cta" href="${esc(IB.wa(`Hola Iberail, soy de «${g.nombre}». ¿Cómo os pago lo que me falta (${eur(falta)})?`))}" target="_blank" rel="noopener">¿Cómo pago?</a>`) : ''}
     </div>`;
   }

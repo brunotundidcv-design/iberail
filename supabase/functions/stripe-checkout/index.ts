@@ -61,7 +61,8 @@ async function pagar(req: Request) {
   let euros = falta;
   if (body.importe != null) {
     const pedido = Math.round(Number(body.importe) * 100) / 100;
-    if (!(pedido >= 1)) return json({ error: 'El importe mínimo es 1 €.' }, 400);
+    // pago a cuenta: mínimo 20 € (cada pago lleva 0,25 € fijos de Stripe), salvo que sea lo último que queda
+    if (!(pedido >= Math.min(20, falta))) return json({ error: 'El pago mínimo es de 20 €.' }, 400);
     euros = Math.min(pedido, falta);
   }
   const cents = Math.round(euros * 100);

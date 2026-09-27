@@ -2784,3 +2784,46 @@ html.gmx-lock,html.gmx-lock body{overflow:hidden}
 .pay-note span{grid-column:1;font-size:.88rem;color:var(--on-dark-soft)}
 .pay-note button{grid-column:2;grid-row:1/3;background:none;border:0;color:var(--cream);font-size:1.4rem;line-height:1;cursor:pointer;padding:2px 4px}
 .gx-pay-cta[disabled]{opacity:.7;cursor:wait;transform:none}
+/* pagar todo o una parte */
+.gx-pay-acts{display:flex;flex-direction:column;align-items:stretch;gap:6px;align-self:center;flex-shrink:0}
+.gx-pay-part{background:none;border:0;padding:4px 6px;font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.gx-pay-part:hover,.gx-pay-part[aria-expanded="true"]{color:var(--coral)}
+.gx-pay-partbox{flex:1 1 100%;display:grid;gap:12px;margin-top:4px;padding:16px;border-radius:var(--r);background:var(--cream);border:1px dashed var(--line)}
+.gx-pay-partbox label{display:grid;gap:8px;font-size:.86rem;font-weight:600}
+.gx-pay-in{display:flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:0 14px;max-width:220px}
+.gx-pay-in:focus-within{border-color:var(--coral)}
+.gx-pay-in input{flex:1;min-width:0;border:0;background:none;padding:12px 0;font-family:var(--display);font-size:1.4rem;font-weight:700;outline:none}
+.gx-pay-in em{font-style:normal;font-weight:700;color:var(--muted)}
+.gx-pay-chips{display:flex;flex-wrap:wrap;gap:8px}
+.gx-pay-chips button{border:1px solid var(--line);background:var(--paper);border-radius:99px;padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer}
+.gx-pay-chips button:hover{border-color:var(--coral);color:var(--coral)}
+.gx-pay-partbox .gx-pay-cta{justify-self:start}
+.gx-pay-partbox small{color:var(--muted);font-size:.76rem}
+.gx-pay{flex-wrap:wrap}
+
+/* panel · correos */
+.cor-h{font-size:1.15rem;margin:26px 0 12px}
+.cor-auto{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.cor-auto-i{display:grid;gap:4px;text-align:left;padding:16px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line);cursor:pointer;transition:border-color .2s,transform .2s var(--ease)}
+.cor-auto-i:hover{border-color:var(--coral);transform:translateY(-2px)}
+.cor-auto-i span{font-size:.84rem;color:var(--muted);line-height:1.45}
+.cor-auto-i em{font-style:normal;font-size:.8rem;font-weight:700;color:var(--coral);margin-top:4px}
+.cor-camp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;align-items:start}
+.cor-form{display:grid;gap:12px;padding:18px;border-radius:var(--r-lg);background:var(--paper);border:1px solid var(--line)}
+.cor-form label{display:grid;gap:6px;font-size:.82rem;font-weight:600;color:var(--ink-soft)}
+.cor-form input,.cor-form textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;font-size:.95rem;resize:vertical}
+.cor-form input:focus,.cor-form textarea:focus{outline:none;border-color:var(--coral)}
+.cor-row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.cor-aud{margin:0;padding:10px 12px;border-radius:12px;background:var(--cream);font-size:.88rem}
+.cor-acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.cor-status{margin:0;font-size:.86rem;color:#2E7D55;min-height:1.2em}
+.cor-status.is-bad{color:var(--coral-d)}
+.cor-prev{position:sticky;top:90px;display:grid;gap:8px}
+.cor-prev span{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cor-prev iframe,.cor-modal iframe{width:100%;height:720px;border:0;border-radius:var(--r-lg);background:var(--cream);box-shadow:var(--shadow-sm)}
+.cor-modal{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:16px;background:rgba(31,18,14,.55)}
+.cor-modal-in{width:min(680px,100%);max-height:100%;display:grid;grid-template-rows:auto 1fr;gap:10px;background:var(--cream);border-radius:var(--r-lg);padding:14px}
+.cor-modal-h{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.9rem}
+.cor-modal-h button{border:0;background:var(--paper);width:34px;height:34px;border-radius:50%;font-size:1.3rem;cursor:pointer}
+.cor-modal iframe{height:min(78vh,760px)}
+@media (max-width:900px){.cor-camp{grid-template-columns:1fr}.cor-prev{position:static}.cor-row{grid-template-columns:1fr}}

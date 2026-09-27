@@ -43,6 +43,8 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 - `notif.js` — campana de notificaciones.
 - `payment.js` — pago con tarjeta (Stripe Checkout): llama a `stripe-checkout` con la sesión y redirige a Stripe.
   Se activa con `STRIPE_ON: true` en `config.js`. Al volver (`grupos.html?pago=ok|cancelado`) muestra un aviso.
+  «Pagar una parte» (mínimo 20 €). Enlace desde los correos: `grupos.html?pagar=ID` (`&parte=1` abre el pago parcial).
+- `correos-panel.js` — pestaña «Correos» del panel: ver los correos automáticos y mandar campañas.
 
 ## Supabase
 
@@ -50,7 +52,8 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 `pagos`, `comisiones`, `referidos`, `rrpp_codigos`, `wa_config`, `wa_chats`, `wa_mensajes`.
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
-Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`.
+Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`; columna `pagos.stripe_session`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)
@@ -61,6 +64,17 @@ El esquema SQL / políticas RLS **no están en el repo**.
   (una vez por sesión: columna `stripe_session` única, ver `supabase/sql/stripe.sql`).
 - Secretos: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `SITE_URL` (opcional, por defecto https://iberail.com).
 - Ambas se despliegan con `--no-verify-jwt`.
+
+### Correos (`supabase/functions/correos` + Resend)
+
+- Plantilla HTML con la estética de la web (granate, coral, ámbar, billete). Remitente `CORREOS_FROM`.
+- Seguimiento (a todos): ruta recibida, presupuesto listo, bienvenida al grupo, precio con botón de pago,
+  pago recibido; y con el cron diario: cuenta atrás (30/7/1 días) y recordatorio de pago los lunes.
+  Los disparan triggers de `supabase/sql/correos.sql` (pg_net) con la cabecera `x-iberail-key` = `CORREOS_KEY`.
+- Publicidad: campañas desde el panel solo a `rutas.acepta_publicidad = true` menos `bajas_publicidad`.
+  Cada correo lleva enlace de baja firmado (HMAC) y cabecera List-Unsubscribe.
+- Nunca se repite un correo automático: tabla `correos_enviados` (clave única).
+- Secretos: `RESEND_API_KEY`, `CORREOS_KEY`, `CORREOS_FROM`, `CORREOS_REPLY_TO` (opcionales los dos últimos).
 
 ### Edge function `whatsapp` (`supabase/functions/whatsapp/index.ts`)
 
