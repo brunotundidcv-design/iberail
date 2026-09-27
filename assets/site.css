@@ -2954,3 +2954,6 @@ body.al-lock{overflow:hidden}
 .al-stop:hover{border-color:var(--coral)}
 .al-stop.is-on{border-color:#C43730;background:#FBEDEB}
 .al-stop.is-done{opacity:.55}
+.gx-avisos-old{display:inline-flex;align-items:center;gap:8px;justify-self:start;font-size:.84rem;font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.gx-avisos-old svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
+.gx-avisos-old:hover{color:var(--coral)}

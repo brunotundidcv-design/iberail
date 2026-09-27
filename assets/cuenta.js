@@ -395,7 +395,10 @@
     const prev = !!g._preview;
     const routes = (V.allRoutes || V.routes).filter(r => r.grupo_id === g.id), rids = new Set(routes.map(r => r.id));
     const docs = V.docs.filter(d => d.grupo_id === g.id || rids.has(d.ruta_id)), mates = V.mates[g.id] || [];
-    const avs = (V.allAvisos && V.allAvisos.length ? V.allAvisos : V.avisos).filter(a => String(a.grupo_id) === String(g.id)).slice(0, 3);
+    // en el grupo solo se ven los avisos sin leer; los ya vistos siguen en Mi cuenta → Avisos
+    const allAvs = (V.allAvisos && V.allAvisos.length ? V.allAvisos : V.avisos).filter(a => String(a.grupo_id) === String(g.id));
+    const avs = (prev ? allAvs : allAvs.filter(a => !V.read.has(String(a.id)))).slice(0, 3);
+    const oldAvs = prev ? 0 : allAvs.length - allAvs.filter(a => !V.read.has(String(a.id))).length;
     // cuándo empieza el viaje: la salida de la ruta o, si no, el primer billete con fecha
     const start = (routes.find(r => r.fecha_salida) || {}).fecha_salida || (docs.map(d => d.fecha).filter(Boolean).sort()[0]);
     const left = start ? daysTo(start) : null;
@@ -425,7 +428,7 @@
         ${teamBox(g)}
         ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>Estamos preparando vuestra ruta</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
         <div class="al-slot" data-aloj="${esc(g.id)}"></div>
-        ${avs.length ? `<div class="gx-avisos"><div class="gx-sec-h"><span class="gx-ic">${I_BELL}</span><b>Avisos del grupo</b></div>${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : ''}
+        ${avs.length ? `<div class="gx-avisos"><div class="gx-sec-h"><span class="gx-ic">${I_BELL}</span><b>Avisos del grupo</b></div>${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : ''}${!avs.length && oldAvs ? `<a class="gx-avisos-old" href="cuenta.html#avisos">${I_BELL}Ver avisos anteriores (${oldAvs})</a>` : ''}
         ${docs.length ? `<div class="gx-docs">${docsBlock(docs, V.urls, true)}</div>` : `<div class="gx-card gx-soon"><span class="gx-ic">${I_PLANE}</span><div><b>Billetes y documentos</b><p>Aún no hay nada subido. Os avisamos en cuanto estén.</p></div></div>`}
       </div>
     </section>`;
