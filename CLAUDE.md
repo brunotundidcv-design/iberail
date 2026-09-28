@@ -1,7 +1,8 @@
 # Iberail — notas del proyecto
 
 Web de **Iberail** (iberail.com): agencia española de rutas Interrail a medida, con Split / Ultra Europe
-como parada estrella. Fundador: Bruno Tundidor. Idioma de la web y del trabajo: **español**.
+como parada estrella. Fundador: Bruno Tundidor. **Titular legal** (autónoma, IAE 755 agencias de viajes,
+alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacidad, rutas.html, contrato). Idioma de la web y del trabajo: **español**.
 
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 

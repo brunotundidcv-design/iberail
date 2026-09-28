@@ -9,7 +9,7 @@
   if(!IB) return;
   const esc = IB.esc;
   const VERSION = '2026-09';
-  const AGENCIA = { nombre: 'Iberail', nif: '54214650Q', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
+  const AGENCIA = { nombre: 'Iberail', nif: '54214649S', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
   // qué incluye el grupo (menú del panel). Por defecto, todo.
   const INCLUYE = [
     ['inc_ida', 'Vuelo de ida'], ['inc_vuelta', 'Vuelo de vuelta'], ['inc_maleta', 'Maleta facturada 23 kg'],
