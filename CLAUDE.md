@@ -144,7 +144,11 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 ## Otros proyectos de Bruno (guardados para más adelante)
 
-- ⭐ **ELEGIDO (29/09/2026): «Energía en casa todo en uno»** = placas + baterías + aerotermia + clima + ventanas +
+- ⭐ **NUEVO (29/09/2026): segunda agencia de viajes** con la misma titular (Andrea, IAE 755: mismo alta, REAV,
+  registro y garantía; solo nombre comercial nuevo + marca OEPM + póliza RC que la incluya). Vende **todo menos Interrail**
+  (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. Nombre por decidir
+  (propuestos: Ibevia, Zarpora, Embarcia, Iberumbo, Viajora). Reaprovechar web/panel de Iberail con columna «marca».
+- (descartado 29/09 por saturado) **«Energía en casa todo en uno»** — nombre propuesto Solneda (solneda.es/.com libres) — = placas + baterías + aerotermia + clima + ventanas +
   cargadores + certificados + subvenciones. Modelo: captar y gestionar; la instalación la hacen instaladores subcontratados.
 
 - **Autoescuela en Madrid** (guardada el 29/09/2026). Idea: autoescuela más barata y rápida, con el teórico online
