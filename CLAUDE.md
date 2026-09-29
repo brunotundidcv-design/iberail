@@ -82,8 +82,8 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). Panel (`[data-seguro-admin]` en cada grupo): activar oferta, plan completo/básico, cancelación, precio,
   fecha límite, aseguradora; por viajero: Añadir / nº póliza → Contratado / Anular (RPC `anular_seguro` resta el precio).
-  «Mis grupos» (`[data-seguro]`): tarjeta con coberturas y «Añadir a mi viaje» → RPC `pedir_seguro` (suma el precio a
-  `grupo_miembros.importe`, así se paga con «Pagar»). Coberturas en `PLANES` (Totaltravel / Totaltravel mini de
+  «Mis grupos» (`[data-seguro]`): tarjeta con coberturas y «Contratar y pagar» → RPC `pedir_seguro` (suma el precio a
+  `grupo_miembros.importe`) y abre Stripe por ese importe con `IBPay.start` (expuesto en payment.js). Coberturas en `PLANES` (Totaltravel / Totaltravel mini de
   Intermundial). SQL: `supabase/sql/seguros.sql`. `live.js` apunta `seguro_pedido`.
 
 ## Supabase

@@ -34,6 +34,8 @@
     }
   }
 
+  window.IBPay = { start: startPayment };   // lo usa seguro.js para pagar el seguro directamente
+
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-stripe-group]');
     if(btn && !btn.disabled){

@@ -1,6 +1,6 @@
 /* Iberail — «Iberail Protect», el seguro de viaje que se ofrece en cada grupo
-   · «Mis grupos» (cuenta.js pinta <div data-seguro="ID">): tarjeta con todo lo que cubre y «Añadir a mi viaje».
-     Al añadirlo, el precio se suma a su parte del viaje (RPC pedir_seguro) y lo paga con el botón «Pagar».
+   · «Mis grupos» (cuenta.js pinta <div data-seguro="ID">): tarjeta con todo lo que cubre y «Contratar y pagar»:
+     RPC pedir_seguro (suma el precio a su parte) y directo a Stripe por ese importe (IBPay.start de payment.js).
    · Panel (panel.js pinta <section data-seguro-admin="ID">): activar la oferta, precio, plan, fecha límite
      y seguir quién lo ha pedido / contratado (nº de póliza).
    SQL: supabase/sql/seguros.sql (tablas seguro_ofertas, seguros + RPC pedir_seguro, anular_seguro). */
@@ -91,7 +91,8 @@
     if(cerrado) return '';
     const estado = !s ? '' : s.estado === 'contratado'
       ? `<div class="sg-state is-ok">${S.ok}<div><b>Estás protegido</b><span>${s.poliza ? `Póliza nº ${esc(s.poliza)}. ` : ''}Tu certificado está en los documentos de tu grupo.</span></div></div>`
-      : `<div class="sg-state">${S.ok}<div><b>Añadido a tu viaje</b><span>Ya está sumado a tu parte (${esc(eur(s.precio))}). En cuanto lo pagues con «Pagar», lo activamos y te enviamos tu certificado.</span></div></div>`;
+      : `<div class="sg-state">${S.ok}<div><b>Pedido · falta el pago</b><span>En cuanto se confirme el pago de ${esc(eur(s.precio))} lo activamos y te enviamos tu certificado. Si ya lo has pagado, no tienes que hacer nada.</span></div></div>
+        <button type="button" class="sg-btn sg-btn--sec" data-sg-pay="${esc(gid)}">${S.shield}Pagar el seguro · ${esc(eur(s.precio))}</button>`;
     return `<article class="sg-card${s ? ' is-mine' : ''}">
       <div class="sg-glow" aria-hidden="true"></div>
       <header class="sg-head">
@@ -105,7 +106,7 @@
       </details>
       ${estado || `<div class="sg-cta">
         ${d != null ? `<span class="sg-limit${d <= 3 ? ' is-hot' : ''}">${S.clock}${d === 0 ? 'Último día para añadirlo' : `Disponible hasta el ${esc(fd(o.limite))} · ${d === 1 ? 'queda 1 día' : `quedan ${d} días`}`}</span>` : ''}
-        <button type="button" class="sg-btn" data-sg-add="${esc(gid)}">${S.shield}Añadir a mi viaje · ${esc(eur(o.precio))}</button>
+        <button type="button" class="sg-btn" data-sg-add="${esc(gid)}">${S.shield}Contratar y pagar · ${esc(eur(o.precio))}</button>
         ${oo.cancelacion ? '<small class="sg-tip">Añádelo cuanto antes: la cancelación te cubre desde que lo contratas.</small>' : ''}
       </div>`}
       <p class="sg-legal">${legal(o || {})}</p>
@@ -119,13 +120,15 @@
   }
   async function pedir(btn){
     const gid = btn.dataset.sgAdd, o = C[gid] && C[gid].oferta; if(!o) return;
-    if(!confirm(`¿Añadir ${NOMBRE} a tu viaje?\n\nSe sumarán ${eur(o.precio)} a tu parte y lo pagas con el botón «Pagar», como el resto del viaje.`)) return;
-    btn.disabled = true; btn.textContent = 'Añadiendo…';
+    if(!confirm(`¿Contratar ${NOMBRE} por ${eur(o.precio)}?\n\nTe llevamos a la pasarela de pago segura (tarjeta, Apple Pay o Google Pay).`)) return;
+    btn.disabled = true; btn.textContent = 'Abriendo el pago…';
     const { data, error } = await IB.sb.rpc('pedir_seguro', { p_grupo: Number(gid) });
-    if(error){ btn.disabled = false; btn.innerHTML = `${S.shield}Añadir a mi viaje · ${esc(eur(o.precio))}`; return alert('No se ha podido añadir: ' + (error.message || 'inténtalo de nuevo')); }
+    if(error){ btn.disabled = false; btn.innerHTML = `${S.shield}Contratar y pagar · ${esc(eur(o.precio))}`; return alert('No se ha podido añadir: ' + (error.message || 'inténtalo de nuevo')); }
     C[gid].seguro = data; paintCli(gid);
     dispatchEvent(new CustomEvent('ib:seguro', { detail: { precio: o.precio } }));
-    setTimeout(() => location.reload(), 2200);   // para que «Pagar» ya incluya el seguro
+    // directo a la pasarela: se paga solo el seguro (el precio ya está sumado a su parte del viaje)
+    const b2 = document.querySelector(`[data-sg-pay="${gid}"]`) || btn;
+    if(window.IBPay) IBPay.start(b2, gid, Number(data.precio || o.precio)); else setTimeout(() => location.reload(), 1500);
   }
 
   /* ======================= panel ======================= */
@@ -199,6 +202,7 @@
   document.addEventListener('click', async e => {
     const t = e.target;
     const ad = t.closest('[data-sg-add]'); if(ad) return pedir(ad);
+    const py = t.closest('[data-sg-pay]'); if(py){ const gid = py.dataset.sgPay, s = C[gid] && C[gid].seguro; if(s && window.IBPay) IBPay.start(py, gid, Number(s.precio)); return; }
     const sv = t.closest('[data-sg-save]'); if(sv) return save(sv.dataset.sgSave);
     const gv = t.closest('[data-sg-give]'); if(gv){ const [gid, uid] = gv.dataset.sgGive.split(':'); return give(gid, uid); }
     const dn = t.closest('[data-sg-done]'); if(dn){ const [gid, id] = dn.dataset.sgDone.split(':'); const pol = (document.querySelector(`[data-sg-pol="${id}"]`) || {}).value || '';
