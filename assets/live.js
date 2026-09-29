@@ -73,6 +73,8 @@
   // fotos vistas en la galería de un alojamiento (lo avisa alojamientos.js al cerrarla)
   addEventListener('ib:aloj-fotos', e => { const d = e.detail || {}; if(d.total) log('fotos', { ciudad: d.ciudad, vistas: d.vistas, total: d.total }); });
 
+  // seguro añadido al viaje (lo avisa seguro.js)
+  addEventListener('ib:seguro', e => log('seguro_pedido', { precio: (e.detail || {}).precio }));
   // contrato firmado (lo avisa contratos.js)
   addEventListener('ib:contrato-firmado', e => log('contrato_firmado', { tipo: (e.detail || {}).tipo }));
 

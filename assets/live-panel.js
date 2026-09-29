@@ -18,7 +18,7 @@
   };
   const dur = t => { const m = Math.max(0, Math.round((Date.now() - t) / 60000)); return m < 1 ? 'acaba de entrar' : m < 60 ? `lleva ${m} min` : `lleva ${Math.floor(m / 60)} h ${m % 60} min`; };
   const who = uid => { const c = clientes[uid]; return c ? (c.nombre || String(c.email || '').split('@')[0]) : 'Cliente'; };
-  const ICON = { pagina: '👀', alojamiento: '🏠', fotos: '📸', pago_iniciado: '💳', pago_parte: '💶', pago_ok: '✅', pago_cancelado: '↩️', aviso_leido: '🔔', mapa: '🗺️', documento: '🎫', whatsapp: '💬', contrato_abierto: '📄', contrato_firmado: '✍️', contrato_descargado: '📥' };
+  const ICON = { pagina: '👀', alojamiento: '🏠', fotos: '📸', pago_iniciado: '💳', pago_parte: '💶', pago_ok: '✅', pago_cancelado: '↩️', aviso_leido: '🔔', mapa: '🗺️', documento: '🎫', whatsapp: '💬', contrato_abierto: '📄', contrato_firmado: '✍️', contrato_descargado: '📥', seguro_pedido: '🛡️' };
   const frase = a => {
     const d = a.detalle || {};
     switch(a.tipo){
@@ -35,6 +35,7 @@
       case 'whatsapp': return 'Pulsó el botón de <b>WhatsApp</b>';
       case 'contrato_abierto': return 'Abrió su <b>contrato</b> para leerlo';
       case 'contrato_firmado': return `<b>Firmó el contrato</b>${d.tipo === 'menor' ? ' (firmado por su padre, madre o tutor)' : ''}`;
+      case 'seguro_pedido': return `<b>Añadió Iberail Protect</b> a su viaje${d.precio ? ` (${esc(d.precio)} €)` : ''}`;
       case 'contrato_descargado': return 'Abrió o descargó su <b>contrato firmado</b>';
       default: return esc(a.tipo);
     }

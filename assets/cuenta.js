@@ -425,6 +425,7 @@
       <div class="gx-body">
         ${vipBar}
         ${prev ? '' : `<div class="ct-slot" data-contrato="${esc(g.id)}"></div>`}
+        ${prev ? '' : `<div class="sg-slot" data-seguro="${esc(g.id)}"></div>`}
         ${prev ? '' : payBox(g)}
         ${teamBox(g)}
         ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>Estamos preparando vuestra ruta</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}

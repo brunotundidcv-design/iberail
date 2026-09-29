@@ -79,6 +79,13 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   filtros, PDF y teléfonos de tutores. Botón «Repetir» (grupo y pestaña): anula (queda guardado) y envía uno nuevo con aviso. `live.js` apunta `contrato_abierto`, `contrato_firmado`, `contrato_descargado`.
   Vista `contactos_tutores` (security_invoker) con todos los tutores que han firmado.
 
+- `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
+  rellena). Panel (`[data-seguro-admin]` en cada grupo): activar oferta, plan completo/básico, cancelación, precio,
+  fecha límite, aseguradora; por viajero: Añadir / nº póliza → Contratado / Anular (RPC `anular_seguro` resta el precio).
+  «Mis grupos» (`[data-seguro]`): tarjeta con coberturas y «Añadir a mi viaje» → RPC `pedir_seguro` (suma el precio a
+  `grupo_miembros.importe`, así se paga con «Pagar»). Coberturas en `PLANES` (Totaltravel / Totaltravel mini de
+  Intermundial). SQL: `supabase/sql/seguros.sql`. `live.js` apunta `seguro_pedido`.
+
 ## Supabase
 
 Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `avisos`, `avisos_leidos`,
@@ -86,7 +93,7 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
-Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`); columna `pagos.stripe_session`; bucket `alojamientos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `pedir_seguro`, `anular_seguro`); columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)
