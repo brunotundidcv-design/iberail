@@ -236,23 +236,28 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
 /* ---------- aviso emergente: tiempo de respuesta más largo de lo normal ----------
    Para quitarlo cuando baje la demanda: on: false */
 (function(){
-  const BUSY = { on: true, hasta: '1 hora' };
+  const BUSY = { on: true, clientes: '1 h', nuevos: '3 h' };
   if(!BUSY.on || document.getElementById('admApp')) return;
-  const KEY = 'ib-busy-visto';
+  const KEY = 'ib-busy-visto-2';
   try{ if(sessionStorage.getItem(KEY)) return; }catch(e){}
+  const enRutas = /rutas\.html$/.test(location.pathname);
   const box = document.createElement('aside');
-  box.className = 'busy is-warn';
-  box.setAttribute('role', 'alert');
-  box.setAttribute('aria-live', 'assertive');
+  box.className = 'busy2';
+  box.setAttribute('role', 'status');
+  box.setAttribute('aria-live', 'polite');
   box.innerHTML = `
-    <span class="busy-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
-    <div class="busy-txt">
-      <small><i></i>Aviso importante</small>
-      <b>Las respuestas pueden tardar hasta <span class="nw">${BUSY.hasta}</span></b>
-      <p>Debido al elevado volumen de solicitudes, nuestros tiempos de respuesta son más largos de lo habitual. Atendemos todas las consultas por estricto orden de llegada: <strong>enviar varios mensajes no acelera la respuesta</strong> y puede retrasarla.</p>
-      <button type="button" class="busy-ok" data-busy-close>Entendido</button>
-    </div>
-    <button type="button" class="busy-x" data-busy-close aria-label="Cerrar aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+    <div class="busy2-top"><span class="busy2-live"><i></i>Alta demanda ahora mismo</span>
+      <button type="button" class="busy2-x" data-busy-close aria-label="Cerrar aviso"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <b class="busy2-h">Nuestros tiempos de respuesta</b>
+    <ul class="busy2-rows">
+      <li><span class="busy2-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 11l2 2 4-4"/></svg></span>
+        <div><span>Ya viajas con nosotros</span><i class="busy2-bar"><em style="width:34%"></em></i></div><strong>hasta ${BUSY.clientes}</strong></li>
+      <li><span class="busy2-ic is-new"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M19 8v6M16 11h6"/></svg></span>
+        <div><span>Nuevo cliente</span><i class="busy2-bar"><em style="width:100%"></em></i></div><strong>hasta ${BUSY.nuevos}</strong></li>
+    </ul>
+    <p class="busy2-note">Respondemos por orden de llegada. Con un mensaje basta: <b>escribir varias veces no lo acelera</b>.</p>
+    ${enRutas ? '' : `<a class="busy2-tip" href="rutas.html" data-busy-close><span>⚡</span><div><b>¿Lo quieres antes?</b>Diseña tu ruta en 2 minutos y tu solicitud entra directa en la cola.</div><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`}
+    <button type="button" class="busy2-ok" data-busy-close>Entendido</button>`;
   // en móvil se coloca justo encima de la barra inferior (WhatsApp / botón del planificador) si está a la vista
   let raf = 0;
   const place = () => {

@@ -938,7 +938,7 @@
     const info = $('#plInfo');
     if(info.classList.contains('is-flash')) return;
     info.textContent = n === 2 && S.stops.length ? `${S.stops.length} ${plural(S.stops.length, 'parada', 'paradas')} · ${assigned()}/${S.days} días`
-      : n === 4 ? 'Sin compromiso · respuesta en máx. 30 min' : `Paso ${n} de ${TOTAL_STEPS}`;
+      : n === 4 ? 'Sin compromiso · respuesta en hasta 3 h' : `Paso ${n} de ${TOTAL_STEPS}`;
   }
 
   /* ---------------- submit ---------------- */
@@ -1012,15 +1012,15 @@
       <div class="done-badge" aria-hidden="true">${IB_ICON_CHECK}</div>
       <span class="eyebrow">Ruta recibida</span>
       <h2>¡Gracias, ${esc(row.nombre.split(' ')[0])}! Tu ruta ya está en nuestras manos.</h2>
-      <p class="done-lead">Estamos preparando tu presupuesto. Te escribimos al <b>${esc(row.telefono)}</b> en menos de 30 minutos, a cualquier hora.</p>
+      <p class="done-lead">Estamos preparando tu presupuesto. Te escribimos al <b>${esc(row.telefono)}</b> por orden de llegada: ahora mismo tardamos hasta 3 horas por la alta demanda.</p>
       <div class="done-ref"><span>Referencia</span><b>${esc(ref)}</b><button type="button" class="pl-link" data-copy="${esc(ref)}">Copiar</button></div>
       <ol class="done-steps">
         <li class="is-done"><i></i><span><b>Ruta recibida</b>Ahora mismo</span></li>
         <li class="is-now"><i></i><span><b>Preparando tu presupuesto</b>Trenes, pase y alojamiento</span></li>
-        <li><i></i><span><b>Te lo mandamos por WhatsApp</b>En máx. 30 minutos</span></li>
+        <li><i></i><span><b>Te lo mandamos por WhatsApp</b>En hasta 3 horas</span></li>
       </ol>
       <div class="done-wa">
-        <div><b>¿Lo quieres aún más rápido?</b><span>Escríbenos por WhatsApp: te respondemos en menos de 30 minutos, a cualquier hora.</span></div>
+        <div><b>¿Lo quieres aún más rápido?</b><span>Escríbenos por WhatsApp con un solo mensaje: respondemos por orden de llegada, a cualquier hora.</span></div>
         <a class="btn btn--wa btn--xl" id="doneWa" href="${esc(IB.wa(text))}" target="_blank" rel="noopener">${IB_ICON_CHAT}<span>Escribir por WhatsApp</span></a>
       </div>
       <div class="done-more">

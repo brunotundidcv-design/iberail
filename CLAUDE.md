@@ -138,4 +138,5 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   hacer que el bot escriba y gaste). Debería ser obligatorio.
 - **WhatsApp**: la fecha con minutos va al principio del prompt del sistema → la caché de prompts de la IA
   se invalida cada minuto. Mover la fecha a un bloque aparte, después de la parte cacheada.
-- Tiempo de respuesta incoherente: la web dice «máx. 30 min», el aviso emergente y el bot «hasta 1 hora».
+- Tiempo de respuesta incoherente: la barra superior, portada y contacto dicen «máx. 30 min»; el aviso emergente
+  (`site.js`, `BUSY`: clientes 1 h / nuevos 3 h) y el planificador dicen «hasta 3 h»; el bot «hasta 1 hora».
