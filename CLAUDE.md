@@ -141,3 +141,10 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   se invalida cada minuto. Mover la fecha a un bloque aparte, después de la parte cacheada.
 - Tiempo de respuesta incoherente: la barra superior, portada y contacto dicen «máx. 30 min»; el aviso emergente
   (`site.js`, `BUSY`: clientes 1 h / nuevos 3 h) y el planificador dicen «hasta 3 h»; el bot «hasta 1 hora».
+
+## Otros proyectos de Bruno (guardados para más adelante)
+
+- **Autoescuela en Madrid** (guardada el 29/09/2026). Idea: autoescuela más barata y rápida, con el teórico online
+  con IA (tests, profe virtual por WhatsApp 24 h) y prácticas reservadas por app. Requisitos: autorización de la DGT
+  (Jefatura Provincial de Tráfico), local, coches de doble mando, profesores con título de formación vial y director.
+- Le gustó también: **clases particulares por barrios** (plataforma que conecta universitarios con familias, comisión 20-25 %).
