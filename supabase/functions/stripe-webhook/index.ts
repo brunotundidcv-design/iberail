@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Iberail · confirmación de pagos de Stripe (Supabase Edge Function)
-// Stripe avisa aquí cuando un pago se completa y lo apuntamos en `pagos`: el cliente lo ve al momento
+// Stripe avisa aquí cuando un pago se completa y lo apuntamos en `pagos` (o en `seguros` si es Iberail Protect): el cliente lo ve al momento
 // en «Mis grupos» y el equipo en el panel. Cada sesión de Stripe se apunta una sola vez (stripe_session único).
 // Despliegue:  supabase functions deploy stripe-webhook --no-verify-jwt
 // En Stripe → Desarrolladores → Webhooks: URL https://<proyecto>.supabase.co/functions/v1/stripe-webhook
@@ -38,6 +38,19 @@ Deno.serve(async (req) => {
 
   const gid = Number(s.metadata?.grupo_id), uid = s.metadata?.user_id;
   if (!gid || !uid) return new Response('sin datos de grupo', { status: 200 });
+
+  // «Iberail Protect»: el seguro va aparte del viaje → se apunta en `seguros`, no en `pagos`
+  if (s.metadata?.tipo === 'seguro') {
+    const { data: dup } = await sb.from('seguros').select('id').eq('stripe_session', s.id).maybeSingle();
+    if (dup) return new Response('ya apuntado', { status: 200 });
+    const datos = { estado: 'pagado', precio: Number(s.amount_total) / 100, plan: s.metadata?.plan || 'completo', cancelacion: s.metadata?.cancelacion !== '0', stripe_session: s.id, pagado_at: new Date().toISOString() };
+    const { data: prev } = await sb.from('seguros').select('id').eq('grupo_id', gid).eq('user_id', uid).neq('estado', 'anulado').maybeSingle();
+    const { error: e2 } = prev
+      ? await sb.from('seguros').update(datos).eq('id', prev.id)
+      : await sb.from('seguros').insert({ grupo_id: gid, user_id: uid, ...datos });
+    if (e2) { console.error('seguros', e2); return new Response('error al guardar', { status: 500 }); }
+    return new Response('ok', { status: 200 });
+  }
   const { error } = await sb.from('pagos').upsert({
     grupo_id: gid,
     user_id: uid,

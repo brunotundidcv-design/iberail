@@ -1,9 +1,11 @@
 -- Iberail · «Iberail Protect» (seguro de viaje que se ofrece en «Mis grupos»)
 -- Ejecutar UNA vez en Supabase → SQL Editor.
 --
+-- Se puede ejecutar varias veces (también si ya ejecutaste una versión anterior).
 -- El equipo activa la oferta en cada grupo (precio, tipo de cobertura, fecha límite).
--- El viajero pulsa «Añadir a mi viaje»: se crea su seguro y el precio se suma a su parte del viaje,
--- así lo paga con el mismo botón «Pagar» (Stripe). El equipo lo marca como contratado con el nº de póliza.
+-- El viajero pulsa «Contratar y pagar»: paga el seguro APARTE del viaje en Stripe (stripe-checkout con seguro:true)
+-- y el webhook lo apunta aquí como «pagado». El equipo lo contrata y lo marca «contratado» con el nº de póliza.
+-- El seguro NO toca grupo_miembros.importe ni la tabla pagos.
 
 create table if not exists public.seguro_ofertas (
   grupo_id    bigint primary key references public.grupos(id) on delete cascade,
@@ -23,11 +25,16 @@ create table if not exists public.seguros (
   precio      numeric(10,2) not null,
   plan        text not null,
   cancelacion boolean not null,
-  estado      text not null default 'solicitado' check (estado in ('solicitado', 'contratado', 'anulado')),
+  estado      text not null default 'pagado',
   poliza      text,
   created_at  timestamptz not null default now(),
   contratado_at timestamptz
 );
+alter table public.seguros add column if not exists stripe_session text;
+alter table public.seguros add column if not exists pagado_at timestamptz;
+alter table public.seguros drop constraint if exists seguros_estado_check;
+alter table public.seguros add constraint seguros_estado_check check (estado in ('solicitado', 'pagado', 'contratado', 'anulado'));
+create unique index if not exists seguros_stripe_idx on public.seguros (stripe_session) where stripe_session is not null;
 create unique index if not exists seguros_vigente_idx on public.seguros (grupo_id, user_id) where estado <> 'anulado';
 
 alter table public.seguro_ofertas enable row level security;
@@ -46,38 +53,15 @@ drop policy if exists "seguros: equipo" on public.seguros;
 create policy "seguros: equipo" on public.seguros for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
--- el viajero lo añade a su viaje: crea el seguro y suma el precio a su parte (una sola vez)
-create or replace function public.pedir_seguro(p_grupo bigint)
-returns public.seguros language plpgsql security definer set search_path = public as $$
-declare o public.seguro_ofertas; s public.seguros;
-begin
-  if not exists (select 1 from grupo_miembros where grupo_id = p_grupo and user_id = auth.uid()) then
-    raise exception 'No perteneces a este grupo';
-  end if;
-  select * into o from seguro_ofertas where grupo_id = p_grupo and activo;
-  if not found then raise exception 'El seguro no está disponible para este grupo'; end if;
-  if o.limite is not null and current_date > o.limite then raise exception 'El plazo para añadir el seguro ya ha terminado'; end if;
-  select * into s from seguros where grupo_id = p_grupo and user_id = auth.uid() and estado <> 'anulado';
-  if found then return s; end if;
-  insert into seguros (grupo_id, user_id, precio, plan, cancelacion)
-    values (p_grupo, auth.uid(), o.precio, o.plan, o.cancelacion) returning * into s;
-  update grupo_miembros set importe = coalesce(importe, 0) + o.precio, pagado = false
-   where grupo_id = p_grupo and user_id = auth.uid();
-  return s;
-end $$;
-revoke all on function public.pedir_seguro(bigint) from public, anon;
-grant execute on function public.pedir_seguro(bigint) to authenticated;
+-- versión anterior: el seguro ya no se suma al viaje
+drop function if exists public.pedir_seguro(bigint);
 
--- el equipo lo anula: se resta el precio de su parte del viaje
+-- el equipo lo anula (la devolución, si la hay, se hace desde Stripe)
 create or replace function public.anular_seguro(p_id bigint)
 returns void language plpgsql security definer set search_path = public as $$
-declare s public.seguros;
 begin
   if not public.is_admin() then raise exception 'Solo el equipo'; end if;
-  update seguros set estado = 'anulado' where id = p_id and estado <> 'anulado' returning * into s;
-  if not found then return; end if;
-  update grupo_miembros set importe = greatest(coalesce(importe, 0) - s.precio, 0)
-   where grupo_id = s.grupo_id and user_id = s.user_id;
+  update seguros set estado = 'anulado' where id = p_id;
 end $$;
 revoke all on function public.anular_seguro(bigint) from public, anon;
 grant execute on function public.anular_seguro(bigint) to authenticated;

@@ -80,11 +80,12 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   Vista `contactos_tutores` (security_invoker) con todos los tutores que han firmado.
 
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
-  rellena). Panel (`[data-seguro-admin]` en cada grupo): activar oferta, plan completo/básico, cancelación, precio,
-  fecha límite, aseguradora; por viajero: Añadir / nº póliza → Contratado / Anular (RPC `anular_seguro` resta el precio).
-  «Mis grupos» (`[data-seguro]`): tarjeta con coberturas y «Contratar y pagar» → RPC `pedir_seguro` (suma el precio a
-  `grupo_miembros.importe`) y abre Stripe por ese importe con `IBPay.start` (expuesto en payment.js). Coberturas en `PLANES` (Totaltravel / Totaltravel mini de
-  Intermundial). SQL: `supabase/sql/seguros.sql`. `live.js` apunta `seguro_pedido`.
+  rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
+  tarjeta con coberturas y «Contratar y pagar» → `IBPay.start(btn, gid, null, { seguro: true })` → stripe-checkout
+  (`pagarSeguro`, precio de `seguro_ofertas`) → webhook (metadata `tipo: 'seguro'`) apunta en `seguros` estado `pagado`.
+  Vuelta: `grupos.html?seguro=ok|cancelado`. Panel (`[data-seguro-admin]`): oferta (plan, cancelación, precio, límite,
+  aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
+  (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
 ## Supabase
 
@@ -93,7 +94,7 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
-Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `pedir_seguro`, `anular_seguro`); columna `pagos.stripe_session`; bucket `alojamientos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `anular_seguro`); columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)

@@ -44,6 +44,7 @@ async function pagar(req: Request) {
   try { body = await req.json(); } catch { return json({ error: 'Petición no válida.' }, 400); }
   const gid = Number(body.grupo_id);
   if (!Number.isInteger(gid) || gid <= 0) return json({ error: 'Falta el grupo.' }, 400);
+  if (body.seguro) return pagarSeguro(user, gid);
 
   // lo que le toca y lo que lleva pagado, leído de la base de datos
   const [{ data: m }, { data: g }, { data: pagos }] = await Promise.all([
@@ -86,6 +87,45 @@ async function pagar(req: Request) {
   const s = await r.json().catch(() => ({}));
   if (!r.ok || !s.url) {
     console.error('stripe', r.status, JSON.stringify(s).slice(0, 400));
+    return json({ error: 'Stripe no ha aceptado el pago: ' + (s.error?.message || `error ${r.status}`) }, 502);
+  }
+  return json({ url: s.url });
+}
+
+// «Iberail Protect»: el seguro se paga aparte del viaje (no toca grupo_miembros.importe ni la tabla pagos).
+// El precio sale de seguro_ofertas; el webhook lo apunta en `seguros` como pagado.
+async function pagarSeguro(user: any, gid: number) {
+  const [{ data: m }, { data: g }, { data: o }, { data: ya }] = await Promise.all([
+    sb.from('grupo_miembros').select('user_id').eq('grupo_id', gid).eq('user_id', user.id).maybeSingle(),
+    sb.from('grupos').select('nombre').eq('id', gid).maybeSingle(),
+    sb.from('seguro_ofertas').select('*').eq('grupo_id', gid).maybeSingle(),
+    sb.from('seguros').select('estado').eq('grupo_id', gid).eq('user_id', user.id).in('estado', ['pagado', 'contratado'])
+  ]);
+  if (!m) return json({ error: 'No estás en este grupo.' }, 403);
+  if (!o || !o.activo) return json({ error: 'El seguro no está disponible para este grupo.' }, 400);
+  if (o.limite && new Date().toISOString().slice(0, 10) > o.limite) return json({ error: 'El plazo para contratar el seguro ya ha terminado.' }, 400);
+  if ((ya || []).length) return json({ error: 'Ya tienes el seguro contratado.' }, 400);
+  const cents = Math.round(Number(o.precio) * 100);
+  if (!(cents > 0)) return json({ error: 'El seguro no tiene precio.' }, 400);
+  const grupo = g?.nombre || `Grupo ${gid}`;
+  const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env('STRIPE_SECRET_KEY')}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form({
+      mode: 'payment',
+      locale: 'es',
+      customer_email: user.email,
+      client_reference_id: `seguro:${gid}:${user.id}`,
+      line_items: { 0: { quantity: 1, price_data: { currency: 'eur', unit_amount: cents, product_data: { name: 'Iberail Protect · seguro de viaje', description: `Para todo tu viaje con ${grupo}` } } } },
+      metadata: { tipo: 'seguro', grupo_id: gid, user_id: user.id, plan: o.plan, cancelacion: o.cancelacion ? '1' : '0' },
+      payment_intent_data: { description: `Iberail Protect · ${grupo}`, metadata: { tipo: 'seguro', grupo_id: gid, user_id: user.id } },
+      success_url: `${SITE}/grupos.html?seguro=ok#grupo-${gid}`,
+      cancel_url: `${SITE}/grupos.html?seguro=cancelado#grupo-${gid}`
+    })
+  });
+  const s = await r.json().catch(() => ({}));
+  if (!r.ok || !s.url) {
+    console.error('stripe seguro', r.status, JSON.stringify(s).slice(0, 400));
     return json({ error: 'Stripe no ha aceptado el pago: ' + (s.error?.message || `error ${r.status}`) }, 502);
   }
   return json({ url: s.url });

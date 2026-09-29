@@ -1,9 +1,10 @@
 /* Iberail — «Iberail Protect», el seguro de viaje que se ofrece en cada grupo
    · «Mis grupos» (cuenta.js pinta <div data-seguro="ID">): tarjeta con todo lo que cubre y «Contratar y pagar»:
-     RPC pedir_seguro (suma el precio a su parte) y directo a Stripe por ese importe (IBPay.start de payment.js).
+     pago APARTE del viaje en Stripe (stripe-checkout con seguro:true); el webhook lo apunta en `seguros` como pagado.
+     No toca el presupuesto del viaje (grupo_miembros.importe) ni la tabla pagos.
    · Panel (panel.js pinta <section data-seguro-admin="ID">): activar la oferta, precio, plan, fecha límite
      y seguir quién lo ha pedido / contratado (nº de póliza).
-   SQL: supabase/sql/seguros.sql (tablas seguro_ofertas, seguros + RPC pedir_seguro, anular_seguro). */
+   SQL: supabase/sql/seguros.sql (tablas seguro_ofertas, seguros + RPC anular_seguro). */
 (function(){
   const IB = window.IB;
   if(!IB) return;
@@ -86,19 +87,21 @@
     const c = C[gid]; if(!c) return '';
     const o = c.oferta, s = c.seguro;
     if(!s && (!o || !o.activo)) return '';
-    const p = plan(s || o), oo = s ? { ...o, plan: s.plan, cancelacion: s.cancelacion } : o;
-    const d = o && o.limite ? dias(o.limite) : null, cerrado = !s && d != null && d < 0;
+    if(s && s.estado === 'solicitado' && (!o || !o.activo)) return '';
+    const mine = s && s.estado !== 'solicitado' ? s : null;
+    const p = plan(mine || o), oo = mine ? { ...o, plan: mine.plan, cancelacion: mine.cancelacion } : o;
+    const d = o && o.limite ? dias(o.limite) : null, cerrado = !mine && d != null && d < 0;
     if(cerrado) return '';
-    const estado = !s ? '' : s.estado === 'contratado'
+    const pagado = s && (s.estado === 'pagado' || s.estado === 'contratado');
+    const estado = !pagado ? '' : s.estado === 'contratado'
       ? `<div class="sg-state is-ok">${S.ok}<div><b>Estás protegido</b><span>${s.poliza ? `Póliza nº ${esc(s.poliza)}. ` : ''}Tu certificado está en los documentos de tu grupo.</span></div></div>`
-      : `<div class="sg-state">${S.ok}<div><b>Pedido · falta el pago</b><span>En cuanto se confirme el pago de ${esc(eur(s.precio))} lo activamos y te enviamos tu certificado. Si ya lo has pagado, no tienes que hacer nada.</span></div></div>
-        <button type="button" class="sg-btn sg-btn--sec" data-sg-pay="${esc(gid)}">${S.shield}Pagar el seguro · ${esc(eur(s.precio))}</button>`;
-    return `<article class="sg-card${s ? ' is-mine' : ''}">
+      : `<div class="sg-state">${S.ok}<div><b>Pagado · lo estamos activando</b><span>Hemos recibido tu pago de ${esc(eur(s.precio))}. En breve te enviamos tu certificado con el teléfono de asistencia 24 h.</span></div></div>`;
+    return `<article class="sg-card${mine ? ' is-mine' : ''}">
       <div class="sg-glow" aria-hidden="true"></div>
       <header class="sg-head">
         <span class="sg-shield">${S.shield}</span>
         <div><small>Seguro de viaje</small><h3>${NOMBRE}</h3><p>${esc(p.titulo)} · viaja tranquilo de principio a fin</p></div>
-        ${s ? '' : `<div class="sg-price"><b>${esc(eur(o.precio))}</b><small>por persona, todo el viaje</small></div>`}
+        ${mine ? '' : `<div class="sg-price"><b>${esc(eur(o.precio))}</b><small>por persona, todo el viaje</small></div>`}
       </header>
       <div class="sg-top">${p.top.filter(x => visible(oo, x)).map(([i, v, t]) => `<div class="sg-tile">${S[i]}<b>${esc(v)}</b><small>${esc(t)}</small></div>`).join('')}</div>
       <details class="sg-more"><summary>Ver todo lo que cubre</summary>
@@ -118,18 +121,24 @@
     if(C[gid] !== undefined) el.innerHTML = cliHtml(gid);
     await loadCli(gid); if(el.isConnected) el.innerHTML = cliHtml(gid);
   }
-  async function pedir(btn){
+  function pedir(btn){
     const gid = btn.dataset.sgAdd, o = C[gid] && C[gid].oferta; if(!o) return;
-    if(!confirm(`¿Contratar ${NOMBRE} por ${eur(o.precio)}?\n\nTe llevamos a la pasarela de pago segura (tarjeta, Apple Pay o Google Pay).`)) return;
-    btn.disabled = true; btn.textContent = 'Abriendo el pago…';
-    const { data, error } = await IB.sb.rpc('pedir_seguro', { p_grupo: Number(gid) });
-    if(error){ btn.disabled = false; btn.innerHTML = `${S.shield}Contratar y pagar · ${esc(eur(o.precio))}`; return alert('No se ha podido añadir: ' + (error.message || 'inténtalo de nuevo')); }
-    C[gid].seguro = data; paintCli(gid);
+    if(!window.IBPay) return alert('No podemos abrir el pago ahora mismo. Prueba en un momento.');
+    if(!confirm(`¿Contratar ${NOMBRE} por ${eur(o.precio)}?\n\nSe paga aparte del viaje, en la pasarela de pago segura (tarjeta, Apple Pay o Google Pay).`)) return;
     dispatchEvent(new CustomEvent('ib:seguro', { detail: { precio: o.precio } }));
-    // directo a la pasarela: se paga solo el seguro (el precio ya está sumado a su parte del viaje)
-    const b2 = document.querySelector(`[data-sg-pay="${gid}"]`) || btn;
-    if(window.IBPay) IBPay.start(b2, gid, Number(data.precio || o.precio)); else setTimeout(() => location.reload(), 1500);
+    IBPay.start(btn, gid, null, { seguro: true });
   }
+  // vuelta desde Stripe: grupos.html?seguro=ok | ?seguro=cancelado
+  (function(){
+    const q = new URLSearchParams(location.search), v = q.get('seguro');
+    if(v !== 'ok' && v !== 'cancelado') return;
+    const n = document.createElement('div'); n.className = 'pay-note' + (v === 'ok' ? ' is-ok' : ''); n.setAttribute('role', 'status');
+    n.innerHTML = v === 'ok' ? `<b>¡${NOMBRE} contratado!</b><span>Hemos recibido tu pago. En breve te enviamos tu certificado.</span>` : '<b>Pago cancelado</b><span>No se ha cobrado nada. Puedes contratar el seguro cuando quieras.</span>';
+    const x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', 'Cerrar'); x.textContent = '×'; x.onclick = () => n.remove(); n.appendChild(x);
+    const go = () => { document.body.appendChild(n); setTimeout(() => n.classList.add('is-in'), 30); setTimeout(() => { n.classList.remove('is-in'); setTimeout(() => n.remove(), 400); }, 9000); };
+    if(document.body) go(); else addEventListener('DOMContentLoaded', go);
+    try{ q.delete('seguro'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }catch(e){}
+  })();
 
   /* ======================= panel ======================= */
   const A = {};
@@ -145,15 +154,16 @@
   }
   function admHtml(gid){
     const a = A[gid]; if(!a) return '';
-    const head = `<div class="adm-docs-head"><h3>${S.shield}${NOMBRE} · seguro de viaje</h3><small>${a.seguros.filter(x => x.estado === 'contratado').length} contratados · ${a.seguros.filter(x => x.estado === 'solicitado').length} pedidos</small></div>`;
+    const head = `<div class="adm-docs-head"><h3>${S.shield}${NOMBRE} · seguro de viaje</h3><small>${a.seguros.filter(x => x.estado === 'contratado').length} contratados · ${a.seguros.filter(x => x.estado === 'pagado').length} pagados por contratar</small></div>`;
     if(a.err) return head + '<p class="adm-docs-empty is-err">Falta crear las tablas: ejecuta <b>supabase/sql/seguros.sql</b> en Supabase.</p>';
     const o = a.oferta || { activo: false, plan: 'completo', cancelacion: true, precio: '', limite: '', aseguradora: '' };
     const who = uid => { const c = a.nombres[uid]; return c ? (c.nombre || String(c.email || '').split('@')[0]) : 'Viajero'; };
     const rows = a.miembros.map(uid => {
       const s = a.seguros.find(x => x.user_id === uid);
-      const acts = !s ? (a.oferta ? `<span class="ct-st sg-st-no">Sin seguro</span><button type="button" class="ct-link" data-sg-give="${esc(gid)}:${esc(uid)}" title="Añadírselo tú (se suma a su parte del viaje)">Añadir</button>` : '<span class="ct-st sg-st-no">Sin seguro</span>')
+      const acts = !s ? (a.oferta ? `<span class="ct-st sg-st-no">Sin seguro</span><button type="button" class="ct-link" data-sg-give="${esc(gid)}:${esc(uid)}" title="Si te lo ha pagado por Bizum o transferencia">Marcar pagado</button>` : '<span class="ct-st sg-st-no">Sin seguro</span>')
+        : s.estado === 'solicitado' ? `<span class="ct-st sg-st-no">Sin pagar</span><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Quitar</button>`
         : s.estado === 'contratado' ? `<span class="ct-st is-ok">${S.ok}Contratado${s.poliza ? ' · ' + esc(s.poliza) : ''}</span><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`
-        : `<span class="ct-st">Pedido · ${esc(eur(s.precio))}</span><input class="sg-pol" data-sg-pol="${esc(s.id)}" placeholder="Nº de póliza"><button type="button" class="btn btn--dark btn--sm" data-sg-done="${esc(gid)}:${esc(s.id)}">Contratado</button><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`;
+        : `<span class="ct-st">Pagado · ${esc(eur(s.precio))}</span><input class="sg-pol" data-sg-pol="${esc(s.id)}" placeholder="Nº de póliza"><button type="button" class="btn btn--dark btn--sm" data-sg-done="${esc(gid)}:${esc(s.id)}">Contratado</button><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`;
       return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${acts}</div></div>`;
     }).join('');
     return head + `
@@ -169,7 +179,7 @@
         <button type="button" class="btn btn--dark btn--sm" data-sg-save="${esc(gid)}">Guardar</button>
       </div>
       ${a.miembros.length ? `<div class="ct-list">${rows}</div>` : ''}
-      <p class="adm-hint">Cuando alguien lo pide, el precio se suma solo a su parte del viaje. Contrátalo con sus datos, sube el certificado a sus documentos y márcalo como «Contratado».</p>
+      <p class="adm-hint">Se paga aparte del viaje (no cambia su presupuesto). Cuando salga «Pagado», contrátalo con sus datos, sube el certificado a sus documentos y márcalo como «Contratado».</p>
       <p class="ct-msg" data-sg-msg="${esc(gid)}"></p>`;
   }
   const paintAdm = gid => document.querySelectorAll(`[data-seguro-admin="${gid}"]`).forEach(el => { el.innerHTML = admHtml(gid); });
@@ -190,26 +200,23 @@
   }
   async function give(gid, uid){
     const o = A[gid] && A[gid].oferta; if(!o) return;
-    if(!confirm(`¿Añadir ${NOMBRE} a este viajero? Se sumarán ${eur(o.precio)} a su parte del viaje.`)) return;
-    const { error } = await IB.sb.from('seguros').insert({ grupo_id: Number(gid), user_id: uid, precio: o.precio, plan: o.plan, cancelacion: o.cancelacion });
+    if(!confirm(`¿Marcar ${NOMBRE} como pagado por este viajero (${eur(o.precio)}, por Bizum o transferencia)? No cambia su presupuesto del viaje.`)) return;
+    const { error } = await IB.sb.from('seguros').insert({ grupo_id: Number(gid), user_id: uid, precio: o.precio, plan: o.plan, cancelacion: o.cancelacion, estado: 'pagado', pagado_at: new Date().toISOString() });
     if(error) return msg(gid, 'Error: ' + error.message, true);
-    const { data: m } = await IB.sb.from('grupo_miembros').select('importe').eq('grupo_id', Number(gid)).eq('user_id', uid).maybeSingle();
-    await IB.sb.from('grupo_miembros').update({ importe: Math.round((Number((m || {}).importe || 0) + Number(o.precio)) * 100) / 100, pagado: false }).eq('grupo_id', Number(gid)).eq('user_id', uid);
-    await loadAdm(gid); paintAdm(gid); msg(gid, 'Añadido y sumado a su parte del viaje.');
+    await loadAdm(gid); paintAdm(gid); msg(gid, 'Marcado como pagado. Ahora contrátalo y márcalo como «Contratado».');
   }
 
   /* ======================= eventos ======================= */
   document.addEventListener('click', async e => {
     const t = e.target;
     const ad = t.closest('[data-sg-add]'); if(ad) return pedir(ad);
-    const py = t.closest('[data-sg-pay]'); if(py){ const gid = py.dataset.sgPay, s = C[gid] && C[gid].seguro; if(s && window.IBPay) IBPay.start(py, gid, Number(s.precio)); return; }
     const sv = t.closest('[data-sg-save]'); if(sv) return save(sv.dataset.sgSave);
     const gv = t.closest('[data-sg-give]'); if(gv){ const [gid, uid] = gv.dataset.sgGive.split(':'); return give(gid, uid); }
     const dn = t.closest('[data-sg-done]'); if(dn){ const [gid, id] = dn.dataset.sgDone.split(':'); const pol = (document.querySelector(`[data-sg-pol="${id}"]`) || {}).value || '';
       const { error } = await IB.sb.from('seguros').update({ estado: 'contratado', poliza: pol.trim() || null, contratado_at: new Date().toISOString() }).eq('id', Number(id));
       if(error) return msg(gid, 'Error: ' + error.message, true); await loadAdm(gid); paintAdm(gid); return; }
     const vd = t.closest('[data-sg-void]'); if(vd){ const [gid, id] = vd.dataset.sgVoid.split(':');
-      if(!confirm('¿Anular este seguro? Se restará su precio de la parte del viaje de este viajero.')) return;
+      if(!confirm('¿Anular este seguro? Si ya estaba pagado, la devolución hazla desde Stripe.')) return;
       const { error } = await IB.sb.rpc('anular_seguro', { p_id: Number(id) });
       if(error) return msg(gid, 'Error: ' + error.message, true); await loadAdm(gid); paintAdm(gid); }
   });

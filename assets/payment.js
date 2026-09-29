@@ -7,7 +7,7 @@
   const eur = n => Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const PART_MIN = 20;
 
-  async function startPayment(btn, groupId, amount){
+  async function startPayment(btn, groupId, amount, extra){
     if(!IB.sb) return alert('No podemos conectar ahora mismo. Prueba en un momento.');
     const { data } = await IB.sb.auth.getSession();
     const token = data && data.session && data.session.access_token;
@@ -20,7 +20,7 @@
       const res = await fetch(`${String(IB.cfg.SUPABASE_URL).replace(/\/$/, '')}/functions/v1/stripe-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: IB.cfg.SUPABASE_ANON_KEY },
-        body: JSON.stringify(amount ? { grupo_id: Number(groupId), importe: amount } : { grupo_id: Number(groupId) })
+        body: JSON.stringify({ grupo_id: Number(groupId), ...(amount ? { importe: amount } : {}), ...(extra || {}) })
       });
       const j = await res.json().catch(() => ({}));
       if(!res.ok || !j.url) throw new Error(j.error || (res.status === 404 ? 'El pago con tarjeta aún no está activado.' : `Error ${res.status}`));
@@ -34,7 +34,7 @@
     }
   }
 
-  window.IBPay = { start: startPayment };   // lo usa seguro.js para pagar el seguro directamente
+  window.IBPay = { start: startPayment };   // seguro.js: IBPay.start(btn, grupo, null, { seguro: true }) → pago aparte del viaje
 
   document.addEventListener('click', e => {
     const btn = e.target.closest('[data-stripe-group]');
