@@ -144,6 +144,9 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 ## Otros proyectos de Bruno (guardados para más adelante)
 
+- ⭐ **ELEGIDO (29/09/2026): «Energía en casa todo en uno»** = placas + baterías + aerotermia + clima + ventanas +
+  cargadores + certificados + subvenciones. Modelo: captar y gestionar; la instalación la hacen instaladores subcontratados.
+
 - **Autoescuela en Madrid** (guardada el 29/09/2026). Idea: autoescuela más barata y rápida, con el teórico online
   con IA (tests, profe virtual por WhatsApp 24 h) y prácticas reservadas por app. Requisitos: autorización de la DGT
   (Jefatura Provincial de Tráfico), local, coches de doble mando, profesores con título de formación vial y director.
