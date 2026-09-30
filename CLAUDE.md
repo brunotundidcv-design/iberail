@@ -153,7 +153,7 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
   (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».
 - **Festivales** (`festivales.html`): se genera desde `tools/zarping/festivales.json` (fechas oficiales, revisado el
-  30/09/2026; 46 de España, 123 en total con Europa y el mundo). Buscador + filtros de zona y estilo; `?q=` precarga.
+  30/09/2026; 46 de España + los grandes de Europa y del mundo; nada de festivales raros o lejanos). Buscador + filtros de zona y estilo; `?q=` precarga.
   Tira de nombres de festivales estilo «logos» (`FEST_LOGOS` en `build.py`, texto, no logos oficiales) en portada y festivales. **Todas las de 2027 van con `confirmado: false`** (fechas previstas, sin anuncio oficial
   verificado: las webs oficiales no se pueden abrir desde el entorno de Claude). Al confirmarse, corregir y quitar el campo.
   Días de destinos y viajes listos ajustados a lo realista desde España (larga distancia ≥ 7-10 días). Los que ya han terminado se ocultan solos; filtro España / Europa / Resto del mundo. «Ir con Zarping» abre
