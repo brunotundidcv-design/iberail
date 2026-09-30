@@ -164,6 +164,8 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   «Pedir precio» → `monta-tu-viaje.html?tipo=escapada|nieve&dest=…`. Para añadir destinos: editar el JSON y volver a ejecutar el build.
 - **Monta tu viaje** (`zp-viaje.js`): 3 pasos → fila en `rutas` con `ref` ZP-XXXXXX, `marca: 'zarping'`, destino en
   `paradas[0]`, tipo e «incluir» en `estilo`, resto en `notas`. Pide cuenta para enviar. Borrador `zp-draft-v1` (30 días).
+  Casi sin escribir: botones de destino según el tipo (`SUGIERE`, + «Aconsejadnos»), ciudad de salida, próximos 8 meses (`S.mes`,
+  vale como fecha aproximada → «Mes:» en notas), atajos de días/personas y «¿Qué os apetece?» (`S.gustos` → notas).
   Netlify Forms «viaje» de respaldo.
 - **Base de datos**: `supabase/sql/marca.sql` (columna `marca` en `rutas` y `grupos`; amplía límites de días/personas).
   Sin ejecutarlo, las solicitudes se guardan igual y el panel las reconoce por la ref ZP-.

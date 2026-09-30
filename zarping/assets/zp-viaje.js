@@ -12,11 +12,11 @@
   const TIPOS = { nieve: 'Nieve', 'fin-de-curso': 'Fin de curso', despedida: 'Despedida', festival: 'Festival', escapada: 'Escapada', 'a-medida': 'A medida' };
   const SUGIERE = {
     nieve: ['Andorra · Grandvalira', 'Andorra · Pal Arinsal', 'Sierra Nevada', 'Formigal', 'Baqueira', 'Alpes franceses'],
-    'fin-de-curso': ['Mallorca', 'Ibiza', 'Salou', 'Italia', 'Londres', 'Punta Cana'],
-    despedida: ['Ibiza', 'Benidorm', 'Lisboa', 'Budapest', 'Cádiz', 'Praga'],
-    festival: ['Budapest', 'Bélgica', 'Países Bajos', 'Portugal', 'Valencia', 'Madrid'],
-    escapada: ['Canarias', 'Menorca', 'Oporto', 'Roma', 'Marrakech', 'Londres'],
-    'a-medida': ['No lo sabemos todavía']
+    'fin-de-curso': ['Mallorca', 'Ibiza', 'Salou', 'Italia', 'Londres', 'Punta Cana', 'Benidorm'],
+    despedida: ['Ibiza', 'Benidorm', 'Lisboa', 'Budapest', 'Cádiz', 'Praga', 'Marbella'],
+    festival: ['Tomorrowland', 'Primavera Sound', 'Mad Cool', 'Medusa', 'Arenal Sound', 'Sziget', 'Coachella', 'Creamfields'],
+    escapada: ['Lanzarote', 'Tenerife', 'Menorca', 'Lisboa', 'Roma', 'Marrakech', 'Londres', 'Bali'],
+    'a-medida': ['Portugal', 'Italia', 'Canarias', 'PortAventura', 'Disneyland París']
   };
   const CODES = { madrid: 'MAD', barcelona: 'BCN', valencia: 'VLC', sevilla: 'SVQ', 'málaga': 'AGP', bilbao: 'BIO', zaragoza: 'ZAZ', alicante: 'ALC',
     valladolid: 'VLL', murcia: 'RMU', palma: 'PMI', andorra: 'AND', 'sierra nevada': 'GRX', formigal: 'FOR', baqueira: 'BAQ', mallorca: 'PMI', ibiza: 'IBZ',
@@ -26,7 +26,8 @@
   const fday = iso => new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
 
   let step = 1, user = null, sending = false;
-  const S = { tipo: '', dest: '', from: 'Madrid', date: '', flex: false, days: 4, pax: 10, budget: 'Sin decidir', inc: ['Transporte', 'Alojamiento'], minors: false, name: '', phone: '', email: '', group: '', notes: '', promo: false };
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const S = { tipo: '', dest: '', from: 'Madrid', date: '', mes: '', gustos: [], flex: false, days: 4, pax: 10, budget: 'Sin decidir', inc: ['Transporte', 'Alojamiento'], minors: false, name: '', phone: '', email: '', group: '', notes: '', promo: false };
 
   /* ---------- borrador ---------- */
   function load(){
@@ -39,7 +40,7 @@
   function read(){
     const t = form.querySelector('[name=tipo]:checked'); S.tipo = t ? t.value : S.tipo;
     S.dest = $('#zpDest').value.trim(); S.from = $('#zpFrom').value;
-    S.date = $('#zpDate').value; S.flex = $('#zpFlexible').checked;
+    S.date = $('#zpDate').value; S.flex = $('#zpFlexible').checked; S.gustos = $$('[name=gusto]:checked').map(x => x.value);
     const b = form.querySelector('[name=budget]:checked'); S.budget = b ? b.value : 'Sin decidir';
     S.inc = $$('[name=inc]:checked').map(x => x.value); S.minors = $('#zpMinors').checked;
     S.name = $('#zpName').value.trim(); S.phone = $('#zpPhone').value.trim();
@@ -51,20 +52,48 @@
     $('#zpDest').value = S.dest; $('#zpFrom').value = S.from; $('#zpDate').value = S.date; $('#zpFlexible').checked = S.flex;
     $$('[name=budget]').forEach(x => x.checked = x.value === S.budget);
     $$('[name=inc]').forEach(x => x.checked = S.inc.includes(x.value));
+    $$('[name=gusto]').forEach(x => x.checked = (S.gustos || []).includes(x.value));
+    months(); marks();
     $('#zpMinors').checked = S.minors; $('#zpName').value = S.name; $('#zpPhone').value = S.phone; $('#zpEmail').value = S.email;
     $('#zpGroup').value = S.group; $('#zpNotes').value = S.notes; $('#zpPromo').checked = S.promo;
     $('#zpDays').textContent = S.days; $('#zpPax').textContent = S.pax;
     $('#zpDate').min = new Date().toISOString().slice(0, 10);
     suggest();
   }
-  function suggest(){ $('#zpDestList').innerHTML = (SUGIERE[S.tipo] || []).map(d => `<option value="${esc(d)}">`).join(''); }
+  function suggest(){
+    const l = SUGIERE[S.tipo] || [];
+    $('#zpDestList').innerHTML = l.map(d => `<option value="${esc(d)}">`).join('');
+    // botones: lo típico de cada plan + «Aconsejadnos» (sin escribir)
+    $('#zpDestPicks').innerHTML = S.tipo
+      ? l.map(d => `<button type="button" data-v="${esc(d)}">${esc(d.split(' · ')[0])}</button>`).join('') + '<button type="button" data-v="Aconsejadnos" class="is-alt">🤷 Aconsejadnos</button>'
+      : '<small class="zp-hint">Elige arriba el tipo de viaje y te sugerimos destinos.</small>';
+    marks();
+  }
+  // próximos 8 meses como botones (el mes vale como fecha aproximada)
+  function months(){
+    const d = new Date(), out = [];
+    const i0 = d.getDate() > 20 ? 1 : 0;   // a final de mes, el mes actual ya no se ofrece
+    for(let i = i0; i < i0 + 8; i++){
+      const m = new Date(d.getFullYear(), d.getMonth() + i, 1), k = `${MESES[m.getMonth()]} ${m.getFullYear()}`;
+      out.push(`<button type="button" data-v="${k}">${MESES[m.getMonth()].slice(0, 3)} <small>${String(m.getFullYear()).slice(2)}</small></button>`);
+    }
+    $('#zpMonths').innerHTML = out.join('');
+  }
+  // marca el botón que coincide con lo elegido
+  function marks(){
+    $$('#zpDestPicks [data-v]').forEach(b => b.classList.toggle('is-on', b.dataset.v === S.dest));
+    $$('[data-pick="from"] [data-v]').forEach(b => b.classList.toggle('is-on', b.dataset.v === S.from));
+    $$('#zpMonths [data-v]').forEach(b => b.classList.toggle('is-on', b.dataset.v === S.mes));
+    $$('[data-pick="days"] [data-v]').forEach(b => b.classList.toggle('is-on', Number(b.dataset.v) === S.days));
+    $$('[data-pick="pax"] [data-v]').forEach(b => b.classList.toggle('is-on', Number(b.dataset.v) === S.pax));
+  }
 
   /* ---------- resumen (billete) ---------- */
   function paintSum(){
     $('#zpSumFrom').textContent = S.from; $('#zpSumFromC').textContent = code(S.from === 'Otra ciudad' ? '' : S.from) || '—';
     $('#zpSumTo').textContent = S.dest || 'Por decidir'; $('#zpSumToC').textContent = S.dest ? code(S.dest) : '???';
     $('#zpSumPlan').textContent = TIPOS[S.tipo] || '—'; $('#zpSumPax').textContent = S.pax; $('#zpSumDays').textContent = S.days;
-    $('#zpSumDate').textContent = S.date ? fday(S.date) + (S.flex ? ' · flexible' : '') : (S.flex ? 'Fechas flexibles' : 'Fecha por decidir');
+    $('#zpSumDate').textContent = S.date ? fday(S.date) + (S.flex ? ' · flexible' : '') : S.mes ? 'En ' + S.mes : (S.flex ? 'Fechas flexibles' : 'Fecha por decidir');
   }
 
   /* ---------- pasos ---------- */
@@ -73,7 +102,7 @@
     if(n === 1 && !S.tipo) return err('Elige qué tipo de viaje queréis.');
     if(n === 2){
       if(S.date && S.date < new Date().toISOString().slice(0, 10)) return err('La fecha de salida ya ha pasado.');
-      if(!S.date && !S.flex) return err('Pon una fecha aproximada o marca «Fechas flexibles».');
+      if(!S.date && !S.flex && !S.mes) return err('Toca un mes, pon el día o marca «Fechas flexibles».');
     }
     if(n === 3){
       if(IB.enabled && !user) return err('Crea tu cuenta o entra para poder enviarlo.');
@@ -104,7 +133,8 @@
     return 'ZP-' + s;
   }
   function notas(){
-    return [`Tipo: ${TIPOS[S.tipo]}`, S.group && `Grupo: ${S.group}`, S.minors && 'Hay menores de edad en el grupo',
+    return [`Tipo: ${TIPOS[S.tipo]}`, !S.date && S.mes && `Mes: ${S.mes}`, S.group && `Grupo: ${S.group}`, S.minors && 'Hay menores de edad en el grupo',
+      (S.gustos || []).length && `Les apetece: ${S.gustos.join(', ')}`,
       S.inc.length && `Incluir: ${S.inc.join(', ')}`, S.notes].filter(Boolean).join('\n');
   }
   async function send(){
@@ -114,7 +144,7 @@
     const ref = ref6();
     const row = {
       ref, nombre: S.name, email: S.email, telefono: S.phone, salida: S.from,
-      fecha_salida: S.date || null, flexible: !!S.flex, dias: S.days, viajeros: S.pax,
+      fecha_salida: S.date || null, flexible: !!S.flex || (!S.date && !!S.mes), dias: S.days, viajeros: S.pax,
       paradas: [{ ciudad: S.dest || 'Por decidir', pais: '', dias: S.days }],
       estilo: [TIPOS[S.tipo]].concat(S.inc), alojamiento: S.inc.includes('Alojamiento') ? 'Incluido' : 'No incluido',
       presupuesto: S.budget, notas: notas(), acepta_publicidad: !!S.promo, marca: 'zarping'
@@ -142,9 +172,9 @@
     }
     const notified = await IB.notify('viaje', {
       referencia: ref, marca: 'Zarping', tipo: TIPOS[S.tipo], nombre: S.name, email: S.email, telefono: S.phone, salida: S.from,
-      destino: S.dest || 'Por decidir', fecha: (S.date ? fday(S.date) : 'sin fecha') + (S.flex ? ' (flexible)' : ''), dias: String(S.days),
+      destino: S.dest || 'Por decidir', fecha: (S.date ? fday(S.date) : S.mes ? 'en ' + S.mes : 'sin fecha') + (S.flex ? ' (flexible)' : ''), dias: String(S.days),
       viajeros: String(S.pax), presupuesto: S.budget, incluir: S.inc.join(', '), grupo: S.group, menores: S.minors ? 'Sí' : 'No',
-      publicidad: S.promo ? 'Sí' : 'No', notas: S.notes
+      publicidad: S.promo ? 'Sí' : 'No', gustos: (S.gustos || []).join(', '), notas: S.notes
     });
     sending = false; $('#zpNext').disabled = false; go(3);
     if(IB.enabled && !stored){ err(IB.errMsg(e1)); return; }
@@ -155,7 +185,7 @@
   function waText(ref){
     return `¡Hola Zarping! Soy ${S.name} y acabo de pedir un viaje (ref. ${ref}).\n` +
       `${TIPOS[S.tipo]} · ${S.dest || 'destino por decidir'} · desde ${S.from}\n` +
-      `${S.pax} personas · ${S.days} días · ${S.date ? fday(S.date) : 'fecha por decidir'}${S.flex ? ' (flexible)' : ''}\nPresupuesto: ${S.budget}`;
+      `${S.pax} personas · ${S.days} días · ${S.date ? fday(S.date) : S.mes ? 'en ' + S.mes : 'fecha por decidir'}${S.flex ? ' (flexible)' : ''}\nPresupuesto: ${S.budget}`;
   }
   function done(ref){
     const box = $('#zpDone');
@@ -177,13 +207,23 @@
   }
 
   /* ---------- eventos ---------- */
-  form.addEventListener('input', () => { read(); save(); paintSum(); });
-  form.addEventListener('change', e => { read(); save(); paintSum(); if(e.target.name === 'tipo'){ suggest(); err(''); } });
+  form.addEventListener('input', e => { read(); if(e.target.id === 'zpDate' && S.date) S.mes = ''; marks(); save(); paintSum(); });
+  form.addEventListener('change', e => { read(); save(); paintSum(); if(e.target.name === 'tipo'){ suggest(); err(''); } if(e.target.id === 'zpFrom' || e.target.id === 'zpDate'){ if(S.date) S.mes = ''; marks(); } });
   form.addEventListener('click', e => {
+    const p = e.target.closest('.zp-picks [data-v]');
+    if(p){
+      const box = p.parentElement, v = p.dataset.v, k = box.dataset.pick || box.id;
+      if(k === 'zpDestPicks'){ S.dest = S.dest === v ? '' : v; $('#zpDest').value = S.dest; }
+      else if(k === 'from'){ S.from = v; $('#zpFrom').value = v; }
+      else if(k === 'zpMonths'){ S.mes = S.mes === v ? '' : v; if(S.mes){ $('#zpDate').value = ''; S.date = ''; } err(''); }
+      else if(k === 'days'){ S.days = Number(v); $('#zpDays').textContent = S.days; }
+      else if(k === 'pax'){ S.pax = Number(v); $('#zpPax').textContent = S.pax; }
+      marks(); save(); paintSum(); return;
+    }
     const b = e.target.closest('[data-n]'); if(!b) return;
     const k = b.dataset.n, d = Number(b.dataset.d);
     if(k === 'days') S.days = Math.min(30, Math.max(1, S.days + d)); else S.pax = Math.min(300, Math.max(2, S.pax + d));
-    $('#zpDays').textContent = S.days; $('#zpPax').textContent = S.pax; save(); paintSum();
+    $('#zpDays').textContent = S.days; $('#zpPax').textContent = S.pax; marks(); save(); paintSum();
   });
   $('#zpNext').addEventListener('click', () => { read(); save(); if(step < TOTAL){ if(valid(step)) go(step + 1); } else send(); });
   $('#zpBack').addEventListener('click', () => { err(''); go(Math.max(1, step - 1)); });
@@ -199,7 +239,7 @@
       S.email = user.email;
       $('#zpName').value = S.name; $('#zpPhone').value = S.phone; $('#zpEmail').value = S.email; $('#zpEmail').readOnly = true;
       // vuelve de crear la cuenta con el formulario ya relleno: directo al último paso
-      if(S.tipo && (S.date || S.flex)) go(3);
+      if(S.tipo && (S.date || S.flex || S.mes)) go(3);
     }
     go(step);
   })();

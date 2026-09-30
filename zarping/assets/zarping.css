@@ -727,3 +727,17 @@ body.menu-open .zp-tabs{transform:translateY(160%)!important}
 @media (prefers-reduced-motion: reduce){.zp-logos-track{animation:none}.zp-logos-row{overflow-x:auto}}
 .zp-fest-bar{margin-top:14px}
 @media (max-width:640px){.zp-lg{height:62px}.zp-lg--0,.zp-lg--3{font-size:1.1rem}.zp-lg--1{font-size:1rem}.zp-lg--2,.zp-lg--5{font-size:1.2rem}}
+
+/* ---------- monta tu viaje: botones en lugar de escribir ---------- */
+.zp-picks{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.zp-picks button{padding:7px 12px;border-radius:9px;border:2px solid var(--ink);background:#fff;font:inherit;font-size:.88rem;font-weight:800;color:var(--ink);cursor:pointer;transition:background .15s,transform .15s var(--ease),box-shadow .15s}
+.zp-picks button:hover{background:var(--cream)}
+.zp-picks button.is-on{background:var(--lime);box-shadow:2px 2px 0 var(--ink);transform:translate(-1px,-1px)}
+.zp-picks button.is-alt{border-style:dashed}
+.zp-picks button small{font-weight:700;opacity:.6}
+.zp-picks--sm{margin:8px 0 0}
+.zp-picks--sm button{min-width:44px;padding:6px 10px}
+.zp-hint{display:block;margin-top:6px;font-size:.8rem;color:var(--muted);font-weight:600}
+.zp-picks .zp-hint{margin:0}
+.zp-wide{grid-column:1 / -1}
+#zpMonths button{text-transform:capitalize}

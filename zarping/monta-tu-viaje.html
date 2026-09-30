@@ -84,25 +84,32 @@
           <label class="zp-choice"><input type="radio" name="tipo" value="a-medida"><span>✈️<b>A medida</b></span></label>
         </div>
         <div class="zp-row">
-          <div class="field"><label class="field-label" for="zpDest">¿Adónde?</label><input class="pl-input" id="zpDest" list="zpDestList" maxlength="80" placeholder="Andorra, Ibiza… o «no lo sabemos»" autocomplete="off"><datalist id="zpDestList"></datalist></div>
+          <div class="field"><label class="field-label" for="zpDest">¿Adónde?</label><div class="zp-picks" id="zpDestPicks" aria-label="Destinos sugeridos"></div><input class="pl-input" id="zpDest" list="zpDestList" maxlength="80" placeholder="…o escribe otro destino" autocomplete="off"><datalist id="zpDestList"></datalist></div>
           <div class="field"><label class="field-label" for="zpFrom">Salís desde</label>
+            <div class="zp-picks" data-pick="from" aria-label="Ciudad de salida"><button type="button" data-v="Madrid">Madrid</button><button type="button" data-v="Barcelona">Barcelona</button><button type="button" data-v="Valencia">Valencia</button><button type="button" data-v="Sevilla">Sevilla</button><button type="button" data-v="Málaga">Málaga</button><button type="button" data-v="Bilbao">Bilbao</button></div>
             <select class="pl-input" id="zpFrom">
               <option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Málaga</option><option>Bilbao</option><option>Zaragoza</option><option>Alicante</option><option>Valladolid</option><option>Murcia</option><option>Palma</option><option>Otra ciudad</option>
-            </select></div>
+            </select><small class="zp-hint">¿Otra ciudad? Elígela en la lista.</small></div>
         </div>
       </fieldset>
 
       <fieldset class="zp-step" data-step="2" hidden>
         <legend>¿Cuándo y cuántos?</legend>
         <div class="zp-row">
-          <div class="field"><label class="field-label" for="zpDate">Fecha de salida</label><input class="pl-input" id="zpDate" type="date"></div>
+          <div class="field zp-wide"><span class="field-label">¿Cuándo? <small>toca un mes o pon el día exacto</small></span>
+            <div class="zp-picks" id="zpMonths" aria-label="Mes del viaje"></div></div>
+        </div>
+        <div class="zp-row">
+          <div class="field"><label class="field-label" for="zpDate">Día exacto <small>(opcional)</small></label><input class="pl-input" id="zpDate" type="date"></div>
           <label class="pl-check zp-flex"><input type="checkbox" id="zpFlexible"><span></span><em>Fechas flexibles</em></label>
         </div>
         <div class="zp-row">
           <div class="field"><span class="field-label" id="zpDaysL">Días</span>
-            <div class="zp-step-n" aria-labelledby="zpDaysL"><button type="button" data-n="days" data-d="-1" aria-label="Un día menos">−</button><output id="zpDays">4</output><button type="button" data-n="days" data-d="1" aria-label="Un día más">+</button></div></div>
+            <div class="zp-step-n" aria-labelledby="zpDaysL"><button type="button" data-n="days" data-d="-1" aria-label="Un día menos">−</button><output id="zpDays">4</output><button type="button" data-n="days" data-d="1" aria-label="Un día más">+</button></div>
+            <div class="zp-picks zp-picks--sm" data-pick="days" aria-label="Días"><button type="button" data-v="3">3</button><button type="button" data-v="4">4</button><button type="button" data-v="5">5</button><button type="button" data-v="7">7</button><button type="button" data-v="10">10</button><button type="button" data-v="14">14</button></div></div>
           <div class="field"><span class="field-label" id="zpPaxL">Personas</span>
-            <div class="zp-step-n" aria-labelledby="zpPaxL"><button type="button" data-n="pax" data-d="-1" aria-label="Una persona menos">−</button><output id="zpPax">10</output><button type="button" data-n="pax" data-d="1" aria-label="Una persona más">+</button></div></div>
+            <div class="zp-step-n" aria-labelledby="zpPaxL"><button type="button" data-n="pax" data-d="-1" aria-label="Una persona menos">−</button><output id="zpPax">10</output><button type="button" data-n="pax" data-d="1" aria-label="Una persona más">+</button></div>
+            <div class="zp-picks zp-picks--sm" data-pick="pax" aria-label="Personas"><button type="button" data-v="4">4</button><button type="button" data-v="8">8</button><button type="button" data-v="12">12</button><button type="button" data-v="20">20</button><button type="button" data-v="30">30</button><button type="button" data-v="50">50</button></div></div>
         </div>
         <span class="field-label">Presupuesto por persona</span>
         <div class="zp-pills" role="radiogroup" aria-label="Presupuesto por persona">
@@ -138,7 +145,18 @@
           <div class="field"><label class="field-label" for="zpEmail">Correo electrónico</label><input class="pl-input" id="zpEmail" type="email" autocomplete="email" maxlength="120" required></div>
           <div class="field"><label class="field-label" for="zpGroup">Nombre del grupo <small>(opcional)</small></label><input class="pl-input" id="zpGroup" maxlength="60" placeholder="Los del piso, 2.º de Bachillerato B…"></div>
         </div>
-        <div class="field"><label class="field-label" for="zpNotes">¿Algo más? <small>(opcional)</small></label><textarea class="pl-input" id="zpNotes" rows="3" maxlength="1500" placeholder="Qué os apetece hacer, tipo de alojamiento, si alguien no esquía…"></textarea></div>
+        <span class="field-label">¿Qué os apetece? <small>(toca los que queráis)</small></span>
+        <div class="zp-pills" aria-label="Qué os apetece">
+          <label><input type="checkbox" name="gusto" value="Fiesta"><span>🎉 Fiesta</span></label>
+          <label><input type="checkbox" name="gusto" value="Relax y playa"><span>🏖️ Relax y playa</span></label>
+          <label><input type="checkbox" name="gusto" value="Aventura"><span>🧗 Aventura</span></label>
+          <label><input type="checkbox" name="gusto" value="Cultura y visitas"><span>🏛️ Cultura</span></label>
+          <label><input type="checkbox" name="gusto" value="Buena comida"><span>🍽️ Comer bien</span></label>
+          <label><input type="checkbox" name="gusto" value="Con niños"><span>👨‍👩‍👧 Con niños</span></label>
+          <label><input type="checkbox" name="gusto" value="Lo más barato posible"><span>💸 Lo más barato</span></label>
+          <label><input type="checkbox" name="gusto" value="Todo organizado"><span>✅ Todo organizado</span></label>
+        </div>
+        <div class="field"><label class="field-label" for="zpNotes">¿Algo más? <small>(opcional)</small></label><textarea class="pl-input" id="zpNotes" rows="3" maxlength="1500" placeholder="Si queréis, contadnos más: tipo de alojamiento, si alguien no esquía…"></textarea></div>
         <label class="pl-check"><input type="checkbox" id="zpPromo"><span></span><em>Quiero recibir ofertas y novedades de Zarping por correo.</em></label>
         <p class="zp-legal">Al enviarlo aceptas la <a href="politica-privacidad.html" target="_blank">política de privacidad</a>. Usamos tus datos solo para preparar tu viaje.</p>
       </fieldset>
