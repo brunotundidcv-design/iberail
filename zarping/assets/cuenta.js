@@ -9,6 +9,16 @@
   const next = IB.safeNext(params.get('next'));
   const MODE = root.dataset.mode || 'cuenta';   // 'grupos' en grupos.html: página directa de «Mis grupos»
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // móvil obligatorio (avisos por WhatsApp y sorteos): España = 9 cifras empezando por 6 o 7; si no, internacional con +
+  // Sin verificación por SMS: cuesta dinero por mensaje (Supabase necesita Twilio o similar).
+  function normPhone(v){
+    let d = String(v || '').replace(/[\s().-]/g, '');
+    if(/^00\d/.test(d)) d = '+' + d.slice(2);
+    if(/^\+34/.test(d)) d = d.slice(3);
+    if(/^[67]\d{8}$/.test(d)) return '+34' + d;
+    if(/^\+(?!34)\d{8,14}$/.test(d)) return d;
+    return '';
+  }
   // palabras que cambian con la marca (Iberail: «ruta»; Zarping: «viaje»)
   const RT = IB.brand.ruta === 'ruta'
     ? { Ruta: 'Ruta', tu: 'Tu ruta', vuestra: 'Vuestra ruta', prep: 'Estamos preparando vuestra ruta', ver: 'Ver mis rutas', de: 'Ruta de', tus: 'tus rutas', la: 'la ruta' }
@@ -138,7 +148,9 @@
   fReg.addEventListener('submit', async e => {
     e.preventDefault();
     const nombre = $('#reName').value.trim(), email = $('#reEmail').value.trim().toLowerCase(), pass = $('#rePass').value;
+    const telefono = normPhone($('#rePhone') ? $('#rePhone').value : '');
     if(nombre.length < 2) return msg('Escribe tu nombre.');
+    if(!telefono) return msg('Escribe tu móvil (9 cifras): lo necesitamos para avisarte por WhatsApp y para los sorteos.');
     if(!EMAIL_RE.test(email)) return msg('Revisa el correo: no parece válido.');
     if(pass.length < 8) return msg('La contraseña necesita al menos 8 caracteres.');
     if(!$('#reConsent').checked) return msg('Confirma que tienes 18 años o más y que aceptas el aviso legal y la política de privacidad.');
@@ -146,7 +158,7 @@
     const { data, error } = await IB.sb.auth.signUp({
       email, password: pass,
       // el código de invitación viaja con la cuenta (por si verifica el correo en otro dispositivo)
-      options: { data: IB.pendingRef() ? { nombre, ref: IB.pendingRef() } : { nombre }, emailRedirectTo: location.origin + '/cuenta.html' }
+      options: { data: IB.pendingRef() ? { nombre, telefono, ref: IB.pendingRef() } : { nombre, telefono }, emailRedirectTo: location.origin + '/cuenta.html' }
     });
     busy(fReg, false);
     if(error) return msg(IB.errMsg(error));
@@ -680,6 +692,33 @@
     const n = bs[(i + (e.key === 'ArrowRight' ? 1 : bs.length - 1)) % bs.length]; setTab(n.dataset.t); n.focus();
   });
   window.addEventListener('hashchange', () => { if(MODE === 'grupos') return; const h = location.hash.slice(1); if(['rutas', 'grupos', 'avisos', 'invita'].includes(h) && root.dataset.view === 'dash') setTab(h, true); });
+  // cuentas antiguas sin móvil: tarjeta arriba del todo, con un solo campo, hasta que lo añaden
+  function askPhone(user){
+    const md = user.user_metadata || {}, dashEl = $('.auth-dash', root), old = $('.tel-ask', root);
+    if(normPhone(md.telefono)){ if(old) old.remove(); return; }
+    if(old || !dashEl) return;
+    const head = $('.dash-head', dashEl);
+    const f = document.createElement('form');
+    f.className = 'tel-ask'; f.noValidate = true;
+    f.innerHTML = `<div class="tel-ask-ic" aria-hidden="true">📱</div>
+      <div class="tel-ask-main"><b>Añade tu móvil</b><p>Lo necesitamos para avisarte por WhatsApp de tu viaje y para que participes en los sorteos.</p>
+      <div class="tel-ask-row"><input class="pl-input" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="600 123 456" aria-label="Tu móvil" value="${esc(md.telefono || '')}">
+      <button class="btn btn--primary btn--sm" type="submit">Guardar</button></div><small class="tel-ask-err" hidden></small></div>`;
+    if(head) head.after(f); else dashEl.prepend(f);
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const tel = normPhone($('input', f).value), er = $('.tel-ask-err', f), b = $('button', f);
+      if(!tel){ er.textContent = 'Escribe un móvil válido (9 cifras, o con prefijo + si no es de España).'; er.hidden = false; return; }
+      b.disabled = true; er.hidden = true;
+      const { data, error } = await IB.sb.auth.updateUser({ data: { telefono: tel } });
+      b.disabled = false;
+      if(error){ er.textContent = IB.errMsg(error); er.hidden = false; return; }
+      f.innerHTML = '<div class="tel-ask-ic" aria-hidden="true">✅</div><div class="tel-ask-main"><b>¡Listo! Ya tenemos tu móvil.</b><p>Ya participas en los sorteos.</p></div>';
+      f.classList.add('is-ok'); setTimeout(() => f.remove(), 4000);
+      const line = $('[data-email-line]', root); if(line) line.textContent = user.email + ' · ' + tel;
+      if(data && data.user) user.user_metadata = data.user.user_metadata;
+    });
+  }
   async function dash(){
     const user = await IB.getUser();
     if(!user) return show('login');
@@ -687,6 +726,7 @@
     const md = user.user_metadata || {};
     $$('[data-name]', root).forEach(n => n.textContent = IB.firstName(user) || 'viajero');
     const el = $('[data-email-line]', root); if(el) el.textContent = user.email + (md.telefono ? ' · ' + md.telefono : '');
+    askPhone(user);
     IB.sb.rpc('is_admin').then(({ data }) => { $('#dashAdmin').hidden = !data; }).catch(() => {});
     loadRoutes(user);
   }

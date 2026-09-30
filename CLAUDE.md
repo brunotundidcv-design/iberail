@@ -47,7 +47,9 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
 - `data.js` — ciudades, orígenes, trayectos de tren (`IB_DATA`).
 - `map.js` / `gmap.js` — mapa SVG de Europa (Natural Earth vía jsDelivr) y mapa de ruta del grupo.
 - `planner.js` — planificador (guarda borrador en localStorage `ib-draft-v2`).
-- `cuenta.js` — cuenta del cliente.
+- `cuenta.js` — cuenta del cliente. **Móvil obligatorio al registrarse** (`#rePhone`, `normPhone`: 9 cifras 6/7 o +prefijo;
+  se guarda en `user_metadata.telefono`, sirve para WhatsApp y sorteos). Cuentas sin móvil: tarjeta «Añade tu móvil» en el
+  panel del cliente hasta que lo guardan (`askPhone`). Sin verificación por SMS (cuesta dinero por mensaje).
 - `panel.js` — panel del equipo: solicitudes en directo, clientes, grupos, documentos, pagos,
   comisiones/RRPP, bot de WhatsApp.
 - `notif.js` — campana de notificaciones.

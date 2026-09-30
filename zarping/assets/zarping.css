@@ -741,3 +741,5 @@ body.menu-open .zp-tabs{transform:translateY(160%)!important}
 .zp-picks .zp-hint{margin:0}
 .zp-wide{grid-column:1 / -1}
 #zpMonths button{text-transform:capitalize}
+.zp .tel-ask{background:var(--lime);border:var(--b);border-radius:14px;box-shadow:var(--hard)}
+.zp .tel-ask.is-ok{background:#fff}

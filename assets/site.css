@@ -1167,6 +1167,16 @@ body.is-dash .auth-grid{grid-template-columns:1fr}
 body.is-dash .auth-art{display:none}
 body.is-dash .auth-card{min-height:0;justify-content:flex-start}
 .dash-head{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap}
+/* «Añade tu móvil» (cuentas sin teléfono) */
+.tel-ask{display:flex;gap:14px;align-items:flex-start;margin:20px 0 4px;padding:16px 18px;border-radius:18px;background:rgba(240,176,42,.14);border:1.5px solid rgba(240,176,42,.55)}
+.tel-ask.is-ok{background:rgba(47,143,91,.1);border-color:rgba(47,143,91,.4)}
+.tel-ask-ic{font-size:1.6rem;line-height:1}
+.tel-ask-main{flex:1;min-width:0}
+.tel-ask-main b{font-size:1.02rem}
+.tel-ask-main p{margin-top:2px;font-size:.9rem;color:var(--ink-soft)}
+.tel-ask-row{display:flex;gap:8px;margin-top:10px}
+.tel-ask-row .pl-input{flex:1;min-width:0;min-height:44px;font-size:16px}
+.tel-ask-err{display:block;margin-top:6px;color:#B0203A;font-weight:600;font-size:.84rem}
 .dash-head .auth-sub{margin-bottom:0}
 .dash-admin{display:flex;align-items:center;gap:14px;margin-top:22px;padding:16px 18px;border-radius:16px;background:var(--ink);color:var(--cream);transition:transform .2s var(--ease)}
 .dash-admin[hidden]{display:none}
@@ -3219,3 +3229,5 @@ body.al-lock{overflow:hidden}
 .adm-p-marca small{font-weight:400;color:var(--muted)}
 .cor-marca{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:.9rem}
 .cor-marca select{min-height:40px;padding:6px 36px 6px 12px;width:auto}
+.tel-ask-row .btn{flex-shrink:0;padding:0 16px}
+@media (max-width:560px){.tel-ask{padding:14px}.tel-ask-ic{display:none}}
