@@ -3,21 +3,37 @@
   <div class="container">
     <nav class="crumbs" aria-label="Migas"><a href="index.html">Inicio</a><span>/</span><span>Festivales</span></nav>
     <span class="eyebrow">🎧 Calendario</span>
-    <h1>Los próximos festivales. Vosotros elegís cuál.</h1>
+    <h1>Los festivales del mundo. Vosotros elegís cuál.</h1>
     <p class="lead">En España, Europa y el resto del mundo. Elegid uno y os montamos el viaje del grupo: transporte, alojamiento cerca del recinto y traslados. Cada uno paga su parte desde la web.</p>
   </div>
 </section>
 
-<nav class="zp-jump zp-fest-filt" aria-label="Filtrar festivales">
-  <div class="container" role="group">
-    <button type="button" class="is-on" data-z="all">Todos</button>
-    <button type="button" data-z="espana">🇪🇸 España</button>
-    <button type="button" data-z="europa">🇪🇺 Europa</button>
-    <button type="button" data-z="mundo">🌎 Resto del mundo</button>
+{{FEST_LOGOS}}
+
+<div class="zp-dest-bar zp-fest-bar">
+  <div class="container">
+    <label class="zp-dest-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="zpFestQ" placeholder="Busca un festival, ciudad o estilo: Tomorrowland, techno, Madrid…" autocomplete="off" aria-label="Buscar festival"></label>
+    <div class="zp-dest-f">
+      <div class="zp-jump zp-fest-filt" role="group" aria-label="Zona">
+        <button type="button" class="is-on" data-z="all">Todos</button>
+        <button type="button" data-z="espana">🇪🇸 España</button>
+        <button type="button" data-z="europa">🇪🇺 Europa</button>
+        <button type="button" data-z="mundo">🌎 Resto del mundo</button>
+      </div>
+      <div class="zp-dest-est" role="group" aria-label="Estilo">
+        <button type="button" data-e="electr">🎛️ Electrónica</button>
+        <button type="button" data-e="techno">🔊 Techno</button>
+        <button type="button" data-e="indie">🎸 Indie</button>
+        <button type="button" data-e="pop">🎤 Pop</button>
+        <button type="button" data-e="urbano|hip hop|afro|regga">🔥 Urbano</button>
+        <button type="button" data-e="rock|metal|punk">🤘 Rock y metal</button>
+      </div>
+    </div>
   </div>
-</nav>
+</div>
 
 <section class="section" style="padding-top:clamp(20px,3vw,32px)">
+  <div class="container"><p class="zp-dest-count" id="zpFestN" aria-live="polite"></p></div>
   <div class="container zp-fests" id="zpFests">
 {{FESTIVALES}}
     <p class="zp-fest-none" id="zpFestNone" hidden>No hay festivales próximos con ese filtro. <a href="monta-tu-viaje.html?tipo=festival">Cuéntanos cuál queréis</a> y lo miramos.</p>
@@ -41,19 +57,32 @@
 
 <script>
 (function(){
-  // los festivales que ya han terminado se ocultan solos; filtro por zona
-  var hoy = new Date().toISOString().slice(0, 10), box = document.getElementById('zpFests'), zona = 'all';
+  // buscador + zona + estilo; los festivales que ya han terminado se ocultan solos
+  var hoy = new Date().toISOString().slice(0, 10), box = document.getElementById('zpFests'), zona = 'all', est = '', q = '';
+  var norm = function(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+  var cards = [].slice.call(box.querySelectorAll('.zp-fest'));
+  cards.forEach(function(c){ c._t = norm(c.textContent); });
   function pinta(){
-    var vis = 0, cards = box.querySelectorAll('.zp-fest');
-    cards.forEach(function(c){ var ok = c.dataset.fin >= hoy && (zona === 'all' || c.dataset.zona === zona); c.hidden = !ok; if(ok) vis++; });
+    var vis = 0, w = norm(q.trim()), re = est ? new RegExp(est) : null;
+    cards.forEach(function(c){
+      var ok = c.dataset.fin >= hoy && (zona === 'all' || c.dataset.zona === zona) && (!w || c._t.indexOf(w) > -1) && (!re || re.test(c._t));
+      c.hidden = !ok; if(ok) vis++;
+    });
     // cada mes solo si tiene algún festival visible
     box.querySelectorAll('[data-mes]').forEach(function(h){ var n = h.nextElementSibling, any = false; while(n && n.classList.contains('zp-fest')){ if(!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; });
     document.getElementById('zpFestNone').hidden = vis > 0;
+    document.getElementById('zpFestN').textContent = vis + (vis === 1 ? ' festival' : ' festivales');
   }
-  document.querySelector('.zp-fest-filt').addEventListener('click', function(e){
+  document.querySelector('.zp-fest-bar .zp-fest-filt').addEventListener('click', function(e){
     var b = e.target.closest('[data-z]'); if(!b) return; zona = b.dataset.z;
     this.querySelectorAll('[data-z]').forEach(function(x){ x.classList.toggle('is-on', x === b); }); pinta();
   });
+  document.querySelector('.zp-fest-bar .zp-dest-est').addEventListener('click', function(e){
+    var b = e.target.closest('[data-e]'); if(!b) return; est = est === b.dataset.e ? '' : b.dataset.e;
+    this.querySelectorAll('[data-e]').forEach(function(x){ x.classList.toggle('is-on', x.dataset.e === est); }); pinta();
+  });
+  var qi = document.getElementById('zpFestQ'); qi.addEventListener('input', function(){ q = qi.value; pinta(); });
+  var p = new URLSearchParams(location.search).get('q'); if(p){ qi.value = q = p; }
   pinta();
 })();
 </script>

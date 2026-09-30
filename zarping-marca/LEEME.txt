@@ -8,7 +8,7 @@ Colores
   Rosa     #FF6BB5
 Fuentes (Google Fonts, gratis)
   Títulos: Unbounded Bold · Texto: Manrope
-Lema: «Suelta amarras.»
+Lema: «Tú pones el grupo. Nosotros, todo lo demás.»
 
 Carpetas
   simbolo/          el símbolo solo (la estela de zarpar), fondo transparente

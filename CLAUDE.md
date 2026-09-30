@@ -153,7 +153,8 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
   (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».
 - **Festivales** (`festivales.html`): se genera desde `tools/zarping/festivales.json` (fechas oficiales, revisado el
-  30/09/2026; 46 de España). **Todas las de 2027 van con `confirmado: false`** (fechas previstas, sin anuncio oficial
+  30/09/2026; 46 de España, 123 en total con Europa y el mundo). Buscador + filtros de zona y estilo; `?q=` precarga.
+  Tira de nombres de festivales estilo «logos» (`FEST_LOGOS` en `build.py`, texto, no logos oficiales) en portada y festivales. **Todas las de 2027 van con `confirmado: false`** (fechas previstas, sin anuncio oficial
   verificado: las webs oficiales no se pueden abrir desde el entorno de Claude). Al confirmarse, corregir y quitar el campo.
   Días de destinos y viajes listos ajustados a lo realista desde España (larga distancia ≥ 7-10 días). Los que ya han terminado se ocultan solos; filtro España / Europa / Resto del mundo. «Ir con Zarping» abre
   «Monta tu viaje» con `?tipo=festival&dest=…`. Para añadir o cambiar festivales: editar el JSON y volver a ejecutar el build.
@@ -193,7 +194,7 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 - ⭐ **NUEVO (29/09/2026): segunda agencia de viajes** con la misma titular (Andrea, IAE 755: mismo alta, REAV,
   registro y garantía; solo nombre comercial nuevo + marca OEPM + póliza RC que la incluya). Vende **todo menos Interrail**
   (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. **Nombre: ZARPING** (zarpar + -ing, como Vueling;
-  **zarping.com y zarping.es comprados el 30/09/2026**). Lema: «Suelta amarras.» Pendiente: marca en la OEPM (clase 39) y @zarping en redes. Marca: tinta #0E0E12, lima #D4FF3A, violeta #7B5CFF,
+  **zarping.com y zarping.es comprados el 30/09/2026**). Lema: «Tú pones el grupo. Nosotros, todo lo demás.» (antes «Suelta amarras», descartado por Bruno) Pendiente: marca en la OEPM (clase 39) y @zarping en redes. Marca: tinta #0E0E12, lima #D4FF3A, violeta #7B5CFF,
   rosa #FF6BB5; Unbounded + Manrope; símbolo = arco de «salto» punteado. Web hecha en `zarping/` (ver sección «Zarping»).
 - (descartado 29/09 por saturado) **«Energía en casa todo en uno»** — nombre propuesto Solneda (solneda.es/.com libres) — = placas + baterías + aerotermia + clima + ventanas +
   cargadores + certificados + subvenciones. Modelo: captar y gestionar; la instalación la hacen instaladores subcontratados.

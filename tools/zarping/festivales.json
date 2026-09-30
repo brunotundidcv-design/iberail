@@ -3,6 +3,28 @@
  "revisado": "2026-09-30",
  "festivales": [
   {
+   "nombre": "Austin City Limits",
+   "ciudad": "Austin, Texas",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2026-10-02",
+   "fin": "2026-10-04",
+   "estilo": "Rock, pop e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Tomorrowland Brasil",
+   "ciudad": "Itu, São Paulo",
+   "pais": "Brasil",
+   "flag": "🇧🇷",
+   "zona": "mundo",
+   "inicio": "2026-10-09",
+   "fin": "2026-10-11",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
    "nombre": "Amsterdam Dance Event",
    "ciudad": "Ámsterdam",
    "pais": "Países Bajos",
@@ -14,6 +36,28 @@
    "web": "https://www.amsterdam-dance-event.nl"
   },
   {
+   "nombre": "EDC Orlando",
+   "ciudad": "Orlando",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2026-11-06",
+   "fin": "2026-11-08",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Wonderfruit",
+   "ciudad": "Pattaya",
+   "pais": "Tailandia",
+   "flag": "🇹🇭",
+   "zona": "mundo",
+   "inicio": "2026-12-10",
+   "fin": "2026-12-14",
+   "estilo": "Electrónica, arte y bienestar",
+   "confirmado": false
+  },
+  {
    "nombre": "Tomorrowland Thailand",
    "ciudad": "Pattaya",
    "pais": "Tailandia",
@@ -23,6 +67,61 @@
    "fin": "2026-12-13",
    "estilo": "Electrónica",
    "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Djakarta Warehouse Project",
+   "ciudad": "Bali",
+   "pais": "Indonesia",
+   "flag": "🇮🇩",
+   "zona": "mundo",
+   "inicio": "2026-12-11",
+   "fin": "2026-12-13",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Sunburn Festival",
+   "ciudad": "Goa",
+   "pais": "India",
+   "flag": "🇮🇳",
+   "zona": "mundo",
+   "inicio": "2026-12-19",
+   "fin": "2026-12-21",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Afro Nation Ghana",
+   "ciudad": "Accra",
+   "pais": "Ghana",
+   "flag": "🇬🇭",
+   "zona": "mundo",
+   "inicio": "2026-12-28",
+   "fin": "2026-12-30",
+   "estilo": "Afrobeats y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Lollapalooza India",
+   "ciudad": "Bombay",
+   "pais": "India",
+   "flag": "🇮🇳",
+   "zona": "mundo",
+   "inicio": "2027-01-23",
+   "fin": "2027-01-24",
+   "estilo": "Pop, rock y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "EDC México",
+   "ciudad": "Ciudad de México",
+   "pais": "México",
+   "flag": "🇲🇽",
+   "zona": "mundo",
+   "inicio": "2027-02-26",
+   "fin": "2027-02-28",
+   "estilo": "Electrónica",
+   "confirmado": false
   },
   {
    "nombre": "Lollapalooza Argentina",
@@ -46,6 +145,28 @@
    "fin": "2027-03-14",
    "estilo": "Pop, rock y urbano",
    "web": "https://www.lollapaloozacl.com",
+   "confirmado": false
+  },
+  {
+   "nombre": "Vive Latino",
+   "ciudad": "Ciudad de México",
+   "pais": "México",
+   "flag": "🇲🇽",
+   "zona": "mundo",
+   "inicio": "2027-03-13",
+   "fin": "2027-03-14",
+   "estilo": "Rock y pop latino",
+   "confirmado": false
+  },
+  {
+   "nombre": "Festival Estéreo Picnic",
+   "ciudad": "Bogotá",
+   "pais": "Colombia",
+   "flag": "🇨🇴",
+   "zona": "mundo",
+   "inicio": "2027-03-18",
+   "fin": "2027-03-21",
+   "estilo": "Pop, rock y urbano",
    "confirmado": false
   },
   {
@@ -105,6 +226,17 @@
    "fin": "2027-04-11",
    "estilo": "Pop, rock y electrónica",
    "web": "https://www.coachella.com",
+   "confirmado": false
+  },
+  {
+   "nombre": "S2O Songkran Music Festival",
+   "ciudad": "Bangkok",
+   "pais": "Tailandia",
+   "flag": "🇹🇭",
+   "zona": "mundo",
+   "inicio": "2027-04-13",
+   "fin": "2027-04-15",
+   "estilo": "Electrónica",
    "confirmado": false
   },
   {
@@ -200,6 +332,28 @@
    "confirmado": false
   },
   {
+   "nombre": "Rock am Ring",
+   "ciudad": "Nürburg",
+   "pais": "Alemania",
+   "flag": "🇩🇪",
+   "zona": "europa",
+   "inicio": "2027-06-04",
+   "fin": "2027-06-06",
+   "estilo": "Rock y metal",
+   "confirmado": false
+  },
+  {
+   "nombre": "Governors Ball",
+   "ciudad": "Nueva York",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-06-04",
+   "fin": "2027-06-06",
+   "estilo": "Pop, urbano e indie",
+   "confirmado": false
+  },
+  {
    "nombre": "Mallorca Live Festival",
    "ciudad": "Calvià, Mallorca",
    "pais": "España",
@@ -219,6 +373,50 @@
    "inicio": "2027-06-10",
    "fin": "2027-07-31",
    "estilo": "Conciertos (ciclo)",
+   "confirmado": false
+  },
+  {
+   "nombre": "Primavera Sound Porto",
+   "ciudad": "Oporto",
+   "pais": "Portugal",
+   "flag": "🇵🇹",
+   "zona": "europa",
+   "inicio": "2027-06-10",
+   "fin": "2027-06-12",
+   "estilo": "Indie y alternativo",
+   "confirmado": false
+  },
+  {
+   "nombre": "Download Festival",
+   "ciudad": "Donington Park",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-06-10",
+   "fin": "2027-06-13",
+   "estilo": "Rock y metal",
+   "confirmado": false
+  },
+  {
+   "nombre": "Nova Rock",
+   "ciudad": "Nickelsdorf",
+   "pais": "Austria",
+   "flag": "🇦🇹",
+   "zona": "europa",
+   "inicio": "2027-06-10",
+   "fin": "2027-06-13",
+   "estilo": "Rock y metal",
+   "confirmado": false
+  },
+  {
+   "nombre": "Bonnaroo",
+   "ciudad": "Manchester, Tennessee",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-06-10",
+   "fin": "2027-06-13",
+   "estilo": "Rock, pop y electrónica",
    "confirmado": false
   },
   {
@@ -244,6 +442,17 @@
    "confirmado": false
   },
   {
+   "nombre": "Parklife",
+   "ciudad": "Mánchester",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-06-12",
+   "fin": "2027-06-13",
+   "estilo": "Electrónica y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Sónar",
    "ciudad": "Barcelona",
    "pais": "España",
@@ -264,6 +473,17 @@
    "inicio": "2027-06-17",
    "fin": "2027-06-19",
    "estilo": "Pop, urbano e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Hellfest",
+   "ciudad": "Clisson",
+   "pais": "Francia",
+   "flag": "🇫🇷",
+   "zona": "europa",
+   "inicio": "2027-06-17",
+   "fin": "2027-06-20",
+   "estilo": "Metal y rock",
    "confirmado": false
   },
   {
@@ -312,6 +532,39 @@
    "confirmado": false
   },
   {
+   "nombre": "Defqon.1",
+   "ciudad": "Biddinghuizen",
+   "pais": "Países Bajos",
+   "flag": "🇳🇱",
+   "zona": "europa",
+   "inicio": "2027-06-24",
+   "fin": "2027-06-27",
+   "estilo": "Hardstyle",
+   "confirmado": false
+  },
+  {
+   "nombre": "Electric Forest",
+   "ciudad": "Rothbury, Michigan",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-06-24",
+   "fin": "2027-06-27",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Roskilde Festival",
+   "ciudad": "Roskilde",
+   "pais": "Dinamarca",
+   "flag": "🇩🇰",
+   "zona": "europa",
+   "inicio": "2027-06-26",
+   "fin": "2027-07-03",
+   "estilo": "Rock, pop y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Resurrection Fest",
    "ciudad": "Viveiro",
    "pais": "España",
@@ -321,6 +574,17 @@
    "fin": "2027-07-03",
    "estilo": "Metal y rock",
    "web": "https://www.resurrectionfest.es",
+   "confirmado": false
+  },
+  {
+   "nombre": "Fusion Festival",
+   "ciudad": "Lärz",
+   "pais": "Alemania",
+   "flag": "🇩🇪",
+   "zona": "europa",
+   "inicio": "2027-06-30",
+   "fin": "2027-07-04",
+   "estilo": "Electrónica y alternativo",
    "confirmado": false
   },
   {
@@ -357,6 +621,28 @@
    "confirmado": false
   },
   {
+   "nombre": "Rock Werchter",
+   "ciudad": "Werchter",
+   "pais": "Bélgica",
+   "flag": "🇧🇪",
+   "zona": "europa",
+   "inicio": "2027-07-01",
+   "fin": "2027-07-04",
+   "estilo": "Rock y pop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Open'er Festival",
+   "ciudad": "Gdynia",
+   "pais": "Polonia",
+   "flag": "🇵🇱",
+   "zona": "europa",
+   "inicio": "2027-07-01",
+   "fin": "2027-07-03",
+   "estilo": "Pop, rock y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Bigsound",
    "ciudad": "Valencia",
    "pais": "España",
@@ -365,6 +651,39 @@
    "inicio": "2027-07-02",
    "fin": "2027-07-03",
    "estilo": "Pop y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Montreux Jazz Festival",
+   "ciudad": "Montreux",
+   "pais": "Suiza",
+   "flag": "🇨🇭",
+   "zona": "europa",
+   "inicio": "2027-07-02",
+   "fin": "2027-07-17",
+   "estilo": "Jazz, pop y soul",
+   "confirmado": false
+  },
+  {
+   "nombre": "Kappa FuturFestival",
+   "ciudad": "Turín",
+   "pais": "Italia",
+   "flag": "🇮🇹",
+   "zona": "europa",
+   "inicio": "2027-07-02",
+   "fin": "2027-07-04",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Afro Nation Portugal",
+   "ciudad": "Portimão",
+   "pais": "Portugal",
+   "flag": "🇵🇹",
+   "zona": "europa",
+   "inicio": "2027-07-06",
+   "fin": "2027-07-08",
+   "estilo": "Afrobeats y urbano",
    "confirmado": false
   },
   {
@@ -414,6 +733,39 @@
    "confirmado": false
   },
   {
+   "nombre": "NOS Alive",
+   "ciudad": "Lisboa",
+   "pais": "Portugal",
+   "flag": "🇵🇹",
+   "zona": "europa",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-10",
+   "estilo": "Pop, rock e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Electric Love",
+   "ciudad": "Salzburgo",
+   "pais": "Austria",
+   "flag": "🇦🇹",
+   "zona": "europa",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-10",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "EXIT Festival",
+   "ciudad": "Novi Sad",
+   "pais": "Serbia",
+   "flag": "🇷🇸",
+   "zona": "europa",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-11",
+   "estilo": "Electrónica, rock y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Pirineos Sur",
    "ciudad": "Lanuza, Huesca",
    "pais": "España",
@@ -422,6 +774,50 @@
    "inicio": "2027-07-09",
    "fin": "2027-07-24",
    "estilo": "Músicas del mundo",
+   "confirmado": false
+  },
+  {
+   "nombre": "Wireless Festival",
+   "ciudad": "Londres",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-07-09",
+   "fin": "2027-07-11",
+   "estilo": "Hip hop y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Awakenings Summer",
+   "ciudad": "Hilvarenbeek",
+   "pais": "Países Bajos",
+   "flag": "🇳🇱",
+   "zona": "europa",
+   "inicio": "2027-07-09",
+   "fin": "2027-07-11",
+   "estilo": "Techno",
+   "confirmado": false
+  },
+  {
+   "nombre": "Colours of Ostrava",
+   "ciudad": "Ostrava",
+   "pais": "Chequia",
+   "flag": "🇨🇿",
+   "zona": "europa",
+   "inicio": "2027-07-14",
+   "fin": "2027-07-17",
+   "estilo": "Pop, indie y músicas del mundo",
+   "confirmado": false
+  },
+  {
+   "nombre": "Electric Castle",
+   "ciudad": "Bonțida, Cluj",
+   "pais": "Rumanía",
+   "flag": "🇷🇴",
+   "zona": "europa",
+   "inicio": "2027-07-14",
+   "fin": "2027-07-18",
+   "estilo": "Electrónica, rock e indie",
    "confirmado": false
   },
   {
@@ -460,6 +856,17 @@
    "confirmado": false
   },
   {
+   "nombre": "Parookaville",
+   "ciudad": "Weeze",
+   "pais": "Alemania",
+   "flag": "🇩🇪",
+   "zona": "europa",
+   "inicio": "2027-07-16",
+   "fin": "2027-07-18",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
    "nombre": "Monegros Desert Festival",
    "ciudad": "Fraga, Huesca",
    "pais": "España",
@@ -468,6 +875,28 @@
    "inicio": "2027-07-17",
    "fin": "2027-07-17",
    "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Lollapalooza Paris",
+   "ciudad": "París",
+   "pais": "Francia",
+   "flag": "🇫🇷",
+   "zona": "europa",
+   "inicio": "2027-07-17",
+   "fin": "2027-07-18",
+   "estilo": "Pop, urbano y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Paléo Festival",
+   "ciudad": "Nyon",
+   "pais": "Suiza",
+   "flag": "🇨🇭",
+   "zona": "europa",
+   "inicio": "2027-07-20",
+   "fin": "2027-07-25",
+   "estilo": "Pop, rock y mestizaje",
    "confirmado": false
   },
   {
@@ -527,6 +956,28 @@
    "confirmado": false
   },
   {
+   "nombre": "Rolling Loud Miami",
+   "ciudad": "Miami",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-07-23",
+   "fin": "2027-07-25",
+   "estilo": "Hip hop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Splendour in the Grass",
+   "ciudad": "Byron Bay",
+   "pais": "Australia",
+   "flag": "🇦🇺",
+   "zona": "mundo",
+   "inicio": "2027-07-23",
+   "fin": "2027-07-25",
+   "estilo": "Indie, pop y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Arenal Sound",
    "ciudad": "Burriana",
    "pais": "España",
@@ -548,6 +999,28 @@
    "fin": "2027-08-01",
    "estilo": "Pop, rock y urbano",
    "web": "https://www.lollapalooza.com",
+   "confirmado": false
+  },
+  {
+   "nombre": "Osheaga",
+   "ciudad": "Montreal",
+   "pais": "Canadá",
+   "flag": "🇨🇦",
+   "zona": "mundo",
+   "inicio": "2027-07-30",
+   "fin": "2027-08-01",
+   "estilo": "Indie, pop y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Fuji Rock Festival",
+   "ciudad": "Naeba",
+   "pais": "Japón",
+   "flag": "🇯🇵",
+   "zona": "mundo",
+   "inicio": "2027-07-30",
+   "fin": "2027-08-01",
+   "estilo": "Rock, pop e indie",
    "confirmado": false
   },
   {
@@ -574,6 +1047,17 @@
    "confirmado": false
   },
   {
+   "nombre": "Outside Lands",
+   "ciudad": "San Francisco",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-08-06",
+   "fin": "2027-08-08",
+   "estilo": "Pop, rock e indie",
+   "confirmado": false
+  },
+  {
    "nombre": "Sziget",
    "ciudad": "Budapest",
    "pais": "Hungría",
@@ -583,6 +1067,17 @@
    "fin": "2027-08-14",
    "estilo": "De todo",
    "web": "https://szigetfestival.com",
+   "confirmado": false
+  },
+  {
+   "nombre": "Øya Festival",
+   "ciudad": "Oslo",
+   "pais": "Noruega",
+   "flag": "🇳🇴",
+   "zona": "europa",
+   "inicio": "2027-08-10",
+   "fin": "2027-08-14",
+   "estilo": "Indie, pop y rock",
    "confirmado": false
   },
   {
@@ -608,6 +1103,17 @@
    "confirmado": false
   },
   {
+   "nombre": "Boardmasters",
+   "ciudad": "Newquay",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-08-11",
+   "fin": "2027-08-15",
+   "estilo": "Surf, urbano y electrónica",
+   "confirmado": false
+  },
+  {
    "nombre": "Medusa Festival",
    "ciudad": "Cullera",
    "pais": "España",
@@ -630,6 +1136,39 @@
    "confirmado": false
   },
   {
+   "nombre": "Way Out West",
+   "ciudad": "Gotemburgo",
+   "pais": "Suecia",
+   "flag": "🇸🇪",
+   "zona": "europa",
+   "inicio": "2027-08-12",
+   "fin": "2027-08-14",
+   "estilo": "Indie, pop y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Flow Festival",
+   "ciudad": "Helsinki",
+   "pais": "Finlandia",
+   "flag": "🇫🇮",
+   "zona": "europa",
+   "inicio": "2027-08-13",
+   "fin": "2027-08-15",
+   "estilo": "Indie, pop y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Summer Sonic",
+   "ciudad": "Tokio y Osaka",
+   "pais": "Japón",
+   "flag": "🇯🇵",
+   "zona": "mundo",
+   "inicio": "2027-08-14",
+   "fin": "2027-08-15",
+   "estilo": "Pop, rock y urbano",
+   "confirmado": false
+  },
+  {
    "nombre": "Rototom Sunsplash",
    "ciudad": "Benicàssim",
    "pais": "España",
@@ -638,6 +1177,39 @@
    "inicio": "2027-08-16",
    "fin": "2027-08-22",
    "estilo": "Reggae",
+   "confirmado": false
+  },
+  {
+   "nombre": "Sonus Festival",
+   "ciudad": "Zrće, Pag",
+   "pais": "Croacia",
+   "flag": "🇭🇷",
+   "zona": "europa",
+   "inicio": "2027-08-16",
+   "fin": "2027-08-20",
+   "estilo": "Techno",
+   "confirmado": false
+  },
+  {
+   "nombre": "Pukkelpop",
+   "ciudad": "Hasselt",
+   "pais": "Bélgica",
+   "flag": "🇧🇪",
+   "zona": "europa",
+   "inicio": "2027-08-19",
+   "fin": "2027-08-22",
+   "estilo": "Rock, indie y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Lowlands",
+   "ciudad": "Biddinghuizen",
+   "pais": "Países Bajos",
+   "flag": "🇳🇱",
+   "zona": "europa",
+   "inicio": "2027-08-20",
+   "fin": "2027-08-22",
+   "estilo": "Rock, pop y electrónica",
    "confirmado": false
   },
   {
@@ -664,6 +1236,50 @@
    "confirmado": false
   },
   {
+   "nombre": "Rock en Seine",
+   "ciudad": "París",
+   "pais": "Francia",
+   "flag": "🇫🇷",
+   "zona": "europa",
+   "inicio": "2027-08-26",
+   "fin": "2027-08-29",
+   "estilo": "Rock e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Reading & Leeds",
+   "ciudad": "Reading y Leeds",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-08-27",
+   "fin": "2027-08-29",
+   "estilo": "Rock, urbano y pop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Mysteryland",
+   "ciudad": "Haarlemmermeer",
+   "pais": "Países Bajos",
+   "flag": "🇳🇱",
+   "zona": "europa",
+   "inicio": "2027-08-27",
+   "fin": "2027-08-29",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Electric Picnic",
+   "ciudad": "Stradbally",
+   "pais": "Irlanda",
+   "flag": "🇮🇪",
+   "zona": "europa",
+   "inicio": "2027-08-27",
+   "fin": "2027-08-29",
+   "estilo": "Pop, rock e indie",
+   "confirmado": false
+  },
+  {
    "nombre": "Burning Man",
    "ciudad": "Black Rock City, Nevada",
    "pais": "Estados Unidos",
@@ -687,6 +1303,17 @@
    "confirmado": false
   },
   {
+   "nombre": "MEO Kalorama",
+   "ciudad": "Lisboa",
+   "pais": "Portugal",
+   "flag": "🇵🇹",
+   "zona": "europa",
+   "inicio": "2027-09-02",
+   "fin": "2027-09-04",
+   "estilo": "Pop, indie y electrónica",
+   "confirmado": false
+  },
+  {
    "nombre": "Vive Latino España",
    "ciudad": "Zaragoza",
    "pais": "España",
@@ -695,6 +1322,17 @@
    "inicio": "2027-09-10",
    "fin": "2027-09-11",
    "estilo": "Rock y pop latino",
+   "confirmado": false
+  },
+  {
+   "nombre": "Lollapalooza Berlin",
+   "ciudad": "Berlín",
+   "pais": "Alemania",
+   "flag": "🇩🇪",
+   "zona": "europa",
+   "inicio": "2027-09-11",
+   "fin": "2027-09-12",
+   "estilo": "Pop, urbano y electrónica",
    "confirmado": false
   },
   {

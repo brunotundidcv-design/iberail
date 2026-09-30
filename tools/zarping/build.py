@@ -225,6 +225,7 @@ def festivales_main():
 </article>''')
     main = (SRC / 'pages' / 'festivales.html').read_text(encoding='utf-8')
     main = main.replace('{{FESTIVALES}}', '\n'.join(cards)).replace('{{TOTAL}}', str(len(fs)))
+    main = main.replace('{{FEST_LOGOS}}', fest_logos('Algunos de los festivales a los que os llevamos'))
     main = main.replace('{{REVISADO}}', f'{rev.day} de {MESES[rev.month - 1]} de {rev.year}')
     return main
 
@@ -323,6 +324,19 @@ def festivales_top():
     return '\n'.join(out)
 
 
+# tira de nombres de festivales estilo «logos» (texto, no logos oficiales: son marcas de cada festival)
+FEST_LOGOS = ['Tomorrowland', 'Primavera Sound', 'Mad Cool', 'Medusa', 'Arenal Sound', 'Sziget', 'Coachella', 'Ultra', 'Sónar', 'FIB',
+              'BBK Live', 'Glastonbury', 'Lollapalooza', 'Rock Werchter', 'EXIT', 'Awakenings', 'Creamfields', 'Untold', 'Resurrection Fest',
+              'Viña Rock', 'Dreambeach', 'Low Festival', 'Roskilde', 'Burning Man']
+
+
+def fest_logos(titulo='Os llevamos a los festivales top'):
+    import html
+    items = ''.join(f'<a class="zp-lg zp-lg--{i % 6}" href="festivales.html?q={html.escape(n)}">{html.escape(n)}</a>' for i, n in enumerate(FEST_LOGOS))
+    return (f'<section class="zp-logos" aria-label="{titulo}"><p class="zp-logos-t">{titulo}</p>'
+            f'<div class="zp-logos-row"><div class="zp-logos-track">{items}<span aria-hidden="true" class="zp-logos-dup">{items}</span></div></div></section>')
+
+
 DESTACADOS = ['Lanzarote', 'Ibiza', 'Menorca', 'Tenerife', 'Cádiz', 'Asturias', 'Sierra Nevada', 'Andorra · Grandvalira', 'Lisboa',
               'Budapest', 'Croacia · Split y Hvar', 'Mykonos', 'Marrakech', 'Bali', 'Tailandia · Bangkok e islas', 'Cancún y Riviera Maya', 'Nueva York']
 
@@ -346,7 +360,7 @@ def home_main():
 </a>''')
     total = len(ds)
     return ((SRC / 'pages' / 'index.html').read_text(encoding='utf-8').replace('{{CARRUSEL}}', '\n'.join(cards)).replace('{{TOTAL}}', str(total))
-            .replace('{{VIAJES_LISTOS}}', viajes_listos()).replace('{{FEST_TOP}}', festivales_top()))
+            .replace('{{VIAJES_LISTOS}}', viajes_listos()).replace('{{FEST_TOP}}', festivales_top()).replace('{{FEST_LOGOS}}', fest_logos()))
 
 
 def iberail_main(file):

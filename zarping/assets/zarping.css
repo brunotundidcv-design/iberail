@@ -708,3 +708,22 @@ body.menu-open .zp-tabs{transform:translateY(160%)!important}
   .zp-packs .zp-pack{flex-basis:80vw;max-width:300px}
   .zp-ftop{flex-basis:58vw;max-width:230px}
 }
+
+/* ---------- tira de festivales (estilo «logos») ---------- */
+.zp-logos{padding-block:clamp(22px,3vw,32px) 6px;overflow:hidden}
+.zp-logos-t{text-align:center;font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.zp-logos-row{border-block:1.5px solid var(--line);background:#fff;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.zp-logos-track{display:flex;width:max-content;animation:zpTape 60s linear infinite}
+.zp-logos-row:hover .zp-logos-track{animation-play-state:paused}
+.zp-logos-dup{display:flex}
+.zp-lg{display:flex;align-items:center;height:78px;padding-inline:clamp(26px,3vw,44px);white-space:nowrap;color:var(--ink);opacity:.72;transition:opacity .2s,color .2s}
+.zp-lg:hover{opacity:1;color:var(--vio)}
+.zp-lg--0{font-family:var(--display);font-weight:700;font-size:1.3rem;letter-spacing:-.05em}
+.zp-lg--1{font-family:var(--body);font-weight:800;font-size:1.25rem;letter-spacing:.14em;text-transform:uppercase}
+.zp-lg--2{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;font-size:1.45rem;letter-spacing:-.02em}
+.zp-lg--3{font-family:'Poppins',var(--body);font-weight:800;font-size:1.3rem;text-transform:lowercase;letter-spacing:-.03em}
+.zp-lg--4{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:1.1rem;text-transform:uppercase;letter-spacing:.06em}
+.zp-lg--5{font-family:var(--body);font-weight:300;font-size:1.4rem;letter-spacing:-.03em}
+@media (prefers-reduced-motion: reduce){.zp-logos-track{animation:none}.zp-logos-row{overflow-x:auto}}
+.zp-fest-bar{margin-top:14px}
+@media (max-width:640px){.zp-lg{height:62px}.zp-lg--0,.zp-lg--3{font-size:1.1rem}.zp-lg--1{font-size:1rem}.zp-lg--2,.zp-lg--5{font-size:1.2rem}}
