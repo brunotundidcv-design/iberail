@@ -3373,3 +3373,13 @@ body.srt-st-in .srtbar-go-b{display:inline}
 .srtp-min{min-width:38px;min-height:38px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:700;color:var(--ink-soft);cursor:pointer}
 .srtp-ig:disabled,.srtp-min:disabled{opacity:.5;cursor:progress}
 @media (max-width:720px){.srtp-list li{grid-template-columns:auto minmax(0,1fr)}.srtp-n{grid-column:2;align-items:flex-start;flex-direction:row;gap:8px}.srtp-act{grid-column:1 / -1}.srtp-ig{flex:1;justify-content:center}.srtp-q{max-width:none;width:100%}}
+
+/* sorteo: «Falta tu móvil» antes de participar */
+.srt-tel{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:18px;background:rgba(20,11,8,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.srt-tel-box{position:relative;width:min(420px,100%);display:grid;gap:10px;padding:26px 22px 22px;border-radius:24px;background:var(--cream);box-shadow:0 30px 60px -20px rgba(0,0,0,.6);text-align:center}
+.srt-tel-x{position:absolute;top:10px;right:12px;width:36px;height:36px;border:0;border-radius:50%;background:transparent;font-size:1.6rem;line-height:1;color:var(--muted);cursor:pointer}
+.srt-tel-ic{font-size:2rem}
+.srt-tel-box b{font-size:1.25rem}
+.srt-tel-box p{color:var(--ink-soft);font-size:.94rem}
+.srt-tel-box .pl-input{text-align:center;font-size:18px}
+.srt-tel-err{color:#B0203A;font-weight:600;font-size:.85rem}

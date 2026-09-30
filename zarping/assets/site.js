@@ -240,8 +240,10 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
   const MARCA = (window.IBERAIL_CONFIG || {}).MARCA;
   if(MARCA && MARCA !== 'iberail') return;   // solo en Iberail
   if(!BUSY.on || document.getElementById('admApp')) return;
-  const KEY = 'ib-busy-visto-2';
-  try{ if(sessionStorage.getItem(KEY)) return; }catch(e){}
+  // sale una sola vez por dispositivo y solo en la portada; al verlo o cerrarlo ya no vuelve
+  const KEY = 'ib-busy-visto-3';
+  const home = /(^\/$|\/index\.html$)/.test(location.pathname);
+  try{ if(!home || localStorage.getItem(KEY)) return; }catch(e){ return; }
   const enRutas = /rutas\.html$/.test(location.pathname);
   const box = document.createElement('aside');
   box.className = 'busy2';
@@ -275,7 +277,7 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
   };
   const queue = () => { if(!raf) raf = requestAnimationFrame(place); };
   const close = () => {
-    try{ sessionStorage.setItem(KEY, '1'); }catch(e){}
+    try{ localStorage.setItem(KEY, '1'); }catch(e){}
     box.classList.remove('is-in');
     removeEventListener('scroll', queue); removeEventListener('resize', queue);
     setTimeout(() => box.remove(), 400);
@@ -283,9 +285,11 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
   box.addEventListener('click', e => { if(e.target.closest('[data-busy-close]')) close(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape' && box.isConnected && box.classList.contains('is-in')) close(); });
   setTimeout(() => {
+    try{ localStorage.setItem(KEY, '1'); }catch(e){}
     document.body.appendChild(box); place();
     addEventListener('scroll', queue, { passive: true }); addEventListener('resize', queue);
     const mb = document.getElementById('mbar'); if(mb) mb.addEventListener('transitionend', queue);
     requestAnimationFrame(() => requestAnimationFrame(() => box.classList.add('is-in')));
   }, 2200);
 })();
+

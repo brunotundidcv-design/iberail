@@ -64,11 +64,52 @@
     setTimeout(() => { t.classList.remove('is-in'); setTimeout(() => t.remove(), 400); }, 5200);
   }
 
+  /* ---------- móvil obligatorio para participar (para avisar al ganador) ---------- */
+  function normPhone(v){
+    let d = String(v || '').replace(/[\s().-]/g, '');
+    if(/^00\d/.test(d)) d = '+' + d.slice(2);
+    if(/^\+34/.test(d)) d = d.slice(3);
+    if(/^[67]\d{8}$/.test(d)) return '+34' + d;
+    if(/^\+(?!34)\d{8,14}$/.test(d)) return d;
+    return '';
+  }
+  // ventanita «Añade tu móvil»: resuelve true cuando lo ha guardado, false si la cierra
+  function askTel(sb){
+    return new Promise(res => {
+      const o = document.createElement('div');
+      o.className = 'srt-tel'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Añade tu móvil');
+      o.innerHTML = `<form class="srt-tel-box" novalidate>
+          <button type="button" class="srt-tel-x" aria-label="Cerrar">×</button>
+          <span class="srt-tel-ic" aria-hidden="true">📱</span>
+          <b>Falta tu móvil</b>
+          <p>Para participar en el sorteo necesitamos tu móvil: así podemos avisarte si te toca una entrada.</p>
+          <input class="pl-input" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="600 123 456" aria-label="Tu móvil">
+          <small class="srt-tel-err" hidden></small>
+          <button class="btn srt-btn" type="submit">Guardar y participar</button>
+        </form>`;
+      const done = ok => { o.remove(); res(ok); };
+      o.addEventListener('click', e => { if(e.target === o || e.target.closest('.srt-tel-x')) done(false); });
+      o.querySelector('form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const tel = normPhone(o.querySelector('input').value), er = o.querySelector('.srt-tel-err'), b = o.querySelector('[type=submit]');
+        if(!tel){ er.textContent = 'Escribe un móvil válido (9 cifras, o con prefijo + si no es de España).'; er.hidden = false; return; }
+        b.disabled = true; er.hidden = true;
+        const { error } = await sb.auth.updateUser({ data: { telefono: tel } });
+        b.disabled = false;
+        if(error){ er.textContent = 'No se pudo guardar. Prueba otra vez.'; er.hidden = false; return; }
+        done(true);
+      });
+      document.body.appendChild(o);
+      setTimeout(() => o.querySelector('input').focus(), 50);
+    });
+  }
+
   /* ---------- inscripción ---------- */
   async function join(auto){
     const sb = await ensureClient(); if(!sb) throw new Error('sin conexión');
     const { data } = await sb.auth.getSession(); const u = data && data.session ? data.session.user : null;
     if(!u) throw new Error('sin sesión');
+    if(!normPhone((u.user_metadata || {}).telefono) && !(await askTel(sb))) return;   // sin móvil no se participa
     const { error } = await sb.from('sorteo_inscritos').insert({ user_id: u.id });
     if(error && error.code !== '23505' && !/duplicate/i.test(error.message || '')) throw error;
     user = u; state = 'in'; tiradas = Math.max(1, tiradas); ls.set(inKey(u), String(tiradas)); ls.set(WANT, null); paint();

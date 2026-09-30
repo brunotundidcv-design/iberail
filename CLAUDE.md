@@ -4,7 +4,8 @@ Web de **Iberail** (iberail.com): agencia española de rutas Interrail a medida,
 como parada estrella. Fundador: Bruno Tundidor. **Titular legal** (autónoma, IAE 755 agencias de viajes,
 alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacidad, rutas.html, contrato). Idioma de la web y del trabajo: **español**.
 
-Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
+Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
+sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
 
 ## Arquitectura
 
@@ -81,6 +82,11 @@ Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26).
   filtros, PDF y teléfonos de tutores. Botón «Repetir» (grupo y pestaña): anula (queda guardado) y envía uno nuevo con aviso. `live.js` apunta `contrato_abierto`, `contrato_firmado`, `contrato_descargado`.
   Vista `contactos_tutores` (security_invoker) con todos los tutores que han firmado.
 
+- `sorteo.js` / `sorteo-panel.js` (v7.16) — sorteo de 10 entradas para el Ultra Europe: barra arriba, apartado en la portada
+  (`#sorteo`) y en «Mi cuenta»/«Mis grupos» (`[data-srt-me]`), «Participar gratis» → tabla `sorteo_inscritos` (`extra` = tiradas
+  extra por story de Instagram, las suma el equipo en la pestaña «Sorteo» del panel), cartel 1080×1920 para stories.
+  **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
+  SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
   tarjeta con coberturas y «Contratar y pagar» → `IBPay.start(btn, gid, null, { seguro: true })` → stripe-checkout
