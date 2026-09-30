@@ -703,18 +703,23 @@
     const r = rows.find(x => String(x.id) === String(drawer.id));
     if(!r){ p.innerHTML = head('', 'Ruta') + '<p class="adm-empty">Esta ruta ya no existe.</p>'; return; }
     const g = r.grupo_id ? groupById(r.grupo_id) : null;
-    const hello = `Hola ${String(r.nombre).split(' ')[0]}, soy de Iberail 👋 Te escribo por tu ruta ${r.ref} (${r.salida} → ${((r.paradas || []).slice(-1)[0] || {}).ciudad || ''}, ${r.dias} días). `;
+    // Zarping: «viaje» en vez de «ruta»; el mapa (de Interrail) solo si conoce todos los destinos
+    const zp = marcaDe(r) === 'zarping', B = IB.brandOf(marcaDe(r)), RT = zp ? 'viaje' : 'ruta';
+    const stops = (r.paradas || []).map(s => { const c = findCity(s.ciudad); return c ? { n: c.n, lon: c.lon, lat: c.lat, cc: c.cc } : { n: s.ciudad }; });
+    const o = findCity(r.salida);
+    const showMap = !zp || (stops.length && stops.every(s => s.lon != null));
+    const hello = `Hola ${String(r.nombre).split(' ')[0]}, soy de ${B.nombre} 👋 Te escribo por tu ${RT} ${r.ref} (${r.salida} → ${((r.paradas || []).slice(-1)[0] || {}).ciudad || ''}, ${r.dias} días). `;
     const tel = waPhone(r.telefono);
-    p.innerHTML = head(`${esc(r.ref)} · ${esc(new Date(r.created_at).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }))}${r.creada_por_equipo ? ' · preparada por Iberail' : ''}`, esc(r.nombre)) + `
-      ${g ? `<button type="button" class="adm-p-group" data-open-group="${esc(g.id)}">${I_USERS}<span><b>Ruta del grupo «${esc(g.nombre)}»</b>${membersOf(g.id).length} personas la ven en su cuenta</span></button>` : ''}
+    p.innerHTML = head(`${esc(r.ref)} · ${esc(new Date(r.created_at).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }))}${r.creada_por_equipo ? ` · preparada por ${B.nombre}` : ''}${zp ? ' · Zarping' : ''}`, esc(r.nombre)) + `
+      ${g ? `<button type="button" class="adm-p-group" data-open-group="${esc(g.id)}">${I_USERS}<span><b>${zp ? 'Viaje' : 'Ruta'} del grupo «${esc(g.nombre)}»</b>${membersOf(g.id).length} personas lo ven en su cuenta</span></button>` : ''}
       <div class="adm-p-actions">
         ${tel ? `<a class="btn btn--wa" href="${esc(IB.wa(hello, tel))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
-        ${r.email ? `<a class="btn btn--ghost btn--sm" href="mailto:${esc(r.email)}?subject=${encodeURIComponent('Tu ruta Interrail ' + r.ref + ' · Iberail')}">Correo</a>` : ''}
+        ${r.email ? `<a class="btn btn--ghost btn--sm" href="mailto:${esc(r.email)}?subject=${encodeURIComponent((zp ? 'Tu viaje ' : 'Tu ruta Interrail ') + r.ref + ' · ' + B.nombre)}">Correo</a>` : ''}
         <button type="button" class="btn btn--ghost btn--sm" data-copy>Copiar resumen</button>
       </div>
       ${r.telefono || r.email ? `<dl class="adm-p-contact">${r.telefono ? `<div><dt>WhatsApp</dt><dd>${esc(r.telefono)}</dd></div>` : ''}${r.email ? `<div><dt>Correo</dt><dd>${esc(r.email)}</dd></div>` : ''}</dl>` : ''}
       <div class="adm-p-status" role="radiogroup" aria-label="Estado">${Object.keys(LABEL).map(k => `<button type="button" role="radio" aria-checked="${r.estado === k}" data-st="${k}" class="st st--${k}${r.estado === k ? ' is-on' : ''}">${LABEL[k]}</button>`).join('')}</div>
-      <div class="adm-p-map"><svg id="admMap" viewBox="0 0 545 500" role="img" aria-label="Mapa de la ruta"></svg></div>
+      ${showMap ? '<div class="adm-p-map"><svg id="admMap" viewBox="0 0 545 500" role="img" aria-label="Mapa de la ruta"></svg></div>' : ''}
       <dl class="adm-p-facts">
         <div><dt>Salida</dt><dd>${esc(r.salida)} · ${esc(fdate(r.fecha_salida))}${r.flexible ? ' · flexible' : ''}</dd></div>
         <div><dt>Viaje</dt><dd>${esc(r.dias)} días · ${esc(r.viajeros)} viajeros</dd></div>
@@ -727,17 +732,15 @@
         ${it ? `<p class="adm-hint">Vuelta el <b>${esc(dLong(it.end))}</b>.${(() => { const u = ultraCheck(r.fecha_salida, r.paradas || []); return u && !u.lejos ? (u.ok ? ' ✓ Cubre el Ultra.' : ' ⚠ Split no cubre las noches del Ultra (9–11 jul).') : ''; })()}</p>` : ''}`; })()}
       ${!r.creada_por_equipo && (r.paradas || []).length ? `<div class="adm-p-assign">
         ${r.grupo_id ? '' : `<button type="button" class="btn btn--dark btn--sm" data-assign="grupo">${I_USERS}Asignar a un grupo</button>`}
-        <button type="button" class="btn btn--ghost btn--sm" data-assign="cliente">Preparar su ruta${r.user_id ? '' : ' (sin cuenta)'}</button>
+        <button type="button" class="btn btn--ghost btn--sm" data-assign="cliente">Preparar su ${RT}${r.user_id ? '' : ' (sin cuenta)'}</button>
         <small>Abre «Nueva ruta» ya rellena con lo que pidió: solo eliges ${r.grupo_id ? 'el estado' : 'el grupo'} y guardas.</small>
       </div>` : ''}
       ${r.notas ? `<div class="adm-p-notes"><h3>Notas del cliente</h3><p>${esc(r.notas)}</p></div>` : ''}
       <section class="adm-docs" data-docs="r:${esc(r.id)}">${docsHtml('r:' + r.id, r)}</section>
       ${r.user_id || r.grupo_id ? `<section class="adm-sec"><div class="adm-sec-h"><h3>${I_BELL}Avisos de esta ruta</h3></div>${avisosHtml(avisos.filter(a => String(a.ruta_id) === String(r.id)), `data-new-aviso-route="${esc(r.id)}"`, r.grupo_id ? 'Nuevo aviso a los del grupo' : 'Nuevo aviso al cliente')}</section>` : ''}
       <div class="adm-p-internal"><label for="admNote">Nota interna <small>solo la ve el equipo</small></label><textarea id="admNote" maxlength="2000" placeholder="Precio enviado, alojamiento reservado, lo que quieras recordar…">${esc(noteOf(r))}</textarea><button type="button" class="btn btn--dark btn--sm" data-save>Guardar nota</button></div>
-      <div class="adm-p-danger"><button type="button" class="pl-link dash-del" data-del-route>Eliminar esta ruta</button></div>`;
-    const stops = (r.paradas || []).map(s => { const c = findCity(s.ciudad); return c ? { n: c.n, lon: c.lon, lat: c.lat, cc: c.cc } : { n: s.ciudad }; });
-    const o = findCity(r.salida);
-    if(window.IBMap) IBMap.draw($('#admMap'), o ? { n: r.salida, lon: o.lon, lat: o.lat } : null, stops, { zoom: false, train: false });
+      <div class="adm-p-danger"><button type="button" class="pl-link dash-del" data-del-route>Eliminar ${zp ? 'este viaje' : 'esta ruta'}</button></div>`;
+    if(showMap && window.IBMap) IBMap.draw($('#admMap'), o ? { n: r.salida, lon: o.lon, lat: o.lat } : null, stops, { zoom: false, train: false });
   }
   async function setStatus(r, st){
     const prev = r.estado; r.estado = st; paintAll(); paintDrawer();
