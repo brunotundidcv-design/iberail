@@ -86,8 +86,8 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   (`#sorteo`) y en «Mi cuenta»/«Mis grupos» (`[data-srt-me]`), «Participar gratis» → tabla `sorteo_inscritos` (`extra` = tiradas
   extra por story de Instagram, las suma el equipo en la pestaña «Sorteo» del panel), cartel 1080×1920 para stories.
   **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
-  **Desapuntarse**: «Salir del sorteo» en el apartado de la cuenta (`[data-srt-leave]`, con confirmación; pierde las tiradas) y
-  «Quitar» en la pestaña Sorteo del panel (dos toques). Necesita `supabase/sql/sorteo-baja.sql` (política de borrado).
+  **Quitar inscritos**: solo el equipo, botón «Quitar» en la pestaña Sorteo del panel (dos toques). Los participantes NO pueden
+  salirse solos (decisión de Bruno). Necesita `supabase/sql/sorteo-baja.sql` (borrar solo con is_admin).
   SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
@@ -187,8 +187,9 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 - **Logos** (`zarping-marca/`): símbolo, icono, logo horizontal/vertical, «by iberail», palabra y redes, en SVG (texto en
   trazos) y PNG transparente (1x y @3x). Se generan con `tools/zarping/logos.py <carpeta con Unbounded/Manrope/Poppins .ttf>`
   y `node tools/zarping/logos_png.mjs`. No es parte de la web (no se sube a Netlify).
-- **Zarping en Iberail**: solo una etiqueta pequeña [logo zarping ↗] bajo «Interrail desde España» en la portada
-  (`.hero-zp`, `assets/img/zarping-blanco.svg`). Bruno no quiere franjas ni textos («nada de cosas npc»). Zarping v2.4 = esta versión.
+- **Zarping en Iberail**: solo el logo pequeño [zarping ↗] junto al de Iberail en la cabecera de todas las páginas (menos el panel;
+  `.brand-zp`, `assets/img/zarping-negro.svg`; oculto entre 1101 y 1240 px y por debajo de 380 px, donde no cabe).
+  Cabecera de Iberail: hamburguesa por debajo de 1100 px (antes se salía entre 880 y 1100). Bruno no quiere franjas ni textos («nada de cosas npc»). Zarping v2.4 = esta versión.
 - **Pendiente**: bot de WhatsApp solo conoce Iberail; los correos de Supabase Auth (código de acceso) dicen Iberail;
   crear el buzón info@zarping.com (sale en contratos y en la web) y verificar zarping.com en Resend.
 
