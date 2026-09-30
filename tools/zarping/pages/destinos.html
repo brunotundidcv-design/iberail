@@ -1,0 +1,76 @@
+<main id="main">
+<section class="page-head">
+  <div class="container">
+    <nav class="crumbs" aria-label="Migas"><a href="index.html">Inicio</a><span>/</span><span>Destinos</span></nav>
+    <span class="eyebrow">🌍 {{TOTAL}} destinos · {{ACTS}} planes</span>
+    <h1>¿A dónde os vais? Elegid y nosotros lo montamos.</h1>
+    <p class="lead">De Lanzarote a Bali: los destinos que más nos piden, con las actividades que se pueden hacer en cada uno. Elegid uno, decidnos qué planes os apetecen y os mandamos precio cerrado por persona.</p>
+  </div>
+</section>
+
+<div class="zp-dest-bar">
+  <div class="container">
+    <label class="zp-dest-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="zpDestQ" placeholder="Busca un destino o un plan: Lanzarote, surf, safari…" autocomplete="off" aria-label="Buscar destino"></label>
+    <div class="zp-jump zp-fest-filt" role="group" aria-label="Zona">
+      <button type="button" class="is-on" data-z="all">Todos</button>
+      <button type="button" data-z="espana">🇪🇸 España</button>
+      <button type="button" data-z="europa">🇪🇺 Europa</button>
+      <button type="button" data-z="mundo">🌎 Resto del mundo</button>
+    </div>
+    <div class="zp-dest-est" role="group" aria-label="Tipo de plan">
+{{ESTILOS}}
+    </div>
+  </div>
+</div>
+
+<section class="section" style="padding-top:clamp(20px,3vw,32px)">
+  <div class="container">
+    <p class="zp-dest-count" id="zpDestN" aria-live="polite"></p>
+    <div class="zp-dests" id="zpDests">
+{{DESTINOS}}
+    </div>
+    <p class="zp-fest-none" id="zpDestNone" hidden>No hay destinos con ese filtro. <a href="monta-tu-viaje.html?tipo=a-medida">Cuéntanos a dónde queréis ir</a> y lo montamos igual.</p>
+    <p class="zp-fest-note">Las actividades son ideas: cada viaje se hace a medida y en la propuesta os decimos qué incluye y qué no. ¿Vuestro destino no está? <a href="monta-tu-viaje.html?tipo=a-medida">Pedidlo igual</a>: vamos a cualquier sitio.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="zp-cta" data-reveal>
+      <h2>¿Ya sabéis a dónde?</h2>
+      <p>Decidnos el destino, las fechas y cuántos sois. Os mandamos precio cerrado por persona.</p>
+      <div class="hero-actions">
+        <a class="btn btn--dark" href="monta-tu-viaje.html">Monta tu viaje <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var box = document.getElementById('zpDests'), cards = [].slice.call(box.querySelectorAll('.zp-dest')), zona = 'all', est = '', q = '';
+  var norm = function(s){ return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+  cards.forEach(function(c){ c._t = norm(c.textContent); });
+  function pinta(){
+    var vis = 0, w = norm(q.trim());
+    cards.forEach(function(c){
+      var ok = (zona === 'all' || c.dataset.zona === zona) && (!est || (' ' + c.dataset.est + ' ').indexOf(' ' + est + ' ') > -1) && (!w || c._t.indexOf(w) > -1);
+      c.hidden = !ok; if(ok) vis++;
+    });
+    document.getElementById('zpDestN').textContent = vis + (vis === 1 ? ' destino' : ' destinos');
+    document.getElementById('zpDestNone').hidden = vis > 0;
+  }
+  document.querySelector('.zp-dest-bar .zp-fest-filt').addEventListener('click', function(e){
+    var b = e.target.closest('[data-z]'); if(!b) return; zona = b.dataset.z;
+    this.querySelectorAll('[data-z]').forEach(function(x){ x.classList.toggle('is-on', x === b); }); pinta();
+  });
+  document.querySelector('.zp-dest-est').addEventListener('click', function(e){
+    var b = e.target.closest('[data-e]'); if(!b) return; est = est === b.dataset.e ? '' : b.dataset.e;
+    this.querySelectorAll('[data-e]').forEach(function(x){ x.classList.toggle('is-on', x.dataset.e === est); }); pinta();
+  });
+  var qi = document.getElementById('zpDestQ'); qi.addEventListener('input', function(){ q = qi.value; pinta(); });
+  var p = new URLSearchParams(location.search).get('q'); if(p){ qi.value = q = p; }
+  pinta();
+})();
+</script>
+</main>

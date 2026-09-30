@@ -34,7 +34,7 @@ MARK = ('<svg class="zp-mark" viewBox="0 0 100 100" aria-hidden="true"><path d="
         'stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="1 16"/><circle cx="18" cy="72" r="11" fill="currentColor"/>'
         '<circle cx="82" cy="72" r="11" fill="none" stroke="currentColor" stroke-width="8"/></svg>')
 
-NAV = [('index.html', 'Inicio'), ('viajes.html', 'Viajes'), ('festivales.html', 'Festivales'), ('monta-tu-viaje.html', 'Monta tu viaje'), ('contacto.html', 'Contacto')]
+NAV = [('viajes.html', 'Viajes'), ('destinos.html', 'Destinos'), ('festivales.html', 'Festivales'), ('monta-tu-viaje.html', 'Monta tu viaje'), ('contacto.html', 'Contacto')]
 
 LD = ('{"@context":"https://schema.org","@type":"TravelAgency","name":"Zarping","url":"https://zarping.com",'
       '"logo":"https://zarping.com/assets/img/logo.png","image":"https://zarping.com/assets/img/og.jpg",'
@@ -125,7 +125,7 @@ FOOTER = f'''<footer class="footer">
       </div>
       <div>
         <h4>Explora</h4>
-        <ul><li><a href="viajes.html">Viajes</a></li><li><a href="viajes.html#nieve">Nieve</a></li><li><a href="viajes.html#fin-de-curso">Fin de curso</a></li><li><a href="festivales.html">Festivales</a></li><li><a href="monta-tu-viaje.html">Monta tu viaje</a></li><li><a href="contacto.html">Contacto</a></li></ul>
+        <ul><li><a href="viajes.html">Viajes</a></li><li><a href="destinos.html">Destinos</a></li><li><a href="viajes.html#nieve">Nieve</a></li><li><a href="viajes.html#fin-de-curso">Fin de curso</a></li><li><a href="festivales.html">Festivales</a></li><li><a href="monta-tu-viaje.html">Monta tu viaje</a></li><li><a href="contacto.html">Contacto</a></li></ul>
       </div>
       <div>
         <h4>Hablamos</h4>
@@ -217,6 +217,36 @@ def festivales_main():
     return main
 
 
+ESTILOS = {'playa': '🏖️ Playa', 'islas': '🏝️ Islas', 'ciudad': '🏙️ Ciudad', 'fiesta': '🎉 Fiesta', 'naturaleza': '🌿 Naturaleza',
+           'aventura': '🧗 Aventura', 'cultura': '🏛️ Cultura', 'nieve': '❄️ Nieve'}
+
+
+def destinos_main():
+    """destinos.html sale de tools/zarping/destinos.json."""
+    import json, html
+    from urllib.parse import quote
+    e = html.escape
+    ds = json.loads((SRC / 'destinos.json').read_text(encoding='utf-8'))['destinos']
+    zonas = {'espana': 'España', 'europa': 'Europa', 'mundo': 'Resto del mundo'}
+    cards = []
+    for d in ds:
+        tipo = 'nieve' if d['estilos'][0] == 'nieve' else 'escapada'
+        lugar = d['lugar'] if d['zona'] != 'espana' else f"{d['lugar']}, España"
+        acts = ''.join(f'<li>{e(a)}</li>' for a in d['actividades'])
+        tags = ''.join(f'<span>{ESTILOS[x]}</span>' for x in d['estilos'])
+        cards.append(f'''<article class="zp-dest zp-dest--{d['zona']}" data-zona="{d['zona']}" data-est="{' '.join(d['estilos'])}">
+  <div class="zp-dest-h"><span class="zp-dest-emo" aria-hidden="true">{d['emoji']}</span><div><h3>{e(d['nombre'])}</h3><p><span aria-hidden="true">{d['flag']}</span> {e(lugar)}</p></div></div>
+  <p class="zp-dest-meta"><span>🗓️ {e(d['epoca'])}</span><span>⏱️ {e(d['dias'])} días</span></p>
+  <ul class="zp-dest-acts">{acts}</ul>
+  <p class="zp-fest-tags">{tags}</p>
+  <a class="btn btn--primary btn--sm" href="monta-tu-viaje.html?tipo={tipo}&amp;dest={quote(d['nombre'])}">Pedir precio <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>''')
+    est = '\n'.join(f'      <button type="button" data-e="{k}">{v}</button>' for k, v in ESTILOS.items())
+    main = (SRC / 'pages' / 'destinos.html').read_text(encoding='utf-8')
+    return (main.replace('{{DESTINOS}}', '\n'.join(cards)).replace('{{ESTILOS}}', est)
+            .replace('{{TOTAL}}', str(len(ds))).replace('{{ACTS}}', str(sum(len(d['actividades']) for d in ds))))
+
+
 def iberail_main(file):
     t = (ROOT / file).read_text(encoding='utf-8')
     m = re.search(r'<main id="main">.*?</main>', t, re.S)
@@ -291,7 +321,7 @@ def main():
         '/panel.html  https://iberail.com/panel.html  302\n'
         '/*  /404.html  404\n', encoding='utf-8')
     (OUT / 'robots.txt').write_text('User-agent: *\nAllow: /\nDisallow: /cuenta.html\nDisallow: /grupos.html\n\nSitemap: https://zarping.com/sitemap.xml\n', encoding='utf-8')
-    urls = ['', 'viajes.html', 'festivales.html', 'monta-tu-viaje.html', 'contacto.html', 'aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']
+    urls = ['', 'viajes.html', 'destinos.html', 'festivales.html', 'monta-tu-viaje.html', 'contacto.html', 'aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']
     (OUT / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         ''.join(f'  <url><loc>{SITE}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 
@@ -305,6 +335,9 @@ def main():
     page('monta-tu-viaje.html', 'Monta tu viaje · Zarping',
          'Cuéntanos el plan en 2 minutos y te mandamos una propuesta con precio cerrado por persona para todo el grupo.',
          P('monta-tu-viaje.html'), ['app.js', 'site.js', 'notif.js', 'zp-viaje.js'], supa=True, fab=False)
+    page('destinos.html', 'Destinos para viajar en grupo: España, Europa y el mundo · Zarping',
+         'Lanzarote, Ibiza, Menorca, Lisboa, Budapest, Marrakech, Bali, Tailandia y más: destinos con sus actividades. Os organizamos el viaje en grupo con precio cerrado por persona.',
+         destinos_main(), BASE_JS)
     page('festivales.html', 'Próximos festivales en España, Europa y el mundo · Zarping',
          'Calendario de los próximos festivales: Tomorrowland, Primavera Sound, Mad Cool, Sziget, Coachella y más. Os organizamos el viaje en grupo: transporte y alojamiento.',
          festivales_main(), BASE_JS)

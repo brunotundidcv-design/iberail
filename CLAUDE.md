@@ -148,6 +148,9 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   30/09/2026). Los que ya han terminado se ocultan solos; filtro España / Europa / Resto del mundo. «Ir con Zarping» abre
   «Monta tu viaje» con `?tipo=festival&dest=…`. Para añadir o cambiar festivales: editar el JSON y volver a ejecutar el build.
   Ultra Europe (Split) no sale: es de Iberail.
+- **Destinos** (`destinos.html`): 132 destinos (España, Europa, resto del mundo) con actividades, época y días, desde
+  `tools/zarping/destinos.json`. Buscador + filtros por zona y tipo (playa, islas, ciudad…); `?q=` precarga la búsqueda.
+  «Pedir precio» → `monta-tu-viaje.html?tipo=escapada|nieve&dest=…`. Para añadir destinos: editar el JSON y volver a ejecutar el build.
 - **Monta tu viaje** (`zp-viaje.js`): 3 pasos → fila en `rutas` con `ref` ZP-XXXXXX, `marca: 'zarping'`, destino en
   `paradas[0]`, tipo e «incluir» en `estilo`, resto en `notas`. Pide cuenta para enviar. Borrador `zp-draft-v1` (30 días).
   Netlify Forms «viaje» de respaldo.

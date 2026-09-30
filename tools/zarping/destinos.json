@@ -1,0 +1,2718 @@
+{
+ "revisado": "2026-09-30",
+ "destinos": [
+  {
+   "nombre": "Lanzarote",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🌋",
+   "estilos": [
+    "playa",
+    "islas",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Parque Nacional de Timanfaya y ruta de los volcanes",
+    "Jameos del Agua y Cueva de los Verdes",
+    "Excursión en barco a La Graciosa",
+    "Surf en Famara",
+    "Bodegas de La Geria",
+    "Kayak transparente en Puerto del Carmen"
+   ]
+  },
+  {
+   "nombre": "Fuerteventura",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🏄",
+   "estilos": [
+    "playa",
+    "islas",
+    "aventura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "5–7",
+   "actividades": [
+    "Dunas de Corralejo",
+    "Ferry a la isla de Lobos",
+    "Clases de surf y kitesurf",
+    "Playas de Sotavento y Cofete",
+    "Buceo con rayas",
+    "Quad por el norte de la isla"
+   ]
+  },
+  {
+   "nombre": "Tenerife",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🏔️",
+   "estilos": [
+    "playa",
+    "islas",
+    "naturaleza",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–6",
+   "actividades": [
+    "Subida al Teide y observación de estrellas",
+    "Avistamiento de ballenas y delfines",
+    "Siam Park",
+    "Barranco de Masca",
+    "Kayak en Los Gigantes",
+    "Noche en Playa de las Américas"
+   ]
+  },
+  {
+   "nombre": "Gran Canaria",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🏜️",
+   "estilos": [
+    "playa",
+    "islas",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Dunas de Maspalomas",
+    "Roque Nublo",
+    "Paseo en catamarán",
+    "Puerto de Mogán",
+    "Buggies por el interior",
+    "Fiesta en Playa del Inglés"
+   ]
+  },
+  {
+   "nombre": "La Palma",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "✨",
+   "estilos": [
+    "islas",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Caldera de Taburiente",
+    "Observatorio del Roque de los Muchachos",
+    "Ruta de los volcanes",
+    "Bosque de Los Tilos",
+    "Piscinas naturales",
+    "Parapente"
+   ]
+  },
+  {
+   "nombre": "La Gomera",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🌿",
+   "estilos": [
+    "islas",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Parque Nacional de Garajonay",
+    "Exhibición de silbo gomero",
+    "Los Órganos en barco",
+    "Valle Gran Rey",
+    "Senderismo por barrancos"
+   ]
+  },
+  {
+   "nombre": "El Hierro",
+   "zona": "espana",
+   "lugar": "Canarias",
+   "flag": "🇪🇸",
+   "emoji": "🤿",
+   "estilos": [
+    "islas",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Buceo en La Restinga",
+    "Charco Azul",
+    "Mirador de la Peña",
+    "Sabinar",
+    "Piscinas naturales de La Maceta"
+   ]
+  },
+  {
+   "nombre": "Ibiza",
+   "zona": "espana",
+   "lugar": "Baleares",
+   "flag": "🇪🇸",
+   "emoji": "🎉",
+   "estilos": [
+    "playa",
+    "islas",
+    "fiesta"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–5",
+   "actividades": [
+    "Barco a Formentera",
+    "Atardecer en Café del Mar",
+    "Noche en las discotecas",
+    "Cala Comte y Cala Salada",
+    "Dalt Vila",
+    "Mercadillo hippie de Las Dalias"
+   ]
+  },
+  {
+   "nombre": "Mallorca",
+   "zona": "espana",
+   "lugar": "Baleares",
+   "flag": "🇪🇸",
+   "emoji": "⛵",
+   "estilos": [
+    "playa",
+    "islas",
+    "fiesta"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "4–6",
+   "actividades": [
+    "Cuevas del Drach",
+    "Caló des Moro y Es Trenc",
+    "Tren de Sóller",
+    "Serra de Tramuntana",
+    "Barco por la bahía de Palma",
+    "Coasteering"
+   ]
+  },
+  {
+   "nombre": "Menorca",
+   "zona": "espana",
+   "lugar": "Baleares",
+   "flag": "🇪🇸",
+   "emoji": "🏖️",
+   "estilos": [
+    "playa",
+    "islas",
+    "naturaleza"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "4–5",
+   "actividades": [
+    "Ruta de calas en barco",
+    "Cala Macarella y Turqueta",
+    "Cami de Cavalls",
+    "Kayak por la costa norte",
+    "Ciutadella",
+    "Cova d'en Xoroi al atardecer"
+   ]
+  },
+  {
+   "nombre": "Formentera",
+   "zona": "espana",
+   "lugar": "Baleares",
+   "flag": "🇪🇸",
+   "emoji": "🐚",
+   "estilos": [
+    "playa",
+    "islas"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "2–4",
+   "actividades": [
+    "Ses Illetes",
+    "Faro de La Mola",
+    "Ruta en moto o bici",
+    "Snorkel",
+    "Atardecer en Cap de Barbaria"
+   ]
+  },
+  {
+   "nombre": "Cádiz",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "☀️",
+   "estilos": [
+    "playa",
+    "fiesta",
+    "ciudad"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Playa de La Caleta",
+    "Tapeo por el barrio de La Viña",
+    "Surf en El Palmar",
+    "Bolonia y las ruinas de Baelo Claudia",
+    "Vejer de la Frontera",
+    "Chiringuitos en Caños de Meca"
+   ]
+  },
+  {
+   "nombre": "Tarifa",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🪁",
+   "estilos": [
+    "playa",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Kitesurf y windsurf",
+    "Avistamiento de cetáceos en el Estrecho",
+    "Excursión a Tánger",
+    "Duna de Valdevaqueros",
+    "Bolonia"
+   ]
+  },
+  {
+   "nombre": "Sevilla",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "💃",
+   "estilos": [
+    "ciudad",
+    "cultura",
+    "fiesta"
+   ],
+   "epoca": "Octubre – mayo",
+   "dias": "2–3",
+   "actividades": [
+    "Real Alcázar",
+    "Catedral y Giralda",
+    "Plaza de España en barca",
+    "Espectáculo de flamenco",
+    "Setas de Sevilla",
+    "Tapas en Triana"
+   ]
+  },
+  {
+   "nombre": "Granada",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🕌",
+   "estilos": [
+    "ciudad",
+    "cultura",
+    "nieve"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "La Alhambra",
+    "Mirador de San Nicolás",
+    "Cuevas del Sacromonte con flamenco",
+    "Tapas gratis",
+    "Baños árabes",
+    "Esquí en Sierra Nevada en invierno"
+   ]
+  },
+  {
+   "nombre": "Málaga",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🌴",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Caminito del Rey",
+    "Alcazaba y Gibralfaro",
+    "Museo Picasso",
+    "Paseo en barco",
+    "Noche en el centro",
+    "Nerja y sus cuevas"
+   ]
+  },
+  {
+   "nombre": "Marbella",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🍸",
+   "estilos": [
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Puerto Banús",
+    "Beach clubs",
+    "Casco antiguo",
+    "Paddle surf",
+    "Fiesta en Nikki Beach y Ocean Club"
+   ]
+  },
+  {
+   "nombre": "Córdoba",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🏛️",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Octubre – mayo",
+   "dias": "2",
+   "actividades": [
+    "Mezquita-Catedral",
+    "Patios cordobeses",
+    "Judería",
+    "Medina Azahara",
+    "Baños árabes"
+   ]
+  },
+  {
+   "nombre": "Almería · Cabo de Gata",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🏝️",
+   "estilos": [
+    "playa",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Playa de Mónsul y Los Genoveses",
+    "Kayak y snorkel",
+    "San José",
+    "Desierto de Tabernas y Fort Bravo",
+    "Ruta en 4x4"
+   ]
+  },
+  {
+   "nombre": "Huelva · costa",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🦩",
+   "estilos": [
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "3",
+   "actividades": [
+    "Doñana en 4x4",
+    "Playas de Punta Umbría y Matalascañas",
+    "Muelle de las Carabelas",
+    "Gastronomía onubense"
+   ]
+  },
+  {
+   "nombre": "Ronda",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "🌉",
+   "estilos": [
+    "ciudad",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Puente Nuevo",
+    "Plaza de toros",
+    "Pueblos blancos",
+    "Setenil de las Bodegas",
+    "Bodegas de la Serranía"
+   ]
+  },
+  {
+   "nombre": "Benidorm",
+   "zona": "espana",
+   "lugar": "Comunidad Valenciana",
+   "flag": "🇪🇸",
+   "emoji": "🏙️",
+   "estilos": [
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Terra Mítica y Aqualandia",
+    "Isla de Benidorm en barco",
+    "Mirador del Castillo",
+    "Fiesta en la zona guiri",
+    "Guadalest",
+    "Fuentes del Algar"
+   ]
+  },
+  {
+   "nombre": "Valencia",
+   "zona": "espana",
+   "lugar": "Comunidad Valenciana",
+   "flag": "🇪🇸",
+   "emoji": "🥘",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Ciudad de las Artes y las Ciencias",
+    "Oceanogràfic",
+    "Paella en la Albufera",
+    "Paseo en bici por el Turia",
+    "Playa de la Malvarrosa",
+    "Fallas en marzo"
+   ]
+  },
+  {
+   "nombre": "Alicante",
+   "zona": "espana",
+   "lugar": "Comunidad Valenciana",
+   "flag": "🇪🇸",
+   "emoji": "⛱️",
+   "estilos": [
+    "playa",
+    "ciudad",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Castillo de Santa Bárbara",
+    "Isla de Tabarca",
+    "Playa del Postiguet y San Juan",
+    "Barrio de Santa Cruz",
+    "Hogueras en junio"
+   ]
+  },
+  {
+   "nombre": "Peñíscola",
+   "zona": "espana",
+   "lugar": "Comunidad Valenciana",
+   "flag": "🇪🇸",
+   "emoji": "🏰",
+   "estilos": [
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "2–3",
+   "actividades": [
+    "Castillo del Papa Luna",
+    "Sierra de Irta",
+    "Paseo en barco",
+    "Playa Norte"
+   ]
+  },
+  {
+   "nombre": "Barcelona",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🏟️",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Sagrada Familia y Park Güell",
+    "Camp Nou",
+    "Barrio Gótico y El Born",
+    "Bunkers del Carmel al atardecer",
+    "Barceloneta",
+    "Noche en el Port Olímpic"
+   ]
+  },
+  {
+   "nombre": "Salou y PortAventura",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🎢",
+   "estilos": [
+    "playa",
+    "fiesta",
+    "aventura"
+   ],
+   "epoca": "Abril – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "PortAventura Park y Ferrari Land",
+    "Caribe Aquatic Park",
+    "Playas de Salou",
+    "Fiesta nocturna",
+    "Tarragona romana"
+   ]
+  },
+  {
+   "nombre": "Costa Brava",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🌊",
+   "estilos": [
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "3–4",
+   "actividades": [
+    "Calas de Begur",
+    "Camí de Ronda",
+    "Kayak y snorkel en las Medas",
+    "Cadaqués",
+    "Museo Dalí en Figueres",
+    "Tossa de Mar"
+   ]
+  },
+  {
+   "nombre": "Lloret de Mar",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🎊",
+   "estilos": [
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "3–4",
+   "actividades": [
+    "Fiesta en las discotecas",
+    "Water World",
+    "Jardines de Santa Clotilde",
+    "Barco a Tossa",
+    "Calas cercanas"
+   ]
+  },
+  {
+   "nombre": "Sitges",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🌈",
+   "estilos": [
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Playas del paseo",
+    "Casco antiguo",
+    "Carnaval",
+    "Fiesta nocturna",
+    "Barco por el Garraf"
+   ]
+  },
+  {
+   "nombre": "Madrid",
+   "zona": "espana",
+   "lugar": "Madrid",
+   "flag": "🇪🇸",
+   "emoji": "🎭",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Museo del Prado y Reina Sofía",
+    "Retiro en barca",
+    "Santiago Bernabéu",
+    "Musical en la Gran Vía",
+    "Tapeo en La Latina",
+    "Fiesta en Malasaña"
+   ]
+  },
+  {
+   "nombre": "Toledo",
+   "zona": "espana",
+   "lugar": "Castilla-La Mancha",
+   "flag": "🇪🇸",
+   "emoji": "⚔️",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "1–2",
+   "actividades": [
+    "Catedral",
+    "Tirolina sobre el Tajo",
+    "Barrio judío",
+    "Mazapán",
+    "Ruta nocturna de leyendas"
+   ]
+  },
+  {
+   "nombre": "Segovia",
+   "zona": "espana",
+   "lugar": "Castilla y León",
+   "flag": "🇪🇸",
+   "emoji": "🏰",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "1–2",
+   "actividades": [
+    "Acueducto",
+    "Alcázar",
+    "Cochinillo",
+    "Granja de San Ildefonso",
+    "Globo aerostático"
+   ]
+  },
+  {
+   "nombre": "Salamanca",
+   "zona": "espana",
+   "lugar": "Castilla y León",
+   "flag": "🇪🇸",
+   "emoji": "📚",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Plaza Mayor",
+    "Universidad y la rana",
+    "Catedrales y Ieronimus",
+    "Fiesta universitaria",
+    "Casa Lis"
+   ]
+  },
+  {
+   "nombre": "Burgos y Atapuerca",
+   "zona": "espana",
+   "lugar": "Castilla y León",
+   "flag": "🇪🇸",
+   "emoji": "🦴",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Catedral",
+    "Yacimientos de Atapuerca",
+    "Museo de la Evolución Humana",
+    "Morcilla y tapas"
+   ]
+  },
+  {
+   "nombre": "Asturias",
+   "zona": "espana",
+   "lugar": "Asturias",
+   "flag": "🇪🇸",
+   "emoji": "🐄",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "4–5",
+   "actividades": [
+    "Descenso del Sella en canoa",
+    "Lagos de Covadonga",
+    "Playa de Gulpiyuri",
+    "Ruta del Cares",
+    "Sidrerías en Oviedo y Gijón",
+    "Cudillero"
+   ]
+  },
+  {
+   "nombre": "Cantabria",
+   "zona": "espana",
+   "lugar": "Cantabria",
+   "flag": "🇪🇸",
+   "emoji": "⛰️",
+   "estilos": [
+    "naturaleza",
+    "playa",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Cabárceno",
+    "Teleférico de Fuente Dé",
+    "Surf en Somo",
+    "Santillana del Mar",
+    "Cuevas de El Castillo",
+    "Santander y el Palacio de la Magdalena"
+   ]
+  },
+  {
+   "nombre": "San Sebastián",
+   "zona": "espana",
+   "lugar": "País Vasco",
+   "flag": "🇪🇸",
+   "emoji": "🍢",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Playa de La Concha",
+    "Pintxos por la Parte Vieja",
+    "Monte Igueldo",
+    "Surf en Zurriola",
+    "San Juan de Gaztelugatxe"
+   ]
+  },
+  {
+   "nombre": "Bilbao",
+   "zona": "espana",
+   "lugar": "País Vasco",
+   "flag": "🇪🇸",
+   "emoji": "🎨",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Museo Guggenheim",
+    "Casco Viejo y pintxos",
+    "San Mamés",
+    "Puente Colgante",
+    "Urdaibai"
+   ]
+  },
+  {
+   "nombre": "Galicia · Rías Baixas",
+   "zona": "espana",
+   "lugar": "Galicia",
+   "flag": "🇪🇸",
+   "emoji": "🦪",
+   "estilos": [
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "4–5",
+   "actividades": [
+    "Islas Cíes",
+    "Marisco en O Grove",
+    "Albariño en Cambados",
+    "Combarro",
+    "Playa de A Lanzada",
+    "Pontevedra"
+   ]
+  },
+  {
+   "nombre": "Santiago de Compostela",
+   "zona": "espana",
+   "lugar": "Galicia",
+   "flag": "🇪🇸",
+   "emoji": "🐚",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Catedral y Pórtico de la Gloria",
+    "Últimas etapas del Camino",
+    "Pulpo y tapas",
+    "Mercado de Abastos",
+    "Finisterre"
+   ]
+  },
+  {
+   "nombre": "A Coruña",
+   "zona": "espana",
+   "lugar": "Galicia",
+   "flag": "🇪🇸",
+   "emoji": "🗼",
+   "estilos": [
+    "ciudad",
+    "playa"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "2",
+   "actividades": [
+    "Torre de Hércules",
+    "Playa de Riazor",
+    "Galerías del paseo marítimo",
+    "Costa da Morte"
+   ]
+  },
+  {
+   "nombre": "Pirineo aragonés",
+   "zona": "espana",
+   "lugar": "Aragón",
+   "flag": "🇪🇸",
+   "emoji": "🧗",
+   "estilos": [
+    "naturaleza",
+    "aventura",
+    "nieve"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Rafting en el Ésera",
+    "Barranquismo en la Sierra de Guara",
+    "Ordesa y Monte Perdido",
+    "Esquí en Formigal o Cerler",
+    "Vía ferrata"
+   ]
+  },
+  {
+   "nombre": "Zaragoza",
+   "zona": "espana",
+   "lugar": "Aragón",
+   "flag": "🇪🇸",
+   "emoji": "⛪",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Basílica del Pilar",
+    "Aljafería",
+    "Tubo de tapas",
+    "Fiestas del Pilar en octubre"
+   ]
+  },
+  {
+   "nombre": "Teruel · Albarracín",
+   "zona": "espana",
+   "lugar": "Aragón",
+   "flag": "🇪🇸",
+   "emoji": "🏘️",
+   "estilos": [
+    "cultura",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Albarracín",
+    "Dinópolis",
+    "Los Amantes de Teruel",
+    "Pinturas rupestres"
+   ]
+  },
+  {
+   "nombre": "Navarra · Bardenas",
+   "zona": "espana",
+   "lugar": "Navarra",
+   "flag": "🇪🇸",
+   "emoji": "🏜️",
+   "estilos": [
+    "naturaleza",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Bardenas Reales en bici o 4x4",
+    "San Fermín en julio",
+    "Selva de Irati",
+    "Pamplona de pintxos"
+   ]
+  },
+  {
+   "nombre": "La Rioja",
+   "zona": "espana",
+   "lugar": "La Rioja",
+   "flag": "🇪🇸",
+   "emoji": "🍷",
+   "estilos": [
+    "cultura",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Bodegas y catas",
+    "Calle Laurel en Logroño",
+    "Batalla del Vino de Haro",
+    "San Millán de la Cogolla"
+   ]
+  },
+  {
+   "nombre": "Murcia · Mar Menor",
+   "zona": "espana",
+   "lugar": "Murcia",
+   "flag": "🇪🇸",
+   "emoji": "🚤",
+   "estilos": [
+    "playa",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3",
+   "actividades": [
+    "La Manga",
+    "Deportes náuticos en el Mar Menor",
+    "Calblanque",
+    "Cartagena romana",
+    "Tapeo en Murcia"
+   ]
+  },
+  {
+   "nombre": "Extremadura",
+   "zona": "espana",
+   "lugar": "Extremadura",
+   "flag": "🇪🇸",
+   "emoji": "🦅",
+   "estilos": [
+    "naturaleza",
+    "cultura"
+   ],
+   "epoca": "Octubre – junio",
+   "dias": "2–3",
+   "actividades": [
+    "Cáceres monumental",
+    "Mérida romana",
+    "Parque de Monfragüe",
+    "Valle del Jerte en flor",
+    "Trujillo"
+   ]
+  },
+  {
+   "nombre": "Cuenca",
+   "zona": "espana",
+   "lugar": "Castilla-La Mancha",
+   "flag": "🇪🇸",
+   "emoji": "🏚️",
+   "estilos": [
+    "ciudad",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Casas Colgadas",
+    "Ciudad Encantada",
+    "Ventano del Diablo",
+    "Hoz del Júcar en kayak"
+   ]
+  },
+  {
+   "nombre": "Sierra Nevada",
+   "zona": "espana",
+   "lugar": "Andalucía",
+   "flag": "🇪🇸",
+   "emoji": "⛷️",
+   "estilos": [
+    "nieve"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "3–5",
+   "actividades": [
+    "Esquí y snowboard",
+    "Clases para principiantes",
+    "Après-ski en Pradollano",
+    "Trineos y moto de nieve",
+    "Granada a 30 minutos"
+   ]
+  },
+  {
+   "nombre": "Baqueira-Beret",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🎿",
+   "estilos": [
+    "nieve"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "3–5",
+   "actividades": [
+    "La estación más grande de España",
+    "Fuera pista con guía",
+    "Vielha",
+    "Après-ski",
+    "Raquetas de nieve"
+   ]
+  },
+  {
+   "nombre": "Formigal",
+   "zona": "espana",
+   "lugar": "Aragón",
+   "flag": "🇪🇸",
+   "emoji": "🏂",
+   "estilos": [
+    "nieve",
+    "fiesta"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "3–5",
+   "actividades": [
+    "Esquí y snow",
+    "Après-ski en La Marmota",
+    "Clases",
+    "Moto de nieve",
+    "Tardes en Sallent de Gállego"
+   ]
+  },
+  {
+   "nombre": "La Molina y Masella",
+   "zona": "espana",
+   "lugar": "Cataluña",
+   "flag": "🇪🇸",
+   "emoji": "🚡",
+   "estilos": [
+    "nieve"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "2–3",
+   "actividades": [
+    "Esquí en Alp 2500",
+    "Snowpark",
+    "Esquí nocturno en Masella",
+    "Trineo"
+   ]
+  },
+  {
+   "nombre": "Andorra · Grandvalira",
+   "zona": "europa",
+   "lugar": "Andorra",
+   "flag": "🇦🇩",
+   "emoji": "❄️",
+   "estilos": [
+    "nieve",
+    "fiesta"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "4–6",
+   "actividades": [
+    "El mayor dominio del Pirineo",
+    "Clases y material",
+    "Après-ski en Pas de la Casa",
+    "Caldea",
+    "Compras"
+   ]
+  },
+  {
+   "nombre": "Andorra · Pal Arinsal",
+   "zona": "europa",
+   "lugar": "Andorra",
+   "flag": "🇦🇩",
+   "emoji": "🏔️",
+   "estilos": [
+    "nieve"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "3–5",
+   "actividades": [
+    "Esquí y snow",
+    "Snowpark",
+    "Arinsal de fiesta",
+    "Mushing con perros",
+    "Caldea"
+   ]
+  },
+  {
+   "nombre": "Lisboa",
+   "zona": "europa",
+   "lugar": "Portugal",
+   "flag": "🇵🇹",
+   "emoji": "🚋",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Tranvía 28 y Alfama",
+    "Belém y sus pasteles",
+    "Barrio Alto de fiesta",
+    "Sintra",
+    "Playas de Cascais",
+    "LX Factory"
+   ]
+  },
+  {
+   "nombre": "Oporto",
+   "zona": "europa",
+   "lugar": "Portugal",
+   "flag": "🇵🇹",
+   "emoji": "🍷",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Bodegas de vino de Oporto",
+    "Crucero de los seis puentes",
+    "Librería Lello",
+    "Ribeira",
+    "Francesinha"
+   ]
+  },
+  {
+   "nombre": "Algarve",
+   "zona": "europa",
+   "lugar": "Portugal",
+   "flag": "🇵🇹",
+   "emoji": "🏖️",
+   "estilos": [
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "4–5",
+   "actividades": [
+    "Cueva de Benagil en kayak",
+    "Praia da Marinha",
+    "Lagos y Ponta da Piedade",
+    "Albufeira de fiesta",
+    "Paseo en barco"
+   ]
+  },
+  {
+   "nombre": "Madeira",
+   "zona": "europa",
+   "lugar": "Portugal",
+   "flag": "🇵🇹",
+   "emoji": "🌺",
+   "estilos": [
+    "islas",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Levadas",
+    "Pico do Arieiro",
+    "Cabo Girão",
+    "Piscinas de Porto Moniz",
+    "Carros de cesto en Monte"
+   ]
+  },
+  {
+   "nombre": "Azores",
+   "zona": "europa",
+   "lugar": "Portugal",
+   "flag": "🇵🇹",
+   "emoji": "🐋",
+   "estilos": [
+    "islas",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "5–6",
+   "actividades": [
+    "Avistamiento de ballenas",
+    "Sete Cidades",
+    "Termas de Furnas",
+    "Lagoa do Fogo",
+    "Barranquismo"
+   ]
+  },
+  {
+   "nombre": "París",
+   "zona": "europa",
+   "lugar": "Francia",
+   "flag": "🇫🇷",
+   "emoji": "🗼",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Torre Eiffel",
+    "Louvre",
+    "Disneyland París",
+    "Montmartre",
+    "Crucero por el Sena",
+    "Versalles"
+   ]
+  },
+  {
+   "nombre": "Niza y Costa Azul",
+   "zona": "europa",
+   "lugar": "Francia",
+   "flag": "🇫🇷",
+   "emoji": "💎",
+   "estilos": [
+    "playa",
+    "ciudad"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "3–4",
+   "actividades": [
+    "Promenade des Anglais",
+    "Mónaco y Montecarlo",
+    "Èze",
+    "Cannes",
+    "Playas de Villefranche"
+   ]
+  },
+  {
+   "nombre": "Alpes franceses",
+   "zona": "europa",
+   "lugar": "Francia",
+   "flag": "🇫🇷",
+   "emoji": "🏔️",
+   "estilos": [
+    "nieve",
+    "aventura"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "5–7",
+   "actividades": [
+    "Esquí en Val Thorens o Les Deux Alpes",
+    "Chamonix y el Mont Blanc",
+    "Après-ski",
+    "Parapente"
+   ]
+  },
+  {
+   "nombre": "Roma",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🏛️",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Coliseo y Foro",
+    "Vaticano",
+    "Fontana di Trevi",
+    "Trastevere de noche",
+    "Pizza y gelato"
+   ]
+  },
+  {
+   "nombre": "Florencia y Toscana",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🍝",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Abril – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Duomo y Ponte Vecchio",
+    "Galería Uffizi",
+    "Pisa",
+    "Siena",
+    "Cata de vino en Chianti",
+    "Clase de pasta"
+   ]
+  },
+  {
+   "nombre": "Venecia",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🛶",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2",
+   "actividades": [
+    "Góndola",
+    "Plaza de San Marcos",
+    "Murano y Burano",
+    "Carnaval en febrero"
+   ]
+  },
+  {
+   "nombre": "Milán y lago de Como",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🛥️",
+   "estilos": [
+    "ciudad",
+    "naturaleza"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Duomo",
+    "San Siro",
+    "Lago de Como en barco",
+    "Bellagio",
+    "Aperitivo en Navigli"
+   ]
+  },
+  {
+   "nombre": "Costa Amalfitana y Nápoles",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🍋",
+   "estilos": [
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "4–5",
+   "actividades": [
+    "Positano y Amalfi",
+    "Capri y la Gruta Azul",
+    "Pompeya",
+    "Pizza en Nápoles",
+    "Subida al Vesubio"
+   ]
+  },
+  {
+   "nombre": "Sicilia",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🌋",
+   "estilos": [
+    "islas",
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "5–6",
+   "actividades": [
+    "Subida al Etna",
+    "Taormina",
+    "Palermo",
+    "Valle de los Templos",
+    "Playas de San Vito Lo Capo"
+   ]
+  },
+  {
+   "nombre": "Cerdeña",
+   "zona": "europa",
+   "lugar": "Italia",
+   "flag": "🇮🇹",
+   "emoji": "🏝️",
+   "estilos": [
+    "islas",
+    "playa"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "5–6",
+   "actividades": [
+    "Costa Esmeralda",
+    "Archipiélago de La Maddalena",
+    "Cala Goloritzé",
+    "Fiesta en Porto Cervo"
+   ]
+  },
+  {
+   "nombre": "Londres",
+   "zona": "europa",
+   "lugar": "Reino Unido",
+   "flag": "🇬🇧",
+   "emoji": "💂",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Big Ben y London Eye",
+    "Harry Potter Studios",
+    "Camden y Notting Hill",
+    "Musical en el West End",
+    "Museos gratis",
+    "Partido de la Premier"
+   ]
+  },
+  {
+   "nombre": "Edimburgo y Escocia",
+   "zona": "europa",
+   "lugar": "Reino Unido",
+   "flag": "🇬🇧",
+   "emoji": "🏴",
+   "estilos": [
+    "ciudad",
+    "naturaleza"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "4–5",
+   "actividades": [
+    "Castillo de Edimburgo",
+    "Arthur's Seat",
+    "Highlands y el lago Ness",
+    "Destilería de whisky",
+    "Festival Fringe en agosto"
+   ]
+  },
+  {
+   "nombre": "Dublín",
+   "zona": "europa",
+   "lugar": "Irlanda",
+   "flag": "🇮🇪",
+   "emoji": "🍀",
+   "estilos": [
+    "ciudad",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Guinness Storehouse",
+    "Temple Bar",
+    "Acantilados de Moher",
+    "Trinity College",
+    "San Patricio en marzo"
+   ]
+  },
+  {
+   "nombre": "Ámsterdam",
+   "zona": "europa",
+   "lugar": "Países Bajos",
+   "flag": "🇳🇱",
+   "emoji": "🚲",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Paseo en barco por los canales",
+    "Bici por la ciudad",
+    "Casa de Ana Frank",
+    "Museo Van Gogh",
+    "Molinos de Zaanse Schans"
+   ]
+  },
+  {
+   "nombre": "Bruselas y Brujas",
+   "zona": "europa",
+   "lugar": "Bélgica",
+   "flag": "🇧🇪",
+   "emoji": "🍫",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Grand Place",
+    "Brujas en barca",
+    "Ruta de cervezas belgas",
+    "Chocolate y gofres",
+    "Atomium"
+   ]
+  },
+  {
+   "nombre": "Berlín",
+   "zona": "europa",
+   "lugar": "Alemania",
+   "flag": "🇩🇪",
+   "emoji": "🧱",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Muro y East Side Gallery",
+    "Puerta de Brandeburgo",
+    "Isla de los Museos",
+    "Clubs de techno",
+    "Bici por Tempelhof"
+   ]
+  },
+  {
+   "nombre": "Múnich",
+   "zona": "europa",
+   "lugar": "Alemania",
+   "flag": "🇩🇪",
+   "emoji": "🍺",
+   "estilos": [
+    "ciudad",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Oktoberfest",
+    "Castillo de Neuschwanstein",
+    "Allianz Arena",
+    "Cervecerías tradicionales",
+    "Surf en el Eisbach"
+   ]
+  },
+  {
+   "nombre": "Praga",
+   "zona": "europa",
+   "lugar": "Chequia",
+   "flag": "🇨🇿",
+   "emoji": "🏰",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Puente de Carlos",
+    "Castillo de Praga",
+    "Reloj astronómico",
+    "Ruta de cervezas",
+    "Fiesta en el club de cinco plantas"
+   ]
+  },
+  {
+   "nombre": "Budapest",
+   "zona": "europa",
+   "lugar": "Hungría",
+   "flag": "🇭🇺",
+   "emoji": "♨️",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Balnearios Széchenyi y Gellért",
+    "Parlamento",
+    "Bastión de los Pescadores",
+    "Ruin bars",
+    "Sparty",
+    "Crucero por el Danubio"
+   ]
+  },
+  {
+   "nombre": "Viena",
+   "zona": "europa",
+   "lugar": "Austria",
+   "flag": "🇦🇹",
+   "emoji": "🎻",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Palacio de Schönbrunn",
+    "Ópera",
+    "Prater",
+    "Tarta Sacher",
+    "Mercados de Navidad"
+   ]
+  },
+  {
+   "nombre": "Cracovia",
+   "zona": "europa",
+   "lugar": "Polonia",
+   "flag": "🇵🇱",
+   "emoji": "🏚️",
+   "estilos": [
+    "ciudad",
+    "cultura",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "Plaza del Mercado",
+    "Auschwitz-Birkenau",
+    "Minas de sal de Wieliczka",
+    "Barrio judío de Kazimierz",
+    "Vida nocturna barata"
+   ]
+  },
+  {
+   "nombre": "Croacia · Split y Hvar",
+   "zona": "europa",
+   "lugar": "Croacia",
+   "flag": "🇭🇷",
+   "emoji": "⛵",
+   "estilos": [
+    "playa",
+    "islas",
+    "fiesta"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "4–6",
+   "actividades": [
+    "Palacio de Diocleciano",
+    "Barco a Hvar y las Pakleni",
+    "Cascadas de Krka",
+    "Blue Cave",
+    "Fiesta en Hvar"
+   ]
+  },
+  {
+   "nombre": "Dubrovnik",
+   "zona": "europa",
+   "lugar": "Croacia",
+   "flag": "🇭🇷",
+   "emoji": "🏯",
+   "estilos": [
+    "ciudad",
+    "playa"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3",
+   "actividades": [
+    "Murallas",
+    "Escenarios de Juego de Tronos",
+    "Kayak alrededor de la ciudad",
+    "Teleférico del Srđ",
+    "Isla de Lokrum"
+   ]
+  },
+  {
+   "nombre": "Atenas",
+   "zona": "europa",
+   "lugar": "Grecia",
+   "flag": "🇬🇷",
+   "emoji": "🏛️",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "2–3",
+   "actividades": [
+    "Acrópolis",
+    "Plaka",
+    "Cabo Sunión al atardecer",
+    "Gyros y souvlaki",
+    "Ferry a las islas"
+   ]
+  },
+  {
+   "nombre": "Mykonos",
+   "zona": "europa",
+   "lugar": "Grecia",
+   "flag": "🇬🇷",
+   "emoji": "🥂",
+   "estilos": [
+    "islas",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "3–4",
+   "actividades": [
+    "Little Venice al atardecer",
+    "Molinos",
+    "Beach clubs de Paradise y Super Paradise",
+    "Delos",
+    "Fiesta hasta el amanecer"
+   ]
+  },
+  {
+   "nombre": "Santorini",
+   "zona": "europa",
+   "lugar": "Grecia",
+   "flag": "🇬🇷",
+   "emoji": "🌅",
+   "estilos": [
+    "islas",
+    "playa"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Atardecer en Oia",
+    "Catamarán por la caldera",
+    "Playa Roja y Negra",
+    "Volcán y aguas termales",
+    "Cata de vinos"
+   ]
+  },
+  {
+   "nombre": "Creta",
+   "zona": "europa",
+   "lugar": "Grecia",
+   "flag": "🇬🇷",
+   "emoji": "🏝️",
+   "estilos": [
+    "islas",
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "5–6",
+   "actividades": [
+    "Balos y Elafonisi",
+    "Garganta de Samaria",
+    "Palacio de Knossos",
+    "Chania",
+    "Spinalonga"
+   ]
+  },
+  {
+   "nombre": "Corfú y Zante",
+   "zona": "europa",
+   "lugar": "Grecia",
+   "flag": "🇬🇷",
+   "emoji": "🐢",
+   "estilos": [
+    "islas",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "5–6",
+   "actividades": [
+    "Playa del Naufragio en Zante",
+    "Cuevas Azules",
+    "Tortugas caretta",
+    "Fiesta en Laganas",
+    "Corfú ciudad"
+   ]
+  },
+  {
+   "nombre": "Malta",
+   "zona": "europa",
+   "lugar": "Malta",
+   "flag": "🇲🇹",
+   "emoji": "💙",
+   "estilos": [
+    "islas",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4",
+   "actividades": [
+    "Laguna Azul de Comino",
+    "La Valeta",
+    "Gozo",
+    "Buceo",
+    "Fiesta en Paceville"
+   ]
+  },
+  {
+   "nombre": "Chipre",
+   "zona": "europa",
+   "lugar": "Chipre",
+   "flag": "🇨🇾",
+   "emoji": "☀️",
+   "estilos": [
+    "islas",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Abril – noviembre",
+   "dias": "4–5",
+   "actividades": [
+    "Ayia Napa de fiesta",
+    "Nissi Beach",
+    "Cabo Greco",
+    "Roca de Afrodita",
+    "Nicosia"
+   ]
+  },
+  {
+   "nombre": "Estambul",
+   "zona": "europa",
+   "lugar": "Turquía",
+   "flag": "🇹🇷",
+   "emoji": "🕌",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3–4",
+   "actividades": [
+    "Santa Sofía y Mezquita Azul",
+    "Gran Bazar",
+    "Crucero por el Bósforo",
+    "Hammam",
+    "Topkapi"
+   ]
+  },
+  {
+   "nombre": "Capadocia",
+   "zona": "mundo",
+   "lugar": "Turquía",
+   "flag": "🇹🇷",
+   "emoji": "🎈",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Abril – noviembre",
+   "dias": "2–3",
+   "actividades": [
+    "Vuelo en globo al amanecer",
+    "Ciudades subterráneas",
+    "Valles en quad",
+    "Hoteles cueva",
+    "Göreme"
+   ]
+  },
+  {
+   "nombre": "Albania · Riviera",
+   "zona": "europa",
+   "lugar": "Albania",
+   "flag": "🇦🇱",
+   "emoji": "🏖️",
+   "estilos": [
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Junio – septiembre",
+   "dias": "5–6",
+   "actividades": [
+    "Ksamil",
+    "Ojo Azul",
+    "Butrinto",
+    "Himara",
+    "Precios muy baratos"
+   ]
+  },
+  {
+   "nombre": "Montenegro",
+   "zona": "europa",
+   "lugar": "Montenegro",
+   "flag": "🇲🇪",
+   "emoji": "⛰️",
+   "estilos": [
+    "playa",
+    "naturaleza"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "4",
+   "actividades": [
+    "Bahía de Kotor",
+    "Budva de fiesta",
+    "Parque de Durmitor",
+    "Rafting en el Tara"
+   ]
+  },
+  {
+   "nombre": "Eslovenia",
+   "zona": "europa",
+   "lugar": "Eslovenia",
+   "flag": "🇸🇮",
+   "emoji": "🏞️",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – octubre",
+   "dias": "3–4",
+   "actividades": [
+    "Lago Bled",
+    "Cuevas de Postojna",
+    "Liubliana",
+    "Rafting en el Soča",
+    "Garganta de Vintgar"
+   ]
+  },
+  {
+   "nombre": "Suiza",
+   "zona": "europa",
+   "lugar": "Suiza",
+   "flag": "🇨🇭",
+   "emoji": "🧀",
+   "estilos": [
+    "naturaleza",
+    "nieve"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Interlaken y parapente",
+    "Jungfraujoch",
+    "Zermatt y el Cervino",
+    "Lucerna",
+    "Fondue"
+   ]
+  },
+  {
+   "nombre": "Islandia",
+   "zona": "europa",
+   "lugar": "Islandia",
+   "flag": "🇮🇸",
+   "emoji": "🌌",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "5–7",
+   "actividades": [
+    "Auroras boreales",
+    "Círculo Dorado",
+    "Blue Lagoon",
+    "Laguna glaciar de Jökulsárlón",
+    "Cuevas de hielo",
+    "Snorkel en Silfra"
+   ]
+  },
+  {
+   "nombre": "Laponia",
+   "zona": "europa",
+   "lugar": "Finlandia",
+   "flag": "🇫🇮",
+   "emoji": "🦌",
+   "estilos": [
+    "nieve",
+    "aventura"
+   ],
+   "epoca": "Diciembre – marzo",
+   "dias": "4–5",
+   "actividades": [
+    "Aldea de Papá Noel",
+    "Safari en husky",
+    "Motos de nieve",
+    "Auroras boreales",
+    "Sauna y lago helado"
+   ]
+  },
+  {
+   "nombre": "Noruega · fiordos",
+   "zona": "europa",
+   "lugar": "Noruega",
+   "flag": "🇳🇴",
+   "emoji": "🛳️",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "5–6",
+   "actividades": [
+    "Crucero por el Geirangerfjord",
+    "Preikestolen",
+    "Bergen",
+    "Trolltunga",
+    "Tren de Flåm"
+   ]
+  },
+  {
+   "nombre": "Copenhague",
+   "zona": "europa",
+   "lugar": "Dinamarca",
+   "flag": "🇩🇰",
+   "emoji": "🚲",
+   "estilos": [
+    "ciudad"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "2–3",
+   "actividades": [
+    "Nyhavn",
+    "Tivoli",
+    "Christiania",
+    "Bici por la ciudad",
+    "La Sirenita"
+   ]
+  },
+  {
+   "nombre": "Estocolmo",
+   "zona": "europa",
+   "lugar": "Suecia",
+   "flag": "🇸🇪",
+   "emoji": "👑",
+   "estilos": [
+    "ciudad"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "3",
+   "actividades": [
+    "Gamla Stan",
+    "Museo Vasa",
+    "Museo de ABBA",
+    "Archipiélago en barco",
+    "Fika"
+   ]
+  },
+  {
+   "nombre": "Riga y Tallin",
+   "zona": "europa",
+   "lugar": "Letonia y Estonia",
+   "flag": "🇱🇻",
+   "emoji": "🏙️",
+   "estilos": [
+    "ciudad",
+    "fiesta"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "4",
+   "actividades": [
+    "Cascos medievales",
+    "Mercado central de Riga",
+    "Vida nocturna",
+    "Saunas",
+    "Precios bajos"
+   ]
+  },
+  {
+   "nombre": "Marrakech",
+   "zona": "mundo",
+   "lugar": "Marruecos",
+   "flag": "🇲🇦",
+   "emoji": "🐪",
+   "estilos": [
+    "ciudad",
+    "aventura",
+    "cultura"
+   ],
+   "epoca": "Octubre – mayo",
+   "dias": "3–4",
+   "actividades": [
+    "Plaza Jemaa el-Fna",
+    "Zocos y regateo",
+    "Noche en el desierto de Agafay",
+    "Quad y camellos",
+    "Hammam",
+    "Jardín Majorelle"
+   ]
+  },
+  {
+   "nombre": "Desierto de Merzouga",
+   "zona": "mundo",
+   "lugar": "Marruecos",
+   "flag": "🇲🇦",
+   "emoji": "🏜️",
+   "estilos": [
+    "aventura",
+    "naturaleza"
+   ],
+   "epoca": "Octubre – abril",
+   "dias": "4–5",
+   "actividades": [
+    "Noche en jaima",
+    "Paseo en camello por las dunas",
+    "Sandboard",
+    "Garganta del Todra",
+    "Aït Ben Haddou"
+   ]
+  },
+  {
+   "nombre": "Tánger y Chefchaouen",
+   "zona": "mundo",
+   "lugar": "Marruecos",
+   "flag": "🇲🇦",
+   "emoji": "💙",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "3",
+   "actividades": [
+    "La ciudad azul",
+    "Medina de Tánger",
+    "Cabo Espartel",
+    "Cueva de Hércules"
+   ]
+  },
+  {
+   "nombre": "Egipto",
+   "zona": "mundo",
+   "lugar": "Egipto",
+   "flag": "🇪🇬",
+   "emoji": "🔺",
+   "estilos": [
+    "cultura",
+    "aventura"
+   ],
+   "epoca": "Octubre – abril",
+   "dias": "6–8",
+   "actividades": [
+    "Pirámides de Giza",
+    "Crucero por el Nilo",
+    "Luxor y Valle de los Reyes",
+    "Abu Simbel",
+    "Snorkel en el mar Rojo"
+   ]
+  },
+  {
+   "nombre": "Jordania",
+   "zona": "mundo",
+   "lugar": "Jordania",
+   "flag": "🇯🇴",
+   "emoji": "🏜️",
+   "estilos": [
+    "cultura",
+    "aventura"
+   ],
+   "epoca": "Marzo – mayo, sep – nov",
+   "dias": "5–6",
+   "actividades": [
+    "Petra",
+    "Wadi Rum en 4x4 y noche en campamento",
+    "Flotar en el mar Muerto",
+    "Aqaba"
+   ]
+  },
+  {
+   "nombre": "Dubái",
+   "zona": "mundo",
+   "lugar": "Emiratos Árabes",
+   "flag": "🇦🇪",
+   "emoji": "🏙️",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "aventura"
+   ],
+   "epoca": "Noviembre – marzo",
+   "dias": "4–5",
+   "actividades": [
+    "Burj Khalifa",
+    "Safari por el desierto",
+    "Dubai Mall",
+    "Parque acuático Aquaventure",
+    "Abu Dabi"
+   ]
+  },
+  {
+   "nombre": "Bali",
+   "zona": "mundo",
+   "lugar": "Indonesia",
+   "flag": "🇮🇩",
+   "emoji": "🌴",
+   "estilos": [
+    "islas",
+    "playa",
+    "naturaleza",
+    "fiesta"
+   ],
+   "epoca": "Abril – octubre",
+   "dias": "8–10",
+   "actividades": [
+    "Terrazas de arroz de Tegallalang",
+    "Templos de Uluwatu y Tanah Lot",
+    "Surf en Canggu",
+    "Nusa Penida",
+    "Subida al Batur al amanecer",
+    "Beach clubs en Seminyak"
+   ]
+  },
+  {
+   "nombre": "Tailandia · Bangkok e islas",
+   "zona": "mundo",
+   "lugar": "Tailandia",
+   "flag": "🇹🇭",
+   "emoji": "🛺",
+   "estilos": [
+    "ciudad",
+    "islas",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Noviembre – abril",
+   "dias": "10–14",
+   "actividades": [
+    "Templos de Bangkok",
+    "Chiang Mai y santuario de elefantes",
+    "Phi Phi y Maya Bay",
+    "Full Moon Party en Koh Phangan",
+    "Buceo en Koh Tao",
+    "Mercados flotantes"
+   ]
+  },
+  {
+   "nombre": "Vietnam",
+   "zona": "mundo",
+   "lugar": "Vietnam",
+   "flag": "🇻🇳",
+   "emoji": "🛶",
+   "estilos": [
+    "naturaleza",
+    "cultura",
+    "ciudad"
+   ],
+   "epoca": "Octubre – abril",
+   "dias": "10–12",
+   "actividades": [
+    "Bahía de Ha Long en barco",
+    "Hoi An",
+    "Hanói en moto",
+    "Delta del Mekong",
+    "Sapa"
+   ]
+  },
+  {
+   "nombre": "Japón",
+   "zona": "mundo",
+   "lugar": "Japón",
+   "flag": "🇯🇵",
+   "emoji": "🗾",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Marzo – mayo, oct – nov",
+   "dias": "10–12",
+   "actividades": [
+    "Tokio: Shibuya y Akihabara",
+    "Kioto y sus templos",
+    "Monte Fuji",
+    "Osaka y su comida callejera",
+    "Nara y los ciervos",
+    "Cerezos en flor"
+   ]
+  },
+  {
+   "nombre": "Maldivas",
+   "zona": "mundo",
+   "lugar": "Maldivas",
+   "flag": "🇲🇻",
+   "emoji": "🐠",
+   "estilos": [
+    "islas",
+    "playa"
+   ],
+   "epoca": "Noviembre – abril",
+   "dias": "6–8",
+   "actividades": [
+    "Snorkel con mantas y tiburones ballena",
+    "Cena en la playa",
+    "Excursión a bancos de arena",
+    "Buceo",
+    "Villas sobre el agua"
+   ]
+  },
+  {
+   "nombre": "Sri Lanka",
+   "zona": "mundo",
+   "lugar": "Sri Lanka",
+   "flag": "🇱🇰",
+   "emoji": "🐘",
+   "estilos": [
+    "naturaleza",
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "8–10",
+   "actividades": [
+    "Roca de Sigiriya",
+    "Tren de Kandy a Ella",
+    "Safari en Yala",
+    "Plantaciones de té",
+    "Playas de Mirissa"
+   ]
+  },
+  {
+   "nombre": "Nueva York",
+   "zona": "mundo",
+   "lugar": "Estados Unidos",
+   "flag": "🇺🇸",
+   "emoji": "🗽",
+   "estilos": [
+    "ciudad",
+    "fiesta",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "5–6",
+   "actividades": [
+    "Times Square",
+    "Estatua de la Libertad",
+    "Central Park en bici",
+    "Musical en Broadway",
+    "Partido de la NBA",
+    "Miradores del Top of the Rock"
+   ]
+  },
+  {
+   "nombre": "Miami",
+   "zona": "mundo",
+   "lugar": "Estados Unidos",
+   "flag": "🇺🇸",
+   "emoji": "🌴",
+   "estilos": [
+    "playa",
+    "fiesta",
+    "ciudad"
+   ],
+   "epoca": "Noviembre – mayo",
+   "dias": "5–6",
+   "actividades": [
+    "South Beach",
+    "Wynwood Walls",
+    "Everglades en hidrodeslizador",
+    "Cayo Hueso",
+    "Fiesta en Ocean Drive"
+   ]
+  },
+  {
+   "nombre": "California",
+   "zona": "mundo",
+   "lugar": "Estados Unidos",
+   "flag": "🇺🇸",
+   "emoji": "🌉",
+   "estilos": [
+    "ciudad",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Abril – octubre",
+   "dias": "10–12",
+   "actividades": [
+    "Los Ángeles y Hollywood",
+    "San Francisco y el Golden Gate",
+    "Las Vegas",
+    "Gran Cañón",
+    "Ruta por la costa"
+   ]
+  },
+  {
+   "nombre": "Cancún y Riviera Maya",
+   "zona": "mundo",
+   "lugar": "México",
+   "flag": "🇲🇽",
+   "emoji": "🌮",
+   "estilos": [
+    "playa",
+    "fiesta",
+    "aventura"
+   ],
+   "epoca": "Noviembre – abril",
+   "dias": "7–9",
+   "actividades": [
+    "Cenotes",
+    "Chichén Itzá",
+    "Isla Mujeres",
+    "Xcaret",
+    "Tulum",
+    "Coco Bongo"
+   ]
+  },
+  {
+   "nombre": "Ciudad de México",
+   "zona": "mundo",
+   "lugar": "México",
+   "flag": "🇲🇽",
+   "emoji": "🌶️",
+   "estilos": [
+    "ciudad",
+    "cultura"
+   ],
+   "epoca": "Todo el año",
+   "dias": "4–5",
+   "actividades": [
+    "Teotihuacán en globo",
+    "Xochimilco en trajinera",
+    "Lucha libre",
+    "Casa Azul de Frida",
+    "Tacos"
+   ]
+  },
+  {
+   "nombre": "Punta Cana",
+   "zona": "mundo",
+   "lugar": "República Dominicana",
+   "flag": "🇩🇴",
+   "emoji": "🥥",
+   "estilos": [
+    "playa",
+    "islas",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "7–9",
+   "actividades": [
+    "Isla Saona",
+    "Todo incluido",
+    "Buggies",
+    "Snorkel",
+    "Fiesta en Coco Bongo"
+   ]
+  },
+  {
+   "nombre": "Cuba",
+   "zona": "mundo",
+   "lugar": "Cuba",
+   "flag": "🇨🇺",
+   "emoji": "🚗",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "cultura"
+   ],
+   "epoca": "Noviembre – abril",
+   "dias": "8–10",
+   "actividades": [
+    "La Habana en coche clásico",
+    "Varadero",
+    "Trinidad",
+    "Viñales",
+    "Salsa y mojitos"
+   ]
+  },
+  {
+   "nombre": "Costa Rica",
+   "zona": "mundo",
+   "lugar": "Costa Rica",
+   "flag": "🇨🇷",
+   "emoji": "🦥",
+   "estilos": [
+    "naturaleza",
+    "aventura",
+    "playa"
+   ],
+   "epoca": "Diciembre – abril",
+   "dias": "8–10",
+   "actividades": [
+    "Tirolinas en Monteverde",
+    "Volcán Arenal",
+    "Rafting",
+    "Parque Manuel Antonio",
+    "Tortugas en Tortuguero"
+   ]
+  },
+  {
+   "nombre": "Colombia",
+   "zona": "mundo",
+   "lugar": "Colombia",
+   "flag": "🇨🇴",
+   "emoji": "💃",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Diciembre – marzo",
+   "dias": "8–10",
+   "actividades": [
+    "Cartagena de Indias",
+    "Medellín y la Comuna 13",
+    "Eje cafetero",
+    "Islas del Rosario",
+    "Salsa en Cali"
+   ]
+  },
+  {
+   "nombre": "Perú",
+   "zona": "mundo",
+   "lugar": "Perú",
+   "flag": "🇵🇪",
+   "emoji": "🦙",
+   "estilos": [
+    "cultura",
+    "aventura",
+    "naturaleza"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "10–12",
+   "actividades": [
+    "Machu Picchu",
+    "Cusco",
+    "Montaña de Colores",
+    "Lago Titicaca",
+    "Lima gastronómica"
+   ]
+  },
+  {
+   "nombre": "Brasil · Río de Janeiro",
+   "zona": "mundo",
+   "lugar": "Brasil",
+   "flag": "🇧🇷",
+   "emoji": "🏖️",
+   "estilos": [
+    "ciudad",
+    "playa",
+    "fiesta"
+   ],
+   "epoca": "Todo el año",
+   "dias": "6–8",
+   "actividades": [
+    "Cristo Redentor",
+    "Pan de Azúcar",
+    "Copacabana e Ipanema",
+    "Carnaval",
+    "Samba en Lapa",
+    "Ilha Grande"
+   ]
+  },
+  {
+   "nombre": "Argentina",
+   "zona": "mundo",
+   "lugar": "Argentina",
+   "flag": "🇦🇷",
+   "emoji": "🥩",
+   "estilos": [
+    "ciudad",
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Octubre – abril",
+   "dias": "10–12",
+   "actividades": [
+    "Buenos Aires y tango",
+    "Cataratas de Iguazú",
+    "Glaciar Perito Moreno",
+    "Mendoza y sus bodegas",
+    "Asado"
+   ]
+  },
+  {
+   "nombre": "Sudáfrica",
+   "zona": "mundo",
+   "lugar": "Sudáfrica",
+   "flag": "🇿🇦",
+   "emoji": "🦁",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Mayo – septiembre",
+   "dias": "10–12",
+   "actividades": [
+    "Safari en Kruger",
+    "Ciudad del Cabo y la Montaña de la Mesa",
+    "Cabo de Buena Esperanza",
+    "Ruta Jardín",
+    "Pingüinos de Boulders"
+   ]
+  },
+  {
+   "nombre": "Kenia y Tanzania",
+   "zona": "mundo",
+   "lugar": "Kenia · Tanzania",
+   "flag": "🇰🇪",
+   "emoji": "🦒",
+   "estilos": [
+    "naturaleza",
+    "aventura",
+    "playa"
+   ],
+   "epoca": "Julio – octubre",
+   "dias": "10–12",
+   "actividades": [
+    "Safari en Masái Mara",
+    "Serengeti y la gran migración",
+    "Ngorongoro",
+    "Playas de Zanzíbar"
+   ]
+  },
+  {
+   "nombre": "Isla Mauricio",
+   "zona": "mundo",
+   "lugar": "Mauricio",
+   "flag": "🇲🇺",
+   "emoji": "🐬",
+   "estilos": [
+    "islas",
+    "playa"
+   ],
+   "epoca": "Mayo – diciembre",
+   "dias": "7–9",
+   "actividades": [
+    "Nadar con delfines",
+    "Tierra de los Siete Colores",
+    "Isla de los Ciervos en catamarán",
+    "Buceo",
+    "Le Morne"
+   ]
+  },
+  {
+   "nombre": "Australia",
+   "zona": "mundo",
+   "lugar": "Australia",
+   "flag": "🇦🇺",
+   "emoji": "🦘",
+   "estilos": [
+    "ciudad",
+    "naturaleza",
+    "aventura",
+    "playa"
+   ],
+   "epoca": "Septiembre – abril",
+   "dias": "14+",
+   "actividades": [
+    "Sídney y su Ópera",
+    "Gran Barrera de Coral",
+    "Uluru",
+    "Great Ocean Road",
+    "Surf en Bondi"
+   ]
+  },
+  {
+   "nombre": "Nueva Zelanda",
+   "zona": "mundo",
+   "lugar": "Nueva Zelanda",
+   "flag": "🇳🇿",
+   "emoji": "🧙",
+   "estilos": [
+    "naturaleza",
+    "aventura"
+   ],
+   "epoca": "Noviembre – abril",
+   "dias": "14+",
+   "actividades": [
+    "Hobbiton",
+    "Queenstown y puenting",
+    "Milford Sound",
+    "Rotorua",
+    "Glaciares"
+   ]
+  }
+ ]
+}
