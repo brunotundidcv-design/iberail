@@ -257,25 +257,35 @@
     let row = Object.values(mine).find(x => x && String(x.id) === String(id));
     if(!row || !row.firma){ const { data } = await IB.sb.from('contratos').select('*').eq('id', Number(id)).maybeSingle(); row = data; }
     if(!row) return;
-    const c = row.contenido || await contexto(row), d = row.datos || {}, menor = row.tipo === 'menor';
+    printDoc(row, row.contenido || await contexto(row), row.datos || {});
+  }
+  // paper = borrador para imprimir y firmar a mano (sin firma electrónica)
+  function printDoc(row, c, d, paper, w0){
+    const menor = row.tipo === 'menor';
     const B = IB.brandOf(c.marca || (c.cond || {}).marca);
-    const w = window.open('', '_blank');
+    const w = w0 || window.open('', '_blank');
     if(!w) return alert('Permite las ventanas emergentes para descargar el contrato.');
     const css = `body{font:14px/1.55 Arial,Helvetica,sans-serif;color:#1A1614;max-width:760px;margin:30px auto;padding:0 24px}
       .top{display:flex;align-items:center;gap:10px;border-bottom:3px solid ${B.color};padding-bottom:12px;margin-bottom:10px}.top img{width:40px;height:40px;border-radius:9px}.top b{font-size:26px;font-weight:800;letter-spacing:-1px}.top b i{font-style:normal;color:#C43730}
       h3{font-size:14px;text-transform:uppercase;margin:18px 0 6px;border-bottom:1px solid #E5DAC6;padding-bottom:3px}h3 b{color:${B.color}}.ct-kicker{font-size:22px;font-weight:800;margin:6px 0 0}.ct-sub{color:#6E5D50;margin:0 0 8px}
       table{border-collapse:collapse;width:100%;margin:8px 0}th,td{border:1px solid #E5DAC6;padding:5px 8px;text-align:left;font-size:13px}th{background:#F7F0E3}.ct-small li{font-size:12px}.ct-pre{white-space:pre-line}.ct-gap{border-bottom:1px solid #999;display:inline-block;min-width:80px}
-      .sig{display:flex;gap:24px;margin-top:22px;page-break-inside:avoid}.sig div{flex:1;border:1px solid #E5DAC6;border-radius:8px;padding:10px}.sig img{max-width:100%;height:90px;object-fit:contain}.sig small{color:#6E5D50;display:block}
+      .sig{display:flex;gap:24px;margin-top:22px;page-break-inside:avoid}.sig div{flex:1;border:1px solid #E5DAC6;border-radius:8px;padding:10px}.sig img{max-width:100%;height:90px;object-fit:contain}.sig small{color:#6E5D50;display:block}.sig .blank{display:block;height:90px;border-bottom:1px solid #999;margin-bottom:6px}.sig--paper small{margin-top:6px}.lugar{margin-top:26px}
       .stamp{margin-top:14px;font-size:12px;color:#6E5D50;border-top:1px dashed #E5DAC6;padding-top:8px}@media print{body{margin:0}}`;
-    w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Contrato ${esc(c.grupo || '')} · ${esc((d.viajero || {}).nombre || '')}</title><style>${css}</style></head><body>
+    w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${paper ? 'Borrador · ' : ''}Contrato ${esc(c.grupo || '')} · ${esc((d.viajero || {}).nombre || '')}</title><style>${css}</style></head><body>
       <div class="top"><img src="${B.site}/assets/img/logo.png" alt=""><b>${B.word}</b></div>
       ${texto(c, d)}
-      <div class="sig">
+      ${paper ? `<p class="lugar">En ______________________, a ____ de ____________________ de ${new Date().getFullYear()}</p>
+      <div class="sig sig--paper">
+        <div><small>Por ${B.nombre}</small><b>${B.up}</b><small>NIF ${AGENCIA.nif}</small></div>
+        <div><small>${menor ? 'Padre, madre o tutor (firma)' : 'El Viajero (firma)'}</small><span class="blank"></span><small>Nombre: ______________________________</small><small>DNI: _________________</small></div>
+        ${menor ? `<div><small>El menor (firma)</small><span class="blank"></span><small>${esc((d.viajero || {}).nombre || 'Nombre: ______________________________')}</small></div>` : ''}
+      </div>
+      <p class="stamp">Rellena los huecos, firma${menor ? ' (padre, madre o tutor y el menor)' : ''} y envía una foto o escaneo de todas las páginas por WhatsApp al ${AGENCIA.tel} o a ${B.email}.</p>` : `      <div class="sig">
         <div><small>Por ${B.nombre}</small><b>${B.up}</b><small>NIF ${AGENCIA.nif}</small></div>
         <div><small>${menor ? 'Padre, madre o tutor' : 'El Viajero'}</small>${row.firma ? `<img src="${row.firma}" alt="Firma">` : ''}<b>${esc(menor ? (d.tutor || {}).nombre || '' : (d.viajero || {}).nombre || '')}</b><small>DNI ${esc(menor ? (d.tutor || {}).dni || '' : (d.viajero || {}).dni || '')}</small></div>
         ${menor && row.firma_menor ? `<div><small>El menor</small><img src="${row.firma_menor}" alt="Firma del menor"><b>${esc((d.viajero || {}).nombre || '')}</b></div>` : ''}
       </div>
-      <p class="stamp">${row.firmado_at ? `Firmado electrónicamente en ${B.web} el ${esc(fdt(row.firmado_at))} desde la cuenta de ${esc(((d.viajero || {}).email) || 'el viajero')}. Versión del contrato ${esc(c.version || VERSION)}. Id. ${esc(row.id)}.` : 'Pendiente de firma.'}</p>
+      <p class="stamp">${row.firmado_at ? `Firmado electrónicamente en ${B.web} el ${esc(fdt(row.firmado_at))} desde la cuenta de ${esc(((d.viajero || {}).email) || 'el viajero')}. Versión del contrato ${esc(c.version || VERSION)}. Id. ${esc(row.id)}.` : 'Pendiente de firma.'}</p>`}
       <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>`);
     w.document.close();
   }
@@ -314,7 +324,8 @@
         : `<span class="ct-st">Pendiente · ${k.tipo === 'menor' ? 'menor' : 'mayor'}</span><button type="button" class="ct-link ct-link--redo" data-ct-redo="${esc(gid)}:${esc(k.id)}:${esc(k.user_id)}:${esc(k.tipo)}" title="Anula este contrato y le envía uno nuevo para que lo vuelva a firmar">Repetir</button><button type="button" class="ct-link" data-ct-void="${esc(gid)}:${esc(k.id)}" title="Anular para volver a enviarlo (por ejemplo, con otro tipo)">Anular</button>`;
       const tu = k && k.tipo === 'menor' && k.datos && k.datos.tutor;
       const tut = tu && tu.telefono ? `<div class="ct-tutor">${I.phone}<span><b>${esc(tu.nombre || 'Tutor')}</b> (${esc(tu.relacion || 'tutor')}) · ${esc(tu.telefono)}</span><a class="ct-wa" href="${esc(waLink(tu.telefono))}" target="_blank" rel="noopener">WhatsApp</a></div>` : '';
-      return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${st}</div>${tut}</div>`;
+      const pap = `<button type="button" class="ct-link" data-ct-paper="${esc(gid)}:${esc(uid)}${k ? ':' + esc(k.tipo) : ''}" title="Contrato con lo que incluye el grupo, para imprimir y firmar a mano">Borrador PDF</button>`;
+      return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${st}${pap}</div>${tut}</div>`;
     }).join('');
     const faltan = a.miembros.filter(uid => !a.contratos.some(x => x.user_id === uid)).length;
     const tels = tutores(a);
@@ -367,6 +378,11 @@
     const t = e.target;
     const op = t.closest('[data-ct-open]'); if(op) return openSign(op.dataset.ctOpen);
     const pr = t.closest('[data-ct-print]'); if(pr) return printContract(pr.dataset.ctPrint);
+    const pp = t.closest('[data-ct-paper]'); if(pp){ const [gid, uid, tk] = pp.dataset.ctPaper.split(':'); const sel = document.querySelector(`[data-ct-tipo="${uid}"]`);
+      const tipo = tk || (sel ? sel.value : 'adulto'), cl = ((adm[gid] || {}).nombres || {})[uid] || {};
+      const row = { grupo_id: Number(gid), user_id: uid, tipo, condiciones: { ...getCond(gid), marca: admBrand(gid).key } };
+      const w = window.open('', '_blank'); if(w) { w.document.write('<p style="font:16px Arial;padding:30px">Preparando el contrato…</p>'); w.document.close(); }
+      return printDoc(row, await contexto(row), { viajero: { nombre: cl.nombre || '', email: cl.email || '', telefono: cl.telefono || '' } }, true, w); }
     const sd = t.closest('[data-ct-send]'); if(sd){ const [gid, uid] = sd.dataset.ctSend.split(':'); const sel = document.querySelector(`[data-ct-tipo="${uid}"]`);
       if(!confirmInc(gid, 1)) return; sd.disabled = true; return send(gid, [[uid, sel ? sel.value : 'adulto']]); }
     const sa = t.closest('[data-ct-sendall]'); if(sa){ const gid = sa.dataset.ctSendall, a = adm[gid]; if(!a) return;

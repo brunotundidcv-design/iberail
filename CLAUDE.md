@@ -76,6 +76,7 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   navegador). Partes: «IBERAIL» (sin registro de agencia ni garantía de insolvencia, por decisión de Bruno) y, por viajero, elegir **Mayor / Menor de edad** → Enviar (crea fila en `contratos` + aviso al viajero).
   En «Mis grupos» (`[data-contrato]`): «Leer y firmar» → datos + firma con el dedo (canvas). Si es menor firma el
   padre/madre/tutor y el contrato lleva la autorización. Si un «mayor» tiene <18 **al firmar**, no le deja (cuenta la edad al firmar, no la del viaje).
+  **«Borrador PDF»** (por viajero, en el grupo del panel): contrato con lo que incluye el grupo, mayor/menor según el selector, huecos y casillas de firma en blanco para imprimir y firmar a mano.
   Firma con RPC `firmar_contrato` (solo el propio, solo pendiente). PDF = ventana de impresión. SQL: `supabase/sql/contratos.sql`.
   Teléfono del tutor obligatorio (≥9 cifras); en el panel sale con enlace a WhatsApp y botón «Copiar teléfonos
   de los padres». Pestaña «Contratos» del panel (`#conView`, `IBContratos.show()`): todos los contratos por grupo,
