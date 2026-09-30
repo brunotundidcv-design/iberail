@@ -68,25 +68,26 @@
       gids.length ? safe(sb.from('documentos').select('id,created_at,ruta_id,grupo_id,tipo,titulo,origen,destino').in('grupo_id', gids)) : { data: [] }
     ]);
     const read = new Set((rd.data || []).map(x => String(x.aviso_id)));
+    const RUTA = IB.brand.ruta === 'ruta', TU = RUTA ? 'Tu ruta' : 'Tu viaje';
     const out = [];
     const routeById = id => routes.find(r => String(r.id) === String(id));
     const inGroup = r => r && r.grupo_id;
     (av.data || []).forEach(a => {
       const mine = a.user_id && !a.grupo_id && !a.ruta_id;
-      const from = a.para_todos ? IB.brand.nombre : mine ? 'Invita y gana' : a.grupo_id ? `Grupo «${gname(a.grupo_id)}»` : 'Tu ruta';
+      const from = a.para_todos ? IB.brand.nombre : mine ? 'Invita y gana' : a.grupo_id ? `Grupo «${gname(a.grupo_id)}»` : TU;
       out.push({ k: 'aviso', id: 'a' + a.id, aid: a.id, t: a.created_at, imp: a.importante, unread: !read.has(String(a.id)), title: a.titulo, sub: (a.importante ? 'Importante · ' : '') + from, href: mine ? 'cuenta.html#invita' : 'cuenta.html#avisos' });
     });
     (dr.data || []).concat(dg.data || []).forEach(d => {
       const r = d.ruta_id ? routeById(d.ruta_id) : null, grp = d.grupo_id || inGroup(r);
       out.push({ k: d.tipo === 'vuelo' ? 'vuelo' : 'doc', id: 'd' + d.id, t: d.created_at,
         title: d.tipo === 'vuelo' ? `Nuevo billete: ${code(d.origen)} → ${code(d.destino)}` : `Nuevo documento: ${d.titulo || 'documento'}`,
-        sub: grp ? `Grupo «${gname(d.grupo_id || r.grupo_id)}»` : 'Tu ruta', href: grp ? 'grupos.html' : 'cuenta.html#rutas' });
+        sub: grp ? `Grupo «${gname(d.grupo_id || r.grupo_id)}»` : TU, href: grp ? 'grupos.html' : 'cuenta.html#rutas' });
     });
     (pg.data || []).forEach(p => out.push({ k: 'pago', id: 'p' + p.id, t: p.created_at, title: `Pago apuntado: ${eur(p.importe)}`, sub: `Grupo «${gname(p.grupo_id)}»${p.nota ? ' · ' + p.nota : ''}`, href: 'grupos.html' }));
     routes.filter(r => r.creada_por_equipo).forEach(r => out.push({ k: 'ruta', id: 'r' + r.id, t: r.created_at,
-      title: r.grupo_id ? 'La ruta de tu grupo está lista' : 'Te hemos preparado tu ruta',
+      title: r.grupo_id ? (RUTA ? 'La ruta de tu grupo está lista' : 'El viaje de tu grupo está listo') : (RUTA ? 'Te hemos preparado tu ruta' : 'Te hemos preparado tu viaje'),
       sub: [r.salida].concat((r.paradas || []).map(p => p.ciudad)).join(' → '), href: r.grupo_id ? 'grupos.html' : 'cuenta.html#rutas' }));
-    (mem.data || []).forEach(m => out.push({ k: 'grupo', id: 'g' + m.grupo_id, t: m.added_at, title: `Ya estás en el grupo «${gname(m.grupo_id)}»`, sub: 'Aquí verás la ruta, los billetes y los avisos', href: 'grupos.html' }));
+    (mem.data || []).forEach(m => out.push({ k: 'grupo', id: 'g' + m.grupo_id, t: m.added_at, title: `Ya estás en el grupo «${gname(m.grupo_id)}»`, sub: RUTA ? 'Aquí verás la ruta, los billetes y los avisos' : 'Aquí verás el plan, los billetes y los avisos', href: 'grupos.html' }));
     return out;
   }
   let names = null;

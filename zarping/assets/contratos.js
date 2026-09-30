@@ -108,7 +108,7 @@
         ${inc(cd, 'inc_otros') && cd.otros ? `<li><b>Otros:</b> ${esc(cd.otros)}.</li>` : ''}
         ${cd.seguro ? `<li><b>Seguro de viaje:</b> ${esc(cd.seguro)}${cd.seguro_precio ? ` (${esc(eur(String(cd.seguro_precio).replace(',', '.')))} por persona, incluido en el precio total)` : ''}. Lo presta la aseguradora, que es quien cubre los siniestros según las condiciones de la póliza; ${N} lo gestiona y entrega al Viajero el certificado del seguro.</li>` : ''}
         <li><b>Asistencia ${N} 24 h</b> por WhatsApp durante todo el viaje para ayudar a gestionar incidencias (reclamaciones, cambios de billetes, contacto con los anfitriones, orientación médica o por pérdida de documentación). Es un servicio de ayuda y gestión, no un seguro, y no incluye el pago de los gastos que se deriven de esas incidencias.</li>
-        <li>Acceso a la ficha del grupo en ${B.web} con la ruta, los alojamientos, los billetes, los avisos y el estado de los pagos.</li>
+        <li>Acceso a la ficha del grupo en ${B.web} con ${B.ruta === 'ruta' ? 'la ruta' : 'el plan del viaje'}, los alojamientos, los billetes, los avisos y el estado de los pagos.</li>
       </ul>
       <p><b>No incluido:</b> ${noIncl(cd, B)}${B.key === 'iberail' ? 'entradas a festivales o eventos (incluido el Ultra Europe), comidas y bebidas, transporte urbano, reservas de asiento o suplementos de trenes no indicados' : 'entradas a festivales, eventos o actividades no indicadas, comidas y bebidas, transporte urbano'}, tasas turísticas que se cobren en destino, ${cd.seguro ? 'fianzas de los alojamientos y' : 'fianzas de los alojamientos, seguro de viaje y'} cualquier servicio no mencionado en este apartado.</p>
       ${S(4, 'Precio y pagos')}

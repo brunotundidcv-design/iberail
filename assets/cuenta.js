@@ -9,6 +9,10 @@
   const next = IB.safeNext(params.get('next'));
   const MODE = root.dataset.mode || 'cuenta';   // 'grupos' en grupos.html: página directa de «Mis grupos»
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // palabras que cambian con la marca (Iberail: «ruta»; Zarping: «viaje»)
+  const RT = IB.brand.ruta === 'ruta'
+    ? { Ruta: 'Ruta', tu: 'Tu ruta', vuestra: 'Vuestra ruta', prep: 'Estamos preparando vuestra ruta', ver: 'Ver mis rutas', de: 'Ruta de', tus: 'tus rutas', la: 'la ruta' }
+    : { Ruta: 'Viaje', tu: 'Tu viaje', vuestra: 'Vuestro viaje', prep: 'Estamos preparando vuestro viaje', ver: 'Ver mis viajes', de: 'Viaje de', tus: 'tus viajes', la: 'el plan' };
   const STATUS = {
     nueva: ['Recibida', 1], en_curso: ['Preparando tu presupuesto', 2],
     presupuesto_enviado: ['Presupuesto enviado', 3], cerrada: ['Reservada', 4], descartada: ['Archivada', 0]
@@ -268,7 +272,7 @@
     const steps = ['Recibida', 'Preparando', 'Presupuesto', 'Reservada'].map((t, i) =>
       `<li class="${st[1] > i + 1 ? 'is-done' : st[1] === i + 1 ? 'is-now' : ''}"><i></i>${t}</li>`).join('');
     const g = r.grupo_id ? groups.find(x => x.id === r.grupo_id) : null;
-    const tag = r.grupo_id ? `<span class="rcard-tag">${I_USERS}${IB.brand.ruta === 'ruta' ? 'Ruta' : 'Viaje'} del grupo${g ? ' · ' + esc(g.nombre) : ''}</span>` : r.creada_por_equipo ? `<span class="rcard-tag">Preparada por ${IB.brand.nombre}</span>` : '';
+    const tag = r.grupo_id ? `<span class="rcard-tag">${I_USERS}${RT.Ruta} del grupo${g ? ' · ' + esc(g.nombre) : ''}</span>` : r.creada_por_equipo ? `<span class="rcard-tag">Preparada por ${IB.brand.nombre}</span>` : '';
     const when = r.fecha_salida ? `salida el ${esc(fday(r.fecha_salida))}` : `${r.creada_por_equipo ? 'preparada' : 'enviada'} el ${esc(created)}`;
     return `<article class="rcard${docs.length ? ' has-docs' : ''}" data-id="${esc(r.id)}">
       <div class="rcard-top"><span class="mono">${esc(r.ref)}</span><span class="st st--${esc(r.estado)}">${esc(st[0])}</span></div>
@@ -360,7 +364,7 @@
   }
   function avisoItem(a, compact, preview){
     const seen = preview || V.read.has(String(a.id));
-    const from = a.para_todos ? IB.brand.nombre : a.user_id && !a.grupo_id && !a.ruta_id ? (/contrato/i.test(a.titulo || '') ? IB.brand.nombre : 'Invita y gana') : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `Ruta ${r.ref}` : 'Tu ruta'; })();
+    const from = a.para_todos ? IB.brand.nombre : a.user_id && !a.grupo_id && !a.ruta_id ? (/contrato/i.test(a.titulo || '') ? IB.brand.nombre : 'Invita y gana') : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `${RT.Ruta} ${r.ref}` : RT.tu; })();
     return `<article class="aviso${a.importante ? ' is-imp' : ''}${seen ? ' is-seen' : ''}" data-aviso="${esc(a.id)}">
       <div class="aviso-top">${compact ? '' : `<span>${I_BELL}${esc(from)}</span>`}<small>${esc(ago(a.created_at))}</small></div>
       <h4>${a.importante ? '<em>Importante</em>' : ''}${esc(a.titulo)}</h4>
@@ -373,7 +377,7 @@
     const stops = [{ c: r.salida, d: '' }].concat((r.paradas || []).map(p => ({ c: p.ciudad, d: p.dias })));
     const tag = MODE === 'grupos' ? 'div' : 'button';
     return `<${tag}${tag === 'button' ? ` type="button" data-goto-route="${esc(r.id)}"` : ''} class="gx-card gx-route">
-      <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>Vuestra ruta</b><em class="gx-pill">${esc(st[0])}</em></div>
+      <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>${RT.vuestra}</b><em class="gx-pill">${esc(st[0])}</em></div>
       <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}</p>
     </${tag}>`;
@@ -383,7 +387,7 @@
     const st = STATUS[r.estado] || STATUS.nueva;
     const stops = [{ c: cityName(r.salida), d: '' }].concat((r.paradas || []).map(p => ({ c: cityName(p.ciudad), d: p.dias })));
     return `<div class="gx-card gx-route gx-map-card">
-      <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>Vuestra ruta</b><em class="gx-pill">${esc(st[0])}</em></div>
+      <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>${RT.vuestra}</b><em class="gx-pill">${esc(st[0])}</em></div>
       <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
       ${window.IBGroupMap ? IBGroupMap.button(r) : ''}
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}${MODE === 'grupos' || r.grupo_id ? '' : ` · <button type="button" class="pl-link" data-goto-route="${esc(r.id)}">Ver la ficha</button>`}</p>
@@ -428,7 +432,7 @@
         ${prev ? '' : `<div class="sg-slot" data-seguro="${esc(g.id)}"></div>`}
         ${prev ? '' : payBox(g)}
         ${teamBox(g)}
-        ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>Estamos preparando vuestra ruta</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
+        ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>${RT.prep}</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
         <div class="al-slot" data-aloj="${esc(g.id)}"></div>
         ${avs.length ? `<div class="gx-avisos"><div class="gx-sec-h"><span class="gx-ic">${I_BELL}</span><b>Avisos del grupo</b></div>${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : ''}${!avs.length && oldAvs ? `<a class="gx-avisos-old" href="cuenta.html#avisos">${I_BELL}Ver avisos anteriores (${oldAvs})</a>` : ''}
         ${docs.length ? `<div class="gx-docs">${docsBlock(docs, V.urls, true)}</div>` : `<div class="gx-card gx-soon"><span class="gx-ic">${I_PLANE}</span><div><b>Billetes y documentos</b><p>Aún no hay nada subido. Os avisamos en cuanto estén.</p></div></div>`}
@@ -441,7 +445,7 @@
     const ownG = groups.length - V.previews;
     const adminNote = V.admin && V.previews ? `<p class="dash-admin-note"><b>Vista del equipo.</b> ${ownG ? `Además de ${ownG === 1 ? 'tu grupo' : 'tus grupos'}, aquí ves ${V.previews === 1 ? 'el otro grupo' : `los otros ${V.previews} grupos`}` : `Aquí ves ${V.previews === 1 ? 'el grupo' : `los ${V.previews} grupos`}`} tal y como ${V.previews === 1 ? 'lo' : 'los'} ven sus miembros.</p>` : '';
     $('#myGroups').innerHTML = groups.length ? adminNote + groups.map(groupCard).join('') :
-      `<div class="dash-empty dash-empty--groups"><span class="dash-empty-ic">${I_USERS}</span><b>Todavía no estás en ningún grupo</b><p>Si viajas con más gente, os metemos a todos en vuestro grupo: aquí veréis la ruta, los billetes y los avisos del viaje, y cada uno lo que le falta por pagar.</p><div class="dash-empty-act">${MODE === 'grupos' ? '<a class="btn btn--dark btn--sm" href="cuenta.html#rutas">Ver mis rutas</a>' : ''}<a class="btn btn--ghost btn--sm" href="${esc(IB.wa(`Hola ${IB.brand.nombre}, viajamos en grupo y queremos que nos organicéis el viaje`))}" target="_blank" rel="noopener">¿Viajáis en grupo? Escríbenos</a></div></div>`;
+      `<div class="dash-empty dash-empty--groups"><span class="dash-empty-ic">${I_USERS}</span><b>Todavía no estás en ningún grupo</b><p>Si viajas con más gente, os metemos a todos en vuestro grupo: aquí veréis ${RT.la}, los billetes y los avisos del viaje, y cada uno lo que le falta por pagar.</p><div class="dash-empty-act">${MODE === 'grupos' ? `<a class="btn btn--dark btn--sm" href="cuenta.html#rutas">${RT.ver}</a>` : ''}<a class="btn btn--ghost btn--sm" href="${esc(IB.wa(`Hola ${IB.brand.nombre}, viajamos en grupo y queremos que nos organicéis el viaje`))}" target="_blank" rel="noopener">¿Viajáis en grupo? Escríbenos</a></div></div>`;
     $('#myRoutes').innerHTML = routes.length ? routes.map(r => routeCard(r, docs.filter(d => d.ruta_id === r.id), urls, groups)).join('') :
       (IB.brand.key === 'iberail' ? `<div class="dash-empty"><p>${groups.length ? 'Tu ruta aparecerá aquí en cuanto la preparemos.' : 'Aún no has enviado ninguna ruta.'}</p><a class="btn btn--primary" href="rutas.html">Diseñar mi ruta</a></div>`
         : `<div class="dash-empty"><p>${groups.length ? 'Tu viaje aparecerá aquí en cuanto lo preparemos.' : 'Aún no has pedido ningún viaje.'}</p><a class="btn btn--primary" href="${IB.brand.planner}">Montar mi viaje</a></div>`);
@@ -658,7 +662,7 @@
     const tb = e.target.closest('#dashTabs [data-t], [data-tab]'); if(tb) return setTab(tb.dataset.t || tb.dataset.tab);
     const gr = e.target.closest('[data-goto-route]'); if(gr){ setTab('rutas'); const c = $(`.rcard[data-id="${gr.dataset.gotoRoute}"]`); if(c){ c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('is-flash'); void c.offsetWidth; c.classList.add('is-flash'); } return; }
     const gmo = e.target.closest('[data-gm-open]');
-    if(gmo && window.IBGroupMap){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === gmo.dataset.gmOpen); if(r){ const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null; IBGroupMap.open(r, g ? `Ruta de «${g.nombre}»` : `Tu ruta ${r.ref || ''}`); } return; }
+    if(gmo && window.IBGroupMap){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === gmo.dataset.gmOpen); if(r){ const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null; IBGroupMap.open(r, g ? `${RT.de} «${g.nombre}»` : `${RT.tu} ${r.ref || ''}`); } return; }
     const ic = e.target.closest('[data-inv-copy]');
     if(ic && V.inv){ const okc = await IB.copy(invLink()); ic.textContent = okc ? '¡Copiado!' : 'No se pudo'; ic.classList.toggle('is-done', okc); setTimeout(() => { ic.textContent = 'Copiar'; ic.classList.remove('is-done'); }, 1800); return; }
     const is = e.target.closest('[data-inv-share]');
@@ -696,7 +700,7 @@
   $('#deleteBtn').addEventListener('click', async e => {
     const b = e.currentTarget;
     if(!delArmed){
-      delArmed = true; b.textContent = 'Pulsa otra vez para borrar tu cuenta y tus rutas';
+      delArmed = true; b.textContent = `Pulsa otra vez para borrar tu cuenta y ${RT.tus}`;
       b.classList.add('is-armed'); clearTimeout(delT);
       delT = setTimeout(() => { delArmed = false; b.textContent = 'Eliminar mi cuenta'; b.classList.remove('is-armed'); }, 5000);
       return;

@@ -1,34 +1,37 @@
 <main id="main">
 <section class="zp-hero">
-  <div class="zp-glow zp-glow--a" aria-hidden="true"></div><div class="zp-glow zp-glow--b" aria-hidden="true"></div>
   <div class="container zp-hero-grid">
-    <div>
-      <span class="eyebrow eyebrow--light">Viajes en grupo desde España</span>
+    <div class="zp-hero-copy">
+      <span class="eyebrow">Viajes en grupo desde España</span>
       <h1>Tú pones el grupo. Nosotros, <mark>todo lo demás.</mark></h1>
       <p class="zp-lead">Nieve, fin de curso, despedidas, festivales o una escapada con los tuyos: lo organizamos de principio a fin, con precio cerrado por persona y cada uno pagando su parte desde la web.</p>
       <div class="hero-actions">
         <a class="btn btn--lime" href="monta-tu-viaje.html">Monta tu viaje <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn--ghost-light" href="viajes.html">Ver viajes</a>
+        <a class="btn btn--ghost" href="destinos.html">Ver destinos</a>
       </div>
       <ul class="zp-trust">
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Precio cerrado por persona</li>
-        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Pagos por separado</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Cada uno paga lo suyo</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Contratos online</li>
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>WhatsApp 24 h</li>
       </ul>
     </div>
     <div class="zp-hero-visual" aria-hidden="true">
-      <div class="zp-pass">
-        <div class="zp-pass-h"><span class="brand-word zp-word">zarping</span><em>BOARDING PASS</em></div>
-        <div class="zp-pass-route">
-          <div><small>DESDE</small><b>MAD</b><span>Madrid</span></div>
-          <svg viewBox="0 0 100 60"><path d="M8 48C20 8 80 8 92 48" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="1 10"/><circle cx="8" cy="48" r="6" fill="currentColor"/><circle cx="92" cy="48" r="6" fill="none" stroke="currentColor" stroke-width="4"/></svg>
-          <div class="is-to"><small>A</small><b data-zp-dest>AND</b><span data-zp-city>Andorra</span></div>
-        </div>
-        <div class="zp-pass-f">
-          <div><small>GRUPO</small><b data-zp-group>Los del piso</b></div>
-          <div><small>PLAZAS</small><b data-zp-pax>12</b></div>
-          <div><small>PLAN</small><b data-zp-plan>Nieve</b></div>
+      <div class="zp-chat">
+        <div class="zp-chat-h"><span class="zp-chat-av" data-zc-emo>🏝️</span><div><b data-zc-grupo>Ibiza 2027 🔥</b><small>Ana, Leo, Marta y 9 más</small></div></div>
+        <div class="zp-chat-body">
+          <p class="zp-msg"><em>Leo</em>¿quién organiza esto? 😅</p>
+          <p class="zp-msg"><em>Marta</em>yo paso de hacer otro Excel</p>
+          <p class="zp-msg is-me">Se lo he pasado a Zarping 👇</p>
+          <div class="zp-offer">
+            <div class="zp-offer-h"><span class="brand-word zp-word">zarping</span><em>Propuesta</em></div>
+            <b class="zp-offer-t" data-zc-titulo>Ibiza · 4 días</b>
+            <p class="zp-offer-inc" data-zc-inc>✈️ Vuelos · 🏠 Villa · ⛵ Barco</p>
+            <div class="zp-offer-p"><strong data-zc-precio>389 €</strong><span>por persona</span></div>
+            <div class="zp-offer-bar"><i data-zc-bar style="width:75%"></i></div>
+            <small data-zc-pagado>9 de 12 ya han pagado</small>
+          </div>
+          <p class="zp-msg"><em>Ana</em>pagado ✅ ¡¡nos vamos!!</p>
         </div>
       </div>
       <span class="zp-chip zp-chip--1">❄️ Nieve</span>
@@ -38,6 +41,8 @@
     </div>
   </div>
 </section>
+
+<div class="zp-tape" aria-hidden="true"><div class="zp-tape-track"><span>Nieve ✦ Fin de curso ✦ Despedidas ✦ Festivales ✦ Escapadas ✦ A medida ✦ Suelta amarras ✦&nbsp;</span><span>Nieve ✦ Fin de curso ✦ Despedidas ✦ Festivales ✦ Escapadas ✦ A medida ✦ Suelta amarras ✦&nbsp;</span></div></div>
 
 <section class="section">
   <div class="container">
@@ -126,4 +131,27 @@
     </div>
   </div>
 </section>
+<script>
+(function(){
+  // el chat de la portada va cambiando de viaje
+  var V = [
+    ['🏝️', 'Ibiza 2027 🔥', 'Ibiza · 4 días', '✈️ Vuelos · 🏠 Villa · ⛵ Barco', '389 €', 75, '9 de 12 ya han pagado'],
+    ['❄️', 'Semana blanca ⛷️', 'Andorra · 5 días', '🚌 Bus · 🏨 Hotel · 🎿 Forfait', '465 €', 60, '15 de 25 ya han pagado'],
+    ['🥂', 'Despedida de Leo 🍾', 'Budapest · 3 días', '✈️ Vuelos · 🏠 Apartamento · ♨️ Sparty', '312 €', 90, '9 de 10 ya han pagado'],
+    ['🎓', '4.º B se va 🎉', 'Mallorca · 5 días', '✈️ Vuelos · 🏨 Hotel · 🚤 Excursiones', '540 €', 45, '27 de 60 ya han pagado']
+  ], i = 0, q = function(k){ return document.querySelector('[data-zc-' + k + ']'); };
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches || !q('titulo')) return;
+  var box = document.querySelector('.zp-offer');
+  setInterval(function(){
+    if(document.hidden) return;
+    i = (i + 1) % V.length; var v = V[i];
+    box.classList.add('is-swap');
+    setTimeout(function(){
+      q('emo').textContent = v[0]; q('grupo').textContent = v[1]; q('titulo').textContent = v[2]; q('inc').textContent = v[3];
+      q('precio').textContent = v[4]; q('bar').style.width = v[5] + '%'; q('pagado').textContent = v[6];
+      box.classList.remove('is-swap');
+    }, 250);
+  }, 4200);
+})();
+</script>
 </main>

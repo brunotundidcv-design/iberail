@@ -54,7 +54,7 @@ def head(title, desc, path, noindex=False, extra=''):
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{url}">
 {'<meta name="robots" content="noindex">' if noindex else ''}
-<meta name="theme-color" content="#F6F4EE">
+<meta name="theme-color" content="#0E0E12">
 <meta name="color-scheme" content="light">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Zarping">
@@ -90,15 +90,15 @@ def header(active):
     return f'''<body class="zp">
 <div class="curtain" aria-hidden="true"><img src="assets/img/icon.svg" alt=""><span class="rail"></span></div>
 <a class="sr-only" href="#main">Saltar al contenido</a>
-<header class="topbar">
+<header class="topbar zp-top">
   <div class="container">
     <a class="brand" href="index.html" aria-label="Zarping, inicio"><img src="assets/img/icon.svg" alt="" width="30" height="30"><span class="brand-word zp-word">zarping</span></a>
     <nav aria-label="Principal"><ul class="nav">{items}</ul></nav>
     <div class="topbar-cta">
-      <button class="bell" type="button" data-bell hidden aria-label="Notificaciones" aria-expanded="false" aria-haspopup="dialog">{I_BELL}<i class="bell-dot" hidden></i></button>
+      <button class="bell" type="button" data-bell hidden aria-label="Notificaciones" aria-expanded="false" aria-haspopup="dialog">{I_BELL}<b class="bell-n" hidden></b></button>
       <a class="acct" href="cuenta.html" data-acct hidden><span class="acct-av" aria-hidden="true">{I_USER}</span><span class="acct-t">Entrar</span></a>
-      <a class="btn btn--ghost btn--sm zp-hide-sm" href="{WA}" target="_blank" rel="noopener">WhatsApp</a>
-      <a class="btn btn--primary btn--sm" href="monta-tu-viaje.html">Monta tu viaje</a>
+      <a class="zp-top-wa" href="{WA}" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">{I_WA}</a>
+      <a class="btn btn--lime btn--sm zp-top-cta" href="monta-tu-viaje.html">Monta tu viaje</a>
       <button class="burger" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -115,7 +115,7 @@ def header(active):
 </div>'''
 
 
-FOOTER = f'''<footer class="footer">
+FOOTER = f'''<footer class="footer zp-foot">
   <div class="container">
     <div class="footer-top">
       <div>
@@ -133,7 +133,7 @@ FOOTER = f'''<footer class="footer">
           <li><a class="footer-ig" href="{WA}" target="_blank" rel="noopener">{I_WA}WhatsApp</a></li>
           <li><a class="footer-ig" href="https://www.instagram.com/zarping/" target="_blank" rel="noopener">{I_IG}Instagram</a></li>
           <li><a href="mailto:info@zarping.com">info@zarping.com</a></li>
-          <li><span style="color:var(--on-dark-soft)">WhatsApp 24 h</span></li>
+          <li><span class="zp-foot-24"><i class="live-dot"></i>WhatsApp 24 h</span></li>
         </ul>
       </div>
     </div>
@@ -161,7 +161,10 @@ def scripts(names, supa=False, extra=''):
 def page(name, title, desc, main, js, supa=False, noindex=False, fab=True, extra_js=''):
     fab_html = (f'<a class="fab" href="{WA}?text=Hola%20Zarping%2C%20quiero%20informaci%C3%B3n%20para%20un%20viaje%20en%20grupo" '
                 f'target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><span class="fab-ic">{I_WA}</span>'
-                '<span class="fab-label">¿Dudas? Escríbenos</span></a>') if fab else ''
+                '<span class="fab-label">¿Dudas? Escríbenos</span></a>'
+                f'\n<div class="mbar" id="mbar"><a class="mbar-wa" href="{WA}?text=Hola%20Zarping%2C%20quiero%20informaci%C3%B3n%20para%20un%20viaje%20en%20grupo" '
+                f'target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">{I_WA}<span>WhatsApp</span></a>'
+                f'<a class="btn btn--lime" href="monta-tu-viaje.html">Monta tu viaje {ARROW}</a></div>') if fab else ''
     html = head(title, desc, name, noindex) + '\n' + header(name) + '\n' + main.strip() + '\n' + fab_html + '\n' + FOOTER + '\n' + scripts(js, supa, extra_js)
     html = re.sub(r'\n{3,}', '\n\n', html)
     (OUT / name).write_text(html, encoding='utf-8')

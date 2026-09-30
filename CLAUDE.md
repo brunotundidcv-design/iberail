@@ -141,6 +141,9 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   **Si cambias un JS común o `site.css` de Iberail, vuelve a ejecutar el build.** Fuentes: `tools/zarping/pages/*.html`
   (solo el `<main>`), cabecera/pie en `build.py`. Propios de Zarping (no se copian): `zarping/assets/zarping.css`,
   `zp-viaje.js`, `img/`. Cuenta, grupos y legales salen de las de Iberail con `rebrand()`.
+- **Estética propia** (`zarping/assets/zarping.css`, por encima de `site.css`): estilo «cartel» — bordes de tinta de 2 px,
+  sombras duras (`--hard`), pegatinas en lugar de la rayita de los títulos, cabecera negra, pie lima, portada con un chat de
+  grupo (rota ejemplos) y cinta de tipos de viaje. Menú completo desde 1100 px (1260 px con sesión); barra inferior en móvil.
 - **Marca en el JS común**: `IB.BRANDS` / `IB.brand` / `IB.brandOf(marca)` en `app.js` (nombre, web, correo, «Protect»,
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
   (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».
