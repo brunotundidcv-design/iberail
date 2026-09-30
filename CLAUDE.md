@@ -168,6 +168,9 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 - **Stripe** (`stripe-checkout`): con `grupos.marca = 'zarping'` el pago/seguro sale como Zarping y vuelve a zarping.com
   (`ZARPING_URL` opcional). **Correos**: plantilla Zarping (tinta/lima/violeta) para solicitudes ZP- y grupos Zarping;
   remitente `CORREOS_FROM_ZARPING` (por defecto «Zarping <misma dirección que CORREOS_FROM>»), `CORREOS_REPLY_TO_ZARPING`.
+- **Logos** (`zarping-marca/`): símbolo, icono, logo horizontal/vertical, «by iberail», palabra y redes, en SVG (texto en
+  trazos) y PNG transparente (1x y @3x). Se generan con `tools/zarping/logos.py <carpeta con Unbounded/Manrope/Poppins .ttf>`
+  y `node tools/zarping/logos_png.mjs`. No es parte de la web (no se sube a Netlify).
 - **Pendiente**: bot de WhatsApp solo conoce Iberail; los correos de Supabase Auth (código de acceso) dicen Iberail;
   crear el buzón info@zarping.com (sale en contratos y en la web) y verificar zarping.com en Resend.
 

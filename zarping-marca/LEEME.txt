@@ -1,0 +1,26 @@
+ZARPING — logos y marca
+========================
+
+Colores
+  Lima     #D4FF3A   (color principal)
+  Violeta  #7B5CFF
+  Negro    #0E0E12   (tinta)
+  Rosa     #FF6BB5
+Fuentes (Google Fonts, gratis)
+  Títulos: Unbounded Bold · Texto: Manrope
+Lema: «Suelta amarras.»
+
+Carpetas
+  simbolo/          el símbolo solo (la estela de zarpar), fondo transparente
+  icono/            símbolo dentro del cuadrado redondeado (app, favicon, WhatsApp)
+  logo-horizontal/  símbolo + «zarping» — el logo principal
+                    color = fondos claros · blanco / lima-blanco = fondos oscuros
+  by-iberail/       logo con «by iberail» debajo
+  vertical/         símbolo encima de la palabra
+  palabra/          solo «zarping»
+  redes/            foto de perfil (1080×1080) y portada (1500×500)
+
+Cada logo está en SVG (se puede ampliar sin perder calidad; el texto va en trazos, no necesita la fuente)
+y en PNG con fondo transparente (a 1x y a 3x, «@3x»).
+Para Creatify, Canva o CapCut: usa los PNG @3x.
+Se generan con: python3 tools/zarping/logos.py <carpeta de fuentes> && node tools/zarping/logos_png.mjs
