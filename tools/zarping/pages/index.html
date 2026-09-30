@@ -79,6 +79,33 @@
   </div>
 </section>
 
+<section class="section section--tight zp-home-packs">
+  <div class="container">
+    <div class="zp-row-head">
+      <div><span class="eyebrow">Viajes listos</span><h2>Montados y probados.</h2></div>
+      <a class="zp-link" href="viajes.html">Todos los viajes <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <p class="zp-row-sub">Elegid uno tal cual o cambiadle lo que queráis: fechas, días, alojamiento o planes.</p>
+  </div>
+  <div class="zp-car zp-packs">
+{{VIAJES_LISTOS}}
+  </div>
+</section>
+
+<section class="zp-fband">
+  <div class="container">
+    <div class="zp-row-head">
+      <div><span class="eyebrow eyebrow--light">Festivales</span><h2>Los festivales top, con el grupo.</h2></div>
+      <a class="zp-link zp-link--light" href="festivales.html">Calendario completo <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <p class="zp-row-sub">Transporte, alojamiento cerca del recinto y traslados. Toca uno y os mandamos precio.</p>
+  </div>
+  <div class="zp-car zp-ftops" id="zpFtops">
+{{FEST_TOP}}
+    <a class="zp-ftop zp-ftop-all" href="festivales.html"><span class="zp-ftop-date"><b>+</b>más</span><b class="zp-ftop-n">Ver todos los festivales</b><small>España, Europa y el mundo</small><span class="zp-ftop-go">Calendario →</span></a>
+  </div>
+</section>
+
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
@@ -155,6 +182,12 @@
     </div>
   </div>
 </section>
+<script>
+(function(){
+  var hoy = new Date().toISOString().slice(0, 10);
+  document.querySelectorAll('#zpFtops [data-fin]').forEach(function(a){ if(a.dataset.fin < hoy) a.remove(); });
+})();
+</script>
 <script>
 (function(){
   // el chat de la portada va cambiando de viaje

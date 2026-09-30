@@ -261,6 +261,68 @@ def destinos_main():
             .replace('{{TOTAL}}', str(len(ds))).replace('{{ACTS}}', str(sum(len(d['actividades']) for d in ds))))
 
 
+# viajes ya montados (se enseñan en la portada y en «Viajes»; el precio se da en la propuesta)
+VIAJES = [
+    ('nieve', '❄️', 'vio', 'Semana blanca en Andorra', 'Andorra · Grandvalira', '5 días', ['🚌 Bus', '🏨 Hotel', '🎿 Forfait', '👟 Clases'],
+     ['Día 1 · Salida en bus y après-ski', 'Días 2-4 · Pistas en Grandvalira', 'Día 5 · Caldea y vuelta']),
+    ('fin-de-curso', '🎓', 'ink', 'Fin de curso en Mallorca', 'Mallorca', '5 días', ['✈️ Vuelos', '🏨 Hotel', '🚤 Barco', '✍️ Autorizaciones'],
+     ['Fiesta en barco por la bahía', 'Caló des Moro y Es Trenc', 'Cuevas del Drach']),
+    ('despedida', '🥂', 'pink', 'Despedida en Budapest', 'Budapest', '3 días', ['✈️ Vuelos', '🏠 Apartamento', '♨️ Sparty'],
+     ['Sparty en el balneario Széchenyi', 'Ruin bars', 'Crucero por el Danubio']),
+    ('escapada', '🏝️', 'lime', 'Ibiza y Formentera', 'Ibiza', '4 días', ['✈️ Vuelos', '🏠 Villa', '⛵ Barco'],
+     ['Barco a Formentera', 'Atardecer en Café del Mar', 'Cala Comte y Cala Salada']),
+    ('escapada', '🌋', 'cream', 'Lanzarote de volcanes', 'Lanzarote', '4 días', ['✈️ Vuelos', '🏠 Casa', '🛶 Kayak'],
+     ['Timanfaya y ruta de los volcanes', 'Kayak transparente', 'Barco a La Graciosa']),
+    ('escapada', '🐪', 'line', 'Marrakech y desierto', 'Marrakech', '4 días', ['✈️ Vuelos', '🏡 Riad', '⛺ Jaima'],
+     ['Noche en el desierto de Agafay', 'Quad y camellos', 'Zocos y Jemaa el-Fna']),
+    ('escapada', '🏛️', 'pink', 'Mykonos y Santorini', 'Mykonos', '6 días', ['✈️ Vuelos', '⛴️ Ferry', '🏨 Hoteles'],
+     ['Beach clubs de Mykonos', 'Catamarán por la caldera', 'Atardecer en Oia']),
+    ('escapada', '🌴', 'vio', 'Bali en grupo', 'Bali', '10 días', ['✈️ Vuelos', '🏡 Villas', '🏄 Surf'],
+     ['Nusa Penida en barco', 'Amanecer en el volcán Batur', 'Beach clubs de Seminyak']),
+]
+
+# festivales «top» a los que llevamos grupos (de festivales.json; los ya pasados se ocultan solos)
+FEST_TOP = ['Tomorrowland · fin de semana 1', 'Primavera Sound', 'Mad Cool', 'Medusa Festival', 'Arenal Sound', 'Sziget',
+            'Coachella · fin de semana 1', 'Ultra Music Festival', 'Untold', 'FIB', 'Sónar', 'Tomorrowland Winter', 'Creamfields', 'BBK Live']
+
+
+def viajes_listos():
+    import html
+    from urllib.parse import quote
+    e = html.escape
+    out = []
+    for tipo, emo, col, tit, dest, dias, inc, plan in VIAJES:
+        out.append(f'''<article class="zp-pack zp-pack--{col}">
+  <div class="zp-pack-h"><span class="zp-pack-emo" aria-hidden="true">{emo}</span><span class="zp-pack-d">{e(dias)}</span></div>
+  <h3>{e(tit)}</h3>
+  <p class="zp-pack-inc">{''.join(f'<span>{e(x)}</span>' for x in inc)}</p>
+  <ul>{''.join(f'<li>{e(x)}</li>' for x in plan)}</ul>
+  <a class="btn btn--dark btn--sm" href="monta-tu-viaje.html?tipo={tipo}&amp;dest={quote(dest)}">Lo quiero <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</article>''')
+    return '\n'.join(out)
+
+
+def festivales_top():
+    import json, html
+    from datetime import date
+    from urllib.parse import quote
+    e = html.escape
+    fs = {f['nombre']: f for f in json.loads((SRC / 'festivales.json').read_text(encoding='utf-8'))['festivales']}
+    top = sorted((fs[n] for n in FEST_TOP if n in fs), key=lambda f: f['inicio'])
+    out = []
+    for f in top:
+        i = date.fromisoformat(f['inicio'])
+        nombre = f['nombre'].replace(' · fin de semana 1', '')
+        dest = quote(f"{nombre} · {f['ciudad']}")
+        out.append(f'''<a class="zp-ftop zp-fest--{f['zona']}" data-fin="{f['fin']}" href="monta-tu-viaje.html?tipo=festival&amp;dest={dest}">
+  <span class="zp-ftop-date"><b>{i.day}</b>{MESES[i.month - 1][:3]} {str(i.year)[2:]}</span>
+  <b class="zp-ftop-n">{e(nombre)}</b>
+  <small><span aria-hidden="true">{f['flag']}</span> {e(f['ciudad'])}</small>
+  <span class="zp-ftop-go">Ir con Zarping →</span>
+</a>''')
+    return '\n'.join(out)
+
+
 DESTACADOS = ['Lanzarote', 'Ibiza', 'Menorca', 'Tenerife', 'Cádiz', 'Asturias', 'Sierra Nevada', 'Andorra · Grandvalira', 'Lisboa',
               'Budapest', 'Croacia · Split y Hvar', 'Mykonos', 'Marrakech', 'Bali', 'Tailandia · Bangkok e islas', 'Cancún y Riviera Maya', 'Nueva York']
 
@@ -283,7 +345,8 @@ def home_main():
   <span class="zp-car-go">Ver planes {ARROW}</span>
 </a>''')
     total = len(ds)
-    return (SRC / 'pages' / 'index.html').read_text(encoding='utf-8').replace('{{CARRUSEL}}', '\n'.join(cards)).replace('{{TOTAL}}', str(total))
+    return ((SRC / 'pages' / 'index.html').read_text(encoding='utf-8').replace('{{CARRUSEL}}', '\n'.join(cards)).replace('{{TOTAL}}', str(total))
+            .replace('{{VIAJES_LISTOS}}', viajes_listos()).replace('{{FEST_TOP}}', festivales_top()))
 
 
 def iberail_main(file):
@@ -370,7 +433,7 @@ def main():
          home_main(), BASE_JS)
     page('viajes.html', 'Viajes en grupo · Zarping',
          'Nieve en Andorra y Sierra Nevada, viajes de fin de curso, despedidas, festivales y escapadas: te lo organizamos todo para el grupo.',
-         P('viajes.html'), BASE_JS)
+         P('viajes.html').replace('{{VIAJES_LISTOS}}', viajes_listos()), BASE_JS)
     page('monta-tu-viaje.html', 'Monta tu viaje · Zarping',
          'Cuéntanos el plan en 2 minutos y te mandamos una propuesta con precio cerrado por persona para todo el grupo.',
          P('monta-tu-viaje.html'), ['app.js', 'site.js', 'notif.js', 'zp-viaje.js'], supa=True, fab=False)

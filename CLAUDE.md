@@ -146,7 +146,8 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   grupo (rota ejemplos) y cinta de tipos de viaje. Menú completo desde 1100 px (1260 px con sesión).
   «zarping by iberail» junto al logo (cabecera y pie) y «de los creadores de iberail» en la portada.
 - **Portada**: buscador (→ `destinos.html?q=`), atajos (destinos, festivales, precio, pagar, firmar, WhatsApp) y carrusel de
-  destinos destacados (`DESTACADOS` en `build.py`, datos de `destinos.json`). **Móvil**: barra de pestañas fija
+  destinos destacados (`DESTACADOS` en `build.py`, datos de `destinos.json`), «Viajes listos» (`VIAJES` en `build.py`, también
+  arriba en «Viajes», sin precios: «Lo quiero» → Monta tu viaje) y banda de festivales top (`FEST_TOP`, se ocultan los pasados). **Móvil**: barra de pestañas fija
   (Destinos, Festivales, Monta tu viaje, Mis grupos, WhatsApp), salvo en el formulario; en Destinos, 3 planes por tarjeta + «+N planes más».
 - **Marca en el JS común**: `IB.BRANDS` / `IB.brand` / `IB.brandOf(marca)` en `app.js` (nombre, web, correo, «Protect»,
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
