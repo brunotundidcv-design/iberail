@@ -146,8 +146,8 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 - ⭐ **NUEVO (29/09/2026): segunda agencia de viajes** con la misma titular (Andrea, IAE 755: mismo alta, REAV,
   registro y garantía; solo nombre comercial nuevo + marca OEPM + póliza RC que la incluya). Vende **todo menos Interrail**
-  (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. Nombre propuesto: **Hopiva**
-  (hopiva.es + hopiva.com libres el 29/09; Hoppo gustó pero sin .com). Marca: tinta #0E0E12, lima #D4FF3A, violeta #7B5CFF,
+  (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. **Nombre: ZARPING** (zarpar + -ing, como Vueling;
+  **zarping.com y zarping.es comprados el 30/09/2026**). Lema: «Suelta amarras.» Pendiente: marca en la OEPM (clase 39) y @zarping en redes. Marca: tinta #0E0E12, lima #D4FF3A, violeta #7B5CFF,
   rosa #FF6BB5; Unbounded + Manrope; símbolo = arco de «salto» punteado. Reaprovechar web/panel de Iberail con columna «marca».
 - (descartado 29/09 por saturado) **«Energía en casa todo en uno»** — nombre propuesto Solneda (solneda.es/.com libres) — = placas + baterías + aerotermia + clima + ventanas +
   cargadores + certificados + subvenciones. Modelo: captar y gestionar; la instalación la hacen instaladores subcontratados.
