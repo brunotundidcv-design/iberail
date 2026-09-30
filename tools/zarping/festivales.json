@@ -69,6 +69,17 @@
    "web": "https://www.tomorrowland.com"
   },
   {
+   "nombre": "SanSan Festival",
+   "ciudad": "Benicàssim",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-03-25",
+   "fin": "2027-03-28",
+   "estilo": "Indie y pop",
+   "confirmado": false
+  },
+  {
    "nombre": "Ultra Music Festival",
    "ciudad": "Miami",
    "pais": "Estados Unidos",
@@ -123,6 +134,28 @@
    "web": "https://lasvegas.edc.com"
   },
   {
+   "nombre": "Interestelar Sevilla",
+   "ciudad": "Sevilla",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-05-14",
+   "fin": "2027-05-15",
+   "estilo": "Indie y pop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Tomavistas",
+   "ciudad": "Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-05-20",
+   "fin": "2027-05-22",
+   "estilo": "Indie y alternativo",
+   "confirmado": false
+  },
+  {
    "nombre": "EDC Las Vegas · Dawn",
    "ciudad": "Las Vegas",
    "pais": "Estados Unidos",
@@ -145,6 +178,61 @@
    "web": "https://www.primaverasound.com"
   },
   {
+   "nombre": "Festival de les Arts",
+   "ciudad": "Valencia",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-04",
+   "fin": "2027-06-05",
+   "estilo": "Pop e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Mallorca Live Festival",
+   "ciudad": "Calvià, Mallorca",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-10",
+   "fin": "2027-06-12",
+   "estilo": "Pop, indie y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Noches del Botánico",
+   "ciudad": "Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-10",
+   "fin": "2027-07-31",
+   "estilo": "Conciertos (ciclo)",
+   "confirmado": false
+  },
+  {
+   "nombre": "Paraíso Festival",
+   "ciudad": "Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-11",
+   "fin": "2027-06-12",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Iconica Sevilla Fest",
+   "ciudad": "Sevilla",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-11",
+   "fin": "2027-07-17",
+   "estilo": "Conciertos (ciclo)",
+   "confirmado": false
+  },
+  {
    "nombre": "Sónar",
    "ciudad": "Barcelona",
    "pais": "España",
@@ -154,6 +242,39 @@
    "fin": "2027-06-19",
    "estilo": "Electrónica",
    "web": "https://sonar.es"
+  },
+  {
+   "nombre": "O Son do Camiño",
+   "ciudad": "Santiago de Compostela",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-17",
+   "fin": "2027-06-19",
+   "estilo": "Pop, urbano e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "A Summer Story",
+   "ciudad": "Arganda del Rey, Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-18",
+   "fin": "2027-06-19",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Azkena Rock Festival",
+   "ciudad": "Vitoria-Gasteiz",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-18",
+   "fin": "2027-06-19",
+   "estilo": "Rock",
+   "confirmado": false
   },
   {
    "nombre": "Glastonbury",
@@ -167,6 +288,17 @@
    "web": "https://www.glastonburyfestivals.co.uk"
   },
   {
+   "nombre": "Starlite Occident",
+   "ciudad": "Marbella",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-24",
+   "fin": "2027-08-21",
+   "estilo": "Conciertos (ciclo)",
+   "confirmado": false
+  },
+  {
    "nombre": "Resurrection Fest",
    "ciudad": "Viveiro",
    "pais": "España",
@@ -176,6 +308,61 @@
    "fin": "2027-07-03",
    "estilo": "Metal y rock",
    "web": "https://www.resurrectionfest.es"
+  },
+  {
+   "nombre": "Weekend Beach",
+   "ciudad": "Torre del Mar, Málaga",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-01",
+   "fin": "2027-07-03",
+   "estilo": "Urbano, pop y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Portamérica",
+   "ciudad": "Caldas de Reis, Pontevedra",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-01",
+   "fin": "2027-07-03",
+   "estilo": "Pop e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Barcelona Rock Fest",
+   "ciudad": "Santa Coloma de Gramenet",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-01",
+   "fin": "2027-07-03",
+   "estilo": "Rock y metal",
+   "confirmado": false
+  },
+  {
+   "nombre": "Bigsound",
+   "ciudad": "Valencia",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-02",
+   "fin": "2027-07-03",
+   "estilo": "Pop y urbano",
+   "confirmado": false
+  },
+  {
+   "nombre": "Cruïlla",
+   "ciudad": "Barcelona",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-07",
+   "fin": "2027-07-10",
+   "estilo": "Pop, rock y mestizaje",
+   "confirmado": false
   },
   {
    "nombre": "Mad Cool",
@@ -200,6 +387,28 @@
    "web": "https://www.bilbaobbklive.com"
   },
   {
+   "nombre": "Zevra Festival",
+   "ciudad": "Valencia",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-10",
+   "estilo": "Pop, urbano y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Pirineos Sur",
+   "ciudad": "Lanuza, Huesca",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-09",
+   "fin": "2027-07-24",
+   "estilo": "Músicas del mundo",
+   "confirmado": false
+  },
+  {
    "nombre": "FIB",
    "ciudad": "Benicàssim",
    "pais": "España",
@@ -209,6 +418,17 @@
    "fin": "2027-07-18",
    "estilo": "Indie, pop y rock",
    "web": "https://fiberfib.com"
+  },
+  {
+   "nombre": "Boombastic",
+   "ciudad": "Llanera, Asturias",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-15",
+   "fin": "2027-07-17",
+   "estilo": "Urbano, pop y electrónica",
+   "confirmado": false
   },
   {
    "nombre": "Tomorrowland · fin de semana 1",
@@ -222,6 +442,50 @@
    "web": "https://www.tomorrowland.com"
   },
   {
+   "nombre": "Monegros Desert Festival",
+   "ciudad": "Fraga, Huesca",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-17",
+   "fin": "2027-07-17",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Tsunami Xixón",
+   "ciudad": "Gijón",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-22",
+   "fin": "2027-07-24",
+   "estilo": "Rock y punk",
+   "confirmado": false
+  },
+  {
+   "nombre": "Cabo de Plata",
+   "ciudad": "Barbate, Cádiz",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-22",
+   "fin": "2027-07-24",
+   "estilo": "Pop, urbano e indie",
+   "confirmado": false
+  },
+  {
+   "nombre": "Atlantic Fest",
+   "ciudad": "Vilagarcía de Arousa",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-22",
+   "fin": "2027-07-24",
+   "estilo": "Indie y pop",
+   "confirmado": false
+  },
+  {
    "nombre": "Tomorrowland · fin de semana 2",
    "ciudad": "Boom",
    "pais": "Bélgica",
@@ -231,6 +495,17 @@
    "fin": "2027-07-25",
    "estilo": "Electrónica",
    "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Low Festival",
+   "ciudad": "Benidorm",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-23",
+   "fin": "2027-07-25",
+   "estilo": "Indie y electrónica",
+   "confirmado": false
   },
   {
    "nombre": "Arenal Sound",
@@ -256,6 +531,17 @@
    "confirmado": false
   },
   {
+   "nombre": "Dreambeach",
+   "ciudad": "Villaricos, Almería",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-04",
+   "fin": "2027-08-07",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
    "nombre": "Untold",
    "ciudad": "Cluj-Napoca",
    "pais": "Rumanía",
@@ -278,6 +564,28 @@
    "web": "https://szigetfestival.com"
   },
   {
+   "nombre": "Sonorama Ribera",
+   "ciudad": "Aranda de Duero",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-11",
+   "fin": "2027-08-15",
+   "estilo": "Indie y pop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Leyendas del Rock",
+   "ciudad": "Villena, Alicante",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-11",
+   "fin": "2027-08-14",
+   "estilo": "Rock y metal",
+   "confirmado": false
+  },
+  {
    "nombre": "Medusa Festival",
    "ciudad": "Cullera",
    "pais": "España",
@@ -286,6 +594,28 @@
    "inicio": "2027-08-12",
    "fin": "2027-08-16",
    "estilo": "Electrónica"
+  },
+  {
+   "nombre": "Aquasella",
+   "ciudad": "Arriondas, Asturias",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-12",
+   "fin": "2027-08-15",
+   "estilo": "Electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Rototom Sunsplash",
+   "ciudad": "Benicàssim",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-16",
+   "fin": "2027-08-22",
+   "estilo": "Reggae",
+   "confirmado": false
   },
   {
    "nombre": "Creamfields",
@@ -299,6 +629,17 @@
    "web": "https://creamfields.com"
   },
   {
+   "nombre": "Morriña Fest",
+   "ciudad": "A Coruña",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-26",
+   "fin": "2027-08-28",
+   "estilo": "Pop, urbano e indie",
+   "confirmado": false
+  },
+  {
    "nombre": "Burning Man",
    "ciudad": "Black Rock City, Nevada",
    "pais": "Estados Unidos",
@@ -308,6 +649,72 @@
    "fin": "2027-09-06",
    "estilo": "Arte y experiencia",
    "web": "https://burningman.org"
+  },
+  {
+   "nombre": "Cala Mijas",
+   "ciudad": "Mijas, Málaga",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-09-02",
+   "fin": "2027-09-04",
+   "estilo": "Indie y alternativo",
+   "confirmado": false
+  },
+  {
+   "nombre": "Vive Latino España",
+   "ciudad": "Zaragoza",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-09-10",
+   "fin": "2027-09-11",
+   "estilo": "Rock y pop latino",
+   "confirmado": false
+  },
+  {
+   "nombre": "Holika",
+   "ciudad": "Calahorra, La Rioja",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-09-16",
+   "fin": "2027-09-18",
+   "estilo": "Urbano y electrónica",
+   "confirmado": false
+  },
+  {
+   "nombre": "Granada Sound",
+   "ciudad": "Granada",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-09-17",
+   "fin": "2027-09-18",
+   "estilo": "Indie y pop",
+   "confirmado": false
+  },
+  {
+   "nombre": "Jardín de las Delicias",
+   "ciudad": "Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-09-17",
+   "fin": "2027-09-18",
+   "estilo": "Pop español",
+   "confirmado": false
+  },
+  {
+   "nombre": "Primavera Weekender",
+   "ciudad": "Benidorm",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-11-19",
+   "fin": "2027-11-20",
+   "estilo": "Indie y alternativo",
+   "confirmado": false
   }
  ]
 }
