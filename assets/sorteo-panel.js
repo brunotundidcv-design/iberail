@@ -6,7 +6,7 @@
   const IB = window.IB, root = document.getElementById('srtView');
   if(!IB || !root) return;
   const esc = IB.esc;
-  let started = false, loaded = false, rows = [], clientes = {}, err = '', q = '', fresh = new Set(), tick = null, busy = new Set();
+  let started = false, loaded = false, rows = [], clientes = {}, err = '', q = '', fresh = new Set(), tick = null, busy = new Set(), armed = null, armT = null;
 
   const ago = iso => {
     const s = Math.max(0, (Date.now() - new Date(iso)) / 1000);
@@ -59,6 +59,7 @@
             <div class="srtp-act">
               ${ex ? `<button type="button" class="srtp-min" data-srt-add="${esc(r.user_id)}" data-d="-1"${wait ? ' disabled' : ''} aria-label="Quitar una tirada extra">−1</button>` : ''}
               <button type="button" class="srtp-ig" data-srt-add="${esc(r.user_id)}" data-d="1"${wait ? ' disabled' : ''}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>+1 Instagram</button>
+              <button type="button" class="srtp-del${armed === r.user_id ? ' is-armed' : ''}" data-srt-del="${esc(r.user_id)}"${wait ? ' disabled' : ''}>${armed === r.user_id ? '¿Seguro? Quitar' : 'Quitar'}</button>
             </div>
           </li>`; }).join('')}</ul>` : `<p class="lv-empty">${t ? 'Nadie coincide con la búsqueda.' : 'Todavía no se ha apuntado nadie. En cuanto alguien pulse «Participar gratis», aparece aquí al momento.'}</p>`}
       </section>`;
@@ -105,6 +106,18 @@
     if(e.target.id !== 'srtQ') return;
     q = e.target.value; const pos = e.target.selectionStart; paint();
     const i = document.getElementById('srtQ'); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} }
+  });
+  // quitar a alguien del sorteo: primer toque arma el botón, el segundo (en 4 s) lo borra
+  root.addEventListener('click', async e => {
+    const b = e.target.closest('[data-srt-del]'); if(!b) return;
+    const uid = b.dataset.srtDel;
+    if(armed !== uid){ armed = uid; paint(); clearTimeout(armT); armT = setTimeout(() => { armed = null; paint(); }, 4000); return; }
+    armed = null; clearTimeout(armT); busy.add(uid); paint();
+    const { error } = await IB.sb.from('sorteo_inscritos').delete().eq('user_id', uid);
+    busy.delete(uid);
+    if(error){ paint(); return alert('No se pudo quitar: ' + error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-baja.sql?'); }
+    const n = name(uid); rows = rows.filter(r => r.user_id !== uid); paint();
+    toast(`<b>${esc(n)} ya no está en el sorteo</b>Se ha quitado su inscripción y sus tiradas`);
   });
   root.addEventListener('click', async e => {
     const b = e.target.closest('[data-srt-add]'); if(!b) return;

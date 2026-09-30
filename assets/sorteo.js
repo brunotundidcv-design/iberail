@@ -47,7 +47,8 @@
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
         <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
-        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. Te avisaremos del día de la ruleta.</small></div>
+        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. Te avisaremos del día de la ruleta.</small>
+        <button type="button" class="srt-leave" data-srt-leave>Salir del sorteo</button></div>
       <div class="srt-me-r"><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
         <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button></div>`
     : `
@@ -128,6 +129,22 @@
     }catch(e){}
   }
 
+  // salir del sorteo (borra su inscripción y sus tiradas; puede volver a apuntarse, con 1 tirada)
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-srt-leave]'); if(!b) return;
+    e.preventDefault();
+    if(!confirm(`¿Seguro que quieres salir del sorteo?${tiradas > 1 ? ` Perderás tus ${tiradas} tiradas.` : ''} Podrás volver a apuntarte cuando quieras.`)) return;
+    b.disabled = true; b.textContent = 'Saliendo…';
+    try{
+      const sb = await ensureClient(); if(!sb) throw new Error('sin conexión');
+      const { data } = await sb.auth.getSession(); const u = data && data.session ? data.session.user : null;
+      if(!u) throw new Error('sin sesión');
+      const { error } = await sb.from('sorteo_inscritos').delete().eq('user_id', u.id);
+      if(error) throw error;
+      state = 'out'; tiradas = 1; ls.set(inKey(u), null); ls.set(WANT, null); paint();
+      toast('<b>Has salido del sorteo</b>Si cambias de idea, vuelve a pulsar «Participar gratis».');
+    }catch(err){ b.disabled = false; b.textContent = 'Salir del sorteo'; alert('No se pudo completar. Prueba otra vez en un momento.'); }
+  });
   document.addEventListener('click', async e => {
     const b = e.target.closest('[data-srt-join]'); if(!b) return;
     e.preventDefault();

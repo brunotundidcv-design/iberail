@@ -3389,3 +3389,12 @@ body.srt-st-in .srtbar-go-b{display:inline}
 .hero-zp:hover{border-color:#D4FF3A;background:rgba(14,14,18,.6)}
 .hero-zp img{height:18px;width:auto;display:block}
 .hero-zp svg{width:13px;height:13px;fill:none;stroke:#D4FF3A;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* sorteo: desapuntarse (cuenta) y quitar (panel) */
+.srt-leave{display:inline-block;margin-top:8px;padding:0;border:0;background:none;font:inherit;font-size:.78rem;color:inherit;opacity:.65;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.srt-leave:hover{opacity:1}
+.srt-leave:disabled{cursor:progress}
+.srtp-del{min-height:38px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:.82rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s}
+.srtp-del:hover{border-color:#B0203A;color:#B0203A}
+.srtp-del.is-armed{background:#B0203A;border-color:#B0203A;color:#fff}
+.srtp-del:disabled{opacity:.5;cursor:progress}
