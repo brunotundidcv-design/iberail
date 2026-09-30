@@ -26,12 +26,14 @@
     if(!r.ok || j.ok === false) throw new Error(j.error || (r.status === 404 ? 'La función «correos» aún no está instalada en Supabase.' : `Error ${r.status}`));
     return j;
   }
-  const form = () => ({ asunto: $('#corAsunto').value, titulo: $('#corTitulo').value, texto: $('#corTexto').value, boton_texto: $('#corBtnT').value, boton_url: $('#corBtnU').value });
+  const marca = () => ($('#corMarca') || {}).value || 'iberail';   // Iberail o Zarping: plantilla, remitente y a quién llega
+  const form = () => ({ marca: marca(), asunto: $('#corAsunto').value, titulo: $('#corTitulo').value, texto: $('#corTexto').value, boton_texto: $('#corBtnT').value, boton_url: $('#corBtnU').value });
   const status = (t, bad) => { const s = $('#corStatus'); s.textContent = t; s.classList.toggle('is-bad', !!bad); };
 
   function paint(){
     root.innerHTML = `
-      <div class="adm-bar"><p class="adm-hint">Los correos de seguimiento salen solos a todos tus clientes. Las campañas solo llegan a quien marcó «acepto publicidad» y no se ha dado de baja.</p></div>
+      <div class="adm-bar"><p class="adm-hint">Los correos de seguimiento salen solos a todos tus clientes, con la marca de su viaje. Las campañas solo llegan a quien marcó «acepto publicidad» en esa web y no se ha dado de baja.</p>
+        <label class="cor-marca">Marca <select class="pl-input" id="corMarca"><option value="iberail">Iberail</option><option value="zarping">Zarping</option></select></label></div>
       <h3 class="cor-h">Correos automáticos</h3>
       <div class="cor-auto">${AUTO.map(([k, t, d]) => `<button type="button" class="cor-auto-i" data-ej="${k}"><b>${esc(t)}</b><span>${esc(d)}</span><em>Ver correo →</em></button>`).join('')}</div>
       <h3 class="cor-h">Nueva campaña</h3>
@@ -59,7 +61,7 @@
       const ej = e.target.closest('[data-ej]');
       if(ej){
         const m = $('#corModal'); m.hidden = false; $('#corModalT').textContent = 'Cargando…'; $('#corModalF').srcdoc = '';
-        try{ const j = await call({ action: 'ejemplo', tipo: ej.dataset.ej }); $('#corModalT').textContent = 'Asunto: ' + j.asunto; $('#corModalF').srcdoc = j.html; }
+        try{ const j = await call({ action: 'ejemplo', tipo: ej.dataset.ej, marca: marca() }); $('#corModalT').textContent = 'Asunto: ' + j.asunto; $('#corModalF').srcdoc = j.html; }
         catch(err){ $('#corModalT').textContent = err.message; }
       }
       if(e.target.closest('[data-close]') || e.target.id === 'corModal') $('#corModal').hidden = true;
@@ -68,7 +70,12 @@
     $('#corTest').addEventListener('click', () => send(true));
     $('#corSend').addEventListener('click', () => send(false));
     preview();
-    call({ action: 'audiencia' }).then(j => { total = j.total; $('#corAud').innerHTML = `Esta campaña llegará a <b>${j.total}</b> ${j.total === 1 ? 'persona' : 'personas'} que aceptaron publicidad.`; $('#corSend').textContent = `Enviar a ${j.total} ${j.total === 1 ? 'persona' : 'personas'}`; })
+    $('#corMarca').addEventListener('change', () => { audiencia(); preview(); });
+    audiencia();
+  }
+  function audiencia(){
+    total = null; $('#corAud').textContent = 'Calculando a cuántas personas llega…';
+    call({ action: 'audiencia', marca: marca() }).then(j => { total = j.total; $('#corAud').innerHTML = `Esta campaña llegará a <b>${j.total}</b> ${j.total === 1 ? 'persona' : 'personas'} que aceptaron publicidad.`; $('#corSend').textContent = `Enviar a ${j.total} ${j.total === 1 ? 'persona' : 'personas'}`; })
       .catch(err => { $('#corAud').textContent = err.message; });
   }
 

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /cuenta.html
+Disallow: /grupos.html
+
+Sitemap: https://zarping.com/sitemap.xml

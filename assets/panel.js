@@ -52,7 +52,10 @@
   const I_STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.4l1.3-6.5L2.5 9.3l6.6-.8z"/></svg>';
   const eur = n => { const [i, d] = Math.abs(Number(n) || 0).toFixed(2).split('.'); return (Number(n) < 0 ? '−' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + d + ' €'; };
 
-  let rows = [], filter = 'all', query = '', unseen = 0;
+  let rows = [], filter = 'all', query = '', unseen = 0, marcaF = 'all';
+  // Iberail y Zarping comparten panel: la solicitud o el grupo dice su marca (columna marca; si aún no existe, ref ZP-…)
+  const marcaDe = x => (x && x.marca) || (x && /^ZP-/.test(x.ref || '') ? 'zarping' : 'iberail');
+  const zpTag = x => marcaDe(x) === 'zarping' ? '<em class="adm-tag is-zp">Zarping</em>' : '';
   let view = 'sol';
   let clients = [], clientsState = 'idle', clientsErr = '';      // idle | loading | ok | error
   let cliFilter = 'all', cliSort = 'new', cliQuery = '';
@@ -175,10 +178,13 @@
   }
   function visible(){
     const q = norm(query);
-    return rows.filter(r => (filter === 'all' || r.estado === filter) &&
+    return rows.filter(r => (filter === 'all' || r.estado === filter) && (marcaF === 'all' || marcaDe(r) === marcaF) &&
       (!q || norm([r.nombre, r.email, r.ref, r.telefono, r.salida, (r.paradas || []).map(p => p.ciudad).join(' '), (groupById(r.grupo_id) || {}).nombre].join(' ')).includes(q)));
   }
   function whoTag(r){
+    return zpTag(r) + whoTag0(r);
+  }
+  function whoTag0(r){
     if(r.grupo_id){ const g = groupById(r.grupo_id); return `<em class="adm-tag">${I_USERS}Grupo${g ? ' · ' + esc(g.nombre) : ''}</em>`; }
     if(r.origen === 'whatsapp') return '<em class="adm-tag is-wa">Por WhatsApp</em>';
     return r.creada_por_equipo ? '<em class="adm-tag">Preparada por ti</em>' : '';
@@ -641,7 +647,7 @@
       const pct = m && m.total ? Math.min(100, Math.floor(m.cubierto / m.total * 100)) : 0;
       const money = m && m.total ? `<span class="adm-gcard-money"><span><b>${eur(m.cubierto)}</b> de ${eur(m.total)}${m.pend ? ` · ${m.pend} ${plural(m.pend, 'debe', 'deben')}` : ' · todo cobrado'}</span>${m.extra > 0 ? `<em class="adm-gcard-extra">${eur(m.extra)} cobrados de más: revísalo</em>` : ''}<span class="adm-bar-p${m.falta ? '' : ' is-full'}"><i style="width:${pct}%"></i></span></span>` : '';
       return `<button type="button" class="adm-gcard${g.vip ? ' is-vip' : ''}" data-open-group="${esc(g.id)}">
-        <span class="adm-gcard-top"><b>${g.vip ? `<i class="adm-gcard-vip" title="Grupo VIP">${I_STAR}VIP</i>` : ''}${esc(g.nombre)}</b><small>${ms.length} ${plural(ms.length, 'persona', 'personas')}</small></span>
+        <span class="adm-gcard-top"><b>${g.vip ? `<i class="adm-gcard-vip" title="Grupo VIP">${I_STAR}VIP</i>` : ''}${zpTag(g)}${esc(g.nombre)}</b><small>${ms.length} ${plural(ms.length, 'persona', 'personas')}</small></span>
         <span class="adm-avs">${ms.slice(0, 7).map(c => `<i>${esc(initials(clientName(c)))}</i>`).join('')}${ms.length > 7 ? `<i>+${ms.length - 7}</i>` : ''}</span>
         ${money}
         <span class="adm-gcard-foot">${rs.length ? esc(rs.map(r => ((r.paradas || []).slice(-1)[0] || {}).ciudad || r.salida).join(' · ')) : 'Sin ruta todavía'}</span>
@@ -1132,6 +1138,7 @@
       taken.map(c => `<div class="adm-cand is-taken" title="Cada persona solo puede estar en un grupo"><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>Ya está en «${esc(groupsOf(c.id)[0].nombre)}»</small></span><button type="button" class="pl-link" data-open-group="${esc(groupsOf(c.id)[0].id)}">Ver su grupo</button></div>`).join('');
     p.innerHTML = head(`GRUPO · creado ${esc(ago(g.created_at))}`, esc(g.nombre)) + `
       <div class="adm-p-rename"><input class="pl-input" id="grName" value="${esc(g.nombre)}" maxlength="80" aria-label="Nombre del grupo"><button type="button" class="btn btn--ghost btn--sm" data-rename>Cambiar nombre</button></div>
+      <label class="adm-f-field adm-p-marca"><span>Marca del grupo <small>(contrato, pagos y seguro salen con este nombre)</small></span><select class="pl-input" id="grMarca"><option value="iberail"${marcaDe(g) !== 'zarping' ? ' selected' : ''}>Iberail</option><option value="zarping"${marcaDe(g) === 'zarping' ? ' selected' : ''}>Zarping</option></select></label>
       <label class="adm-switch adm-p-vip${g.vip ? ' is-on' : ''}"><input type="checkbox" id="grVip"${g.vip ? ' checked' : ''}><span></span><em><b><i class="adm-vip-ic">${I_STAR}</i>Grupo VIP</b>${g.vip ? 'Sus miembros ven su grupo en dorado, con el sello VIP y una línea directa por WhatsApp.' : 'Actívalo para grupos especiales: amigos, clientes que repiten o con trato preferente.'}</em></label>
       <section class="adm-sec">
         <div class="adm-sec-h"><h3>${I_USERS}Personas <small>${ms.length}</small></h3></div>
@@ -1184,13 +1191,19 @@
     const pick = ng.uids.map(u => clients.find(c => c.id === u)).filter(Boolean);
     p.innerHTML = head('GRUPOS', 'Nuevo grupo') + `
       <label class="adm-f-field adm-f-wide"><span>Nombre del grupo</span><input class="pl-input" id="ngName" maxlength="80" placeholder="Ej.: Despedida de Pablo · Ultra 2027" value="${esc(ng.nombre)}"></label>
+      <label class="adm-f-field"><span>Marca</span><select class="pl-input" id="ngMarca"><option value="iberail"${ng.marca !== 'zarping' ? ' selected' : ''}>Iberail (Interrail)</option><option value="zarping"${ng.marca === 'zarping' ? ' selected' : ''}>Zarping (todo lo demás)</option></select></label>
       <p class="adm-hint">${pick.length ? `Entrarán ${pick.length} ${plural(pick.length, 'persona', 'personas')}: ${pick.map(c => esc(clientName(c))).join(', ')}.` : 'Luego podrás añadir a las personas desde la ficha del grupo.'}</p>
       <button type="button" class="btn btn--primary" data-create-group>Crear grupo</button>`;
   }
   async function createGroup(){
     const nombre = $('#ngName').value.trim();
     if(nombre.length < 2) return toast('Ponle un nombre al grupo.', true);
-    const { data, error } = await IB.sb.from('grupos').insert({ nombre }).select().single();
+    const marca = ($('#ngMarca') || {}).value || 'iberail';
+    let { data, error } = await IB.sb.from('grupos').insert({ nombre, marca }).select().single();
+    if(error && /marca/.test(error.message || '')){
+      if(marca !== 'iberail') return toast('Para crear grupos de Zarping ejecuta antes supabase/sql/marca.sql en Supabase.', true);
+      ({ data, error } = await IB.sb.from('grupos').insert({ nombre }).select().single());
+    }
     if(error) return toast(setupErr(error), true);
     groups.unshift(data);
     if(ng.uids.length) await addMembers(data.id, ng.uids);
@@ -1406,7 +1419,10 @@
         estilo: src ? (src.estilo || []) : [], ...(src && src.alojamiento ? { alojamiento: src.alojamiento } : {}), ...(src && src.presupuesto ? { presupuesto: src.presupuesto } : {})
       };
       if(!row.grupo_id) delete row.grupo_id;
+      const mk = src ? marcaDe(src) : (nf.para === 'grupo' && g ? marcaDe(g) : 'iberail');
+      if(mk !== 'iberail') row.marca = mk;
       ({ data, error } = await IB.sb.from('rutas').insert(row).select().single());
+      if(error && row.marca && /marca/.test(error.message || '')){ delete row.marca; ({ data, error } = await IB.sb.from('rutas').insert(row).select().single()); }
       if(!error && !rows.some(r => r.id === data.id)) rows.unshift(data);
     }
     btn.disabled = false;
@@ -1427,6 +1443,20 @@
     a.download = `iberail-solicitudes-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a); a.click(); a.remove();
   }
+
+  async function setMarca(gid, marca){
+    const g = groupById(gid); if(!g) return;
+    const { error } = await IB.sb.from('grupos').update({ marca }).eq('id', g.id);
+    if(error) return toast(/marca/.test(error.message || '') ? 'Falta ejecutar supabase/sql/marca.sql en Supabase.' : setupErr(error), true);
+    g.marca = marca; paintAll(); paintDrawer();
+    toast(marca === 'zarping' ? 'Ahora es un grupo de Zarping' : 'Ahora es un grupo de Iberail');
+  }
+  // filtro por marca (solicitudes)
+  const mb = document.getElementById('admMarca');
+  if(mb) mb.addEventListener('click', e => {
+    const b = e.target.closest('[data-m]'); if(!b) return;
+    marcaF = b.dataset.m; mb.querySelectorAll('[data-m]').forEach(x => x.classList.toggle('is-on', x === b)); paintList();
+  });
 
   /* ---------- eventos ---------- */
   $('#admViews').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if(b) setView(b.dataset.v); });
@@ -1493,6 +1523,7 @@
     if(t.matches('[data-dfile]')){ addFiles(t.closest('.adm-docs-add').dataset.key, t.files); t.value = ''; return; }
     if(t.dataset.importeUid){ updateImporte(t.dataset.importeGid, t.dataset.importeUid, t.value); return; }
     if(t.id === 'payVis' && drawer && drawer.kind === 'grupo'){ setVisible(drawer.id, t.checked, t); return; }
+    if(t.id === 'grMarca' && drawer && drawer.kind === 'grupo'){ setMarca(drawer.id, t.value); return; }
     if(na && t.id === 'naImportante'){ na.importante = t.checked; return; }
     if(na && t.id === 'naWa'){ na.wa = t.checked; return; }
     if(na && t.id === 'naGroup'){ na.grupoId = t.value; paintDrawer(); return; }

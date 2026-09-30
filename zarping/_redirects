@@ -1,0 +1,7 @@
+# zarping.es y www → zarping.com
+https://zarping.es/*      https://zarping.com/:splat  301!
+https://www.zarping.es/*  https://zarping.com/:splat  301!
+https://www.zarping.com/* https://zarping.com/:splat  301!
+# el panel del equipo está en Iberail
+/panel.html  https://iberail.com/panel.html  302
+/*  /404.html  404

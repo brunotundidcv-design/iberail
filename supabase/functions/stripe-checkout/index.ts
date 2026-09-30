@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Iberail · pago con tarjeta (Supabase Edge Function)
+// Iberail / Zarping · pago con tarjeta (Supabase Edge Function)
 // El cliente pulsa «Pagar» en «Mis grupos» → aquí se calcula lo que le falta (nunca se fía del navegador),
 // se crea una sesión de Stripe Checkout y se le manda a la página de pago de Stripe.
 // El pago se apunta en `pagos` cuando Stripe lo confirma (función stripe-webhook).
@@ -8,6 +8,17 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const env = (k: string, d = '') => Deno.env.get(k) ?? d;
 const SITE = env('SITE_URL', 'https://iberail.com').replace(/\/$/, '');
+// Zarping (segunda marca, misma titular): los grupos con grupos.marca = 'zarping' pagan con su nombre y vuelven a su web
+const MARCAS: Record<string, { nombre: string; site: string; viaje: string }> = {
+  iberail: { nombre: 'Iberail', site: SITE, viaje: 'Viaje Interrail' },
+  zarping: { nombre: 'Zarping', site: env('ZARPING_URL', 'https://zarping.com').replace(/\/$/, ''), viaje: 'Viaje' }
+};
+// grupos.marca solo existe tras supabase/sql/marca.sql: si aún no está, se lee sin ella (= Iberail)
+async function grupoDe(gid: number) {
+  let { data, error } = await sb.from('grupos').select('nombre, marca').eq('id', gid).maybeSingle();
+  if (error) ({ data } = await sb.from('grupos').select('nombre').eq('id', gid).maybeSingle());
+  return { data, M: MARCAS[(data as any)?.marca] || MARCAS.iberail };
+}
 if (!env('STRIPE_SECRET_KEY')) console.error('Falta el secret STRIPE_SECRET_KEY');
 const sb = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), { auth: { persistSession: false } });
 
@@ -47,11 +58,12 @@ async function pagar(req: Request) {
   if (body.seguro) return pagarSeguro(user, gid);
 
   // lo que le toca y lo que lleva pagado, leído de la base de datos
-  const [{ data: m }, { data: g }, { data: pagos }] = await Promise.all([
+  const [{ data: m }, gm, { data: pagos }] = await Promise.all([
     sb.from('grupo_miembros').select('importe, pagado').eq('grupo_id', gid).eq('user_id', user.id).maybeSingle(),
-    sb.from('grupos').select('nombre').eq('id', gid).maybeSingle(),
+    grupoDe(gid),
     sb.from('pagos').select('importe').eq('grupo_id', gid).eq('user_id', user.id)
   ]);
+  const g: any = gm.data, M = gm.M;
   if (!m) return json({ error: 'No estás en este grupo.' }, 403);
   const importe = Number(m.importe || 0);
   const pagado = (pagos || []).reduce((a, p) => a + Number(p.importe || 0), 0);
@@ -77,11 +89,11 @@ async function pagar(req: Request) {
       locale: 'es',
       customer_email: user.email,
       client_reference_id: `${gid}:${user.id}`,
-      line_items: { 0: { quantity: 1, price_data: { currency: 'eur', unit_amount: cents, product_data: { name: `Viaje Interrail · ${grupo}`, description: euros < falta ? 'Pago a cuenta de tu parte del viaje' : 'Tu parte del viaje' } } } },
+      line_items: { 0: { quantity: 1, price_data: { currency: 'eur', unit_amount: cents, product_data: { name: `${M.viaje} · ${grupo}`, description: euros < falta ? 'Pago a cuenta de tu parte del viaje' : 'Tu parte del viaje' } } } },
       metadata: { grupo_id: gid, user_id: user.id },
-      payment_intent_data: { description: `Iberail · ${grupo}`, metadata: { grupo_id: gid, user_id: user.id } },
-      success_url: `${SITE}/grupos.html?pago=ok#grupo-${gid}`,
-      cancel_url: `${SITE}/grupos.html?pago=cancelado#grupo-${gid}`
+      payment_intent_data: { description: `${M.nombre} · ${grupo}`, metadata: { grupo_id: gid, user_id: user.id } },
+      success_url: `${M.site}/grupos.html?pago=ok#grupo-${gid}`,
+      cancel_url: `${M.site}/grupos.html?pago=cancelado#grupo-${gid}`
     })
   });
   const s = await r.json().catch(() => ({}));
@@ -95,12 +107,13 @@ async function pagar(req: Request) {
 // «Iberail Protect»: el seguro se paga aparte del viaje (no toca grupo_miembros.importe ni la tabla pagos).
 // El precio sale de seguro_ofertas; el webhook lo apunta en `seguros` como pagado.
 async function pagarSeguro(user: any, gid: number) {
-  const [{ data: m }, { data: g }, { data: o }, { data: ya }] = await Promise.all([
+  const [{ data: m }, gm, { data: o }, { data: ya }] = await Promise.all([
     sb.from('grupo_miembros').select('user_id').eq('grupo_id', gid).eq('user_id', user.id).maybeSingle(),
-    sb.from('grupos').select('nombre').eq('id', gid).maybeSingle(),
+    grupoDe(gid),
     sb.from('seguro_ofertas').select('*').eq('grupo_id', gid).maybeSingle(),
     sb.from('seguros').select('estado').eq('grupo_id', gid).eq('user_id', user.id).in('estado', ['pagado', 'contratado'])
   ]);
+  const g: any = gm.data, M = gm.M;
   if (!m) return json({ error: 'No estás en este grupo.' }, 403);
   if (!o || !o.activo) return json({ error: 'El seguro no está disponible para este grupo.' }, 400);
   if (o.limite && new Date().toISOString().slice(0, 10) > o.limite) return json({ error: 'El plazo para contratar el seguro ya ha terminado.' }, 400);
@@ -116,11 +129,11 @@ async function pagarSeguro(user: any, gid: number) {
       locale: 'es',
       customer_email: user.email,
       client_reference_id: `seguro:${gid}:${user.id}`,
-      line_items: { 0: { quantity: 1, price_data: { currency: 'eur', unit_amount: cents, product_data: { name: 'Iberail Protect · seguro de viaje', description: `Para todo tu viaje con ${grupo}` } } } },
+      line_items: { 0: { quantity: 1, price_data: { currency: 'eur', unit_amount: cents, product_data: { name: `${M.nombre} Protect · seguro de viaje`, description: `Para todo tu viaje con ${grupo}` } } } },
       metadata: { tipo: 'seguro', grupo_id: gid, user_id: user.id, plan: o.plan, cancelacion: o.cancelacion ? '1' : '0' },
-      payment_intent_data: { description: `Iberail Protect · ${grupo}`, metadata: { tipo: 'seguro', grupo_id: gid, user_id: user.id } },
-      success_url: `${SITE}/grupos.html?seguro=ok#grupo-${gid}`,
-      cancel_url: `${SITE}/grupos.html?seguro=cancelado#grupo-${gid}`
+      payment_intent_data: { description: `${M.nombre} Protect · ${grupo}`, metadata: { tipo: 'seguro', grupo_id: gid, user_id: user.id } },
+      success_url: `${M.site}/grupos.html?seguro=ok#grupo-${gid}`,
+      cancel_url: `${M.site}/grupos.html?seguro=cancelado#grupo-${gid}`
     })
   });
   const s = await r.json().catch(() => ({}));

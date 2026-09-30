@@ -131,6 +131,32 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
 - Desplegar: `supabase functions deploy whatsapp --no-verify-jwt`.
 
+## Zarping (segunda web, misma titular) — carpeta `zarping/`
+
+- **Qué es**: agencia hermana que vende **todo menos Interrail** (nieve, fin de curso, despedidas, festivales, escapadas,
+  a medida). zarping.com / zarping.es. Misma titular y mismo backend (Supabase) que Iberail; el panel es el de iberail.com.
+- **Se genera**: `python3 tools/zarping/build.py` → escribe `zarping/*.html`, copia el JS común de `assets/`
+  (`app, site, notif, live, payment, cuenta, alojamientos, contratos, seguro`) y `site.css` recoloreado, y crea
+  `config.js` (mismas claves + `MARCA: "zarping"`), `_redirects`, `robots.txt`, `sitemap.xml`.
+  **Si cambias un JS común o `site.css` de Iberail, vuelve a ejecutar el build.** Fuentes: `tools/zarping/pages/*.html`
+  (solo el `<main>`), cabecera/pie en `build.py`. Propios de Zarping (no se copian): `zarping/assets/zarping.css`,
+  `zp-viaje.js`, `img/`. Cuenta, grupos y legales salen de las de Iberail con `rebrand()`.
+- **Marca en el JS común**: `IB.BRANDS` / `IB.brand` / `IB.brandOf(marca)` en `app.js` (nombre, web, correo, «Protect»,
+  pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
+  (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».
+- **Monta tu viaje** (`zp-viaje.js`): 3 pasos → fila en `rutas` con `ref` ZP-XXXXXX, `marca: 'zarping'`, destino en
+  `paradas[0]`, tipo e «incluir» en `estilo`, resto en `notas`. Pide cuenta para enviar. Borrador `zp-draft-v1` (30 días).
+  Netlify Forms «viaje» de respaldo.
+- **Base de datos**: `supabase/sql/marca.sql` (columna `marca` en `rutas` y `grupos`; amplía límites de días/personas).
+  Sin ejecutarlo, las solicitudes se guardan igual y el panel las reconoce por la ref ZP-.
+- **Panel**: filtro «Iberail / Zarping» en solicitudes, etiqueta Zarping, marca al crear grupo y en la ficha del grupo;
+  rutas creadas por el equipo heredan la marca. Correos: selector de marca (plantilla, remitente y audiencia).
+- **Stripe** (`stripe-checkout`): con `grupos.marca = 'zarping'` el pago/seguro sale como Zarping y vuelve a zarping.com
+  (`ZARPING_URL` opcional). **Correos**: plantilla Zarping (tinta/lima/violeta) para solicitudes ZP- y grupos Zarping;
+  remitente `CORREOS_FROM_ZARPING` (por defecto «Zarping <misma dirección que CORREOS_FROM>»), `CORREOS_REPLY_TO_ZARPING`.
+- **Pendiente**: bot de WhatsApp solo conoce Iberail; los correos de Supabase Auth (código de acceso) dicen Iberail;
+  crear el buzón info@zarping.com (sale en contratos y en la web) y verificar zarping.com en Resend.
+
 ## Pendientes detectados
 
 - Falta `build.py` y el esquema de Supabase para tener el proyecto completo.
@@ -148,7 +174,7 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   registro y garantía; solo nombre comercial nuevo + marca OEPM + póliza RC que la incluya). Vende **todo menos Interrail**
   (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. **Nombre: ZARPING** (zarpar + -ing, como Vueling;
   **zarping.com y zarping.es comprados el 30/09/2026**). Lema: «Suelta amarras.» Pendiente: marca en la OEPM (clase 39) y @zarping en redes. Marca: tinta #0E0E12, lima #D4FF3A, violeta #7B5CFF,
-  rosa #FF6BB5; Unbounded + Manrope; símbolo = arco de «salto» punteado. Reaprovechar web/panel de Iberail con columna «marca».
+  rosa #FF6BB5; Unbounded + Manrope; símbolo = arco de «salto» punteado. Web hecha en `zarping/` (ver sección «Zarping»).
 - (descartado 29/09 por saturado) **«Energía en casa todo en uno»** — nombre propuesto Solneda (solneda.es/.com libres) — = placas + baterías + aerotermia + clima + ventanas +
   cargadores + certificados + subvenciones. Modelo: captar y gestionar; la instalación la hacen instaladores subcontratados.
 
