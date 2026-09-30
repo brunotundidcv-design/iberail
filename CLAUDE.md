@@ -144,6 +144,10 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 - **Marca en el JS común**: `IB.BRANDS` / `IB.brand` / `IB.brandOf(marca)` en `app.js` (nombre, web, correo, «Protect»,
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
   (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».
+- **Festivales** (`festivales.html`): se genera desde `tools/zarping/festivales.json` (fechas oficiales, revisado el
+  30/09/2026). Los que ya han terminado se ocultan solos; filtro España / Europa / Resto del mundo. «Ir con Zarping» abre
+  «Monta tu viaje» con `?tipo=festival&dest=…`. Para añadir o cambiar festivales: editar el JSON y volver a ejecutar el build.
+  Ultra Europe (Split) no sale: es de Iberail.
 - **Monta tu viaje** (`zp-viaje.js`): 3 pasos → fila en `rutas` con `ref` ZP-XXXXXX, `marca: 'zarping'`, destino en
   `paradas[0]`, tipo e «incluir» en `estilo`, resto en `notas`. Pide cuenta para enviar. Borrador `zp-draft-v1` (30 días).
   Netlify Forms «viaje» de respaldo.

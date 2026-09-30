@@ -1,0 +1,313 @@
+{
+ "_nota": "Próximos festivales para zarping.com/festivales.html. Solo fechas anunciadas por cada festival (comprobadas el 30/09/2026). Formato: inicio/fin AAAA-MM-DD; zona: espana | europa | mundo; confirmado: false = fechas aún no oficiales. Los que ya han pasado se ocultan solos. Ultra Europe (Split) NO: es exclusivo de Iberail.",
+ "revisado": "2026-09-30",
+ "festivales": [
+  {
+   "nombre": "Amsterdam Dance Event",
+   "ciudad": "Ámsterdam",
+   "pais": "Países Bajos",
+   "flag": "🇳🇱",
+   "zona": "europa",
+   "inicio": "2026-10-21",
+   "fin": "2026-10-25",
+   "estilo": "Electrónica",
+   "web": "https://www.amsterdam-dance-event.nl"
+  },
+  {
+   "nombre": "Tomorrowland Thailand",
+   "ciudad": "Pattaya",
+   "pais": "Tailandia",
+   "flag": "🇹🇭",
+   "zona": "mundo",
+   "inicio": "2026-12-11",
+   "fin": "2026-12-13",
+   "estilo": "Electrónica",
+   "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Lollapalooza Argentina",
+   "ciudad": "Buenos Aires",
+   "pais": "Argentina",
+   "flag": "🇦🇷",
+   "zona": "mundo",
+   "inicio": "2027-03-12",
+   "fin": "2027-03-14",
+   "estilo": "Pop, rock y urbano",
+   "web": "https://www.lollapaloozaar.com"
+  },
+  {
+   "nombre": "Lollapalooza Chile",
+   "ciudad": "Santiago",
+   "pais": "Chile",
+   "flag": "🇨🇱",
+   "zona": "mundo",
+   "inicio": "2027-03-12",
+   "fin": "2027-03-14",
+   "estilo": "Pop, rock y urbano",
+   "web": "https://www.lollapaloozacl.com"
+  },
+  {
+   "nombre": "Lollapalooza Brasil",
+   "ciudad": "São Paulo",
+   "pais": "Brasil",
+   "flag": "🇧🇷",
+   "zona": "mundo",
+   "inicio": "2027-03-19",
+   "fin": "2027-03-21",
+   "estilo": "Pop, rock y urbano",
+   "web": "https://www.lollapaloozabr.com"
+  },
+  {
+   "nombre": "Tomorrowland Winter",
+   "ciudad": "Alpe d'Huez",
+   "pais": "Francia",
+   "flag": "🇫🇷",
+   "zona": "europa",
+   "inicio": "2027-03-20",
+   "fin": "2027-03-27",
+   "estilo": "Electrónica + nieve",
+   "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Ultra Music Festival",
+   "ciudad": "Miami",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-03-26",
+   "fin": "2027-03-28",
+   "estilo": "Electrónica",
+   "web": "https://ultramusicfestival.com"
+  },
+  {
+   "nombre": "Coachella · fin de semana 1",
+   "ciudad": "Indio, California",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-04-09",
+   "fin": "2027-04-11",
+   "estilo": "Pop, rock y electrónica",
+   "web": "https://www.coachella.com"
+  },
+  {
+   "nombre": "Coachella · fin de semana 2",
+   "ciudad": "Indio, California",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-04-16",
+   "fin": "2027-04-18",
+   "estilo": "Pop, rock y electrónica",
+   "web": "https://www.coachella.com"
+  },
+  {
+   "nombre": "Viña Rock",
+   "ciudad": "Villarrobledo",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-04-29",
+   "fin": "2027-05-01",
+   "estilo": "Rock, rap y mestizaje"
+  },
+  {
+   "nombre": "EDC Las Vegas · Dusk",
+   "ciudad": "Las Vegas",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-05-14",
+   "fin": "2027-05-16",
+   "estilo": "Electrónica",
+   "web": "https://lasvegas.edc.com"
+  },
+  {
+   "nombre": "EDC Las Vegas · Dawn",
+   "ciudad": "Las Vegas",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-05-21",
+   "fin": "2027-05-23",
+   "estilo": "Electrónica",
+   "web": "https://lasvegas.edc.com"
+  },
+  {
+   "nombre": "Primavera Sound",
+   "ciudad": "Barcelona",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-03",
+   "fin": "2027-06-05",
+   "estilo": "Indie, pop y electrónica",
+   "web": "https://www.primaverasound.com"
+  },
+  {
+   "nombre": "Sónar",
+   "ciudad": "Barcelona",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-17",
+   "fin": "2027-06-19",
+   "estilo": "Electrónica",
+   "web": "https://sonar.es"
+  },
+  {
+   "nombre": "Glastonbury",
+   "ciudad": "Pilton, Somerset",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-06-23",
+   "fin": "2027-06-27",
+   "estilo": "De todo",
+   "web": "https://www.glastonburyfestivals.co.uk"
+  },
+  {
+   "nombre": "Resurrection Fest",
+   "ciudad": "Viveiro",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-06-30",
+   "fin": "2027-07-03",
+   "estilo": "Metal y rock",
+   "web": "https://www.resurrectionfest.es"
+  },
+  {
+   "nombre": "Mad Cool",
+   "ciudad": "Madrid",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-10",
+   "estilo": "Rock, indie y pop",
+   "web": "https://madcoolfestival.es"
+  },
+  {
+   "nombre": "BBK Live",
+   "ciudad": "Bilbao",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-08",
+   "fin": "2027-07-10",
+   "estilo": "Indie, pop y rock",
+   "web": "https://www.bilbaobbklive.com"
+  },
+  {
+   "nombre": "FIB",
+   "ciudad": "Benicàssim",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-15",
+   "fin": "2027-07-18",
+   "estilo": "Indie, pop y rock",
+   "web": "https://fiberfib.com"
+  },
+  {
+   "nombre": "Tomorrowland · fin de semana 1",
+   "ciudad": "Boom",
+   "pais": "Bélgica",
+   "flag": "🇧🇪",
+   "zona": "europa",
+   "inicio": "2027-07-16",
+   "fin": "2027-07-18",
+   "estilo": "Electrónica",
+   "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Tomorrowland · fin de semana 2",
+   "ciudad": "Boom",
+   "pais": "Bélgica",
+   "flag": "🇧🇪",
+   "zona": "europa",
+   "inicio": "2027-07-23",
+   "fin": "2027-07-25",
+   "estilo": "Electrónica",
+   "web": "https://www.tomorrowland.com"
+  },
+  {
+   "nombre": "Arenal Sound",
+   "ciudad": "Burriana",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-07-29",
+   "fin": "2027-08-01",
+   "estilo": "Pop, urbano y electrónica",
+   "web": "https://arenalsound.com"
+  },
+  {
+   "nombre": "Lollapalooza Chicago",
+   "ciudad": "Chicago",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-07-29",
+   "fin": "2027-08-01",
+   "estilo": "Pop, rock y urbano",
+   "web": "https://www.lollapalooza.com",
+   "confirmado": false
+  },
+  {
+   "nombre": "Untold",
+   "ciudad": "Cluj-Napoca",
+   "pais": "Rumanía",
+   "flag": "🇷🇴",
+   "zona": "europa",
+   "inicio": "2027-08-05",
+   "fin": "2027-08-08",
+   "estilo": "Electrónica y pop",
+   "web": "https://untold.com"
+  },
+  {
+   "nombre": "Sziget",
+   "ciudad": "Budapest",
+   "pais": "Hungría",
+   "flag": "🇭🇺",
+   "zona": "europa",
+   "inicio": "2027-08-10",
+   "fin": "2027-08-14",
+   "estilo": "De todo",
+   "web": "https://szigetfestival.com"
+  },
+  {
+   "nombre": "Medusa Festival",
+   "ciudad": "Cullera",
+   "pais": "España",
+   "flag": "🇪🇸",
+   "zona": "espana",
+   "inicio": "2027-08-12",
+   "fin": "2027-08-16",
+   "estilo": "Electrónica"
+  },
+  {
+   "nombre": "Creamfields",
+   "ciudad": "Daresbury",
+   "pais": "Reino Unido",
+   "flag": "🇬🇧",
+   "zona": "europa",
+   "inicio": "2027-08-26",
+   "fin": "2027-08-29",
+   "estilo": "Electrónica",
+   "web": "https://creamfields.com"
+  },
+  {
+   "nombre": "Burning Man",
+   "ciudad": "Black Rock City, Nevada",
+   "pais": "Estados Unidos",
+   "flag": "🇺🇸",
+   "zona": "mundo",
+   "inicio": "2027-08-29",
+   "fin": "2027-09-06",
+   "estilo": "Arte y experiencia",
+   "web": "https://burningman.org"
+  }
+ ]
+}

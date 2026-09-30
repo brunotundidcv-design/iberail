@@ -31,8 +31,9 @@
   /* ---------- borrador ---------- */
   function load(){
     try{ const d = JSON.parse(localStorage.getItem(DRAFT) || '{}'); if(d.t && Date.now() - d.t < 30 * 864e5) Object.assign(S, d.s || {}); }catch(e){}   // 30 días como máximo
-    const t = new URLSearchParams(location.search).get('tipo');
+    const q = new URLSearchParams(location.search), t = q.get('tipo'), d = q.get('dest');
     if(t && TIPOS[t]) S.tipo = t;
+    if(d) S.dest = d.slice(0, 80);   // desde «Festivales»: el festival elegido
   }
   function save(){ try{ localStorage.setItem(DRAFT, JSON.stringify({ t: Date.now(), s: S })); }catch(e){} }
   function read(){

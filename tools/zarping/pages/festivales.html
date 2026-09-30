@@ -1,0 +1,60 @@
+<main id="main">
+<section class="page-head">
+  <div class="container">
+    <nav class="crumbs" aria-label="Migas"><a href="index.html">Inicio</a><span>/</span><span>Festivales</span></nav>
+    <span class="eyebrow">🎧 Calendario</span>
+    <h1>Los próximos festivales. Vosotros elegís cuál.</h1>
+    <p class="lead">En España, Europa y el resto del mundo. Elegid uno y os montamos el viaje del grupo: transporte, alojamiento cerca del recinto y traslados. Cada uno paga su parte desde la web.</p>
+  </div>
+</section>
+
+<nav class="zp-jump zp-fest-filt" aria-label="Filtrar festivales">
+  <div class="container" role="group">
+    <button type="button" class="is-on" data-z="all">Todos</button>
+    <button type="button" data-z="espana">🇪🇸 España</button>
+    <button type="button" data-z="europa">🇪🇺 Europa</button>
+    <button type="button" data-z="mundo">🌎 Resto del mundo</button>
+  </div>
+</nav>
+
+<section class="section" style="padding-top:clamp(20px,3vw,32px)">
+  <div class="container zp-fests" id="zpFests">
+{{FESTIVALES}}
+    <p class="zp-fest-none" id="zpFestNone" hidden>No hay festivales próximos con ese filtro. <a href="monta-tu-viaje.html?tipo=festival">Cuéntanos cuál queréis</a> y lo miramos.</p>
+  </div>
+  <div class="container">
+    <p class="zp-fest-note">Fechas oficiales anunciadas por cada festival a {{REVISADO}}. Pueden cambiar: confirmadlas en su web antes de comprar nada. Las entradas las gestiona cada festival; si os las buscamos nosotros, os lo decimos en la propuesta. ¿Vuestro festival no está? <a href="monta-tu-viaje.html?tipo=festival">Pedidlo igual</a>.</p>
+  </div>
+</section>
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="zp-cta" data-reveal>
+      <h2>¿Cuál os pide el cuerpo?</h2>
+      <p>Decidnos el festival y cuántos sois. Os mandamos precio cerrado por persona.</p>
+      <div class="hero-actions">
+        <a class="btn btn--dark" href="monta-tu-viaje.html?tipo=festival">Monta tu viaje <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  // los festivales que ya han terminado se ocultan solos; filtro por zona
+  var hoy = new Date().toISOString().slice(0, 10), box = document.getElementById('zpFests'), zona = 'all';
+  function pinta(){
+    var vis = 0, cards = box.querySelectorAll('.zp-fest');
+    cards.forEach(function(c){ var ok = c.dataset.fin >= hoy && (zona === 'all' || c.dataset.zona === zona); c.hidden = !ok; if(ok) vis++; });
+    // cada mes solo si tiene algún festival visible
+    box.querySelectorAll('[data-mes]').forEach(function(h){ var n = h.nextElementSibling, any = false; while(n && n.classList.contains('zp-fest')){ if(!n.hidden) any = true; n = n.nextElementSibling; } h.hidden = !any; });
+    document.getElementById('zpFestNone').hidden = vis > 0;
+  }
+  document.querySelector('.zp-fest-filt').addEventListener('click', function(e){
+    var b = e.target.closest('[data-z]'); if(!b) return; zona = b.dataset.z;
+    this.querySelectorAll('[data-z]').forEach(function(x){ x.classList.toggle('is-on', x === b); }); pinta();
+  });
+  pinta();
+})();
+</script>
+</main>
