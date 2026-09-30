@@ -3,11 +3,19 @@
   <div class="container zp-hero-grid">
     <div class="zp-hero-copy">
       <span class="eyebrow">Viajes en grupo desde España</span>
+      <a class="zp-by-hero" href="https://iberail.com" target="_blank" rel="noopener">de los creadores de <span class="brand-word">ibe<b>rail</b></span></a>
       <h1>Tú pones el grupo. Nosotros, <mark>todo lo demás.</mark></h1>
       <p class="zp-lead">Nieve, fin de curso, despedidas, festivales o una escapada con los tuyos: lo organizamos de principio a fin, con precio cerrado por persona y cada uno pagando su parte desde la web.</p>
+      <form class="zp-find" action="destinos.html" method="get" role="search">
+        <label class="sr-only" for="zpFindQ">¿A dónde queréis ir?</label>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="zpFindQ" name="q" type="search" placeholder="¿A dónde? Lanzarote, Bali, esquí…" autocomplete="off" enterkeyhint="search">
+        <button class="btn btn--dark" type="submit">Buscar</button>
+      </form>
+      <p class="zp-find-tags"><span>Lo más buscado:</span><a href="destinos.html?q=Ibiza">Ibiza</a><a href="destinos.html?q=Lanzarote">Lanzarote</a><a href="destinos.html?q=Andorra">Andorra</a><a href="destinos.html?q=Budapest">Budapest</a><a href="destinos.html?q=Bali">Bali</a></p>
       <div class="hero-actions">
         <a class="btn btn--lime" href="monta-tu-viaje.html">Monta tu viaje <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn--ghost" href="destinos.html">Ver destinos</a>
+        <a class="btn btn--ghost" href="destinos.html">Ver los {{TOTAL}} destinos</a>
       </div>
       <ul class="zp-trust">
         <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Precio cerrado por persona</li>
@@ -44,6 +52,33 @@
 
 <div class="zp-tape" aria-hidden="true"><div class="zp-tape-track"><span>Nieve ✦ Fin de curso ✦ Despedidas ✦ Festivales ✦ Escapadas ✦ A medida ✦ Suelta amarras ✦&nbsp;</span><span>Nieve ✦ Fin de curso ✦ Despedidas ✦ Festivales ✦ Escapadas ✦ A medida ✦ Suelta amarras ✦&nbsp;</span></div></div>
 
+<section class="zp-quick" aria-label="Accesos rápidos">
+  <div class="container">
+    <div class="zp-quick-grid">
+      <a href="destinos.html" class="zp-q zp-q--lime"><span>🌍</span><b>{{TOTAL}} destinos</b><small>Con sus planes</small></a>
+      <a href="festivales.html" class="zp-q zp-q--pink"><span>🎧</span><b>Festivales</b><small>Calendario</small></a>
+      <a href="monta-tu-viaje.html" class="zp-q zp-q--vio"><span>⚡</span><b>Precio en 2 min</b><small>Monta tu viaje</small></a>
+      <a href="grupos.html" class="zp-q"><span>💳</span><b>Pagar mi parte</b><small>Mis grupos</small></a>
+      <a href="grupos.html" class="zp-q"><span>✍️</span><b>Firmar contrato</b><small>Desde el móvil</small></a>
+      <a href="https://wa.me/34930491439?text=Hola%20Zarping%2C%20tengo%20una%20duda" target="_blank" rel="noopener" class="zp-q zp-q--ink"><span>💬</span><b>WhatsApp 24 h</b><small>Te contesta una persona</small></a>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight zp-home-dest">
+  <div class="container">
+    <div class="zp-row-head">
+      <div><span class="eyebrow">Destinos</span><h2>De Lanzarote a Bali.</h2></div>
+      <a class="zp-link" href="destinos.html">Ver los {{TOTAL}} <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <p class="zp-row-sub">Cada destino con los planes que se pueden hacer. Toca uno y pedid precio.</p>
+  </div>
+  <div class="zp-car" tabindex="0" aria-label="Destinos destacados">
+{{CARRUSEL}}
+    <a class="zp-car-card zp-car-all" href="destinos.html"><span class="zp-car-emo" aria-hidden="true">🌍</span><b>Ver los {{TOTAL}} destinos</b><small>España, Europa y el resto del mundo</small><span class="zp-car-go">Todos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</section>
+
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
@@ -61,18 +96,7 @@
   </div>
 </section>
 
-<section class="section section--tight">
-  <div class="container">
-    <div class="section-head" data-reveal>
-      <div><span class="eyebrow">Destinos</span><h2>De Lanzarote a Bali.</h2></div>
-      <p>Más de 130 destinos en España, Europa y el resto del mundo, con los planes que se pueden hacer en cada uno.</p>
-    </div>
-    <div class="zp-dest-chips" data-reveal>
-      <a href="destinos.html?q=Lanzarote">🌋 Lanzarote</a><a href="destinos.html?q=Ibiza">🎉 Ibiza</a><a href="destinos.html?q=Menorca">🏖️ Menorca</a><a href="destinos.html?q=Tenerife">🏔️ Tenerife</a><a href="destinos.html?q=Cádiz">☀️ Cádiz</a><a href="destinos.html?q=Asturias">🐄 Asturias</a><a href="destinos.html?q=Lisboa">🚋 Lisboa</a><a href="destinos.html?q=Budapest">♨️ Budapest</a><a href="destinos.html?q=Mykonos">🥂 Mykonos</a><a href="destinos.html?q=Marrakech">🐪 Marrakech</a><a href="destinos.html?q=Bali">🌴 Bali</a><a href="destinos.html?q=Tailandia">🛺 Tailandia</a><a href="destinos.html?q=Cancún">🌮 Cancún</a><a href="destinos.html?q=Nueva York">🗽 Nueva York</a>
-      <a class="is-all" href="destinos.html">Ver todos los destinos →</a>
-    </div>
-  </div>
-</section>
+
 
 <section class="section zp-how">
   <div class="container">

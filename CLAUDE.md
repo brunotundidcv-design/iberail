@@ -143,7 +143,11 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
   `zp-viaje.js`, `img/`. Cuenta, grupos y legales salen de las de Iberail con `rebrand()`.
 - **Estética propia** (`zarping/assets/zarping.css`, por encima de `site.css`): estilo «cartel» — bordes de tinta de 2 px,
   sombras duras (`--hard`), pegatinas en lugar de la rayita de los títulos, cabecera negra, pie lima, portada con un chat de
-  grupo (rota ejemplos) y cinta de tipos de viaje. Menú completo desde 1100 px (1260 px con sesión); barra inferior en móvil.
+  grupo (rota ejemplos) y cinta de tipos de viaje. Menú completo desde 1100 px (1260 px con sesión).
+  «zarping by iberail» junto al logo (cabecera y pie) y «de los creadores de iberail» en la portada.
+- **Portada**: buscador (→ `destinos.html?q=`), atajos (destinos, festivales, precio, pagar, firmar, WhatsApp) y carrusel de
+  destinos destacados (`DESTACADOS` en `build.py`, datos de `destinos.json`). **Móvil**: barra de pestañas fija
+  (Destinos, Festivales, Monta tu viaje, Mis grupos, WhatsApp), salvo en el formulario; en Destinos, 3 planes por tarjeta + «+N planes más».
 - **Marca en el JS común**: `IB.BRANDS` / `IB.brand` / `IB.brandOf(marca)` en `app.js` (nombre, web, correo, «Protect»,
   pase, textos). Iberail sigue igual por defecto (sin `MARCA` en config). Contratos: la marca sale de `grupos.marca`
   (en `condiciones.marca` al enviarlo). `live.js` antepone «Zarping · » a la página en «En directo».

@@ -27,6 +27,9 @@ ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-
 I_WA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg>'
 I_USERS = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.6a3.5 3.5 0 010 6.8M18 14.2a6.5 6.5 0 013.5 5.8"/></svg>'
 I_USER = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>'
+I_GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>'
+I_MUSIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>'
+I_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'
 I_BELL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg>'
 I_IG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1" class="dot"/></svg>'
 # el símbolo: la estela de zarpar (de un punto a otro)
@@ -92,7 +95,7 @@ def header(active):
 <a class="sr-only" href="#main">Saltar al contenido</a>
 <header class="topbar zp-top">
   <div class="container">
-    <a class="brand" href="index.html" aria-label="Zarping, inicio"><img src="assets/img/icon.svg" alt="" width="30" height="30"><span class="brand-word zp-word">zarping</span></a>
+    <a class="brand" href="index.html" aria-label="Zarping by Iberail, inicio"><img src="assets/img/icon.svg" alt="" width="30" height="30"><span class="zp-brand-t"><span class="brand-word zp-word">zarping</span><span class="zp-by">by <b>iberail</b></span></span></a>
     <nav aria-label="Principal"><ul class="nav">{items}</ul></nav>
     <div class="topbar-cta">
       <button class="bell" type="button" data-bell hidden aria-label="Notificaciones" aria-expanded="false" aria-haspopup="dialog">{I_BELL}<b class="bell-n" hidden></b></button>
@@ -119,7 +122,7 @@ FOOTER = f'''<footer class="footer zp-foot">
   <div class="container">
     <div class="footer-top">
       <div>
-        <a class="brand" href="index.html"><img src="assets/img/icon.svg" alt="" width="30" height="30"><span class="brand-word zp-word">zarping</span></a>
+        <a class="brand" href="index.html"><img src="assets/img/icon.svg" alt="" width="30" height="30"><span class="zp-brand-t"><span class="brand-word zp-word">zarping</span><span class="zp-by">by <b>iberail</b></span></span></a>
         <p class="footer-tag">Viajes en grupo desde España: nieve, fin de curso, despedidas, festivales y escapadas. Tú pones el grupo; nosotros, todo lo demás.</p>
         <a class="zp-sister" href="https://iberail.com" target="_blank" rel="noopener"><small>¿Europa en tren?</small><span>Eso es cosa de <b class="brand-word">ibe<b>rail</b></b>, nuestra agencia hermana</span></a>
       </div>
@@ -161,10 +164,16 @@ def scripts(names, supa=False, extra=''):
 def page(name, title, desc, main, js, supa=False, noindex=False, fab=True, extra_js=''):
     fab_html = (f'<a class="fab" href="{WA}?text=Hola%20Zarping%2C%20quiero%20informaci%C3%B3n%20para%20un%20viaje%20en%20grupo" '
                 f'target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><span class="fab-ic">{I_WA}</span>'
-                '<span class="fab-label">¿Dudas? Escríbenos</span></a>'
-                f'\n<div class="mbar" id="mbar"><a class="mbar-wa" href="{WA}?text=Hola%20Zarping%2C%20quiero%20informaci%C3%B3n%20para%20un%20viaje%20en%20grupo" '
-                f'target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">{I_WA}<span>WhatsApp</span></a>'
-                f'<a class="btn btn--lime" href="monta-tu-viaje.html">Monta tu viaje {ARROW}</a></div>') if fab else ''
+                '<span class="fab-label">¿Dudas? Escríbenos</span></a>') if fab else ''
+    # móvil: barra de pestañas fija (menos en el formulario, que tiene sus propios botones)
+    on = lambda h: CUR if name == h else ''
+    if name != 'monta-tu-viaje.html':
+        fab_html += (f'\n<nav class="mbar zp-tabs" id="mbar" aria-label="Accesos rápidos">'
+                     f'<a href="destinos.html"{on("destinos.html")}>{I_GLOBE}<span>Destinos</span></a>'
+                     f'<a href="festivales.html"{on("festivales.html")}>{I_MUSIC}<span>Festivales</span></a>'
+                     f'<a class="zp-tabs-go" href="monta-tu-viaje.html">{I_PLUS}<span>Monta tu viaje</span></a>'
+                     f'<a href="grupos.html"{on("grupos.html")}>{I_USERS}<span>Mis grupos</span></a>'
+                     f'<a href="{WA}?text=Hola%20Zarping%2C%20quiero%20informaci%C3%B3n%20para%20un%20viaje%20en%20grupo" target="_blank" rel="noopener">{I_WA}<span>WhatsApp</span></a></nav>')
     html = head(title, desc, name, noindex) + '\n' + header(name) + '\n' + main.strip() + '\n' + fab_html + '\n' + FOOTER + '\n' + scripts(js, supa, extra_js)
     html = re.sub(r'\n{3,}', '\n\n', html)
     (OUT / name).write_text(html, encoding='utf-8')
@@ -236,11 +245,13 @@ def destinos_main():
         tipo = 'nieve' if d['estilos'][0] == 'nieve' else 'escapada'
         lugar = d['lugar'] if d['zona'] != 'espana' else f"{d['lugar']}, España"
         acts = ''.join(f'<li>{e(a)}</li>' for a in d['actividades'])
+        n = len(d['actividades']) - 3
+        more = f'<button class="zp-dest-more" type="button" aria-expanded="false">+{n} planes más</button>' if n > 0 else ''
         tags = ''.join(f'<span>{ESTILOS[x]}</span>' for x in d['estilos'])
         cards.append(f'''<article class="zp-dest zp-dest--{d['zona']}" data-zona="{d['zona']}" data-est="{' '.join(d['estilos'])}">
   <div class="zp-dest-h"><span class="zp-dest-emo" aria-hidden="true">{d['emoji']}</span><div><h3>{e(d['nombre'])}</h3><p><span aria-hidden="true">{d['flag']}</span> {e(lugar)}</p></div></div>
   <p class="zp-dest-meta"><span>🗓️ {e(d['epoca'])}</span><span>⏱️ {e(d['dias'])} días</span></p>
-  <ul class="zp-dest-acts">{acts}</ul>
+  <ul class="zp-dest-acts">{acts}</ul>{more}
   <p class="zp-fest-tags">{tags}</p>
   <a class="btn btn--primary btn--sm" href="monta-tu-viaje.html?tipo={tipo}&amp;dest={quote(d['nombre'])}">Pedir precio <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </article>''')
@@ -248,6 +259,31 @@ def destinos_main():
     main = (SRC / 'pages' / 'destinos.html').read_text(encoding='utf-8')
     return (main.replace('{{DESTINOS}}', '\n'.join(cards)).replace('{{ESTILOS}}', est)
             .replace('{{TOTAL}}', str(len(ds))).replace('{{ACTS}}', str(sum(len(d['actividades']) for d in ds))))
+
+
+DESTACADOS = ['Lanzarote', 'Ibiza', 'Menorca', 'Tenerife', 'Cádiz', 'Asturias', 'Sierra Nevada', 'Andorra · Grandvalira', 'Lisboa',
+              'Budapest', 'Croacia · Split y Hvar', 'Mykonos', 'Marrakech', 'Bali', 'Tailandia · Bangkok e islas', 'Cancún y Riviera Maya', 'Nueva York']
+
+
+def home_main():
+    """Portada: añade el carrusel de destinos destacados (salen de destinos.json)."""
+    import json, html
+    from urllib.parse import quote
+    e = html.escape
+    ds = {d['nombre']: d for d in json.loads((SRC / 'destinos.json').read_text(encoding='utf-8'))['destinos']}
+    cards = []
+    for n in DESTACADOS:
+        d = ds[n]
+        lugar = d['lugar'] if d['zona'] != 'espana' else d['lugar']
+        acts = ''.join(f'<li>{e(a)}</li>' for a in d['actividades'][:3])
+        cards.append(f'''<a class="zp-car-card zp-dest--{d['zona']}" href="destinos.html?q={quote(n)}">
+  <span class="zp-car-emo" aria-hidden="true">{d['emoji']}</span>
+  <b>{e(n)}</b><small><span aria-hidden="true">{d['flag']}</span> {e(lugar)} · {e(d['dias'])} días</small>
+  <ul>{acts}</ul>
+  <span class="zp-car-go">Ver planes {ARROW}</span>
+</a>''')
+    total = len(ds)
+    return (SRC / 'pages' / 'index.html').read_text(encoding='utf-8').replace('{{CARRUSEL}}', '\n'.join(cards)).replace('{{TOTAL}}', str(total))
 
 
 def iberail_main(file):
@@ -329,9 +365,9 @@ def main():
         ''.join(f'  <url><loc>{SITE}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 
     P = lambda n: (SRC / 'pages' / n).read_text(encoding='utf-8')
-    page('index.html', 'Zarping — Viajes en grupo desde España',
+    page('index.html', 'Zarping by Iberail — Viajes en grupo desde España',
          'Nieve, fin de curso, despedidas, festivales y escapadas en grupo. Precio cerrado por persona, pagos por separado, contratos online y WhatsApp 24 h.',
-         P('index.html'), BASE_JS)
+         home_main(), BASE_JS)
     page('viajes.html', 'Viajes en grupo · Zarping',
          'Nieve en Andorra y Sierra Nevada, viajes de fin de curso, despedidas, festivales y escapadas: te lo organizamos todo para el grupo.',
          P('viajes.html'), BASE_JS)

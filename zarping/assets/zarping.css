@@ -528,3 +528,137 @@ select.pl-input{appearance:none;-webkit-appearance:none;background:#fff url("dat
 }
 /* la tarjeta que va justo debajo de la cabecera de página no se pega a su borde */
 .page-head + .section[style*="padding-top:0"]{padding-top:clamp(24px,3.4vw,40px)!important}
+
+/* =========================================================
+   Más fácil de usar: «by iberail», buscador, atajos, carrusel y pestañas del móvil
+   ========================================================= */
+.zp-brand-t{display:grid;line-height:1;gap:3px}
+.zp-by{font-family:var(--body);font-size:.7rem;font-weight:700;letter-spacing:.02em;color:var(--on-dark-soft);text-transform:none}
+.zp-by b{font-family:'Poppins',var(--display);font-weight:800;letter-spacing:-.02em;color:var(--on-dark)}
+.zp-top .zp-by b{color:#F7F0E3}
+.zp-foot .zp-by{color:var(--ink-soft)}
+.zp-foot .zp-by b{color:var(--ink)}
+.zp-by-hero{display:inline-flex;align-items:center;gap:6px;margin-left:10px;padding:5px 10px;border-radius:8px;background:#fff;border:1.5px solid var(--ink);font-size:.78rem;font-weight:700;color:var(--ink-soft);vertical-align:middle;transition:background .15s}
+.zp-by-hero:hover{background:#F7F0E3}
+.zp-by-hero .brand-word{font-size:.95rem;color:var(--brand-ink);letter-spacing:-.03em}
+.zp-by-hero .brand-word b{color:#C43730}
+
+/* buscador de la portada */
+.zp-find{display:flex;align-items:center;gap:10px;margin-top:26px;max-width:540px;padding:6px 6px 6px 16px;border-radius:14px;background:#fff;border:var(--b);box-shadow:var(--hard)}
+.zp-find:focus-within{box-shadow:4px 4px 0 var(--vio)}
+.zp-find svg{width:22px;height:22px;flex-shrink:0;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+.zp-find input{flex:1;min-width:0;border:0;outline:0;background:none;font:inherit;font-size:16px;font-weight:600;padding:10px 0}
+.zp-find .btn{min-height:44px;box-shadow:none;padding:0 18px}
+.zp-find .btn:hover{transform:none;box-shadow:none;background:var(--vio);color:#fff}
+.zp-find-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;font-size:.84rem}
+.zp-find-tags span{font-weight:700;color:var(--muted);margin-right:2px}
+.zp-find-tags a{padding:4px 10px;border-radius:8px;background:#fff;border:1.5px solid var(--ink);font-weight:800;transition:background .15s}
+.zp-find-tags a:hover{background:var(--lime)}
+.zp-hero .hero-actions{margin-top:22px}
+
+/* atajos */
+.zp-quick{padding-block:clamp(28px,4vw,44px) 0}
+.zp-quick-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.zp-q{display:flex;flex-direction:column;gap:2px;padding:14px;border-radius:14px;background:#fff;border:var(--b);box-shadow:3px 3px 0 var(--ink);transition:transform .15s var(--ease),box-shadow .15s}
+.zp-q:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.zp-q span{font-size:1.5rem;line-height:1;margin-bottom:8px}
+.zp-q b{font-size:.98rem;letter-spacing:-.01em}
+.zp-q small{font-size:.78rem;font-weight:600;color:var(--muted)}
+.zp-q--lime{background:var(--lime)}
+.zp-q--pink{background:var(--pink)}
+.zp-q--vio{background:var(--vio);color:#fff}
+.zp-q--vio small{color:rgba(255,255,255,.8)}
+.zp-q--ink{background:var(--ink);color:#fff;box-shadow:3px 3px 0 var(--vio)}
+.zp-q--ink small{color:var(--on-dark-soft)}
+.zp-q--lime small,.zp-q--pink small{color:var(--ink-soft)}
+
+/* carrusel de destinos */
+.zp-row-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.zp-row-head h2{font-size:clamp(1.9rem,4vw,3rem);margin-top:14px}
+.zp-row-sub{margin-top:10px;color:var(--muted)}
+.zp-link{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;font-weight:800;padding:8px 12px;border-radius:10px;border:var(--b);background:#fff;transition:background .15s}
+.zp-link:hover{background:var(--lime)}
+.zp-link svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4}
+.zp-car{--pad:max(clamp(18px,4vw,32px),calc((100vw - 1200px) / 2 + 32px));display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--pad);padding:22px var(--pad) 18px;scrollbar-width:thin;scrollbar-color:var(--ink) transparent;outline:none}
+.zp-car:focus-visible{outline:3px solid var(--vio);outline-offset:-3px}
+.zp-car-card{flex:0 0 260px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px;padding:18px;border-radius:var(--r-lg);background:#fff;border:var(--b);box-shadow:var(--hard);transition:transform .15s var(--ease),box-shadow .15s}
+.zp-car-card:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.zp-car-emo{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:1.5rem;background:var(--lime);border:var(--b);margin-bottom:8px}
+.zp-car-card.zp-dest--espana .zp-car-emo{background:var(--vio)}
+.zp-car-card.zp-dest--mundo .zp-car-emo{background:var(--pink)}
+.zp-car-card b{font-family:var(--display);font-size:1.12rem;letter-spacing:-.04em;line-height:1.15}
+.zp-car-card small{font-size:.82rem;font-weight:700;color:var(--muted)}
+.zp-car-card ul{list-style:none;display:grid;gap:5px;margin:10px 0 12px;font-size:.86rem;flex:1}
+.zp-car-card li{position:relative;padding-left:16px}
+.zp-car-card li::before{content:"";position:absolute;left:0;top:.45em;width:8px;height:8px;border-radius:2px;background:var(--lime);border:1.5px solid var(--ink)}
+.zp-car-go{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:.88rem;color:var(--vio)}
+.zp-car-go svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4}
+.zp-car-all{background:var(--ink);color:#fff;justify-content:center;box-shadow:4px 4px 0 var(--vio)}
+.zp-car-all small{color:var(--on-dark-soft)}
+.zp-car-all .zp-car-go{color:var(--lime);margin-top:12px}
+
+/* destinos: zona y tipo en una sola tira en el móvil; «+N planes más» */
+.zp-dest-f{display:grid;gap:10px;min-width:0}
+.zp-dest-more{display:none;align-self:flex-start;margin-top:-4px;padding:4px 0;background:none;border:0;font:inherit;font-size:.86rem;font-weight:800;color:var(--vio);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* pestañas del móvil (sustituye a la barra de Iberail) */
+.zp .zp-tabs{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));gap:0;padding:6px 4px;justify-content:space-between;align-items:stretch;border-radius:18px;background:var(--ink);border:var(--b);box-shadow:0 10px 30px -10px rgba(14,14,18,.6)}
+.js .zp .zp-tabs{transform:none}
+body.menu-open .zp-tabs{transform:translateY(160%)!important}
+.zp-tabs a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:50px;border-radius:12px;color:var(--on-dark-soft);font-size:.64rem;font-weight:700;text-align:center;line-height:1.1}
+.zp-tabs a svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.zp-tabs a[aria-current="page"]{color:var(--lime)}
+.zp-tabs a:active{background:rgba(244,243,238,.08)}
+.zp-tabs .zp-tabs-go{flex:1.25;color:var(--ink);background:var(--lime);margin:-2px 2px;border:2px solid var(--lime)}
+.zp-tabs .zp-tabs-go svg{stroke-width:2.8}
+
+@media (max-width:1000px){
+  .zp-quick-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:880px){
+  /* hueco para la barra de pestañas */
+  .zp .footer{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+  body.zp{scroll-padding-bottom:90px}
+}
+@media (max-width:640px){
+  .zp-by-hero{margin:10px 0 0;display:flex;width:max-content}
+  .zp-find{margin-top:20px;padding-left:12px}
+  .zp-find .btn{padding:0 14px}
+  .zp-hero .hero-actions .btn{flex:1 1 auto}
+  .zp-trust{display:none}
+  /* el chat, más corto en el móvil */
+  .zp-hero-visual{padding:24px 4px 8px}
+  .zp-msg:nth-child(1),.zp-msg:nth-child(2),.zp-chip--2,.zp-chip--4{display:none}
+  .zp-quick{padding-top:26px}
+  .zp-quick-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin-inline:calc(-1 * clamp(18px,4vw,32px));padding:0 clamp(18px,4vw,32px) 8px;scrollbar-width:none}
+  .zp-quick-grid::-webkit-scrollbar{display:none}
+  .zp-q{flex:0 0 132px;scroll-snap-align:start;padding:12px}
+  .zp-row-head h2{font-size:1.9rem}
+  .zp-car{gap:12px;padding-top:16px}
+  .zp-car-card{flex-basis:78vw;max-width:290px}
+  /* destinos */
+  .zp-dest-bar{position:sticky;top:72px;padding:10px 0}
+  .zp-dest-q{height:46px}
+  .zp-dest-f{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * clamp(18px,4vw,32px));padding:2px clamp(18px,4vw,32px) 5px}
+  .zp-dest-f::-webkit-scrollbar{display:none}
+  .zp-dest-bar .zp-dest-f .zp-fest-filt,.zp-dest-f .zp-dest-est{display:contents}
+  .zp-dest-f .zp-dest-est::before{content:"";flex:0 0 2px;align-self:stretch;margin:4px 2px;background:var(--ink);opacity:.25}
+  .zp-dest-bar .zp-fest-filt button,.zp-dest-est button{padding:6px 11px;font-size:.82rem}
+  .zp-dest{padding:16px;gap:10px}
+  .zp-dest-acts li:nth-child(n+4){display:none}
+  .zp-dest.is-open .zp-dest-acts li{display:list-item}
+  .zp-dest-more{display:inline-block}
+  .zp-dest .btn{align-self:stretch}
+  .zp-dests{gap:16px}
+}
+@media (max-width:370px){
+  .zp-tabs a{font-size:.58rem}
+}
+@media (max-width:640px){
+  .zp-row-head{flex-wrap:wrap;align-items:center}
+  .zp-row-head .zp-link{display:none}
+  /* destinos: menos texto antes de los resultados y tarjetas más cortas */
+  .page-head--dest .lead{display:none}
+  .page-head--dest h1{font-size:2.1rem}
+  .zp-dest .zp-fest-tags{display:none}
+}
