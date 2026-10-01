@@ -104,6 +104,9 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   (`premio`, `visto`); RLS: cada uno solo ve su propia fila y solo si está publicado, así que **nadie sabe qué le
   ha tocado a los demás**. RPC `sorteo_visto` marca que ya lo abrió. SQL: `supabase/sql/sorteo-ruleta.sql` +
   `supabase/sql/sorteo-premios.sql`.
+  **Sonido**: archivos opcionales en `assets/snd/` — `premio.mp3` (cualquier premio), `ultra.mp3` (entrada del
+  Ultra; si falta usa premio.mp3) y `tic.mp3` (cada premio que pasa por la flecha). Si no están, suena un tono
+  sintetizado con WebAudio. Botón 🔊 arriba a la derecha; el silencio se recuerda (`ib-srt-mute`).
   **Panel** (pestaña Sorteo): fecha y hora, nº de entradas, acta, catálogo de premios con cantidades, un
   **desplegable por persona** para asignarle su premio, simulación de lo que verá (elige premio, no cuenta) y
   «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.

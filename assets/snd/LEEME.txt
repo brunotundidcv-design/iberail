@@ -1,0 +1,8 @@
+Sonidos del sorteo (opcionales). Si no están, la web usa un sonido sintetizado.
+
+  premio.mp3  → suena al ganar cualquier premio
+  ultra.mp3   → suena al ganar una entrada del Ultra (si no está, usa premio.mp3)
+  tic.mp3     → suena cada vez que pasa un premio por la flecha (muy cortito, 50-100 ms)
+
+Pon los archivos aquí con esos nombres exactos, en mp3, y vuelve a subir la web a Netlify.
+Consejo: que premio.mp3 dure 2-4 segundos y no empiece con silencio.

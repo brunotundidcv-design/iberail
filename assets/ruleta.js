@@ -10,6 +10,46 @@
 (function(){
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- sonido ----------
+     Opcional: si existen estos archivos, se usan. Si no, un sonido sintetizado.
+       assets/snd/premio.mp3  → al ganar cualquier premio
+       assets/snd/ultra.mp3   → al ganar la entrada del Ultra (si no está, usa premio.mp3)
+       assets/snd/tic.mp3     → cada vez que pasa un premio por la flecha  */
+  const SND = { premio: 'assets/snd/premio.mp3', ultra: 'assets/snd/ultra.mp3', tic: 'assets/snd/tic.mp3' };
+  const MUTE = 'ib-srt-mute';
+  const mudo = () => { try{ return localStorage.getItem(MUTE) === '1'; }catch(e){ return false; } };
+  const setMudo = v => { try{ localStorage.setItem(MUTE, v ? '1' : '0'); }catch(e){} };
+  let AC = null;
+  const ctx = () => { try{ AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === 'suspended') AC.resume(); return AC; }catch(e){ return null; } };
+  function beep(freq, dur, vol, tipo){
+    const a = ctx(); if(!a) return;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = tipo || 'triangle'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
+    o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + dur);
+  }
+  // reproduce un mp3 si existe; si no, devuelve false y tiramos de sintetizado
+  function play(src, vol){
+    if(mudo() || !src) return Promise.resolve(false);
+    return new Promise(res => {
+      const a = new Audio(src); a.volume = vol == null ? .7 : vol;
+      a.addEventListener('error', () => res(false), { once: true });
+      a.play().then(() => res(true)).catch(() => res(false));
+    });
+  }
+  const tic = () => { if(mudo()) return; play(SND.tic, .35).then(ok => { if(!ok) beep(1100, .035, .05, 'square'); }); };
+  function fanfarria(top){
+    if(mudo()) return;
+    play(top ? SND.ultra : SND.premio, .8).then(ok => {
+      if(ok) return;
+      play(SND.premio, .8).then(ok2 => {
+        if(ok2) return;
+        [0, 110, 220, 380].forEach((t, i) => setTimeout(() => beep([523, 659, 784, 1047][i], .5, .14), t));
+      });
+    });
+  }
   const NADA = { id: '', label: 'Sigue en el sorteo', tier: 'nada' };
   const ICON = { top: '🎟️', alto: '💶', medio: '🍹', bajo: '💶', nada: '🎲' };
   const icono = p => p.id === 'copas' ? '🍹' : (ICON[p.tier] || '🎲');
@@ -52,6 +92,7 @@
         ? `<span class="rul-left" data-rul-left>Quedan <b>${Math.max(0, o.restantes.entradas - (o.restantes.dadas || 0))}</b> de ${o.restantes.entradas} entradas por salir</span>` : '';
       el.innerHTML = `<div class="rul-box">
           ${o.test ? '<span class="rul-test">Simulación · no cuenta</span>' : ''}
+          <button type="button" class="rul-snd${mudo() ? ' is-off' : ''}" data-rul-snd aria-label="Activar o quitar el sonido">${mudo() ? '🔇' : '🔊'}</button>
           <div class="rul-head">
             <span class="rul-k">Sorteo Iberail · Ultra Europe 2027</span>
             <b class="rul-h" data-rul-h>Abre tu premio</b>
@@ -70,6 +111,10 @@
 
       const close = () => { el.classList.remove('is-in'); document.body.classList.remove('srt-lock'); setTimeout(() => { el.remove(); res(toca); }, 260); };
       el.addEventListener('click', e => { if(e.target.closest('[data-rul-x]')) close(); });
+      el.addEventListener('click', e => {
+        const b = e.target.closest('[data-rul-snd]'); if(!b) return;
+        setMudo(!mudo()); b.textContent = mudo() ? '🔇' : '🔊'; b.classList.toggle('is-off', mudo());
+      });
 
       const track = el.querySelector('[data-rul-track]'), rail = el.querySelector('[data-rul-rail]');
       const acts = el.querySelector('[data-rul-acts]'), head = el.querySelector('[data-rul-h]'), par = el.querySelector('[data-rul-p]');
@@ -90,6 +135,21 @@
         track.style.transition = `transform ${dur}ms cubic-bezier(.08,.72,.06,1)`;
         requestAnimationFrame(() => { track.style.transform = `translateX(${destino}px)`; });
 
+        // un tic cada vez que pasa un premio por la flecha (se van espaciando, como la cinta)
+        if(!reduce()){
+          let t0 = performance.now();
+          const total = Math.abs(destino), ease = x => 1 - Math.pow(1 - x, 4.2);   // parecido a la curva del CSS
+          let ult = 0;
+          const bucle = () => {
+            const x = (performance.now() - t0) / dur;
+            if(x >= 1 || !el.isConnected) return;
+            const rec = ease(x) * total, n = Math.floor(rec / paso);
+            if(n !== ult){ ult = n; tic(); }
+            requestAnimationFrame(bucle);
+          };
+          requestAnimationFrame(bucle);
+        }
+
         setTimeout(() => {
           el.classList.remove('is-spin'); el.classList.add(toca ? 'is-win' : 'is-lose');
           track.children[GANA_EN].classList.add('is-got');
@@ -100,6 +160,7 @@
               : `Enhorabuena${o.nombre ? ', ' + esc(String(o.nombre).split(' ')[0]) : ''}. Te lo aplicamos en tu viaje con nosotros: te escribimos por WhatsApp para dejártelo apuntado.`)
             : 'Sigues dentro para las siguientes tandas sin hacer nada. Sube nuestro cartel a tu story y suma otra tirada.';
           acts.innerHTML = `<button type="button" class="rul-go rul-go--ghost" data-rul-x>${toca ? '¡Genial!' : 'Entendido'}</button>`;
+          if(toca) fanfarria(gan.id === 'entrada');
           if(toca && !reduce()) confeti(el);
         }, dur + 120);
       });
