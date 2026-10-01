@@ -93,6 +93,9 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
   **Quitar inscritos**: solo el equipo, botón «Quitar» en la pestaña Sorteo del panel (dos toques). Los participantes NO pueden
   salirse solos (decisión de Bruno). Necesita `supabase/sql/sorteo-baja.sql` (borrar solo con is_admin).
+  **Fecha del próximo sorteo**: constante `DRAW = { fecha, entradas }` arriba de `sorteo.js` (vacía = «muy pronto»).
+  Rellena `[data-srt-when]` y `[data-srt-tag]` de la portada, la barra de arriba y la tarjeta de la cuenta
+  («Sorteamos mañana las 3 primeras entradas»). Pasada la fecha deja de salir solo.
   SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
