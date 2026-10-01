@@ -93,13 +93,20 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
   **Quitar inscritos**: solo el equipo, botón «Quitar» en la pestaña Sorteo del panel (dos toques). Los participantes NO pueden
   salirse solos (decisión de Bruno). Necesita `supabase/sql/sorteo-baja.sql` (borrar solo con is_admin).
-  **Revelación con ruleta** (`assets/ruleta.js`, `IBRuleta.show({gana,…})`, CSS `.rul`): el sorteo se celebra fuera
-  de la web; el equipo marca los ganadores en el panel y publica. A partir de la hora, cada inscrito ve «Ver si me ha
-  tocado», gira la ruleta (12 casillas, las premiadas doradas) y cae donde le corresponde, con confeti si gana.
-  Se guarda en localStorage que ya la giró. Tablas `sorteo_config` (fecha, hora, entradas, total, publicado, acta) y
-  `sorteo_ganadores`; RLS: cada uno solo ve su propia fila y solo si está publicado. SQL: `supabase/sql/sorteo-ruleta.sql`.
-  **Panel** (pestaña Sorteo): fecha y hora editables, nº de entradas, acta, botones de simulación (no cuenta),
-  «Marcar ganador» por persona y «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.
+  **Revelación del premio** (`assets/ruleta.js`, `IBRuleta.show({premio, catalogo, restantes, …})`, CSS `.rul`):
+  el sorteo se celebra fuera de la web; el equipo asigna en el panel qué le ha tocado a cada uno y publica.
+  A partir de la hora, cada inscrito ve «Abrir mi premio» y una **cinta horizontal estilo caja** (flecha fija en el
+  centro, 64 huecos, frena en 6,2 s con un pequeño descentrado) que para en su premio, con confeti si gana.
+  En la cinta **solo salen premios que existen de verdad** (decisión consciente: nada de premios imposibles) más
+  huecos «Sigue en el sorteo». Catálogo por defecto: 3 entradas Ultra, 300 €, 2×100 €, 3×50 €, 5 bonos de copas,
+  5×25 €, 10×5 €. Arriba, contador en directo «quedan X de N entradas por salir» (RPC `sorteo_restantes`).
+  Tablas `sorteo_config` (fecha, hora, entradas, total, publicado, acta, `premios` jsonb) y `sorteo_ganadores`
+  (`premio`, `visto`); RLS: cada uno solo ve su propia fila y solo si está publicado, así que **nadie sabe qué le
+  ha tocado a los demás**. RPC `sorteo_visto` marca que ya lo abrió. SQL: `supabase/sql/sorteo-ruleta.sql` +
+  `supabase/sql/sorteo-premios.sql`.
+  **Panel** (pestaña Sorteo): fecha y hora, nº de entradas, acta, catálogo de premios con cantidades, un
+  **desplegable por persona** para asignarle su premio, simulación de lo que verá (elige premio, no cuenta) y
+  «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.
   **Aviso a pantalla completa** (`takeover` en `sorteo.js`, CSS `.srtk`): al entrar en cualquier página pública sale
   un modal oscuro con cuenta atrás al segundo, entrada dorada y «Participar gratis» (o «Ya estás dentro» si ya lo está).
   Solo en los 3 días previos al sorteo y una vez al día por visitante (`ib-srt-tk-<fecha>-<día>` en localStorage).
