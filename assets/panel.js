@@ -1143,6 +1143,15 @@
     p.innerHTML = head(`GRUPO · creado ${esc(ago(g.created_at))}`, esc(g.nombre)) + `
       <div class="adm-p-rename"><input class="pl-input" id="grName" value="${esc(g.nombre)}" maxlength="80" aria-label="Nombre del grupo"><button type="button" class="btn btn--ghost btn--sm" data-rename>Cambiar nombre</button></div>
       <label class="adm-f-field adm-p-marca"><span>Marca del grupo <small>(contrato, pagos y seguro salen con este nombre)</small></span><select class="pl-input" id="grMarca"><option value="iberail"${marcaDe(g) !== 'zarping' ? ' selected' : ''}>Iberail</option><option value="zarping"${marcaDe(g) === 'zarping' ? ' selected' : ''}>Zarping</option></select></label>
+      <div class="adm-f-field adm-p-lim">
+        <span>Fecha límite de pago <small>(sale en pequeño en la ficha de todos los del grupo)</small></span>
+        <div class="adm-p-lim-row">
+          <input class="pl-input" id="grLim" type="date" value="${esc(g.limite_pago || '')}" aria-label="Fecha límite de pago">
+          <input class="pl-input" id="grLimTxt" maxlength="160" value="${esc(g.nota_pago || '')}" placeholder="Nota (opcional): qué pasa si se pasa la fecha" aria-label="Nota del aviso">
+          <button type="button" class="btn btn--dark btn--sm" data-save-lim>Guardar</button>
+        </div>
+        <p class="adm-hint adm-hint--sm">Si lo dejas vacío no se muestra nada. Apuntamos quién lo ve en «En directo», por si alguien dice que no lo sabía.</p>
+      </div>
       <label class="adm-switch adm-p-vip${g.vip ? ' is-on' : ''}"><input type="checkbox" id="grVip"${g.vip ? ' checked' : ''}><span></span><em><b><i class="adm-vip-ic">${I_STAR}</i>Grupo VIP</b>${g.vip ? 'Sus miembros ven su grupo en dorado, con el sello VIP y una línea directa por WhatsApp.' : 'Actívalo para grupos especiales: amigos, clientes que repiten o con trato preferente.'}</em></label>
       <section class="adm-sec">
         <div class="adm-sec-h"><h3>${I_USERS}Personas <small>${ms.length}</small></h3></div>
@@ -1602,6 +1611,13 @@
         const { error } = await IB.sb.from('grupo_miembros').delete().eq('grupo_id', g.id).eq('user_id', rm.dataset.rmMember);
         if(error) return toast(setupErr(error), true);
         members = members.filter(m => !(String(m.grupo_id) === String(g.id) && m.user_id === rm.dataset.rmMember)); paintAll(); paintDrawer(); toast('Quitada del grupo: ya no ve su ruta ni sus documentos'); return;
+      }
+      if(t.closest('[data-save-lim]')){
+        const limite_pago = $('#grLim').value || null, nota_pago = ($('#grLimTxt').value || '').trim() || null;
+        const { error } = await IB.sb.from('grupos').update({ limite_pago, nota_pago }).eq('id', g.id);
+        if(error) return toast(/limite_pago|nota_pago/.test(error.message || '') ? 'Falta ejecutar supabase/sql/limite-pago.sql en Supabase.' : setupErr(error), true);
+        g.limite_pago = limite_pago; g.nota_pago = nota_pago; paintAll(); paintDrawer();
+        toast(limite_pago ? 'Aviso de fecha límite guardado: ya lo ven en su grupo' : 'Aviso quitado'); return;
       }
       if(t.closest('[data-rename]')){
         const nombre = $('#grName').value.trim(); if(nombre.length < 2) return toast('Nombre demasiado corto.', true);

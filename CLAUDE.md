@@ -54,6 +54,10 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 - `panel.js` — panel del equipo: solicitudes en directo, clientes, grupos, documentos, pagos,
   comisiones/RRPP, bot de WhatsApp.
 - `notif.js` — campana de notificaciones.
+- **Fecha límite de pago por grupo** — el equipo la pone en la ficha del grupo del panel (`#grLim` + nota `#grLimTxt`,
+  columnas `grupos.limite_pago` / `grupos.nota_pago`, `supabase/sql/limite-pago.sql`). Sale en pequeño en «Mis grupos»
+  debajo de «Tu parte del viaje» (`.gx-lim`, ámbar a ≤7 días, rojo si ya pasó) y se apunta `limite_pago_visto` en
+  `actividad` (una vez por sesión), para poder demostrar que lo vieron.
 - `payment.js` — pago con tarjeta (Stripe Checkout): llama a `stripe-checkout` con la sesión y redirige a Stripe.
   Se activa con `STRIPE_ON: true` en `config.js`. Al volver (`grupos.html?pago=ok|cancelado`) muestra un aviso.
   «Pagar una parte» (mínimo 20 €). Enlace desde los correos: `grupos.html?pagar=ID` (`&parte=1` abre el pago parcial).

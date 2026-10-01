@@ -318,10 +318,27 @@
   let tab = null;
 
   const I_EURO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 7a6.5 6.5 0 100 10"/><path d="M4 10.5h9M4 13.5h9"/></svg>';
+  const I_CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   const I_ROUTE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3 3 0 000-6H9a3 3 0 010-6h6.5"/></svg>';
   const AV_COLORS = ['#F0532F', '#FFC53D', '#8FB8A8', '#C9A2F2', '#7FB3E8', '#F29E7F', '#B7D36B'];
   const avColor = s => { let h = 0; for(const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return AV_COLORS[h % AV_COLORS.length]; };
   const daysTo = iso => Math.round((new Date(iso + 'T12:00:00') - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
+  // aviso de fecha límite de pago (lo pone el equipo por grupo; supabase/sql/limite-pago.sql)
+  const limSeen = new Set();
+  function limLog(g){
+    if(limSeen.has(String(g.id))) return; limSeen.add(String(g.id));
+    try{ const k = 'ib-lim-' + g.id + '-' + g.limite_pago; if(sessionStorage.getItem(k)) return; sessionStorage.setItem(k, '1'); }catch(e){}
+    if(IB.sb) IB.sb.from('actividad').insert({ tipo: 'limite_pago_visto', pagina: location.pathname.replace(/^\//, '') || 'grupos.html', detalle: { grupo: g.nombre, limite: g.limite_pago } }).then(() => {}, () => {});
+  }
+  function limBox(g, prev){
+    if(!g.limite_pago) return '';
+    const d = daysTo(g.limite_pago);
+    if(!prev) setTimeout(() => limLog(g), 1200);
+    const cuando = new Date(g.limite_pago + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const est = d < 0 ? ' is-late' : d <= 7 ? ' is-soon' : '';
+    const cola = d < 0 ? 'La fecha ya ha pasado.' : d === 0 ? 'Es hoy.' : `${d === 1 ? 'Queda 1 día' : `Quedan ${d} días`}.`;
+    return `<p class="gx-lim${est}" data-lim="${esc(g.id)}">${I_CLOCK}<span><b>Fecha límite de pago: ${esc(cuando)}.</b> ${esc(cola)} ${esc(g.nota_pago || 'Si se pasa esta fecha, el precio del viaje puede subir.')}</span></p>`;
+  }
   const PART_MIN = 20;   // pago a cuenta mínimo (Stripe cobra 0,25 € fijos por pago)
   function payBox(g){
     if(!V.v7) return '';
@@ -443,6 +460,7 @@
         ${prev ? '' : `<div class="ct-slot" data-contrato="${esc(g.id)}"></div>`}
         ${prev ? '' : `<div class="sg-slot" data-seguro="${esc(g.id)}"></div>`}
         ${prev ? '' : payBox(g)}
+        ${limBox(g, prev)}
         ${teamBox(g)}
         ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>${RT.prep}</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
         <div class="al-slot" data-aloj="${esc(g.id)}"></div>
