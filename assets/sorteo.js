@@ -13,6 +13,11 @@
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
   const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
+  let premio = null, publicado = false;                 // 'win' | 'lose' (lo dice sorteo_ganadores)
+  const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;
+  const spun = () => { try{ return !!localStorage.getItem(spunKey()); }catch(e){ return false; } };
+  const markSpun = () => { try{ localStorage.setItem(spunKey(), premio || '1'); }catch(e){} };
+  const revelable = () => publicado && premio !== null && DRAW.fecha && new Date() >= new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00');
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
     if(!DRAW.fecha) return largo ? 'Fecha y bases, muy pronto.' : '';
@@ -73,9 +78,9 @@
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
         <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
-        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${drawTxt() || 'Te avisaremos del día de la ruleta.'}</small></div>
-      <div class="srt-me-r"><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
-        <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button></div>`
+        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio === 'win' ? '<b>¡Te ha tocado una entrada! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha sido. Sigues dentro para las siguientes.') : '<b>¡Ya hay resultado!</b>') : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
+      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Ver si me ha tocado 🎟️</button>' : `<span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
+        <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
     : `
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
         <b class="srt-me-h">Aún no participas en el sorteo</b>
@@ -150,6 +155,22 @@
       user = u;
       const r = await sb.from('sorteo_inscritos').select('user_id, extra').eq('user_id', u.id).maybeSingle();
       if(!r.error){ state = r.data ? 'in' : 'out'; tiradas = r.data ? 1 + (Number(r.data.extra) || 0) : 1; ls.set(inKey(u), r.data ? String(tiradas) : null); paint(); }
+      // configuración del sorteo (la edita el equipo en el panel) y mi resultado
+      const c = await sb.from('sorteo_config').select('*').eq('id', 1).maybeSingle();
+      if(!c.error && c.data){
+        if(c.data.fecha) DRAW.fecha = c.data.fecha;
+        if(c.data.hora) DRAW.hora = String(c.data.hora).slice(0, 5);
+        if(c.data.entradas) DRAW.entradas = c.data.entradas;
+        if(c.data.total) DRAW.total = c.data.total;
+        DRAW.acta = c.data.acta || '';
+        publicado = !!c.data.publicado;
+        if(publicado && state === 'in'){
+          const g = await sb.from('sorteo_ganadores').select('user_id').eq('user_id', u.id).maybeSingle();
+          if(!g.error) premio = g.data ? 'win' : 'lose';
+        }
+        paintWhen(); paint();
+        if(revelable() && !spun()) setTimeout(girar, 900);
+      }
       if(state === 'out' && ls.get(WANT)) await join(true);   // lo pidió antes de tener cuenta
     }catch(e){}
   }
@@ -165,10 +186,18 @@
     finally{ b.disabled = false; b.innerHTML = label; }
   });
 
+  async function girar(){
+    if(!window.IBRuleta || !revelable()) return;
+    await IBRuleta.show({ gana: premio === 'win', nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', entradas: DRAW.entradas, total: DRAW.total, acta: DRAW.acta });
+    markSpun(); paint();
+  }
+  document.addEventListener('click', e => { if(e.target.closest('[data-srt-spin]')){ e.preventDefault(); girar(); } });
+
   /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
   const drawAt = () => DRAW.fecha ? new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00') : null;
   function takeover(){
     const when = drawAt(); if(!when) return;
+    if(revelable() && !spun()) return girar();                  // ya hay resultado: directo a la ruleta
     const ms = when - new Date();
     if(ms <= 0 || ms > 3 * 864e5) return;                       // solo los 3 días de antes
     const KEY = 'ib-srt-tk-' + DRAW.fecha + '-' + new Date().toDateString();
@@ -190,7 +219,7 @@
             <b>${DRAW.entradas} de ${DRAW.total}</b>
           </div>
           <p class="srtk-p"><b>Ojo:</b> este es el primer sorteo y se reparten <b>${DRAW.entradas} de las ${DRAW.total} entradas</b>. Las otras ${DRAW.total - DRAW.entradas} las sorteamos más adelante, así que si no te toca ahora <b>sigues dentro</b> para las siguientes.</p>
-          <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Giramos la ruleta en directo, aquí en la web.</p>
+          <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Ese día entras en tu cuenta, giras la ruleta y ves tu resultado al momento.</p>
           <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
           <div class="srtk-acts" data-srtk-acts></div>
           <small class="srtk-f">Sorteo gratuito de Iberail. Hace falta cuenta y móvil para poder avisarte si te toca.</small>

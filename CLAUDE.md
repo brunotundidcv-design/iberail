@@ -93,6 +93,13 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
   **Quitar inscritos**: solo el equipo, botón «Quitar» en la pestaña Sorteo del panel (dos toques). Los participantes NO pueden
   salirse solos (decisión de Bruno). Necesita `supabase/sql/sorteo-baja.sql` (borrar solo con is_admin).
+  **Revelación con ruleta** (`assets/ruleta.js`, `IBRuleta.show({gana,…})`, CSS `.rul`): el sorteo se celebra fuera
+  de la web; el equipo marca los ganadores en el panel y publica. A partir de la hora, cada inscrito ve «Ver si me ha
+  tocado», gira la ruleta (12 casillas, las premiadas doradas) y cae donde le corresponde, con confeti si gana.
+  Se guarda en localStorage que ya la giró. Tablas `sorteo_config` (fecha, hora, entradas, total, publicado, acta) y
+  `sorteo_ganadores`; RLS: cada uno solo ve su propia fila y solo si está publicado. SQL: `supabase/sql/sorteo-ruleta.sql`.
+  **Panel** (pestaña Sorteo): fecha y hora editables, nº de entradas, acta, botones de simulación (no cuenta),
+  «Marcar ganador» por persona y «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.
   **Aviso a pantalla completa** (`takeover` en `sorteo.js`, CSS `.srtk`): al entrar en cualquier página pública sale
   un modal oscuro con cuenta atrás al segundo, entrada dorada y «Participar gratis» (o «Ya estás dentro» si ya lo está).
   Solo en los 3 días previos al sorteo y una vez al día por visitante (`ib-srt-tk-<fecha>-<día>` en localStorage).
