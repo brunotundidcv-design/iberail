@@ -11,7 +11,7 @@
   const SUPA = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   // ── Próximo sorteo ─────────────────────────────────────────────────────────
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
-  const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3 };
+  const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
@@ -21,15 +21,15 @@
     if(dias < 0) return largo ? 'Ya hemos sorteado las primeras entradas. Sigue apuntado para las siguientes.' : '';
     const cuando = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `el ${DIAS[d.getDay()]} ${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`;
     const n = DRAW.entradas;
-    return largo === 'bar' ? `${cuando} sorteamos ${n} entradas para el Ultra Europe 2027`
-      : `Sorteamos ${cuando} las ${n} primeras entradas.`;
+    return largo === 'bar' ? `${cuando}, primer sorteo: ${n} de las ${DRAW.total} entradas del Ultra Europe`
+      : `Primer sorteo ${cuando}: repartimos ${n} de las ${DRAW.total} entradas. Las otras ${DRAW.total - n}, más adelante.`;
   }
   function drawTag(){
     if(!DRAW.fecha) return '';
     const d = new Date(DRAW.fecha + 'T12:00:00');
     const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
     if(dias < 0) return '';
-    return (dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' : `${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`) + ' · Sorteo Iberail';
+    return (dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' : `${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`) + ' · Primer sorteo';
   }
   const paintWhen = () => { const t = drawTxt(true); document.querySelectorAll('[data-srt-when]').forEach(el => { el.textContent = t; el.hidden = !t; });
     const tag = drawTag(); if(tag) document.querySelectorAll('[data-srt-tag]').forEach(el => el.textContent = tag); };
@@ -183,16 +183,21 @@
         <div class="srtk-beams" aria-hidden="true"></div>
         <button type="button" class="srtk-x" aria-label="Cerrar">✕</button>
         <div class="srtk-in">
-          <span class="srtk-live"><i></i>En directo · ${esc(dia)} a las ${esc(hora)}</span>
-          <h2 class="srtk-h">Sorteamos <em>${DRAW.entradas} entradas</em> para el <em>Ultra Europe</em></h2>
-          <p class="srtk-p">Split, Croacia · 9 — 11 de julio de 2027. Giramos la ruleta en directo entre todos los apuntados. Participar es gratis y se tarda un minuto.</p>
+          <span class="srtk-live"><i></i>Primer sorteo · ${esc(dia)} a las ${esc(hora)}</span>
+          <h2 class="srtk-h">Sorteamos las <em>${DRAW.entradas} primeras</em> entradas del <em>Ultra Europe</em></h2>
+          <div class="srtk-strip" aria-label="${DRAW.entradas} de ${DRAW.total} entradas en este sorteo">
+            ${Array.from({ length: DRAW.total }, (_, i) => `<i class="${i < DRAW.entradas ? 'is-now' : ''}" style="--d:${i * 70}ms"></i>`).join('')}
+            <b>${DRAW.entradas} de ${DRAW.total}</b>
+          </div>
+          <p class="srtk-p"><b>Ojo:</b> este es el primer sorteo y se reparten <b>${DRAW.entradas} de las ${DRAW.total} entradas</b>. Las otras ${DRAW.total - DRAW.entradas} las sorteamos más adelante, así que si no te toca ahora <b>sigues dentro</b> para las siguientes.</p>
+          <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Giramos la ruleta en directo, aquí en la web.</p>
           <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
           <div class="srtk-acts" data-srtk-acts></div>
           <small class="srtk-f">Sorteo gratuito de Iberail. Hace falta cuenta y móvil para poder avisarte si te toca.</small>
         </div>
         <div class="srtk-art" aria-hidden="true">
           <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
-          <span class="srtk-x3">×${DRAW.entradas}</span>
+          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>de ${DRAW.total}</small></span>
         </div>
       </div>`;
     const close = () => { o.classList.remove('is-in'); document.body.classList.remove('srt-lock'); clearInterval(t); setTimeout(() => o.remove(), 260); };
