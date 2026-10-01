@@ -3414,3 +3414,56 @@ body.srt-st-in .srtbar-go-b{display:inline}
   .topbar .nav,.topbar-cta .btn--ghost{display:none}
   .burger{display:inline-flex}
 }
+
+/* ===== Aviso a pantalla completa del sorteo (assets/sorteo.js · takeover) ===== */
+body.srt-lock{overflow:hidden}
+.srtk{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:16px;background:rgba(14,8,6,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;transition:opacity .26s ease}
+.srtk.is-in{opacity:1}
+.srtk-box{position:relative;isolation:isolate;overflow:hidden;width:min(980px,100%);max-height:94vh;overflow-y:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(20px,3.4vw,48px);padding:clamp(26px,4vw,52px);border-radius:28px;background:#140B08;color:var(--cream);box-shadow:0 50px 100px -30px rgba(0,0,0,.85);transform:translateY(18px) scale(.97);transition:transform .34s cubic-bezier(.2,.9,.3,1.1)}
+.srtk.is-in .srtk-box{transform:none}
+.srtk-beams{position:absolute;inset:-40% -10%;z-index:-1;background:conic-gradient(from 200deg at 70% 30%,rgba(240,176,42,.22),transparent 28%,rgba(196,55,48,.2) 45%,transparent 70%,rgba(240,176,42,.16));filter:blur(26px);animation:srtkSpin 22s linear infinite}
+@keyframes srtkSpin{to{transform:rotate(1turn)}}
+.srtk-x{position:absolute;top:12px;right:14px;z-index:2;width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:var(--cream);font-size:15px;cursor:pointer;transition:background .18s}
+.srtk-x:hover{background:rgba(255,255,255,.2)}
+.srtk-live{display:inline-flex;align-items:center;gap:8px;padding:6px 13px;border:1px solid rgba(240,176,42,.45);border-radius:999px;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:#F0B02A}
+.srtk-live i{width:7px;height:7px;border-radius:50%;background:#C43730;box-shadow:0 0 0 0 rgba(196,55,48,.7);animation:srtkPulse 1.8s infinite}
+@keyframes srtkPulse{70%{box-shadow:0 0 0 9px rgba(196,55,48,0)}100%{box-shadow:0 0 0 0 rgba(196,55,48,0)}}
+.srtk-h{margin:14px 0 0;text-wrap:balance;font-family:var(--display);font-size:clamp(1.9rem,4.4vw,3.1rem);line-height:.98;letter-spacing:-.035em}
+.srtk-h em{font-style:normal;color:#F0B02A}
+.srtk-p{margin:12px 0 0;max-width:46ch;font-size:.92rem;line-height:1.55;color:rgba(247,240,227,.75)}
+.srtk-cd{display:flex;align-items:flex-end;gap:6px;margin:20px 0 4px;font-variant-numeric:tabular-nums}
+.srtk-cd span{display:flex;flex-direction:column;align-items:center;min-width:62px;padding:9px 6px 7px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09)}
+.srtk-cd b{font-family:var(--display);font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1;letter-spacing:-.03em}
+.srtk-cd small{margin-top:3px;font-family:var(--mono);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+.srtk-cd i{padding-bottom:16px;font-style:normal;font-size:1.2rem;opacity:.35}
+.srtk-now{font-family:var(--display);font-size:clamp(1.3rem,3vw,1.8rem);color:#F0B02A}
+.srtk-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
+.srtk-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border:0;border-radius:999px;background:linear-gradient(135deg,#FFD66B,#E9A53A);color:#2A1611;font:700 1rem/1 var(--sans,inherit);cursor:pointer;box-shadow:0 14px 30px -12px rgba(233,165,58,.8);transition:transform .16s,box-shadow .16s}
+.srtk-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px -12px rgba(233,165,58,.9)}
+.srtk-cta svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.srtk-cta--ghost{background:transparent;color:var(--cream);border:1px solid rgba(255,255,255,.25);box-shadow:none;font-size:.86rem;padding:12px 18px}
+.srtk-cta--ghost:hover{background:rgba(255,255,255,.08);transform:none;box-shadow:none}
+.srtk-no{border:0;background:none;color:rgba(247,240,227,.55);font-size:.86rem;text-decoration:underline;cursor:pointer;padding:8px}
+.srtk-ok{display:flex;align-items:center;gap:9px;width:100%;padding:12px 16px;border-radius:14px;background:rgba(143,184,168,.14);border:1px solid rgba(143,184,168,.3);font-size:.92rem}
+.srtk-ok svg{width:18px;height:18px;flex:0 0 18px;fill:none;stroke:#8FB8A8;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.srtk-ok b{color:#F0B02A}
+.srtk-f{display:block;margin-top:14px;font-size:.7rem;line-height:1.5;color:rgba(247,240,227,.45)}
+.srtk-art{position:relative;display:grid;place-items:center;min-height:210px}
+.srtk-tk{position:relative;width:100%;max-width:300px;aspect-ratio:1.85;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:9% 10%;border-radius:18px;background:linear-gradient(125deg,#FFF0C2 0%,#FFD66B 30%,#E9A53A 62%,#FFE39A 100%);color:#2A1611;box-shadow:0 30px 50px -18px rgba(0,0,0,.75);transform:rotate(-4deg);animation:srtFloat 6s ease-in-out infinite;overflow:hidden}
+.srtk-tk::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%);transform:translateX(-120%);animation:srtShine 4.5s ease-in-out 1s infinite}
+.srtk-tk-k{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.srtk-tk-t{font-family:var(--display);font-size:clamp(1.4rem,3.4vw,2rem);line-height:.95;letter-spacing:-.04em}
+.srtk-tk-y{font-family:var(--display);font-size:1.15rem;letter-spacing:-.03em;color:#8C2A17;line-height:1}
+.srtk-tk-l{margin-top:5px;font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.srtk-x3{position:absolute;right:-2px;bottom:4px;display:grid;place-items:center;width:74px;height:74px;border-radius:50%;background:#140B08;border:1px solid rgba(240,176,42,.5);color:#F0B02A;font-family:var(--display);font-size:1.5rem;letter-spacing:-.03em}
+@media (max-width:820px){
+  .srtk-box{grid-template-columns:1fr;gap:20px;padding:24px 20px 26px;text-align:center}
+  .srtk-live,.srtk-cd,.srtk-acts{justify-content:center}
+  .srtk-cd{flex-wrap:wrap}
+  .srtk-p{margin-inline:auto}
+  .srtk-art{order:-1;min-height:0}
+  .srtk-tk{max-width:235px}
+  .srtk-x3{width:58px;height:58px;font-size:1.2rem;right:6%}
+  .srtk-cta{width:100%;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){.srtk-beams,.srtk-tk,.srtk-tk::after,.srtk-live i{animation:none}.srtk-box{transition:none}}

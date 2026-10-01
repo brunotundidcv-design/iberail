@@ -11,7 +11,8 @@
   const SUPA = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   // ── Próximo sorteo ─────────────────────────────────────────────────────────
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
-  const DRAW = { fecha: '2026-10-02', entradas: 3 };
+  const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3 };
+  const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
     if(!DRAW.fecha) return largo ? 'Fecha y bases, muy pronto.' : '';
@@ -164,6 +165,66 @@
     finally{ b.disabled = false; b.innerHTML = label; }
   });
 
+  /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
+  const drawAt = () => DRAW.fecha ? new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00') : null;
+  function takeover(){
+    const when = drawAt(); if(!when) return;
+    const ms = when - new Date();
+    if(ms <= 0 || ms > 3 * 864e5) return;                       // solo los 3 días de antes
+    const KEY = 'ib-srt-tk-' + DRAW.fecha + '-' + new Date().toDateString();
+    try{ if(localStorage.getItem(KEY)) return; }catch(e){}
+    try{ localStorage.setItem(KEY, '1'); }catch(e){}
+
+    const o = document.createElement('div');
+    o.className = 'srtk'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Sorteo de entradas para el Ultra Europe');
+    const hora = (DRAW.hora || '20:00').replace(':00', '') + ' h';
+    const dia = when.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
+    o.innerHTML = `<div class="srtk-box">
+        <div class="srtk-beams" aria-hidden="true"></div>
+        <button type="button" class="srtk-x" aria-label="Cerrar">✕</button>
+        <div class="srtk-in">
+          <span class="srtk-live"><i></i>En directo · ${esc(dia)} a las ${esc(hora)}</span>
+          <h2 class="srtk-h">Sorteamos <em>${DRAW.entradas} entradas</em> para el <em>Ultra Europe</em></h2>
+          <p class="srtk-p">Split, Croacia · 9 — 11 de julio de 2027. Giramos la ruleta en directo entre todos los apuntados. Participar es gratis y se tarda un minuto.</p>
+          <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
+          <div class="srtk-acts" data-srtk-acts></div>
+          <small class="srtk-f">Sorteo gratuito de Iberail. Hace falta cuenta y móvil para poder avisarte si te toca.</small>
+        </div>
+        <div class="srtk-art" aria-hidden="true">
+          <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
+          <span class="srtk-x3">×${DRAW.entradas}</span>
+        </div>
+      </div>`;
+    const close = () => { o.classList.remove('is-in'); document.body.classList.remove('srt-lock'); clearInterval(t); setTimeout(() => o.remove(), 260); };
+    o.addEventListener('click', e => { if(e.target === o || e.target.closest('.srtk-x')) close(); });
+    document.addEventListener('keydown', function esc(e){ if(e.key === 'Escape' && o.isConnected){ close(); document.removeEventListener('keydown', esc); } });
+
+    const cd = o.querySelector('[data-srtk-cd]'), acts = o.querySelector('[data-srtk-acts]');
+    const pad = n => String(n).padStart(2, '0');
+    const tick = () => {
+      let r = Math.max(0, drawAt() - new Date());
+      if(r <= 0){ cd.innerHTML = '<b class="srtk-now">¡Estamos sorteando ahora mismo!</b>'; return; }
+      const d = Math.floor(r / 864e5), h = Math.floor(r / 36e5) % 24, m = Math.floor(r / 6e4) % 60, sg = Math.floor(r / 1e3) % 60;
+      const u = [[d, 'días'], [h, 'horas'], [m, 'min'], [sg, 'seg']].filter((x, i) => i || d);
+      cd.innerHTML = u.map(([v, k]) => `<span><b>${pad(v)}</b><small>${k}</small></span>`).join('<i>:</i>');
+    };
+    const paintActs = () => {
+      acts.innerHTML = state === 'in'
+        ? `<div class="srtk-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>Ya estás dentro con <b data-srt-n>${tiradas} ${tiradas === 1 ? 'tirada' : 'tiradas'}</b></span></div>
+           <button type="button" class="srtk-cta srtk-cta--ghost" data-srt-poster>Sube el cartel a tu story y suma otra tirada</button>`
+        : `<button type="button" class="srtk-cta" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+           <button type="button" class="srtk-no">Ahora no</button>`;
+    };
+    paintActs(); tick();
+    const t = setInterval(tick, 1000);
+    o.addEventListener('click', e => { if(e.target.closest('.srtk-no')) close(); });
+    const obs = setInterval(() => { if(!o.isConnected) return clearInterval(obs); paintActs(); }, 1500);
+
+    document.body.appendChild(o);
+    document.body.classList.add('srt-lock');
+    requestAnimationFrame(() => requestAnimationFrame(() => o.classList.add('is-in')));
+  }
+
   /* ---------- barra de anuncio ---------- */
   function bar(){
     const KEY = 'ib-sorteo-bar-cerrada';
@@ -274,7 +335,7 @@
     finally{ btn.disabled = false; btn.innerHTML = label; }
   });
 
-  paint(); bar(); check();
+  paint(); bar(); check(); setTimeout(takeover, 1400);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {
     const u = session ? session.user : null;
     if(!u){ user = null; state = 'guest'; paint(); return; }

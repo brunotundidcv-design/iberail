@@ -93,6 +93,9 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   **Hace falta móvil para participar**: si la cuenta no lo tiene, sale «Falta tu móvil» (`askTel`) antes de apuntarse.
   **Quitar inscritos**: solo el equipo, botón «Quitar» en la pestaña Sorteo del panel (dos toques). Los participantes NO pueden
   salirse solos (decisión de Bruno). Necesita `supabase/sql/sorteo-baja.sql` (borrar solo con is_admin).
+  **Aviso a pantalla completa** (`takeover` en `sorteo.js`, CSS `.srtk`): al entrar en cualquier página pública sale
+  un modal oscuro con cuenta atrás al segundo, entrada dorada y «Participar gratis» (o «Ya estás dentro» si ya lo está).
+  Solo en los 3 días previos al sorteo y una vez al día por visitante (`ib-srt-tk-<fecha>-<día>` en localStorage).
   **Fecha del próximo sorteo**: constante `DRAW = { fecha, entradas }` arriba de `sorteo.js` (vacía = «muy pronto»).
   Rellena `[data-srt-when]` y `[data-srt-tag]` de la portada, la barra de arriba y la tarjeta de la cuenta
   («Sorteamos mañana las 3 primeras entradas»). Pasada la fecha deja de salir solo.
