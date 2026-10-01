@@ -10,6 +10,7 @@ on conflict (id) do update set public = true;
 drop policy if exists "sorteo snd: leer"  on storage.objects;
 drop policy if exists "sorteo snd: subir" on storage.objects;
 drop policy if exists "sorteo snd: borrar" on storage.objects;
+drop policy if exists "sorteo snd: actualizar" on storage.objects;
 
 create policy "sorteo snd: leer" on storage.objects for select
   using (bucket_id = 'sorteo');
