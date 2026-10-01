@@ -125,6 +125,22 @@
             <em>${d} ${d === 1 ? 'asignado' : 'asignados'}</em></label>`; }).join('')}
         </div>
       </div>
+      <div class="srtc-snd">
+        <b>Sonidos</b>
+        <p class="srtp-hint">Sube tus mp3 y suenan al abrir el premio. Si no subes ninguno, suena uno hecho por la web.</p>
+        <div class="srtc-snd-list">${[
+          ['ultra', 'Al ganar una entrada del Ultra'],
+          ['premio', 'Al ganar cualquier otro premio'],
+          ['tic', 'Cada premio que pasa (muy cortito)']
+        ].map(([k, t]) => {
+          const url = ((c.sonidos || {})[k]) || '';
+          return `<div class="srtc-snd-row">
+            <span><b>${esc(t)}</b><small>${url ? 'Subido ✓' : 'Sin subir'}</small></span>
+            ${url ? `<button type="button" class="pl-link" data-snd-play="${esc(url)}">Escuchar</button><button type="button" class="pl-link dash-del" data-snd-del="${esc(k)}">Quitar</button>` : ''}
+            <label class="btn btn--ghost btn--sm srtc-snd-up">${url ? 'Cambiar' : 'Subir mp3'}<input type="file" accept="audio/*" data-snd="${esc(k)}" hidden></label>
+          </div>`; }).join('')}
+        </div>
+      </div>
       <div class="srtc-acts">
         <button type="button" class="btn btn--dark btn--sm" data-srt-cfg>Guardar</button>
         <select class="pl-input srtc-simsel" id="srtSim">${cat().map(x => `<option value="${esc(x.id)}">${esc(x.label)}</option>`).join('')}<option value="">Sin premio</option></select>
@@ -162,6 +178,21 @@
   }
 
   root.addEventListener('change', async e => {
+    const f = e.target.closest('[data-snd]');
+    if(f){
+      const k = f.dataset.snd, file = f.files && f.files[0]; if(!file) return;
+      if(file.size > 5 * 1024 * 1024) return alert('El archivo es muy grande (máximo 5 MB).');
+      const lbl = f.closest('label'); const txt = lbl ? lbl.firstChild.textContent : '';
+      if(lbl) lbl.firstChild.textContent = 'Subiendo…';
+      const ext = (file.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const path = `${k}-${Date.now()}.${ext}`;
+      const up = await IB.sb.storage.from('sorteo').upload(path, file, { upsert: true, contentType: file.type || 'audio/mpeg' });
+      if(lbl) lbl.firstChild.textContent = txt;
+      if(up.error) return alert('No se pudo subir: ' + up.error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-sonidos.sql?');
+      const { data } = IB.sb.storage.from('sorteo').getPublicUrl(path);
+      const sonidos = { ...((cfg || {}).sonidos || {}), [k]: data.publicUrl };
+      return saveCfg({ sonidos }, 'Sonido subido');
+    }
     const sel = e.target.closest('[data-srt-premio]'); if(!sel) return;
     const uid = sel.dataset.srtPremio, premio = sel.value;
     busy.add(uid); paint();
@@ -187,7 +218,7 @@
     }
     if(e.target.closest('[data-srt-sim]') && window.IBRuleta){
       const pid = (document.getElementById('srtSim') || {}).value;
-      return void IBRuleta.show({ premio: pid, catalogo: cat(), nombre: 'Bruno', acta: (cfg || {}).acta, test: true,
+      return void IBRuleta.show({ premio: pid, catalogo: cat(), nombre: 'Bruno', acta: (cfg || {}).acta, test: true, sonidos: (cfg || {}).sonidos,
         restantes: { entradas: Number((cfg || {}).entradas) || 3, dadas: 0 } });
     }
     if(e.target.closest('[data-srt-pub]')){

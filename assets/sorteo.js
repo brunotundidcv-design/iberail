@@ -13,7 +13,7 @@
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
   const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
-  let premio = null, publicado = false, catalogo = null, restantes = null;   // premio: id del premio, '' si ninguno
+  let premio = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno
   const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;
   const spun = () => { try{ return !!localStorage.getItem(spunKey()); }catch(e){ return false; } };
   const markSpun = () => { try{ localStorage.setItem(spunKey(), premio || '1'); }catch(e){} };
@@ -165,6 +165,7 @@
         DRAW.acta = c.data.acta || '';
         publicado = !!c.data.publicado;
         catalogo = Array.isArray(c.data.premios) && c.data.premios.length ? c.data.premios : null;
+        sonidos = c.data.sonidos || null;
         if(publicado && state === 'in'){
           const [g, rs] = await Promise.all([
             sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle(),
@@ -195,7 +196,7 @@
   async function girar(){
     if(!window.IBRuleta || !revelable()) return;
     const sb = await ensureClient();
-    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes });
+    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos });
     markSpun(); paint();
     if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
   }

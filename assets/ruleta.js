@@ -16,7 +16,8 @@
        assets/snd/premio.mp3  → al ganar cualquier premio
        assets/snd/ultra.mp3   → al ganar la entrada del Ultra (si no está, usa premio.mp3)
        assets/snd/tic.mp3     → cada vez que pasa un premio por la flecha  */
-  const SND = { premio: 'assets/snd/premio.mp3', ultra: 'assets/snd/ultra.mp3', tic: 'assets/snd/tic.mp3' };
+  const SND_DEF = { premio: 'assets/snd/premio.mp3', ultra: 'assets/snd/ultra.mp3', tic: 'assets/snd/tic.mp3' };
+  let SND = { ...SND_DEF };   // show() lo sustituye por los que haya subido el equipo
   const MUTE = 'ib-srt-mute';
   const mudo = () => { try{ return localStorage.getItem(MUTE) === '1'; }catch(e){ return false; } };
   const setMudo = v => { try{ localStorage.setItem(MUTE, v ? '1' : '0'); }catch(e){} };
@@ -79,6 +80,7 @@
       { id: 'd5', label: '5 € de descuento', n: 10, tier: 'bajo' }
     ]).map(p => ({ ...p }));
 
+    SND = { ...SND_DEF, ...(o.sonidos || {}) };   // los del panel mandan; si falta uno, el de assets/snd
     const LARGO = 64, GANA_EN = 57;                 // el premio cae en esta posición
     const { cinta, gan } = construir(catalogo, o.premio, LARGO);
     cinta[GANA_EN] = gan;
