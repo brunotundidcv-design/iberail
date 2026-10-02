@@ -1,5 +1,5 @@
 /* Iberail — sala de espera al entrar en la web (proyecto de clase).
-   Cola simulada: entre 15 y 35 personas delante y entre 45 s y 2 min 15 s de espera.
+   Cola simulada: entre 15 y 55 personas delante y entre 45 s y 4 min de espera.
    Modo demo (?cola=demo): entre 30 y 55 personas y entre 2 y 4 minutos.
    Sale una vez por visita (al pasar se apunta en sessionStorage; si recargas durante la cola, vuelves a empezar).
    Se carga en el <head> de todas las páginas públicas (no en el panel) para tapar la web antes de que se vea.
@@ -8,8 +8,8 @@
   const COLA_ON = true;
   // modo demo para la FP: iberail.com/?cola=demo (cualquier página) → cola más larga y sale siempre, aunque ya hayas pasado
   const DEMO = /[?&]cola=demo\b/.test(location.search);
-  const PERSONAS = DEMO ? [30, 55] : [15, 35];     // personas delante (mín, máx)
-  const ESPERA = DEMO ? [120, 240] : [45, 135];    // segundos de espera (mín, máx)
+  const PERSONAS = DEMO ? [30, 55] : [15, 55];     // personas delante (mín, máx)
+  const ESPERA = DEMO ? [120, 240] : [45, 240];    // segundos de espera (mín, máx)
   const ENTRA_SOLO = 6;               // segundos en «¡Es tu turno!» antes de entrar solo
   const KEY = 'ib-cola-ok';
 

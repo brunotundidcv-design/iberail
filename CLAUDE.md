@@ -46,7 +46,7 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 ## JavaScript (`assets/`)
 
 - `cola.js` — **sala de espera simulada al entrar** (proyecto de la FP; la web aún no está publicada). En el `<head>` de todas las
-  páginas públicas (no el panel), justo después de `config.js`. Entre 15 y 35 personas delante y de 45 s a 2 min 15 s de espera,
+  páginas públicas (no el panel), justo después de `config.js`. Entre 15 y 55 personas delante y de 45 s a 4 min de espera,
   tren que avanza, «¡Es tu turno!» → entra solo a los 6 s o con el botón. Una vez por visita (`sessionStorage` `ib-cola-ok`;
   recargar durante la cola la reinicia). **Modo demo** `?cola=demo`: 30–55 personas y 2–4 min, sale siempre. No sale a buscadores ni vistas previas de enlaces, ni en Zarping.
   **Quitarla cuando lo diga Bruno**: `COLA_ON = false` arriba del archivo (o borrar el archivo y las líneas `<script src="assets/cola.js">`).
