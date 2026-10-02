@@ -2,7 +2,7 @@
    Un solo motor de música que va SIN CORTES de la cuenta atrás a la ruleta y a la celebración:
    · cuenta(at)        tema de festival a 128 bpm sincronizado con la cuenta atrás: empieza cuando quedan 8:51 (INICIO_MS)
                        (intro → subida → drop → parón → drop → parón → drop → parón → subida final) y el drop final cae justo en el 0
-   · tension(nivel)    base para la ruleta: 0–.3 espera (latido lento, tic-tac), .6 girando, 1 en el frenazo
+   · tension(nivel)    la ruleta: solo tensión, sin música (zumbido grave, latido, aire): 0–.3 espera, .6 girando, 1 frenazo
    · subida(seg)       redoble + subida que acaba justo a los «seg» segundos (cuando para la cinta)
    · golpe(tipo, op)   'ultra' | 'premio' | 'nada': impacto y la música sigue (con mp3: op.t = el instante en el que
                        ruleta.js ha programado la canción; el impacto cae exactamente ahí)
@@ -256,18 +256,19 @@
       if(lb === 8 && s === 0) subidaRuido(t, COMPAS * 8 - .02, .6);
     }
   }
+  // la ruleta: SOLO tensión, sin música (decisión de Bruno): ni acordes, ni melodía, ni platillos, ni ritmo.
+  // Un zumbido grave fijo que se va abriendo, el latido que se acelera con el nivel y, girando, un aire que sube y baja.
   function pasoTension(k, t){
     const s = k % 16, b = Math.floor((k - base) / 16), lv = nivel;
     if(s === 0){
-      const ch = Math.floor(b / 2) % 2 ? 1 : 0;   // Fa menor ↔ Re♭
-      D().nota(t, MENOR.raiz[ch]); rampa(D().g.gain, .06 + lv * .12, t, .3); rampa(D().f.frequency, 240 + lv * 1500, t, .5);
-      P().acorde(t, MENOR.pad[ch]); padNivel(t, lv >= .5 ? .03 + lv * .05 : .022, 700 + lv * 2600, lv >= .5 ? .45 : 0);
+      D().nota(t, 41);   // siempre la misma nota grave: tensión, no canción
+      rampa(D().g.gain, .07 + lv * .14, t, .4); rampa(D().f.frequency, 150 + lv * 1100, t, .6);
+      if(pad) rampa(pad.g.gain, 0, t, .5);   // si venía del tema de la cuenta atrás, sus acordes se apagan
     }
     const cadaLat = lv >= .85 ? 4 : lv >= .5 ? 8 : 16;
     if(s % cadaLat === 0) latido(t, .45 + lv * .45);
-    if(lv >= .3) charles(t, (s % 4 === 2 ? .05 : .018) + lv * .04, false); else if(s % 4 === 2) charles(t, .025, false);
-    if(lv >= .6 && s % 8 === 4) tom(t, .25 + lv * .2);
-    if(lv >= .5 && s % 8 === 0){ const n = [72, 73][Math.floor(b / 2) % 2 ? 1 : 0]; campana(t, n + 12, .03 + lv * .02); }
+    if(lv >= .5 && s === 0 && b % 2 === 0) soplo(t, 'bandpass', 600, .025 + lv * .05, COMPAS * 2, B.fx, 2400 + lv * 2600, 3, COMPAS);   // aire que sube
+    if(lv >= .85 && s === 8) osc('sine', 55, t, NEGRA * 2, .18, B.fx, 40, NEGRA);   // retumbo grave en el frenazo
   }
   function pasoFiesta(k, t, ligera){
     const s = k % 16, b = Math.floor((k - base) / 16), ch = b % 4;

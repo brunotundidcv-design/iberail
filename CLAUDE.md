@@ -123,6 +123,9 @@ Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit de
   se abre en los últimos 7 s y al acabar las repeticiones bajan solas en ~5 s). Con su canción, en el 0 no entra ninguna
   música de la web. Si el servidor no deja pasar el audio por Web Audio (CORS), suena igual pero sin eco.
   Sin canción subida, suena el tema propio (se estira solo: intro + subida, 3 drops con parones y subida final; drop en el 0).
+  **Mientras gira la ruleta: solo tensión, sin música** (decisión de Bruno; `pasoTension` en `musica.js`): zumbido grave
+  fijo que se abre, latido que se acelera, aire que sube y retumbo al frenar, más el clic de la cinta y el redoble final.
+  Ni acordes, ni melodía, ni platillos, ni ritmo. Al ganar, entra la canción del panel con el golpe.
   **Panel** (pestaña Sorteo): fecha y hora, nº de entradas, acta, catálogo de premios con cantidades, un
   **desplegable por persona** para asignarle su premio, simulación de lo que verá (elige premio, no cuenta) y
   «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.
