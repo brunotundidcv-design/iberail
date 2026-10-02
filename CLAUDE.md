@@ -104,6 +104,8 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   el sorteo se celebra fuera de la web; el equipo asigna en el panel qué le ha tocado a cada uno y publica.
   A partir de la hora, cada inscrito ve «Abrir mi premio» y una **cinta horizontal estilo caja** (flecha fija en el
   centro, 64 huecos, frena en 6,2 s con un pequeño descentrado) que para en su premio, con confeti si gana.
+  **Si no toca, no hay «casi» forzados** (decisión de Bruno): para cerca del centro de la pieza, nunca al borde, y sin
+  ninguna entrada del Ultra a ±6 huecos del resultado (`construir` en `ruleta.js`).
   En la cinta **solo salen premios que existen de verdad** (decisión consciente: nada de premios imposibles) más
   huecos «Sigue en el sorteo». Catálogo por defecto: 3 entradas Ultra, 300 €, 2×100 €, 3×50 €, 5 bonos de copas,
   5×25 €, 10×5 €. Arriba, contador en directo «quedan X de N entradas por salir» (RPC `sorteo_restantes`).

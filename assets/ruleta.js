@@ -225,8 +225,8 @@
   const icono = p => p.id === 'copas' ? '🍹' : (ICON[p.tier] || '🎲');
 
   // la cinta: muchos huecos repartidos según las cantidades reales del catálogo.
-  // Alrededor de donde para se colocan las piezas para que haya tensión hasta el final:
-  // si toca el Ultra, justo antes no hay ninguno (no se ve venir); si no toca, el Ultra queda justo detrás («casi»).
+  // Alrededor de donde para: si toca el Ultra, justo antes no hay ninguno (no se ve venir);
+  // si no toca, no hay ningún Ultra cerca (nada de «casi» forzados: si no toca, no toca).
   function construir(catalogo, gan, largo, en){
     const pool = [];
     catalogo.forEach(p => { for(let i = 0; i < Math.max(1, Number(p.n) || 1); i++) pool.push(p); });
@@ -237,10 +237,10 @@
     const top = catalogo.find(p => p.tier === 'top'), otros = catalogo.filter(p => p.tier !== 'top');
     const otro = () => otros.length && Math.random() < .6 ? otros[Math.floor(Math.random() * otros.length)] : NADA;
     if(top && gan.tier === 'top') for(let i = en - 14; i < en; i++) if(cinta[i] && cinta[i].tier === 'top') cinta[i] = otro();
+    if(top && gan.tier !== 'top') for(let i = en - 6; i <= en + 6; i++) if(cinta[i] && cinta[i].tier === 'top') cinta[i] = otro();
     cinta[en] = gan;
     cinta[en - 1] = otro();
-    cinta[en + 1] = top && gan.tier !== 'top' ? top : otro();
-    if(top && gan.tier !== 'top') cinta[en - 3] = top;   // pasa uno por delante poco antes de frenar
+    cinta[en + 1] = otro();
     return cinta;
   }
 
@@ -365,8 +365,8 @@
         el.classList.add('is-tense');
         if(b){ b.tension(1); b.subida((PAUSA + T2) / 1000); } else if(!r) latido();
         if(!r){ vibrar(40); await espera(PAUSA); }
-        // fase 2 (~3 s): avanza muy despacio hasta el resultado (si no toca, se queda pegada al Ultra)
-        const fin = gan.id ? .5 + (Math.random() - .5) * .3 : .8 + Math.random() * .12;
+        // fase 2 (~3 s): avanza muy despacio hasta el resultado, siempre cerca del centro de la pieza (toque o no)
+        const fin = .5 + (Math.random() - .5) * .3;
         await mover(xDe(GANA_EN, fin), T2, 'cubic-bezier(.45,0,.2,1)');
         vivo = false;
         if(!el.isConnected) return;
