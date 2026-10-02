@@ -126,8 +126,35 @@
       if(hecho) return;
       capa = document.createElement('div');
       capa.className = 'ru' + (r ? ' is-calm' : '');
-      capa.setAttribute('role', 'dialog'); capa.setAttribute('aria-modal', 'true'); capa.setAttribute('aria-label', '¡Te ha tocado una entrada para el Ultra Europe 2027!');
-      capa.innerHTML = `
+      capa.setAttribute('role', 'dialog'); capa.setAttribute('aria-modal', 'true');
+      const psc = op.psc && op.psc.euros ? op.psc : null;   // Paysafecard: la misma fiesta, con su tarjeta
+      capa.setAttribute('aria-label', psc ? `¡Te ha tocado una tarjeta Paysafecard de ${psc.euros} €!` : '¡Te ha tocado una entrada para el Ultra Europe 2027!');
+      if(psc) capa.classList.add('is-psc');
+      capa.innerHTML = psc ? `
+        <div class="ru-rays" aria-hidden="true"></div>
+        <div class="ru-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="ru-in">
+          ${op.test ? '<span class="ru-test">Simulación · no cuenta</span>' : ''}
+          <span class="ru-k">🎉 Sorteo Iberail · ¡Te ha tocado! 🎉</span>
+          <h2 class="ru-h" aria-label="¡${psc.euros} € para ti!"><span class="ru-row">${letras('¡' + psc.euros + ' €')}</span> <span class="ru-row">${letras('PARA TI!')}</span></h2>
+          <div class="ru-tk-wrap" data-ru-tilt>
+            <div class="ru-tk ru-tk--psc">
+              <div class="ru-tk-main">
+                <span class="ru-tk-k">Tarjeta prepago · Premio del sorteo</span>
+                <b class="ru-tk-t">Paysafecard</b>
+                <span class="ru-tk-y">${esc(psc.euros)} €</span>
+                <div class="ru-tk-meta"><span><small>Te llega</small>Código por WhatsApp</span><span><small>Úsala</small>Para pagar online</span></div>
+                ${nombre ? `<span class="ru-tk-who"><small>Para</small>${esc(nombre)}</span>` : ''}
+              </div>
+              <div class="ru-tk-stub" aria-hidden="true"><span>💳</span></div>
+              <i class="ru-holo" aria-hidden="true"></i>
+            </div>
+          </div>
+          <p class="ru-p">Enhorabuena${nombre ? ', <b>' + esc(nombre) + '</b>' : ''}. Tu tarjeta <b>Paysafecard de ${esc(psc.euros)} €</b> es tuya. Te mandamos el código por WhatsApp.</p>
+          <div class="ru-acts">
+            <button type="button" class="ru-ok" data-ru-ok>¡Vamos! 🎉</button>
+          </div>
+        </div>` : `
         <div class="ru-rays" aria-hidden="true"></div>
         <div class="ru-rings" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="ru-in">

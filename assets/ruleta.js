@@ -198,9 +198,9 @@
   }
   function golpeFinal(gan){
     const b = BANDA(), a = ctx(), t = a ? a.currentTime + .03 : 0;
-    if(!b){ if(gan.id) fanfarria(gan.tier === 'top', t); else pena(); return; }
+    if(!b){ if(gan.id) fanfarria(epico(gan), t); else pena(); return; }
     if(!gan.id){ b.golpe('nada'); pena(); return; }
-    const top = gan.tier === 'top';
+    const top = epico(gan);                          // Ultra y Paysafecard: la canción del Ultra
     const conMp3 = cancionGanar(top, t);
     b.golpe(top ? 'ultra' : 'premio', { conMp3, t });
   }
@@ -226,6 +226,10 @@
   const NADA = { id: '', label: 'Sigue en el sorteo', tier: 'nada' };
   const ICON = { top: '🎟️', alto: '💶', medio: '🍹', bajo: '💶', nada: '🎲' };
   const icono = p => p.id === 'copas' ? '🍹' : /^psc/.test(p.id || '') ? '💳' : (ICON[p.tier] || '🎲');
+  // Paysafecard: suena la canción del Ultra, la cinta hace como que no toca nada (y toca) y la celebración es a pantalla completa
+  const esPsc = p => /^psc/.test((p && p.id) || '');
+  const epico = p => !!p && (p.tier === 'top' || esPsc(p));
+  const euros = p => Number(String(p.id).replace(/\D/g, '')) || Number((String(p.label).match(/\d+/) || [])[0]) || 0;
 
   // la cinta: muchos huecos repartidos según las cantidades reales del catálogo.
   // Alrededor de donde para: si toca el Ultra, justo antes no hay ninguno (no se ve venir);
@@ -244,6 +248,7 @@
     cinta[en] = gan;
     cinta[en - 1] = otro();
     cinta[en + 1] = otro();
+    if(esPsc(gan)){ cinta[en - 1] = NADA; cinta[en - 2] = NADA; cinta[en + 1] = NADA; }   // para en «nada»… y salta al premio
     return cinta;
   }
 
@@ -373,25 +378,45 @@
         // pausa con latido… y una subida con redoble que acaba justo cuando para la cinta
         head.textContent = '¿Y…?';
         el.classList.add('is-tense');
-        if(b){ b.tension(1); b.subida((PAUSA + T2) / 1000); } else if(!r) latido();
+        if(b){ b.tension(1); if(!esPsc(gan) || r) b.subida((PAUSA + T2) / 1000); } else if(!r) latido();   // con Paysafecard la subida va en el tirón
         if(!r){ vibrar(40); await espera(PAUSA); }
         // fase 2 (~3 s): avanza muy despacio hasta el resultado, siempre cerca del centro de la pieza (toque o no)
         const fin = .5 + (Math.random() - .5) * .3;
-        await mover(xDe(GANA_EN, fin), T2, 'cubic-bezier(.45,0,.2,1)');
+        if(esPsc(gan) && !r){
+          // Paysafecard: se queda clavada en «Sigue en el sorteo» como si no tocara nada… y de golpe salta al premio
+          const fuerte = gan.id === 'psc25';            // la de 25 €, la más engañosa: hasta suena a que no ha tocado
+          await mover(xDe(GANA_EN - 1, .5), 900, 'cubic-bezier(.3,0,.2,1)');
+          if(!el.isConnected){ vivo = false; return; }
+          el.classList.remove('is-tense'); el.classList.add('is-fake');
+          acts.innerHTML = '<span class="rul-wait">&nbsp;</span>';   // sin «Girando…»: tiene que parecer que ya ha parado
+          head.textContent = fuerte ? 'Esta vez no ha salido premio' : 'Vaya…';
+          par.textContent = fuerte ? 'Sigues dentro para las siguientes tandas…' : 'Uf, se ha quedado en «Sigue en el sorteo»…';
+          if(b) b.golpe('nada');
+          if(fuerte) pena();
+          await espera(fuerte ? 2700 : 2000);
+          if(!el.isConnected){ vivo = false; return; }
+          el.classList.remove('is-fake'); el.classList.add('is-tense', 'is-jolt');
+          head.textContent = '¡¡ESPERA!!'; par.textContent = '';
+          vibrar([70, 40, 70, 40, 140]);
+          if(b){ b.tension(1); b.subida(1.3); } else latido();
+          await mover(xDe(GANA_EN, fin), 1300, 'cubic-bezier(.25,1.45,.45,1)');   // tirón con un poco de rebote
+          el.classList.remove('is-jolt');
+        } else await mover(xDe(GANA_EN, fin), T2, 'cubic-bezier(.45,0,.2,1)');
         vivo = false;
         if(!el.isConnected) return;
 
         el.classList.remove('is-spin', 'is-tense'); el.classList.add(gan.id ? 'is-win' : 'is-lose');
-        if(gan.tier === 'top') el.classList.add('is-top');
+        if(epico(gan)) el.classList.add('is-top');
         track.children[GANA_EN].classList.add('is-got');
         const quedanT = N - actual;
         if(o.onTirada) try{ o.onTirada(actual, gan); }catch(e){}
         if(gan.id){
           prizeEl.innerHTML = `<span class="rul-prize-i">${icono(gan)}</span><b>${esc(gan.label)}</b>`;
           prizeEl.className = `rul-prize is-${esc(gan.tier)}`; prizeEl.hidden = false;
-          head.innerHTML = gan.tier === 'top' ? '¡Te vas al Ultra!' : '¡Te ha tocado!';
+          head.innerHTML = gan.tier === 'top' ? '¡Te vas al Ultra!' : esPsc(gan) ? `¡¡${euros(gan)} € para ti!!` : '¡Te ha tocado!';
           par.innerHTML = gan.id === 'entrada'
             ? `Enhorabuena${coma}. Te escribimos por WhatsApp con los detalles de tu entrada para el Ultra Europe.`
+            : esPsc(gan) ? `Enhorabuena${coma}. Te mandamos el código de tu tarjeta Paysafecard de ${euros(gan)} € por WhatsApp.`
             : `Enhorabuena${coma}. Te lo aplicamos en tu viaje con nosotros: te escribimos por WhatsApp para dejártelo apuntado.`;
           golpeFinal(gan);
         } else {
@@ -408,8 +433,8 @@
         const F = window.IBFiesta;
         if(gan.id && F){
           if(fx && fx.fin) fx.fin();
-          fx = gan.tier === 'top'
-            ? F.ultra(el, { nombre, test: o.test, onCerrar: () => { fx = null; } })
+          fx = epico(gan)
+            ? F.ultra(el, { nombre, test: o.test, psc: esPsc(gan) ? { euros: euros(gan) } : null, onCerrar: () => { fx = null; } })
             : F.premio(el, { tier: gan.tier, item: track.children[GANA_EN] });
         }
       }

@@ -153,6 +153,12 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   (`ib-srt-hist-<uid>` = `{fecha: {tanda, premio, tirada, tiradas, catalogo}}`; se rellena al abrir el premio, de
   `ib-srt-tir-…`/`ib-srt-visto-…` y de su fila de `sorteo_ganadores` mientras exista). `PASADOS` = fecha → nº de sorteo.
   Si abrió el premio en otro dispositivo y ya se han borrado los premios, en ese dispositivo no sale.
+  **Paysafecard al ganar** (`esPsc`/`epico` en `ruleta.js`): suena la **canción del Ultra** (`cancionGanar(true)`, golpe 'ultra') y la
+  celebración es la de pantalla completa (`IBFiesta.ultra(el, { psc: { euros } })`: «¡25 € PARA TI!» + tarjeta azul `.ru-tk--psc`,
+  sin botón de compartir). La cinta **hace como que no toca**: alrededor del premio solo hay «Sigue en el sorteo», se queda
+  clavada en el de antes (`.is-fake`, «Vaya…» 2 s) y da un tirón con rebote al premio («¡¡ESPERA!!», `.is-jolt`). Con **psc25**
+  el engaño es completo: «Esta vez no ha salido premio» + el sonido de perder durante 2,7 s. (Esto es solo para cuando sí toca;
+  cuando no toca sigue sin haber «casi» forzados.)
   SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):

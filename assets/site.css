@@ -3777,6 +3777,18 @@ body.srt-lock{overflow:hidden}
 .ru-tk-stub::before,.ru-tk-stub::after{content:"";position:absolute;left:-15px;width:28px;height:28px;border-radius:50%;background:#1F1109}
 .ru-tk-stub::before{top:-14px}.ru-tk-stub::after{bottom:-14px}
 .ru-holo{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.75) 46%,rgba(255,240,200,.25) 52%,transparent 64%);background-size:250% 100%;background-position:var(--hx) 0;mix-blend-mode:soft-light;animation:ruHolo 3.2s 1.8s ease-in-out infinite}
+/* Paysafecard: la misma fiesta del Ultra, con una tarjeta azul en vez de la entrada dorada */
+.ru-tk--psc{background:linear-gradient(120deg,#0A2A55 0%,#0F4C9A 35%,#1C7FD6 68%,#3FB6F0 100%);color:#fff;box-shadow:0 40px 90px -25px rgba(0,0,0,.85),0 0 90px rgba(63,182,240,.5),inset 0 2px 0 rgba(255,255,255,.35)}
+.ru-tk--psc .ru-tk-t{letter-spacing:-.03em}
+.ru-tk--psc .ru-tk-y{color:#FFD66B;font-size:clamp(2.6rem,7vw,4.4rem);font-weight:800;letter-spacing:-.04em;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.ru-tk--psc .ru-tk-meta{border-top-color:rgba(255,255,255,.35)}
+.ru-tk--psc .ru-tk-stub{border-left-color:rgba(255,255,255,.4)}
+/* la cinta hace como que no ha tocado… y tira hacia el premio */
+.rul.is-fake .rul-rail{filter:saturate(.35) brightness(.8);transition:filter .5s}
+.rul.is-fake .rul-h{color:rgba(255,243,220,.7)}
+.rul.is-jolt .rul-box{animation:fxShakeJolt .5s ease-in-out}
+@keyframes fxShakeJolt{0%,100%{transform:none}20%{transform:translateX(-7px) rotate(-.4deg)}40%{transform:translateX(7px) rotate(.4deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){.rul.is-jolt .rul-box{animation:none}}
 @keyframes ruHolo{0%{background-position:120% 0}60%,100%{background-position:-60% 0}}
 .ru-p{margin:0;max-width:48ch;font-size:clamp(1rem,1.9vw,1.3rem);line-height:1.5;color:rgba(255,243,220,.88);animation:ruUp .7s 1.6s both}
 .ru-p b{color:#FFE39A}
