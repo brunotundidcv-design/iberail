@@ -1,19 +1,22 @@
 /* Iberail — sala de espera al entrar en la web (proyecto de clase).
    Cola simulada: entre 15 y 35 personas delante y entre 45 s y 2 min 15 s de espera.
+   Modo demo (?cola=demo): entre 30 y 55 personas y entre 2 y 4 minutos.
    Sale una vez por visita (al pasar se apunta en sessionStorage; si recargas durante la cola, vuelves a empezar).
    Se carga en el <head> de todas las páginas públicas (no en el panel) para tapar la web antes de que se vea.
    PARA QUITARLA: pon COLA_ON a false (o borra este archivo y las líneas <script src="assets/cola.js">). */
 (function(){
   const COLA_ON = true;
-  const PERSONAS = [15, 35];          // personas delante (mín, máx)
-  const ESPERA = [45, 135];           // segundos de espera (mín, máx)
+  // modo demo para la FP: iberail.com/?cola=demo (cualquier página) → cola más larga y sale siempre, aunque ya hayas pasado
+  const DEMO = /[?&]cola=demo\b/.test(location.search);
+  const PERSONAS = DEMO ? [30, 55] : [15, 35];     // personas delante (mín, máx)
+  const ESPERA = DEMO ? [120, 240] : [45, 135];    // segundos de espera (mín, máx)
   const ENTRA_SOLO = 6;               // segundos en «¡Es tu turno!» antes de entrar solo
   const KEY = 'ib-cola-ok';
 
   if(!COLA_ON) return;
   if(/zarping/i.test(location.hostname) || (window.IBERAIL_CONFIG || {}).MARCA === 'zarping') return;
   if(/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|twitterbot|linkedin|embedly|lighthouse/i.test(navigator.userAgent)) return;   // buscadores y vistas previas de enlaces pasan directos
-  try{ if(sessionStorage.getItem(KEY)) return; }catch(e){ return; }
+  try{ if(!DEMO && sessionStorage.getItem(KEY)) return; }catch(e){ return; }
 
   const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
