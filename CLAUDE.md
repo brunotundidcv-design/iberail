@@ -144,9 +144,10 @@ Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit de
   aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
-- `demos/cola.html` — **maqueta** de sala de espera para vídeos y proyectos de Bruno (2-31 personas delante, 50 s - 2 min,
-  `?n=23&t=95` para tomas iguales, tecla R repite). **No es parte de la web**: no se enlaza, no va en el zip y `_redirects`
-  la bloquea (`/demos/*` → 404). No conectarla a la web real.
+- `cola-demo.js` — sala de espera de **demostración** para vídeos y proyectos de Bruno (2-31 personas delante, 50 s - 2 min,
+  tren que avanza, «¡Es tu turno!» y se abre la página). **Solo sale con `?cola` en el enlace** (`iberail.com/?cola`,
+  `?cola=23-95` para tomas iguales, tecla R repite; el `?cola` se quita de la barra). La carga un `<script>` del `<head>`
+  de cada página pública (no el panel). **No activarla para todos los visitantes** (decisión tomada: sería engañar).
 
 ## Supabase
 
