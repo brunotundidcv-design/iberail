@@ -126,7 +126,8 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   Solo en los 3 días previos al sorteo y una vez al día por visitante (`ib-srt-tk-<fecha>-<día>` en localStorage).
   En iPhone (WebKit) los rayos animados tapaban el texto del aviso: `.srtk-in`/`.srtk-art` van en su propia capa (z-index + translateZ).
   **Llegar a la cuenta atrás** (`sorteo.html`): reloj en directo en la barra de arriba (`.srtbar-cd`, botón «Cuenta atrás») y en
-  «Sorteo 🎟️» del menú del móvil (`.mm-srt-cd`), de 3 días antes a 12 h después (`reloj()` en `sorteo.js`); el «Nuevo» de la
+  «Sorteo 🎟️» del menú del móvil (`.mm-srt-cd`) y botón flotante abajo en el centro (`.srt-fl`, sube sobre la `.mbar` en móvil),
+  de 3 días antes a 12 h después (`reloj()` en `sorteo.js`; en ese tiempo la barra no tiene ✕); el «Nuevo» de la
   portada y «Ver la cuenta atrás» del apartado `#sorteo` llevan a `sorteo.html`; enlace corto `iberail.com/cuenta-atras` (`_redirects`).
   **Fecha del próximo sorteo**: constante `DRAW = { fecha, entradas }` arriba de `sorteo.js` (vacía = «muy pronto»).
   Rellena `[data-srt-when]` y `[data-srt-tag]` de la portada, la barra de arriba y la tarjeta de la cuenta

@@ -3,7 +3,8 @@
      sorteo_inscritos (archivo 12-sorteo.sql). Sin cuenta, el botón lleva a crearla y, al entrar,
      queda inscrito solo (ya lo había pedido).
    · Barra de anuncio arriba del todo (SORTEO_BAR = false para quitarla).
-   · Reloj del sorteo (cuenta atrás → sorteo.html) en la barra y en «Sorteo» del menú del móvil: desde 3 días antes hasta 12 h después.
+   · Reloj del sorteo (cuenta atrás → sorteo.html) en la barra, en «Sorteo» del menú del móvil y en un botón flotante abajo
+     en el centro: desde 3 días antes hasta 12 h después. En ese tiempo la barra no se puede cerrar.
    · Cartel para stories de Instagram (participación extra): se dibuja en el navegador (1080×1920). */
 (function(){
   const IB = window.IB, C = window.IBERAIL_CONFIG || {};
@@ -305,9 +306,17 @@
     if(pagSorteo) return;
     const mm = document.querySelector('.mm-links a[href="sorteo.html"]');
     if(mm && !mm.querySelector('[data-srt-cd]')) mm.querySelector('svg').insertAdjacentHTML('beforebegin', '<b class="mm-srt-cd" data-srt-cd hidden></b>');
+    if(!document.querySelector('.srt-fl')){
+      const a = document.createElement('a');
+      a.className = 'srt-fl'; a.href = 'sorteo.html'; a.hidden = true;
+      a.innerHTML = '<span class="srt-fl-tk" aria-hidden="true">🎟️</span><span class="srt-fl-t">Cuenta atrás del sorteo</span><b data-srt-cd></b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      document.body.appendChild(a);
+    }
     const tick = () => {
       const on = enVentana(), t = on ? cdTxt() : '';
       document.querySelectorAll('[data-srt-cd]').forEach(x => { x.textContent = t; x.hidden = !on; });
+      const fl = document.querySelector('.srt-fl');
+      if(fl){ fl.hidden = !on; fl.querySelector('.srt-fl-t').textContent = t === '¡Ya!' ? '¡Sorteo ahora!' : 'Cuenta atrás del sorteo'; }
       document.documentElement.classList.toggle('srt-cd-on', on);
     };
     tick(); setInterval(tick, 1000);
