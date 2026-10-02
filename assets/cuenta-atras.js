@@ -3,14 +3,15 @@
        at       fecha/hora del sorteo (Date) · musica  url del mp3 del panel (si no hay, el tema de assets/musica.js)
        estado   función que devuelve el HTML de debajo (participar, tiradas…), se repinta cuando cambia
    · IBCuenta.simular({ segundos, musica, onZero })  →  la abre encima de todo (panel)
-   La música empieza a falta de 6 minutos (IBBanda.INICIO_MS) y NO se corta en el 0: el tema hace el drop final y
+   La música y el modo final empiezan cuando quedan 9:25 (IBBanda.INICIO_MS, en assets/musica.js) y NO se corta en el 0: el tema hace el drop final y
    pasa solo a la base de tensión de la ruleta (assets/musica.js). El navegador no deja sonar nada hasta que la
    persona toca la página: por eso el botón grande de «Activar sonido» (cualquier toque en la página también vale).
    Una vez activado, el botón desaparece: en el sorteo no hay opción de silenciar (decisión de Bruno).
    Con un mp3 subido, va sincronizado con la cuenta atrás (su final cae en el 0) y en el 0 entra la base de tensión. */
 (function(){
-  const FINAL = 5 * 60 * 1000;   // modo final (visual)
-  const MUSICA = (window.IBBanda && IBBanda.INICIO_MS) || 6 * 60 * 1000;   // desde aquí suena la música
+  const MUSICA = (window.IBBanda && IBBanda.INICIO_MS) || (9 * 60 + 26) * 1000;   // desde aquí suena la música (el reloj marca 9:25)
+  const FINAL = MUSICA;   // y a la vez entra el modo final (visual)
+  const minTxt = ms => { const x = Math.floor(ms / 1000) - 1; return `${Math.floor(x / 60)}:${pad(x % 60)}`; };   // 566 000 → «9:25»
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pad = n => String(n).padStart(2, '0');
   try{ localStorage.removeItem('ib-srt-snd'); }catch(e){}   // preferencia del antiguo botón de silencio
@@ -41,7 +42,7 @@
       const enMusica = rest > 0 && rest <= MUSICA;
       sndB.hidden = son || !(rest > 0 && rest <= MUSICA + 10 * 60 * 1000);   // solo para activarlo; no se puede quitar
       sndB.classList.toggle('is-pulse', enMusica);
-      put(sndB, enMusica ? '🔊 Activa el sonido para vivir el final' : '🔊 Activa el sonido: la música empieza a falta de 6 minutos');
+      put(sndB, enMusica ? '🔊 Activa el sonido para vivir el final' : `🔊 Activa el sonido: la música empieza cuando queden ${minTxt(MUSICA)}`);
     }
 
     /* ---------- mp3 del panel ---------- */
@@ -50,7 +51,7 @@
       const step = () => { const x = Math.min(1, (performance.now() - t0) / ms); try{ a.volume = from + (to - from) * x; }catch(e){} if(x < 1) requestAnimationFrame(step); else if(to === 0) a.pause(); };
       requestAnimationFrame(step);
     }
-    // ventana del mp3: si dura 6 min o más, su final cae en el 0; si dura menos, empieza cuando falta lo que dura
+    // ventana del mp3: si dura 9:25 o más, su final cae en el 0; si dura menos, empieza cuando falta lo que dura
     const ventanaMp3 = () => { const d = mp3 && mp3.duration; return d && isFinite(d) ? Math.min(MUSICA, d * 1000) : MUSICA; };
     function sincronizar(){
       if(!mp3) return; const d = mp3.duration; if(!d || !isFinite(d)) return;
@@ -128,7 +129,7 @@
         : rest <= 0 ? 'Entra en tu cuenta y abre tu premio.'
         : rest <= 10000 ? '¡Allá vamos!'
         : rest <= 60000 ? 'Último minuto. Que nadie se mueva.'
-        : rest <= FINAL ? 'Recta final: quedan menos de 5 minutos'
+        : rest <= FINAL ? `Recta final: quedan menos de ${Math.ceil(FINAL / 60000)} minutos`
         : 'para descubrir quién se lleva las entradas');
       pintarSnd(rest);
       if(o.estado) put(st, o.estado(rest));

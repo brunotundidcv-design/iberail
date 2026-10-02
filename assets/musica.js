@@ -1,7 +1,7 @@
 /* Iberail — banda sonora del sorteo «Split 2027» (Web Audio, todo generado por código: sin derechos de autor)
    Un solo motor de música que va SIN CORTES de la cuenta atrás a la ruleta y a la celebración:
-   · cuenta(at)        tema de festival a 128 bpm sincronizado con la cuenta atrás: empieza a falta de 6 min
-                       (intro → subida → drop → parón → drop → parón → subida final) y el drop final cae justo en el 0
+   · cuenta(at)        tema de festival a 128 bpm sincronizado con la cuenta atrás: empieza cuando quedan 9:25 (INICIO_MS)
+                       (intro → subida → drop → parón → drop → parón → drop → parón → subida final) y el drop final cae justo en el 0
    · tension(nivel)    base para la ruleta: 0–.3 espera (latido lento, tic-tac), .6 girando, 1 en el frenazo
    · subida(seg)       redoble + subida que acaba justo a los «seg» segundos (cuando para la cinta)
    · golpe(tipo, op)   'ultra' | 'premio' | 'nada': impacto y la música sigue (con mp3: op.t = el instante en el que
@@ -12,8 +12,11 @@
    En móviles los altavoces no dan graves: bombos, latidos y golpes llevan también «cuerpo» en medios. */
 (function(){
   const BPM = 128, NEGRA = 60 / BPM, S16 = NEGRA / 4, COMPAS = NEGRA * 4;
-  const CUENTA_COMPASES = 192;                                // 192 compases a 128 bpm = 6 minutos
-  const VENTANA_MS = CUENTA_COMPASES * COMPAS * 1000;         // 360 000 ms
+  // la música (y el modo final de la cuenta atrás) empieza cuando el reloj pasa a 9:25 (decisión de Bruno).
+  // Para cambiarlo, solo esta línea: la canción se estira sola (el intro se queda con lo que sobre).
+  const INICIO_MS = (9 * 60 + 26) * 1000;                     // 566 000 ms: en cuanto quedan menos de 9:26, el reloj marca 9:25
+  const CUENTA_COMPASES = Math.ceil(INICIO_MS / (COMPAS * 1000));   // 302 compases a 128 bpm (empieza a mitad del primero)
+  const VENTANA_MS = CUENTA_COMPASES * COMPAS * 1000;         // la rejilla: el 0 cae justo al empezar un compás
   const PASO_CERO = CUENTA_COMPASES * 16;
   const VOL = .78;
   const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -181,15 +184,15 @@
   function padNivel(t, v, corte, trem){ const p = P(); rampa(p.g.gain, v, t, .25); rampa(p.f.frequency, corte, t, .4); rampa(p.lfoG.gain, trem || 0, t, .3); }
 
   /* ======================= la canción ======================= */
-  function secCuenta(k){
-    const rest = CUENTA_COMPASES - Math.floor(k / 16);   // compases que quedan (incluido este)
-    if(rest > 160) return ['intro', 32 - (rest - 160)];
-    if(rest > 128) return ['subida', 32 - (rest - 128)];
-    if(rest > 96) return ['dropA', 32 - (rest - 96)];
-    if(rest > 64) return ['pausa', 32 - (rest - 64)];
-    if(rest > 32) return ['dropB', 32 - (rest - 32)];
-    if(rest > 16) return ['pausa2', 16 - (rest - 16)];
-    return ['final', 16 - rest];
+  // secciones desde el final del intro hasta el 0 (en compases); el intro se queda con el resto
+  const SECS = [['subida', 32], ['dropA', 48], ['pausa', 32], ['dropB', 48], ['pausa', 32], ['dropC', 32], ['pausa2', 16], ['final', 16]];
+  const INTRO = Math.max(8, CUENTA_COMPASES - SECS.reduce((a, x) => a + x[1], 0));
+  function secCuenta(k){   // → [sección, compás dentro de ella, largo de la sección]
+    let b = Math.floor(k / 16) - (CUENTA_COMPASES - INTRO - SECS.reduce((a, x) => a + x[1], 0));
+    if(b < INTRO) return ['intro', Math.max(0, b), INTRO];
+    b -= INTRO;
+    for(const [n, l] of SECS){ if(b < l) return [n, b, l]; b -= l; }
+    return ['final', 15, 16];
   }
   // redoble que se acelera en los últimos compases de una subida (lb: compás dentro de la subida de «largo» compases)
   function redoble(t, s, lb, largo, vmax){
@@ -219,9 +222,9 @@
       else { modo = 'tension'; nivel = Math.min(nivel || .25, .3); base = k; pasoTension(k, t); }
       return;
     }
-    const [sec, lb] = secCuenta(k), b = Math.floor(k / 16), ch2 = Math.floor(b / 2) % 4, ch1 = b % 4;
+    const [sec, lb, largo] = secCuenta(k), b = Math.floor(k / 16), ch2 = Math.floor(b / 2) % 4, ch1 = b % 4;
     if(sec === 'intro'){
-      if(s === 0 && lb % 2 === 0){ P().acorde(t, MENOR.pad[ch2]); padNivel(t, .04 + lb * .0012, 700 + lb * 30, 0); }
+      if(s === 0){ P().acorde(t, MENOR.pad[ch2]); padNivel(t, .04 + Math.min(lb, 40) * .0012, 700 + Math.min(lb, 40) * 30, 0); }
       if(s === 0) rampa(B.drumF.frequency, 900 + lb * 160, t, COMPAS);
       if(s % 4 === 0) bombo(t, .55 + lb * .005);
       if(lb >= 16 && s % 4 === 2) charles(t, .05, true);
@@ -234,16 +237,15 @@
       if(lb >= 16 && s % 2 === 0){ const n = MENOR.gancho[ch1][s / 2]; if(n) pluck(t, n, .06, .35 + lb / 60); }
       redoble(t, s, lb, 32, .4);
       if(lb === 28 && s === 0) subidaRuido(t, COMPAS * 4, .5);
-    } else if(sec === 'dropA' || sec === 'dropB'){
+    } else if(sec === 'dropA' || sec === 'dropB' || sec === 'dropC'){
       if(lb === 0 && s === 0){ impacto(t, false); rampa(B.drumF.frequency, 18000, t, .05); }
-      drop(t, k, s, b, MENOR, sec === 'dropB' ? 1 : .9, sec === 'dropB' && lb >= 16);
+      drop(t, k, s, b, MENOR, sec === 'dropA' ? .9 : 1, lb >= largo - 16);   // los últimos 16 compases, una octava arriba
     } else if(sec === 'pausa' || sec === 'pausa2'){
-      const largo = sec === 'pausa' ? 32 : 16;
       if(s === 0 && lb % 2 === 0){ P().acorde(t, MENOR.pad[ch2]); padNivel(t, .065, 1100 + lb * 20, 0); }
       if(s % 4 === 0){ const n = MENOR.gancho[ch2][s / 2]; if(n) campana(t, n, .07); }
-      if(sec === 'pausa' && lb >= 16 && s === 0) latido(t, .45);
+      if(sec === 'pausa' && lb >= largo / 2 && s === 0) latido(t, .45);
       if(sec === 'pausa2' && s % 8 === 0) latido(t, .4 + lb * .02);
-      if(sec === 'pausa'){ redoble(t, s, lb, largo, .35); if(lb === 28 && s === 0) subidaRuido(t, COMPAS * 4, .45); if(lb >= 24 && s % 4 === 0) bombo(t, .5 + (lb - 24) * .05); }
+      if(sec === 'pausa'){ redoble(t, s, lb, largo, .35); if(lb === largo - 4 && s === 0) subidaRuido(t, COMPAS * 4, .45); if(lb >= largo - 8 && s % 4 === 0) bombo(t, .5 + (lb - largo + 8) * .05); }
     } else {   // final: 16 compases (30 s) de subida hasta el 0
       if(s === 0){ P().acorde(t, MENOR.pad[ch1]); padNivel(t, .06 + lb * .003, 1500 + lb * 300, lb >= 12 ? .35 : 0); rampa(B.drumF.frequency, 18000, t, .1); }
       if(lb < 8 ? s % 4 === 0 : (lb < 12 ? s % 4 === 0 : false)) bombo(t, .7 + lb * .015);
@@ -312,7 +314,7 @@
       const empieza = Math.max(ac.currentTime, ancla);
       B.master.gain.cancelScheduledValues(ac.currentTime); B.master.gain.setValueAtTime(B.master.gain.value, ac.currentTime);
       B.master.gain.linearRampToValueAtTime(B.master.gain.value, empieza);
-      B.master.gain.linearRampToValueAtTime(VOL, empieza + (ancla < ac.currentTime ? 2 : .6));
+      B.master.gain.linearRampToValueAtTime(VOL, empieza + (ac.currentTime - ancla > COMPAS ? 2 : .25));   // entra de golpe a las 9:25; si llega tarde, suave
       arrancar();
     },
     // ya = true: cambia en el acto (re-ancla la rejilla); si no, en el próximo compás para que encaje con la música
@@ -358,7 +360,7 @@
     },
     sonando(){ return modo !== 'off' && !apagando; },
     modo(){ return modo; },
-    INICIO_MS: VENTANA_MS
+    INICIO_MS
   };
   window.IBBanda = API;
 })();
