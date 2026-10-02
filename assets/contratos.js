@@ -8,8 +8,12 @@
   const IB = window.IB;
   if(!IB) return;
   const esc = IB.esc;
-  const VERSION = '2026-09';
-  const AGENCIA = { nombre: 'Iberail', nif: '54214649S', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com' };
+  const VERSION = '2026-10';   // los contratos firmados guardan su versión: el texto nuevo solo sale en los de '2026-10' en adelante
+  const AGENCIA = { nombre: 'Iberail', nif: '54214649S', domicilio: 'Avenida Lazarejo 50, 28232 Las Rozas de Madrid (Madrid)', tel: '+34 683 55 76 26', email: 'info@iberail.com', web: 'iberail.com',
+    // RELLENAR en cuanto lleguen (mientras estén vacíos, no salen en el contrato):
+    cicma: '',                                         // código de agencia, p. ej. 'CICMA 1234'
+    garantia: { entidad: '', poliza: '', contacto: '' } // garantía frente a la insolvencia: aseguradora o banco, n.º de póliza, teléfono o correo
+  };
   // qué incluye el grupo (menú del panel). Por defecto, todo.
   const INCLUYE = [
     ['inc_ida', 'Vuelo de ida'], ['inc_vuelta', 'Vuelo de vuelta'], ['inc_maleta', 'Maleta facturada 23 kg'],
@@ -83,12 +87,13 @@
     d = d || {}; const v = d.viajero || {}, tu = d.tutor || {}, cd = c.cond, menor = c.tipo === 'menor';
     const B = IB.brandOf(c.marca || (cd || {}).marca), N = B.nombre;   // la marca del grupo (Iberail / Zarping)
     const S = (n, t) => `<h3><b>${n}.</b> ${t}</h3>`;
+    const v10 = String(c.version || '') >= '2026-10', G = AGENCIA.garantia;
     return `
     <div class="ct-doc">
       <p class="ct-kicker">Contrato de viaje combinado</p>
       <p class="ct-sub">Grupo <b>${hueco(c.grupo)}</b>${c.ref ? ` · Ref. ${esc(c.ref)}` : ''}</p>
       ${S(1, 'Las partes')}
-      <p><b>De una parte, ${B.up}</b>, con NIF ${AGENCIA.nif} y domicilio en ${esc(AGENCIA.domicilio)}. Teléfono y WhatsApp: ${AGENCIA.tel}. Correo: ${B.email}. Web: ${B.web} (en adelante, «${N}»).</p>
+      <p><b>De una parte, ${B.up}</b>, con NIF ${AGENCIA.nif} y domicilio en ${esc(AGENCIA.domicilio)}. Teléfono y WhatsApp: ${AGENCIA.tel}. Correo: ${B.email}. Web: ${B.web}${v10 && AGENCIA.cicma ? `. Agencia de viajes con código ${esc(AGENCIA.cicma)}` : ''} (en adelante, «${N}»).</p>
       <p><b>Y de otra parte, el/la viajero/a:</b> ${hueco(v.nombre, 24)}, con DNI/pasaporte ${hueco(v.dni)}, nacido/a el ${hueco(v.nacimiento ? fd(v.nacimiento) : '')}, con domicilio en ${hueco(v.domicilio, 24)}${menor ? '' : `, teléfono ${hueco(v.telefono)} y correo ${hueco(v.email)}`}.</p>
       ${menor ? `<p><b>Al ser menor de edad, contrata en su nombre su representante legal:</b> ${hueco(tu.nombre, 24)}, con DNI ${hueco(tu.dni)}, en calidad de ${hueco(tu.relacion)}, teléfono ${hueco(tu.telefono)} y correo ${hueco(tu.email)}.</p>` : ''}
       ${S(2, 'Objeto del contrato')}
@@ -124,9 +129,10 @@
       ${S(8, 'Durante el viaje')}
       <p>${N} responde de la correcta ejecución de los servicios incluidos. Si alguno no se presta como se ha contratado, el Viajero debe comunicarlo cuanto antes por WhatsApp para que pueda solucionarse. El Viajero se compromete a respetar las normas de los alojamientos y transportes; los daños que cause serán de su cuenta.</p>
       ${S(9, 'Documentación')}
-      <p>Cada Viajero debe llevar su DNI o pasaporte en vigor. Se recomienda la Tarjeta Sanitaria Europea (gratuita)${cd.seguro ? '' : ' y un seguro de viaje'}. Los menores que viajen sin sus padres deben llevar además la autorización de viaje al extranjero, que se tramita en la Policía Nacional o la Guardia Civil.</p>
+      <p>Cada Viajero debe llevar su DNI o pasaporte en vigor. Se recomienda la Tarjeta Sanitaria Europea (gratuita)${cd.seguro ? '' : ' y un seguro de viaje'}. Los menores que viajen sin sus padres deben llevar además la autorización de viaje al extranjero, que se tramita en la Policía Nacional o la Guardia Civil.${v10 ? ` Los ciudadanos españoles pueden viajar por la Unión Europea y el espacio Schengen con el DNI; para los países de fuera que incluya el viaje, ${N} informará de los requisitos de entrada, que pueden consultarse también en las recomendaciones de viaje del Ministerio de Asuntos Exteriores. Si el Viajero no tiene nacionalidad española, debe indicarlo antes de firmar.` : ''}</p>
+      ${v10 ? `<p><b>Movilidad reducida:</b> con carácter general, el viaje no está adaptado a personas con movilidad reducida (alojamientos sin ascensor, trasbordos con equipaje, trenes con escalones). Si es su caso, el Viajero debe indicarlo antes de firmar para que ${N} le confirme si el viaje es adecuado.</p>` : ''}
       ${S(10, 'Información previa y datos personales')}
-      <p>El Viajero declara haber recibido antes de firmar el formulario de información normalizada que figura al final de este contrato. Sus datos se tratarán conforme a la política de privacidad de ${B.web} para organizar y gestionar el viaje.</p>
+      <p>El Viajero declara haber recibido antes de firmar el formulario de información normalizada que figura al final de este contrato${v10 ? ` y las condiciones generales de contratación publicadas en ${B.web}, que completan este contrato (si hay diferencias, prevalece este contrato)` : ''}. Sus datos se tratarán conforme a la política de privacidad de ${B.web} para organizar y gestionar el viaje.</p>
       ${S(11, 'Reclamaciones y ley aplicable')}
       <p>Las reclamaciones pueden dirigirse a ${B.email} o por WhatsApp al ${AGENCIA.tel}; ${N} responderá en un máximo de un mes. El Viajero dispone también de hojas de reclamaciones. Este contrato se rige por la legislación española, en particular el Libro IV del Real Decreto Legislativo 1/2007, y son competentes los juzgados del domicilio del Viajero.</p>
       ${menor ? `${S(12, 'Autorización del padre, madre o tutor')}
@@ -145,7 +151,10 @@
         <li>Si, tras el inicio del viaje, no pueden prestarse elementos significativos, deberán ofrecerse alternativas adecuadas sin coste adicional; podrá poner fin al contrato sin penalización si los servicios no se ejecutan conforme al contrato, esto afecta sustancialmente al viaje y Iberail no lo soluciona.</li>
         <li>Tendrá derecho a una reducción del precio o a una indemnización por daños y perjuicios en caso de no ejecución o ejecución incorrecta de los servicios.</li>
         <li>${N} deberá proporcionar asistencia si se encuentra en dificultades.</li>
+        ${v10 && G.entidad ? `<li>Si ${N} incurre en insolvencia, se procederá al reembolso de los pagos. Si incurre en insolvencia después del inicio del viaje combinado y este incluye el transporte, se garantiza la repatriación de los viajeros.</li>` : ''}
       </ul>
+      ${v10 && G.entidad ? `<p class="ct-small">${N} ha suscrito una protección frente a la insolvencia con ${esc(G.entidad)}${G.poliza ? ` (póliza n.º ${esc(G.poliza)})` : ''}. Si se deniegan servicios debido a la insolvencia de ${N}, los viajeros podrán ponerse en contacto con dicha entidad${G.contacto ? ` en ${esc(G.contacto)}` : ''}.</p>` : ''}
+      ${v10 ? '<p class="ct-small">Normativa aplicable: Directiva (UE) 2015/2302, transpuesta al Derecho español en el Libro IV del Real Decreto Legislativo 1/2007 (boe.es/eli/es/rdlg/2007/11/16/1/con).</p>' : ''}
     </div>`;
   }
 
