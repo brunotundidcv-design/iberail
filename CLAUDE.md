@@ -6,6 +6,8 @@ alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacid
 
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
 sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
+**Importada `iberail-web-v8.8`** (02/10/2026, partía de b01e727: página `sorteo.html` con cuenta atrás, `bases-sorteo.html`,
+`condiciones-generales.html`, `fiesta.js`, `musica.js`, `cuenta-atras.js`, `sorteo-pagina.js`, pagos en pausa `PAGOS_PAUSA` en `payment.js`).
 
 ## Arquitectura
 
@@ -43,6 +45,11 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 
 ## JavaScript (`assets/`)
 
+- `cola.js` — **sala de espera simulada al entrar** (proyecto de la FP; la web aún no está publicada). En el `<head>` de todas las
+  páginas públicas (no el panel), justo después de `config.js`. Entre 15 y 35 personas delante y de 45 s a 2 min 15 s de espera,
+  tren que avanza, «¡Es tu turno!» → entra solo a los 6 s o con el botón. Una vez por visita (`sessionStorage` `ib-cola-ok`;
+  recargar durante la cola la reinicia). No sale a buscadores ni vistas previas de enlaces, ni en Zarping.
+  **Quitarla cuando lo diga Bruno**: `COLA_ON = false` arriba del archivo (o borrar el archivo y las líneas `<script src="assets/cola.js">`).
 - `app.js` — capa común `window.IB`: cliente Supabase, enlaces WhatsApp, sesión, utilidades.
 - `site.js` — menú, animaciones, comportamiento común.
 - `data.js` — ciudades, orígenes, trayectos de tren (`IB_DATA`).
