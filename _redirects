@@ -2,3 +2,4 @@ https://iberail.es/*      https://iberail.com/:splat  301!
 https://www.iberail.es/*  https://iberail.com/:splat  301!
 https://www.iberail.com/* https://iberail.com/:splat  301!
 /privacidad.html  /politica-privacidad.html  301
+/demos/*  /404.html  404!

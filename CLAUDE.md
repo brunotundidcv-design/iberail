@@ -144,6 +144,10 @@ Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit de
   aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
+- `demos/cola.html` — **maqueta** de sala de espera para vídeos y proyectos de Bruno (2-31 personas delante, 50 s - 2 min,
+  `?n=23&t=95` para tomas iguales, tecla R repite). **No es parte de la web**: no se enlaza, no va en el zip y `_redirects`
+  la bloquea (`/demos/*` → 404). No conectarla a la web real.
+
 ## Supabase
 
 Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `avisos`, `avisos_leidos`,
