@@ -9,8 +9,8 @@
     const s = IBSrt.get();
     if(rest <= 0){
       if(s.state !== 'in') return '<p class="cta-note">Esta tanda ya ha empezado. Apúntate y entras en las siguientes.</p>' + (s.state === 'guest' ? '<button type="button" class="cta-btn" data-srt-join>Crear cuenta y participar</button>' : '<button type="button" class="cta-btn" data-srt-join>Participar gratis</button>');
-      if(s.revelable && !s.spun) return `<button type="button" class="cta-btn is-glow" data-srt-spin>Abrir mi premio 🎟️</button><p class="cta-note">Tienes ${s.tiradas} ${s.tiradas === 1 ? 'tirada' : 'tiradas'}.</p>`;
-      if(s.spun) return '<p class="cta-note">Ya has abierto tu premio de esta tanda. Si te ha tocado, te escribimos por WhatsApp.</p>';
+      if(s.revelable && !s.spun) return `<button type="button" class="cta-btn is-glow" data-srt-spin>${s.boton || 'Abrir mi premio 🎟️'}</button><p class="cta-note">${s.nuevas ? `El equipo te ha sumado ${s.pendientes === 1 ? 'una tirada' : s.pendientes + ' tiradas'}. Tienes ${s.tiradas} en total.` : `Tienes ${s.tiradas} ${s.tiradas === 1 ? 'tirada' : 'tiradas'}.`}</p>`;
+      if(s.spun) return '<p class="cta-note">Ya has abierto tus tiradas de esta tanda. Si te ha tocado, te escribimos por WhatsApp.</p><button type="button" class="cta-btn cta-btn--ghost" data-srt-poster>Sube el cartel a tu story y suma otra tirada</button>';
       return '<p class="cta-note">Preparando los resultados… en unos segundos puedes abrir tu premio.</p>';
     }
     if(s.state === 'guest') return '<button type="button" class="cta-btn" data-srt-join>Crear cuenta y participar gratis</button><p class="cta-note">En un minuto estás dentro.</p>';

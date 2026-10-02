@@ -17,9 +17,21 @@
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
   let premio = null, ganaEn = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno · ganaEn: tirada en la que sale (null = la última)
   const pagSorteo = /\/sorteo(\.html)?$/.test(location.pathname);
-  const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;
-  const spun = () => { try{ return !!localStorage.getItem(spunKey()); }catch(e){ return false; } };
-  const markSpun = () => { try{ localStorage.setItem(spunKey(), premio || '1'); }catch(e){} };
+  // tiradas ya abiertas: { u: cuántas, p: premio que ya ha visto }. Si el equipo le suma tiradas después, puede abrir las nuevas.
+  const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;            // versión antigua: solo «ya lo abrió»
+  const tirKey = () => 'ib-srt-tir-' + DRAW.fecha + '-' + (user ? user.id : '');
+  let vistoSrv = false;                                          // sorteo_ganadores.visto (lo abrió en otro dispositivo)
+  const guardaHecho = h => { try{ localStorage.setItem(tirKey(), JSON.stringify(h)); }catch(e){} };
+  function hecho(){
+    try{ const j = JSON.parse(localStorage.getItem(tirKey()) || 'null'); if(j && j.u >= 0) return j; }catch(e){}
+    let antes = vistoSrv; try{ antes = antes || !!localStorage.getItem(spunKey()); }catch(e){}
+    if(antes){ const h = { u: tiradas, p: premio || '' }; guardaHecho(h); return h; }   // ya lo abrió antes de esto: cuentan todas las que tenía
+    return { u: 0, p: null };
+  }
+  const pendientes = () => revelable() ? Math.max(0, tiradas - hecho().u) : 0;
+  const spun = () => revelable() && pendientes() === 0;
+  const nuevas = () => pendientes() > 0 && hecho().u > 0;        // ya había abierto y tiene tiradas nuevas
+  const btnAbrir = () => nuevas() ? (pendientes() === 1 ? 'Abrir tu tirada nueva 🎟️' : `Abrir tus ${pendientes()} tiradas nuevas 🎟️`) : 'Abrir mi premio 🎟️';
   const revelable = () => publicado && premio !== null && premio !== undefined && DRAW.fecha && new Date() >= new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00');
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
@@ -83,8 +95,8 @@
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
         <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
-        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : '<b>¡Ya puedes abrir tu premio!</b>') : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
-      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Abrir mi premio 🎟️</button>' : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
+        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : (nuevas() ? `<b>¡Tienes ${pendientes() === 1 ? 'una tirada nueva' : pendientes() + ' tiradas nuevas'}!</b>` : '<b>¡Ya puedes abrir tu premio!</b>')) : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
+      <div class="srt-me-r">${revelable() && !spun() ? `<button type="button" class="btn srt-btn" data-srt-spin>${btnAbrir()}</button>` : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
         <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
     : `
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
@@ -151,7 +163,7 @@
     user = u; state = 'in'; tiradas = Math.max(1, tiradas); ls.set(inKey(u), String(tiradas)); ls.set(WANT, null); paint();
     toast(auto ? '<b>¡Listo! Ya estás dentro del sorteo</b>de las 10 entradas para el Ultra Europe.' : `<b>¡Ya estás dentro del sorteo!</b>${drawTxt() || 'Te avisaremos del día de la ruleta.'} Mucha suerte 🍀`);
   }
-  async function check(){
+  async function check(abrir){
     if(!user) return;
     const sb = await ensureClient(); if(!sb) return;
     try{
@@ -173,16 +185,17 @@
         sonidos = c.data.sonidos || null;
         if(publicado && state === 'in'){
           const [g, rs] = await Promise.all([
-            sb.from('sorteo_ganadores').select('premio, tirada').eq('user_id', u.id).maybeSingle()
+            sb.from('sorteo_ganadores').select('premio, tirada, visto').eq('user_id', u.id).maybeSingle()
+            .then(x => x.error ? sb.from('sorteo_ganadores').select('premio, tirada').eq('user_id', u.id).maybeSingle() : x)
             .then(x => x.error ? sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle() : x),   // sin el archivo 13 no hay columna tirada
             sb.rpc('sorteo_restantes')
           ]);
-          if(!g.error){ premio = g.data ? (g.data.premio || 'entrada') : ''; ganaEn = g.data && g.data.tirada ? Number(g.data.tirada) : null; }
+          if(!g.error){ premio = g.data ? (g.data.premio || 'entrada') : ''; ganaEn = g.data && g.data.tirada ? Number(g.data.tirada) : null; vistoSrv = !!(g.data && g.data.visto); }
           const r0 = rs && !rs.error && rs.data ? (Array.isArray(rs.data) ? rs.data[0] : rs.data) : null;
           if(r0) restantes = { entradas: Number(r0.entradas) || 0, dadas: Number(r0.dadas) || 0 };
         }
         paintWhen(); paint();
-        if(revelable() && !spun()) setTimeout(girar, 900);
+        if(abrir !== false && revelable() && !spun()) setTimeout(girar, 900);
       }
       if(state === 'out' && ls.get(WANT)) await join(true);   // lo pidió antes de tener cuenta
     }catch(e){}
@@ -202,8 +215,14 @@
   async function girar(){
     if(!window.IBRuleta || !revelable()) return;
     const sb = await ensureClient();
-    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos, tiradas: tiradas, ganaEn: ganaEn });
-    markSpun(); paint();
+    const h = hecho(), desde = h.u + 1;
+    if(desde > tiradas) return;
+    // el premio sale una sola vez: si ya lo vio en una tirada anterior, las nuevas son «Sigue en el sorteo»
+    const yaVisto = !!premio && h.p === premio;
+    await IBRuleta.show({ premio: yaVisto ? '' : premio, yaPremio: yaVisto, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos,
+      tiradas: tiradas, desde: desde, ganaEn: ganaEn && ganaEn >= desde ? ganaEn : null,
+      onTirada: (i, gan) => { const a = hecho(); guardaHecho({ u: Math.max(a.u, i), p: gan && gan.id ? gan.id : a.p }); paint(); } });
+    paint();
     if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
   }
   document.addEventListener('click', e => { if(e.target.closest('[data-srt-spin]')){ e.preventDefault(); girar(); } });
@@ -417,11 +436,13 @@
 
   /* para la página del sorteo (assets/sorteo-pagina.js) */
   window.IBSrt = {
-    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), sonidos: sonidos || {} }),
+    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), pendientes: pendientes(), nuevas: nuevas(), boton: btnAbrir(), sonidos: sonidos || {} }),
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
   paint(); bar(); reloj(); check(); setTimeout(takeover, 1400);
+  // después del sorteo, cada 2 min mira si el equipo le ha sumado tiradas (sin abrir la ruleta sola: sale el botón)
+  setInterval(() => { if(state === 'in' && revelable() && !document.hidden) check(false); }, 120000);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {
     const u = session ? session.user : null;
     if(!u){ user = null; state = 'guest'; paint(); return; }

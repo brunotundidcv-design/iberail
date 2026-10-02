@@ -8,7 +8,9 @@
      premio    id del premio ganado, o null / '' si no le ha tocado nada
      catalogo  [{ id, label, n, tier }]  (tier: top | alto | medio | bajo)
      test      true = simulación del panel (no cuenta)
-     tiradas   cuántas tiradas tiene la persona (1 + extras) · ganaEn  en cuál sale el premio (por defecto, la última) */
+     tiradas   cuántas tiradas tiene la persona (1 + extras) · ganaEn  en cuál sale el premio (por defecto, la última)
+     desde     primera tirada que se abre (si ya abrió 4 y le suman 1: desde 5) · yaPremio  ya vio su premio antes
+     onTirada  (i, premio) al terminar cada tirada, para apuntar cuántas lleva abiertas */
 (function(){
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -263,10 +265,12 @@
     const premio = catalogo.find(p => p.id === o.premio) || null;
     // tiradas: cada una se abre por separado; el premio sale solo en la que diga el panel (por defecto, la última)
     const N = Math.max(1, Math.min(50, parseInt(o.tiradas, 10) || 1));
-    const EN = premio ? Math.max(1, Math.min(N, parseInt(o.ganaEn, 10) || N)) : 0;
+    const DESDE = Math.max(1, Math.min(N, parseInt(o.desde, 10) || 1));
+    const NUEVAS = N - DESDE + 1;
+    const EN = premio ? Math.max(DESDE, Math.min(N, parseInt(o.ganaEn, 10) || N)) : 0;
     const resultado = i => (premio && i === EN ? premio : NADA);
-    const toca = !!premio;
-    let actual = 1, abierto = false;
+    const toca = !!premio || !!o.yaPremio;
+    let actual = DESDE, abierto = false;
 
     return new Promise(res => {
       const el = document.createElement('div');
@@ -281,7 +285,7 @@
             ${N > 1 ? '<span class="rul-tir" data-rul-tir></span>' : ''}
             <div class="rul-prize" data-rul-prize hidden></div>
             <b class="rul-h" data-rul-h>Abre tu premio</b>
-            <p class="rul-p" data-rul-p>${N > 1 ? `Tienes <b>${N} tiradas</b>. Ábrelas una a una.` : 'Dale a abrir: la cinta para donde para.'}</p>
+            <p class="rul-p" data-rul-p>${DESDE > 1 ? `Tienes <b>${NUEVAS === 1 ? '1 tirada nueva' : NUEVAS + ' tiradas nuevas'}</b>. ${NUEVAS === 1 ? '¡Ábrela!' : 'Ábrelas una a una.'}` : N > 1 ? `Tienes <b>${N} tiradas</b>. Ábrelas una a una.` : 'Dale a abrir: la cinta para donde para.'}</p>
             ${quedan}
           </div>
           <div class="rul-rail" data-rul-rail>
@@ -375,6 +379,7 @@
         if(gan.tier === 'top') el.classList.add('is-top');
         track.children[GANA_EN].classList.add('is-got');
         const quedanT = N - actual;
+        if(o.onTirada) try{ o.onTirada(actual, gan); }catch(e){}
         if(gan.id){
           prizeEl.innerHTML = `<span class="rul-prize-i">${icono(gan)}</span><b>${esc(gan.label)}</b>`;
           prizeEl.className = `rul-prize is-${esc(gan.tier)}`; prizeEl.hidden = false;

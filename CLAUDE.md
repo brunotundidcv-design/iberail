@@ -111,7 +111,12 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   5×25 €, 10×5 €. Arriba, contador en directo «quedan X de N entradas por salir» (RPC `sorteo_restantes`).
   Tablas `sorteo_config` (fecha, hora, entradas, total, publicado, acta, `premios` jsonb) y `sorteo_ganadores`
   (`premio`, `visto`); RLS: cada uno solo ve su propia fila y solo si está publicado, así que **nadie sabe qué le
-  ha tocado a los demás**. RPC `sorteo_visto` marca que ya lo abrió. SQL: `supabase/sql/sorteo-ruleta.sql` +
+  ha tocado a los demás**. RPC `sorteo_visto` marca que ya lo abrió.
+  **Tiradas nuevas después del sorteo**: se cuenta cuántas ha abierto cada uno (`ib-srt-tir-<fecha>-<uid>` en localStorage = `{u, p}`,
+  lo apunta `onTirada` de la ruleta). Si el equipo le suma tiradas después (+1 en el panel), sale «Abrir tu tirada nueva» y la
+  cinta empieza en esa (`desde`). El premio sale **una sola vez**: si ya lo vio, las nuevas son «Sigue en el sorteo», salvo que
+  el equipo le ponga el premio en una tirada nueva (`sorteo_ganadores.tirada`). La web vuelve a mirar las tiradas cada 2 min.
+  Si lo abrió en otro dispositivo (`visto`) o con la versión antigua (`ib-srt-visto-<fecha>`), cuentan como abiertas las que tenía. SQL: `supabase/sql/sorteo-ruleta.sql` +
   `supabase/sql/sorteo-premios.sql`.
   **Sonido**: se suben **desde el panel** (pestaña Sorteo → «Sonidos»: entrada del Ultra / cualquier premio / tic),
   van al bucket público `sorteo` y las URL se guardan en `sorteo_config.sonidos`. SQL: `supabase/sql/sorteo-sonidos.sql`.
