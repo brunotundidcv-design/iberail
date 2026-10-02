@@ -116,10 +116,13 @@ Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit de
   **Canción de ganar** (Ultra / premio): se descarga y decodifica mientras gira la cinta y se programa con el reloj del
   AudioContext en el **mismo instante que el «boom»** (`golpeFinal` → `IBBanda.golpe(tipo, { conMp3, t })`); nada de
   «cebar» el mp3 sonando en silencio. Más de 12 MB o sin decodificar a tiempo → `<audio>` en el golpe.
-  **Cuenta atrás** (`sorteo.html`): la música y el modo final (pantalla roja, reloj grande) empiezan **cuando quedan 9:25**
-  (decisión de Bruno; antes 6 min la música y 5 min el modo final). Se cambia solo en `INICIO_MS` de `musica.js`: el tema
-  propio se estira solo (intro 46 compases + subida, 3 drops con parones y subida final; el drop final cae en el 0) y el
-  mp3 subido en «Música de la cuenta atrás» acaba en el 0 (si dura 9:25 o más, empieza a las 9:25).
+  **Cuenta atrás** (`sorteo.html`): la música y el modo final (pantalla roja, reloj grande) empiezan **cuando quedan 8:51**
+  (decisión de Bruno; antes 9:25, y al principio 6 min la música y 5 min el modo final). Se cambia solo en `INICIO_MS` de
+  `musica.js`. Bruno **sube su propia canción** en «Música de la cuenta atrás»: acaba justo en el 0 (si dura 8:51 o más,
+  empieza a las 8:51) y lleva un **eco suave al final** (`ECO` en `cuenta-atras.js`: la canción pasa por Web Audio, el eco
+  se abre en los últimos 7 s y al acabar las repeticiones bajan solas en ~5 s). Con su canción, en el 0 no entra ninguna
+  música de la web. Si el servidor no deja pasar el audio por Web Audio (CORS), suena igual pero sin eco.
+  Sin canción subida, suena el tema propio (se estira solo: intro + subida, 3 drops con parones y subida final; drop en el 0).
   **Panel** (pestaña Sorteo): fecha y hora, nº de entradas, acta, catálogo de premios con cantidades, un
   **desplegable por persona** para asignarle su premio, simulación de lo que verá (elige premio, no cuenta) y
   «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.

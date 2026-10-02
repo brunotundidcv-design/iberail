@@ -3,19 +3,26 @@
        at       fecha/hora del sorteo (Date) · musica  url del mp3 del panel (si no hay, el tema de assets/musica.js)
        estado   función que devuelve el HTML de debajo (participar, tiradas…), se repinta cuando cambia
    · IBCuenta.simular({ segundos, musica, onZero })  →  la abre encima de todo (panel)
-   La música y el modo final empiezan cuando quedan 9:25 (IBBanda.INICIO_MS, en assets/musica.js) y NO se corta en el 0: el tema hace el drop final y
-   pasa solo a la base de tensión de la ruleta (assets/musica.js). El navegador no deja sonar nada hasta que la
+   La música y el modo final empiezan cuando quedan 8:51 (IBBanda.INICIO_MS, en assets/musica.js). Sin mp3 suena el tema de la
+   web, que NO se corta en el 0: hace el drop final y pasa solo a la base de tensión de la ruleta. El navegador no deja sonar nada hasta que la
    persona toca la página: por eso el botón grande de «Activar sonido» (cualquier toque en la página también vale).
    Una vez activado, el botón desaparece: en el sorteo no hay opción de silenciar (decisión de Bruno).
-   Con un mp3 subido, va sincronizado con la cuenta atrás (su final cae en el 0) y en el 0 entra la base de tensión. */
+   Con un mp3 subido (el de Bruno), va sincronizado con la cuenta atrás (su final cae en el 0) y lleva un ECO al final:
+   se abre en los últimos segundos y, cuando la canción acaba, las repeticiones siguen y se apagan despacio. En el 0 no
+   entra ninguna música de la web. */
 (function(){
-  const MUSICA = (window.IBBanda && IBBanda.INICIO_MS) || (9 * 60 + 26) * 1000;   // desde aquí suena la música (el reloj marca 9:25)
+  const MUSICA = (window.IBBanda && IBBanda.INICIO_MS) || (8 * 60 + 52) * 1000;   // desde aquí suena la música (el reloj marca 8:51)
   const FINAL = MUSICA;   // y a la vez entra el modo final (visual)
-  const minTxt = ms => { const x = Math.floor(ms / 1000) - 1; return `${Math.floor(x / 60)}:${pad(x % 60)}`; };   // 566 000 → «9:25»
+  const minTxt = ms => { const x = Math.floor(ms / 1000) - 1; return `${Math.floor(x / 60)}:${pad(x % 60)}`; };   // 532 000 → «8:51»
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pad = n => String(n).padStart(2, '0');
   try{ localStorage.removeItem('ib-srt-snd'); }catch(e){}   // preferencia del antiguo botón de silencio
   const banda = () => window.IBBanda || null;
+  // eco del final de la canción del panel: «chill», que se note pero sin pasarse
+  const ECO = { retardo: .5, realim: .68, envio: .4, salida: .6, abre: 7, cola: 9, filtro: 3400 };
+  //  retardo  s entre repeticiones · realim  cuánto vuelve cada repetición · envio  cuánta canción entra al eco
+  //  salida   volumen del eco · abre  s antes del final en los que se va abriendo · cola  s que tarda en apagarse al acabar
+  const ctxAudio = () => { try{ return (window.IBSonido && IBSonido.ctx && IBSonido.ctx()) || null; }catch(e){ return null; } };
 
   function mount(el, o){
     o = { ...o };
@@ -45,26 +52,77 @@
       put(sndB, enMusica ? '🔊 Activa el sonido para vivir el final' : `🔊 Activa el sonido: la música empieza cuando queden ${minTxt(MUSICA)}`);
     }
 
-    /* ---------- mp3 del panel ---------- */
+    /* ---------- mp3 del panel (con eco al final) ---------- */
     function fade(a, to, ms){
       const from = a.volume, t0 = performance.now();
       const step = () => { const x = Math.min(1, (performance.now() - t0) / ms); try{ a.volume = from + (to - from) * x; }catch(e){} if(x < 1) requestAnimationFrame(step); else if(to === 0) a.pause(); };
       requestAnimationFrame(step);
     }
-    // ventana del mp3: si dura 9:25 o más, su final cae en el 0; si dura menos, empieza cuando falta lo que dura
+    // ventana del mp3: si dura 8:51 o más, su final cae en el 0; si dura menos, empieza cuando falta lo que dura
     const ventanaMp3 = () => { const d = mp3 && mp3.duration; return d && isFinite(d) ? Math.min(MUSICA, d * 1000) : MUSICA; };
     function sincronizar(){
       if(!mp3) return; const d = mp3.duration; if(!d || !isFinite(d)) return;
       const r = resto() / 1000;   // segundos que quedan
       try{ mp3.currentTime = Math.max(0, Math.min(d - .05, d - r)); }catch(e){}
     }
-    function crearMp3(){
-      if(!o.musica || mp3) return;
-      mp3 = new Audio(o.musica); mp3.preload = 'auto'; mp3.volume = 0;
-      mp3.addEventListener('error', () => { mp3 = null; o.musica = ''; if(son && resto() <= MUSICA) arrancarMusica(); }, { once: true });
-      // «cebado» dentro del toque (play en silencio y pausa) para que luego pueda sonar solo, también en iPhone
-      try{ const m = mp3; m.muted = true; m.play().then(() => { if(m === mp3 && !m._sinc){ m.pause(); } m.muted = false; }).catch(() => { m.muted = false; }); }catch(e){}
+    // la canción va por Web Audio: «seco» a la salida y un envío al eco (retardo con realimentación y filtro)
+    function enrutar(m){
+      const ac = ctxAudio(); if(!ac || !ac.createMediaElementSource) return null;
+      try{
+        const src = ac.createMediaElementSource(m);
+        const seco = ac.createGain(), envio = ac.createGain(), del = ac.createDelay(2), fb = ac.createGain(), filtro = ac.createBiquadFilter(), wet = ac.createGain();
+        seco.gain.value = 0; envio.gain.value = 0; del.delayTime.value = ECO.retardo; fb.gain.value = ECO.realim; wet.gain.value = ECO.salida;
+        filtro.type = 'lowpass'; filtro.frequency.value = ECO.filtro; filtro.Q.value = .5;
+        src.connect(seco).connect(ac.destination);
+        src.connect(envio).connect(del); del.connect(filtro); filtro.connect(fb).connect(del); filtro.connect(wet).connect(ac.destination);
+        return { ac, seco, envio, fb, filtro, wet };
+      }catch(e){ return null; }
     }
+    const rampa = (p, v, ac, seg) => { const t = ac.currentTime; p.cancelScheduledValues(t); p.setValueAtTime(p.value, t); p.linearRampToValueAtTime(v, t + seg); };
+    function crearMp3(sinEco){
+      if(!o.musica || mp3) return;
+      const m = mp3 = new Audio();
+      if(!sinEco) m.crossOrigin = 'anonymous';   // sin esto el navegador no deja pasar la canción por el eco (sale en silencio)
+      m.preload = 'auto'; m.src = o.musica;
+      m._ruta = sinEco ? null : enrutar(m);
+      m.volume = m._ruta ? 1 : 0;                // con eco, el volumen se lleva con Web Audio (también en iPhone)
+      m.addEventListener('error', () => {
+        if(mp3 !== m) return;
+        mp3 = null;
+        if(!sinEco){ crearMp3(true); if(son) arrancarMusica(); return; }   // el servidor no deja: sin eco, pero que suene
+        o.musica = ''; if(son && resto() <= MUSICA) arrancarMusica();
+      }, { once: true });
+      // el eco se va abriendo en los últimos segundos y, al acabar, se queda sonando y se apaga
+      m.addEventListener('timeupdate', () => {
+        const r = m._ruta, d = m.duration; if(!r || m._abierto || !d || !isFinite(d)) return;
+        const q = d - m.currentTime; if(q > ECO.abre || q <= 0) return;
+        m._abierto = true; rampa(r.envio.gain, ECO.envio, r.ac, Math.max(.5, q - .3));
+      });
+      m.addEventListener('ended', () => cola(m));
+      // desbloqueo dentro del toque (play + pause en el acto): luego puede sonar sola, también en iPhone
+      try{ m.muted = true; const p = m.play(); m.pause(); if(p && p.catch) p.catch(() => {}); m.muted = false; }catch(e){ m.muted = false; }
+    }
+    function volumenMp3(m, to, ms){
+      if(!m) return;
+      if(m._ruta){ rampa(m._ruta.seco.gain, to, m._ruta.ac, ms / 1000); if(to === 0) setTimeout(() => m.pause(), ms + 60); }
+      else fade(m, to, ms);
+    }
+    // final de la canción: lo último que suena se repite en eco, cada vez más bajo y más apagado (no se corta)
+    function cola(m){
+      if(!m || m._cola) return; m._cola = true;
+      const r = m._ruta;
+      if(!r){ if(!m.paused) fade(m, 0, 2500); return; }
+      const ac = r.ac, quedaba = !m.paused && !m.ended;
+      if(quedaba){ rampa(r.envio.gain, ECO.envio, ac, .2); volumenMp3(m, 0, 700); }   // si aún le quedaba algo, baja y entra al eco
+      const t = ac.currentTime + (quedaba ? .7 : 0);
+      setTimeout(() => { try{ rampa(r.envio.gain, 0, ac, .4); }catch(e){} }, quedaba ? 800 : 0);
+      try{
+        r.wet.gain.setValueAtTime(r.wet.gain.value, t); r.wet.gain.setTargetAtTime(0, t + .6, ECO.cola / 4);
+        r.filtro.frequency.setValueAtTime(ECO.filtro, t); r.filtro.frequency.exponentialRampToValueAtTime(450, t + ECO.cola);
+        r.fb.gain.setValueAtTime(ECO.realim, t); r.fb.gain.linearRampToValueAtTime(ECO.realim * .6, t + ECO.cola);
+      }catch(e){}
+    }
+    function cortarEco(m){ if(m && m._ruta){ try{ rampa(m._ruta.wet.gain, 0, m._ruta.ac, .4); rampa(m._ruta.envio.gain, 0, m._ruta.ac, .2); }catch(e){} } }
 
     /* ---------- música ---------- */
     function arrancarMusica(){
@@ -72,17 +130,23 @@
       const rest = resto();
       if(o.musica){
         crearMp3(); if(!mp3) return;
+        if(mp3._cola) return;   // ya ha acabado (y está sonando su eco): no se vuelve a empezar
+        if(!(mp3.duration > 0)){   // hasta saber lo que dura no se sabe cuándo empieza
+          if(!mp3._meta){ mp3._meta = true; mp3.addEventListener('loadedmetadata', () => arrancarMusica(), { once: true }); }
+          return;
+        }
         if(rest > ventanaMp3()) return;
         if(mp3.paused || !mp3._sinc){
-          if(mp3.readyState >= 1) sincronizar(); else mp3.addEventListener('loadedmetadata', sincronizar, { once: true });
+          sincronizar();
           mp3._sinc = true; mp3.muted = false;
-          mp3.play().then(() => fade(mp3, .95, 1200)).catch(() => {});
+          if(mp3._ruta && mp3._ruta.ac.state !== 'running') mp3._ruta.ac.resume().catch(() => {});
+          const m = mp3; m.play().then(() => volumenMp3(m, .95, 1200)).catch(() => {});
         }
         return;
       }
       if(banda() && rest <= MUSICA) banda().cuenta(+o.at);
     }
-    function pararMusica(){ if(banda()) banda().parar(.5); if(mp3){ fade(mp3, 0, 500); mp3._sinc = false; } }
+    function pararMusica(){ if(banda()) banda().parar(.5); if(mp3){ volumenMp3(mp3, 0, 500); cortarEco(mp3); mp3._sinc = false; } }
     function desbloquear(){
       try{ if(window.IBSonido) IBSonido.unlock(); }catch(e){}
       crearMp3();
@@ -96,9 +160,10 @@
 
     function alCero(){
       fin = true;
-      // sin cortes: con el tema propio, el drop final ya está sonando y pasa solo a la tensión; con mp3, entra la base
+      // con la canción del panel: su eco final y nada más (ninguna música de la web). Sin ella, el tema propio ya está
+      // sonando su drop final y pasa solo a la base de tensión.
       if(son){
-        if(mp3 && !mp3.paused){ setTimeout(() => mp3 && fade(mp3, 0, 2500), 400); if(banda()) banda().tension(.22, true); }
+        if(o.musica){ if(mp3 && !mp3.paused) setTimeout(() => cola(mp3), 250); }
         else if(banda() && !banda().sonando()) banda().tension(.22, true);
       }
       if(o.onZero) o.onZero();
@@ -139,14 +204,14 @@
       set(n){
         const at0 = o.at, m0 = o.musica; o = { ...o, ...n };
         if(+at0 !== +o.at){ fin = resto() <= 0; if(son && banda() && !o.musica) arrancarMusica(); }
-        if((o.musica || '') !== (m0 || '')){ if(mp3){ mp3.pause(); mp3 = null; } if(banda() && o.musica) banda().parar(.3); if(son) arrancarMusica(); }   // ha llegado el mp3 del panel
+        if((o.musica || '') !== (m0 || '')){ if(mp3){ cortarEco(mp3); mp3.pause(); mp3 = null; } if(banda() && o.musica) banda().parar(.3); if(son) arrancarMusica(); }   // ha llegado el mp3 del panel
         tick();
       },
       // seguir = true: se quita la cuenta atrás pero la música continúa (pasa a la ruleta sin cortes)
       destroy(seguir){
         vivo = false; clearInterval(t);
         if(!seguir) pararMusica();
-        else if(mp3 && !mp3.paused){ const m = mp3; setTimeout(() => fade(m, 0, 2200), 300); }
+        else if(mp3 && !mp3.paused) cola(mp3);   // a la ruleta: lo que quede de la canción se va en eco
         el.innerHTML = ''; el.classList.remove('cta', 'is-final', 'is-last', 'is-zero');
       }
     };

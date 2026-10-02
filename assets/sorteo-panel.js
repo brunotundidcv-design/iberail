@@ -131,9 +131,9 @@
       </div>
       <div class="srtc-snd">
         <b>Sonidos</b>
-        <p class="srtp-hint">Sube tus mp3 (hasta ${MAX_MB} MB cada uno). Si no subes ninguno, suena uno hecho por la web. Si no subes música, suena el tema propio de la web (sin derechos de autor), que empieza cuando quedan 9:25 con el drop justo en el 0 y sigue sin cortes en la ruleta. Si subes tu canción, va sincronizada: su final cae justo en el 0 (si dura menos de 9:25, empieza cuando falta lo que dura). La de «ganar el Ultra» entra en el mismo instante del golpe.</p>
+        <p class="srtp-hint">Sube tus mp3 (hasta ${MAX_MB} MB cada uno). Si no subes ninguno, suena uno hecho por la web. Si no subes música, suena el tema propio de la web (sin derechos de autor), que empieza cuando quedan 8:51 con el drop justo en el 0 y sigue sin cortes en la ruleta. Si subes tu canción, va sincronizada: su final cae justo en el 0 (si dura menos de 8:51, empieza cuando falta lo que dura) y lleva un eco suave al final que se va apagando. La de «ganar el Ultra» entra en el mismo instante del golpe.</p>
         <div class="srtc-snd-list">${[
-          ['cuenta', 'Música de la cuenta atrás (desde 9:25)'],
+          ['cuenta', 'Música de la cuenta atrás (desde 8:51, con eco al final)'],
           ['ultra', 'Al ganar una entrada del Ultra'],
           ['premio', 'Al ganar cualquier otro premio'],
           ['tic', 'Cada premio que pasa (muy cortito)']
@@ -158,7 +158,7 @@
           <button type="button" class="btn btn--ghost btn--sm" data-srt-sim>Simular la ruleta</button>
         </div>
         <div class="srtc-sim-row">
-          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="575">9 min 35 s (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
+          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="540">9 min (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
           <button type="button" class="btn btn--dark btn--sm" data-srt-simcd>Simular la cuenta atrás + ruleta</button>
         </div>
       </div>

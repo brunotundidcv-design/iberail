@@ -1,6 +1,6 @@
 /* Iberail — banda sonora del sorteo «Split 2027» (Web Audio, todo generado por código: sin derechos de autor)
    Un solo motor de música que va SIN CORTES de la cuenta atrás a la ruleta y a la celebración:
-   · cuenta(at)        tema de festival a 128 bpm sincronizado con la cuenta atrás: empieza cuando quedan 9:25 (INICIO_MS)
+   · cuenta(at)        tema de festival a 128 bpm sincronizado con la cuenta atrás: empieza cuando quedan 8:51 (INICIO_MS)
                        (intro → subida → drop → parón → drop → parón → drop → parón → subida final) y el drop final cae justo en el 0
    · tension(nivel)    base para la ruleta: 0–.3 espera (latido lento, tic-tac), .6 girando, 1 en el frenazo
    · subida(seg)       redoble + subida que acaba justo a los «seg» segundos (cuando para la cinta)
@@ -12,10 +12,10 @@
    En móviles los altavoces no dan graves: bombos, latidos y golpes llevan también «cuerpo» en medios. */
 (function(){
   const BPM = 128, NEGRA = 60 / BPM, S16 = NEGRA / 4, COMPAS = NEGRA * 4;
-  // la música (y el modo final de la cuenta atrás) empieza cuando el reloj pasa a 9:25 (decisión de Bruno).
+  // la música (y el modo final de la cuenta atrás) empieza cuando el reloj pasa a 8:51 (decisión de Bruno).
   // Para cambiarlo, solo esta línea: la canción se estira sola (el intro se queda con lo que sobre).
-  const INICIO_MS = (9 * 60 + 26) * 1000;                     // 566 000 ms: en cuanto quedan menos de 9:26, el reloj marca 9:25
-  const CUENTA_COMPASES = Math.ceil(INICIO_MS / (COMPAS * 1000));   // 302 compases a 128 bpm (empieza a mitad del primero)
+  const INICIO_MS = (8 * 60 + 52) * 1000;                     // 532 000 ms: en cuanto quedan menos de 8:52, el reloj marca 8:51
+  const CUENTA_COMPASES = Math.ceil(INICIO_MS / (COMPAS * 1000));   // 284 compases a 128 bpm (empieza a mitad del primero)
   const VENTANA_MS = CUENTA_COMPASES * COMPAS * 1000;         // la rejilla: el 0 cae justo al empezar un compás
   const PASO_CERO = CUENTA_COMPASES * 16;
   const VOL = .78;
@@ -314,7 +314,7 @@
       const empieza = Math.max(ac.currentTime, ancla);
       B.master.gain.cancelScheduledValues(ac.currentTime); B.master.gain.setValueAtTime(B.master.gain.value, ac.currentTime);
       B.master.gain.linearRampToValueAtTime(B.master.gain.value, empieza);
-      B.master.gain.linearRampToValueAtTime(VOL, empieza + (ac.currentTime - ancla > COMPAS ? 2 : .25));   // entra de golpe a las 9:25; si llega tarde, suave
+      B.master.gain.linearRampToValueAtTime(VOL, empieza + (ac.currentTime - ancla > COMPAS ? 2 : .25));   // entra de golpe a las 8:51; si llega tarde, suave
       arrancar();
     },
     // ya = true: cambia en el acto (re-ancla la rejilla); si no, en el próximo compás para que encaje con la música
