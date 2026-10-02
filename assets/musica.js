@@ -4,8 +4,10 @@
                        (intro → subida → drop → parón → drop → parón → subida final) y el drop final cae justo en el 0
    · tension(nivel)    base para la ruleta: 0–.3 espera (latido lento, tic-tac), .6 girando, 1 en el frenazo
    · subida(seg)       redoble + subida que acaba justo a los «seg» segundos (cuando para la cinta)
-   · golpe(tipo, op)   'ultra' | 'premio' | 'nada': impacto y la música sigue (con mp3: entra en el mismo instante del golpe)
-   · calmar()          vuelve a la espera (siguiente tirada) · parar(seg) se apaga poco a poco · mudo(v)
+   · golpe(tipo, op)   'ultra' | 'premio' | 'nada': impacto y la música sigue (con mp3: op.t = el instante en el que
+                       ruleta.js ha programado la canción; el impacto cae exactamente ahí)
+   · calmar()          vuelve a la espera (siguiente tirada) · parar(seg) se apaga poco a poco
+   Sin opción de silencio: en el sorteo siempre suena.
    Usa el AudioContext de ruleta.js (IBSonido), que se desbloquea en el toque. Si no hay ruleta.js, crea uno propio.
    En móviles los altavoces no dan graves: bombos, latidos y golpes llevan también «cuerpo» en medios. */
 (function(){
@@ -25,7 +27,7 @@
 
   let ac = null, B = null, RUIDO = null, IMP = null;
   let modo = 'off', nivel = 0, ancla = 0, pasoSig = 0, base = 0, timer = 0, pendiente = null, atCuenta = 0;
-  let pad = null, dron = null, mudoV = false, apagando = 0;
+  let pad = null, dron = null, apagando = 0;
 
   /* ======================= motor ======================= */
   function iniciar(){
@@ -65,10 +67,9 @@
     for(let c = 0; c < 2; c++){ const d = b.getChannelData(c); for(let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3.2); }
     return b;
   }
-  const silenciado = () => mudoV || (SON() && SON().mudo && SON().mudo());
   function volumen(v, seg){
     if(!B) return; const t = ac.currentTime, g = B.master.gain;
-    g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(silenciado() ? 0 : v, t + (seg || .05));
+    g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(v, t + (seg || .05));
   }
   function rampa(param, v, t, seg){ try{ param.cancelScheduledValues(t); param.setValueAtTime(param.value, t); param.linearRampToValueAtTime(v, t + seg); }catch(e){} }
   const lookahead = () => document.hidden ? 1.6 : .16;
@@ -311,7 +312,7 @@
       const empieza = Math.max(ac.currentTime, ancla);
       B.master.gain.cancelScheduledValues(ac.currentTime); B.master.gain.setValueAtTime(B.master.gain.value, ac.currentTime);
       B.master.gain.linearRampToValueAtTime(B.master.gain.value, empieza);
-      B.master.gain.linearRampToValueAtTime(silenciado() ? 0 : VOL, empieza + (ancla < ac.currentTime ? 2 : .6));
+      B.master.gain.linearRampToValueAtTime(VOL, empieza + (ancla < ac.currentTime ? 2 : .6));
       arrancar();
     },
     // ya = true: cambia en el acto (re-ancla la rejilla); si no, en el próximo compás para que encaje con la música
@@ -333,7 +334,7 @@
     golpe(tipo, op){
       if(!iniciar()) return;
       op = op || {};
-      const t = ac.currentTime + .02;
+      const t = Math.max(ac.currentTime + .005, op.t || ac.currentTime + .02);   // el mismo instante que la canción de ganar
       if(modo === 'off' || apagando){ clearTimeout(apagando); apagando = 0; volumen(VOL, .05); }
       if(tipo === 'nada'){ nivel = .22; if(modo !== 'tension') pendiente = 'tension'; return; }
       impacto(t, tipo === 'ultra');
@@ -355,7 +356,6 @@
       clearTimeout(apagando);
       apagando = setTimeout(() => { apagando = 0; modo = 'off'; pendiente = null; parado(); if(pad){ pad.fin(); pad = null; } if(dron){ dron.fin(); dron = null; } }, seg * 1000 + 120);
     },
-    mudo(v){ mudoV = !!v; if(B && modo !== 'off' && !apagando) volumen(VOL, .1); },
     sonando(){ return modo !== 'off' && !apagando; },
     modo(){ return modo; },
     INICIO_MS: VENTANA_MS

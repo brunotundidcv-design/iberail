@@ -405,6 +405,7 @@ def rebrand(s):
     ]
     for a, b in rep:
         s = s.replace(a, b)
+    s = re.sub(r'<a href="bases-sorteo\.html">(.*?)</a>', r'\1', s)   # el sorteo es de Iberail: no hay página en Zarping
     s = s.replace('<img src="assets/img/icon.svg" alt="" width="54" height="54">', '<img src="assets/img/icon.svg" alt="" width="54" height="54">')
     return s
 
@@ -437,7 +438,7 @@ def main():
         '/panel.html  https://iberail.com/panel.html  302\n'
         '/*  /404.html  404\n', encoding='utf-8')
     (OUT / 'robots.txt').write_text('User-agent: *\nAllow: /\nDisallow: /cuenta.html\nDisallow: /grupos.html\n\nSitemap: https://zarping.com/sitemap.xml\n', encoding='utf-8')
-    urls = ['', 'viajes.html', 'destinos.html', 'festivales.html', 'monta-tu-viaje.html', 'contacto.html', 'aviso-legal.html', 'politica-privacidad.html', 'politica-cookies.html']
+    urls = ['', 'viajes.html', 'destinos.html', 'festivales.html', 'monta-tu-viaje.html', 'contacto.html', 'aviso-legal.html', 'condiciones-generales.html', 'politica-privacidad.html', 'politica-cookies.html']
     (OUT / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         ''.join(f'  <url><loc>{SITE}/{u}</loc></url>\n' for u in urls) + '</urlset>\n', encoding='utf-8')
 
@@ -466,7 +467,8 @@ def main():
          rebrand(iberail_main('cuenta.html')), ACCT_JS, supa=True, noindex=True, fab=False)
     page('grupos.html', 'Mis grupos · Zarping', 'Tu grupo de viaje: el plan, los billetes, los alojamientos, los avisos y los pagos.',
          rebrand(iberail_main('grupos.html')), ACCT_JS, supa=True, noindex=True, fab=False)
-    for f, t in [('aviso-legal.html', 'Aviso legal'), ('politica-privacidad.html', 'Política de privacidad'), ('politica-cookies.html', 'Política de cookies')]:
+    for f, t in [('aviso-legal.html', 'Aviso legal'), ('condiciones-generales.html', 'Condiciones generales'),
+                 ('politica-privacidad.html', 'Política de privacidad'), ('politica-cookies.html', 'Política de cookies')]:
         page(f, f'{t} · Zarping', f'{t} de zarping.com.', rebrand(iberail_main(f)), BASE_JS, fab=False)
 
     # restos de Iberail que no deberían quedar en la web de Zarping
@@ -476,7 +478,7 @@ def main():
         t = re.sub(r'<div class="faq-item">[^\n]*Interrail\?.*?</div></div></div>', '', t)
         for bad in ['Interrail', 'rutas.html', 'paises.html', 'split.html', 'Iberail Protect', 'planificador']:
             n = t.count(bad)
-            if n and not (f.name.startswith('politica') or f.name == 'aviso-legal.html'):
+            if n and not (f.name.startswith('politica') or f.name in ('aviso-legal.html', 'condiciones-generales.html')):
                 print(f'  aviso: {f.name} contiene «{bad}» ×{n}')
     print('Zarping generado en', OUT)
 

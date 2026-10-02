@@ -17,14 +17,14 @@
      Todo pasa por un único AudioContext que se desbloquea en el toque de «Abrir» (en iPhone, si el audio
      arranca fuera de un toque, no suena nada). Los mp3 del panel mandan; si no hay, sonido sintetizado.
        tic     → cada pieza que pasa por la flecha (corto: se decodifica entero)
-       premio  → al ganar cualquier premio · ultra → al ganar la entrada del Ultra (pueden ser largos: se
-                 reproducen con <audio>, «cebado» también en el toque para que luego pueda sonar)
+       premio  → al ganar cualquier premio · ultra → al ganar la entrada del Ultra: se descargan y decodifican
+                 mientras gira la cinta y se programan en el MISMO instante que el golpe («boom»), con el
+                 reloj del AudioContext. Si no da tiempo a decodificarlos (o pesan mucho), <audio> en el golpe.
+     Sin botón de silencio: en el sorteo siempre suena (decisión de Bruno).
      Opcional en la web: assets/snd/premio.mp3, ultra.mp3, tic.mp3 (ahora no existen y no pasa nada). */
   const SND_DEF = { premio: 'assets/snd/premio.mp3', ultra: 'assets/snd/ultra.mp3', tic: 'assets/snd/tic.mp3' };
   let SND = { ...SND_DEF };   // show() lo sustituye por los que haya subido el equipo
-  const MUTE = 'ib-srt-mute';
-  const mudo = () => { try{ return localStorage.getItem(MUTE) === '1'; }catch(e){ return false; } };
-  const setMudo = v => { try{ localStorage.setItem(MUTE, v ? '1' : '0'); }catch(e){} aplicarMudo(); };
+  try{ localStorage.removeItem('ib-srt-mute'); }catch(e){}   // el antiguo botón de silencio ya no existe
   let AC = null, OUT = null, RUIDO = null;
   function ctx(){
     try{
@@ -36,7 +36,6 @@
   function out(){
     const a = ctx(); if(!a) return null;
     if(!OUT){ OUT = a.createGain(); const comp = a.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 3; OUT.connect(comp).connect(a.destination); }
-    OUT.gain.value = mudo() ? 0 : 1;
     return OUT;
   }
   function ruido(a){
@@ -61,13 +60,25 @@
     }).catch(() => null);
     return bufs[url];
   }
-  const bufListo = {};   // url → AudioBuffer ya decodificado (para el tic, que no puede esperar)
+  const bufListo = {};   // url → AudioBuffer ya decodificado (el tic y las canciones de ganar, que no pueden esperar)
   function sonar(buf, vol, rate){
-    const a = ctx(), o = out(); if(!a || !o || !buf || mudo()) return null;
+    const a = ctx(), o = out(); if(!a || !o || !buf) return null;
     const s = a.createBufferSource(), g = a.createGain(); s.buffer = buf; if(rate) s.playbackRate.value = rate; g.gain.value = vol == null ? .8 : vol;
     s.connect(g).connect(o); s.start(); return s;
   }
-  // <audio> para los mp3 largos: se «ceba» en el toque (play en silencio y pausa) y así luego puede sonar
+  // canciones de ganar: se descargan y decodifican al abrir la ruleta (la cinta tarda ~20 s: da tiempo de sobra)
+  const MAX_DEC = 12 * 1024 * 1024;   // más grande que esto no se decodifica entero (memoria del móvil): va por <audio>
+  const grande = {};
+  function precargar(url){
+    if(!url || bufListo[url] || grande[url]) return;
+    if(!bufs[url]) bufs[url] = fetch(url).then(r => r.ok ? r.arrayBuffer() : null).then(ab => {
+      const a = ctx(); if(!ab || !a) return null;
+      if(ab.byteLength > MAX_DEC){ grande[url] = true; return null; }
+      return new Promise(res => { try{ const p = a.decodeAudioData(ab, res, () => res(null)); if(p && p.catch) p.catch(() => res(null)); }catch(e){ res(null); } });
+    }).catch(() => null);
+    bufs[url].then(b => { if(b) bufListo[url] = b; });
+  }
+  // <audio> de reserva: se desbloquea en el toque con play + pause en el acto (no llega a sonar nada)
   const medias = {}, sonando = new Set();
   function media(url){
     if(!url) return null;
@@ -80,15 +91,33 @@
   }
   function cebar(url){
     const m = media(url); if(!m || !m._ok) return;
-    try{ m.muted = true; const p = m.play(); if(p && p.then) p.then(() => { m.pause(); m.currentTime = 0; m.muted = false; }).catch(() => { m.muted = false; }); }catch(e){}
+    try{ m.muted = true; const p = m.play(); m.pause(); if(p && p.catch) p.catch(() => {}); m.currentTime = 0; m.muted = false; }catch(e){ m.muted = false; }
   }
-  function tocarMedia(url, vol){
-    const m = media(url); if(!m || !m._ok || mudo()) return false;
-    try{ m.currentTime = 0; m.volume = vol == null ? .9 : vol; m.muted = false; m.play().catch(() => {}); sonando.add(m); m.addEventListener('ended', () => sonando.delete(m), { once: true }); return true; }catch(e){ return false; }
+  // la canción de ganar, en el instante t (segundos del AudioContext, el mismo del golpe)
+  let cancion = null;
+  function tocarCancion(url, vol, t){
+    if(!url) return false;
+    const a = ctx(), b = bufListo[url];
+    if(a && b){
+      const s = a.createBufferSource(), g = a.createGain();
+      s.buffer = b; g.gain.value = vol == null ? .9 : vol;
+      s.connect(g).connect(a.destination);   // directa a la salida: la canción ya viene masterizada
+      s.start(Math.max(a.currentTime, t || 0));
+      cancion = { s, g }; s.onended = () => { if(cancion && cancion.s === s) cancion = null; };
+      return true;
+    }
+    const m = media(url); if(!m || !m._ok) return false;
+    const ya = () => { try{ m.currentTime = 0; m.volume = vol == null ? .9 : vol; m.muted = false; m.play().catch(() => {}); sonando.add(m); m.addEventListener('ended', () => sonando.delete(m), { once: true }); }catch(e){} };
+    const espera = a && t ? (t - a.currentTime) * 1000 : 0;
+    if(espera > 4) setTimeout(ya, espera); else ya();
+    return true;
   }
-  function aplicarMudo(){ if(OUT) OUT.gain.value = mudo() ? 0 : 1; sonando.forEach(m => { m.muted = mudo(); }); if(window.IBBanda) IBBanda.mudo(mudo()); }
-  // se apagan en 0,8 s en vez de cortarse en seco (en iPhone el volumen no se puede tocar: ahí se paran al final)
+  // se apagan en 0,8 s en vez de cortarse en seco (en iPhone el volumen de <audio> no se puede tocar: ahí se paran al final)
   function pararMedias(){
+    if(cancion){
+      const { s, g } = cancion, a = ctx(); cancion = null;
+      try{ const t = a.currentTime; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + .8); s.stop(t + .85); }catch(e){ try{ s.stop(); }catch(_){} }
+    }
     sonando.forEach(m => { const v0 = m.volume, t0 = performance.now(); const paso = () => { const x = Math.min(1, (performance.now() - t0) / 800); try{ m.volume = v0 * (1 - x); }catch(e){} if(x < 1) requestAnimationFrame(paso); else { try{ m.pause(); m.volume = v0; }catch(e){} } }; requestAnimationFrame(paso); });
     sonando.clear();
   }
@@ -109,22 +138,21 @@
   }
   // el clic de la cinta: lengüeta de madera; más aguda y seca cuanto más rápido va
   function clic(vel){
-    const a = ctx(); if(!a || mudo()) return;
+    const a = ctx(); if(!a) return;
     const t = a.currentTime;
     soplo(t, 'bandpass', 2600 + vel * 1600, .7, .035, 0, 5);
     tono(1700 + vel * 600, t, .05, .28, 'triangle', 650);
   }
   function tic(vel){
-    if(mudo()) return;
     const b = bufListo[SND.tic];
     if(b) sonar(b, .55, .92 + vel * .25); else clic(vel);
   }
   function zumbido(){   // al arrancar la cinta
-    const a = ctx(); if(!a || mudo()) return;
+    const a = ctx(); if(!a) return;
     soplo(a.currentTime, 'bandpass', 3000, .22, 2.2, 400, 2);
   }
   function latido(){
-    const a = ctx(); if(!a || mudo()) return;
+    const a = ctx(); if(!a) return;
     const t = a.currentTime;
     tono(70, t, .22, .7, 'sine', 40); tono(62, t + .2, .26, .55, 'sine', 36);
   }
@@ -159,35 +187,38 @@
     for(let i = 0; i < 18; i++) tono(2000 + Math.random() * 3000, t + 2.2 + i * .14, .3, .045, 'sine');
   }
   const BANDA = () => window.IBBanda || null;   // assets/musica.js: la música continua (cuenta atrás → tensión → fiesta)
-  // golpe final: con la banda sonora, el impacto y la música siguiente van pegados (sin silencio entre medias)
+  // golpe final: con la banda sonora, el impacto y la música siguiente van pegados (sin silencio entre medias).
+  // La canción de ganar entra en el mismo instante t que el «boom» (no antes): los dos van con el reloj del AudioContext.
+  function cancionGanar(top, t){
+    return top ? (tocarCancion(SND.ultra, .95, t) || (SND.ultra !== SND_DEF.ultra && tocarCancion(SND_DEF.ultra, .95, t)))
+      : tocarCancion(SND.premio, .9, t);
+  }
   function golpeFinal(gan){
-    const b = BANDA();
-    if(!b){ if(gan.id) fanfarria(gan.tier === 'top'); else pena(); return; }
+    const b = BANDA(), a = ctx(), t = a ? a.currentTime + .03 : 0;
+    if(!b){ if(gan.id) fanfarria(gan.tier === 'top', t); else pena(); return; }
     if(!gan.id){ b.golpe('nada'); pena(); return; }
     const top = gan.tier === 'top';
-    const conMp3 = !mudo() && (top ? (tocarMedia(SND.ultra, .95) || (SND.ultra !== SND_DEF.ultra && tocarMedia(SND_DEF.ultra, .95))) : tocarMedia(SND.premio, .9));
-    b.golpe(top ? 'ultra' : 'premio', { conMp3 });
+    const conMp3 = cancionGanar(top, t);
+    b.golpe(top ? 'ultra' : 'premio', { conMp3, t });
   }
-  function fanfarria(top){
-    if(mudo()) return;
+  function fanfarria(top, t){
     if(top){
-      // con mp3: golpe sintetizado + la canción; sin mp3: la fanfarria completa (ya lleva su golpe)
-      if(tocarMedia(SND.ultra, .95) || (SND.ultra !== SND_DEF.ultra && tocarMedia(SND_DEF.ultra, .95))){ const a = ctx(); if(a) boom(a.currentTime + .02); }
-      else fanfarriaUltra();
+      // con mp3: golpe sintetizado + la canción a la vez; sin mp3: la fanfarria completa (ya lleva su golpe)
+      if(cancionGanar(true, t)) boom(t); else fanfarriaUltra();
       return;
     }
-    if(!tocarMedia(SND.premio, .9)) fanfarriaPremio();
+    if(!cancionGanar(false, t)) fanfarriaPremio();
   }
   function pena(){   // no ha tocado: dos notas que bajan, suave
-    const a = ctx(); if(!a || mudo()) return; const t = a.currentTime;
+    const a = ctx(); if(!a) return; const t = a.currentTime;
     tono(392, t, .22, .14, 'triangle'); tono(311, t + .2, .45, .12, 'triangle');
   }
   function pop(){   // cada fuego artificial
-    const a = ctx(); if(!a || mudo()) return; const t = a.currentTime;
+    const a = ctx(); if(!a) return; const t = a.currentTime;
     soplo(t, 'lowpass', 1200, .32, .35, 200); tono(180, t, .25, .25, 'sine', 50);
     for(let i = 0; i < 4; i++) soplo(t + .25 + i * .07 + Math.random() * .05, 'highpass', 6000, .06, .05);
   }
-  window.IBSonido = { ctx, out, unlock, mudo, setMudo, sonar, cargar, pop, boom: () => { const a = ctx(); if(a && !mudo()) boom(a.currentTime + .02); } };
+  window.IBSonido = { ctx, out, unlock, sonar, cargar, pop, boom: () => { const a = ctx(); if(a) boom(a.currentTime + .02); } };
 
   const NADA = { id: '', label: 'Sigue en el sorteo', tier: 'nada' };
   const ICON = { top: '🎟️', alto: '💶', medio: '🍹', bajo: '💶', nada: '🎲' };
@@ -227,7 +258,7 @@
 
     SND = { ...SND_DEF, ...(o.sonidos || {}) };   // los del panel mandan; si falta uno, el de assets/snd
     cargar(SND.tic).then(b => { if(b) bufListo[SND.tic] = b; });
-    media(SND.premio); media(SND.ultra);
+    precargar(SND.premio); precargar(SND.ultra); media(SND.premio); media(SND.ultra);
     const LARGO = 150, GANA_EN = 140;               // el resultado cae en esta posición
     const premio = catalogo.find(p => p.id === o.premio) || null;
     // tiradas: cada una se abre por separado; el premio sale solo en la que diga el panel (por defecto, la última)
@@ -245,7 +276,6 @@
         ? `<span class="rul-left" data-rul-left>Quedan <b>${Math.max(0, o.restantes.entradas - (o.restantes.dadas || 0))}</b> de ${o.restantes.entradas} entradas por salir</span>` : '';
       el.innerHTML = `<div class="rul-box">
           ${o.test ? '<span class="rul-test">Simulación · no cuenta</span>' : ''}
-          <button type="button" class="rul-snd${mudo() ? ' is-off' : ''}" data-rul-snd aria-label="Activar o quitar el sonido">${mudo() ? '🔇' : '🔊'}</button>
           <div class="rul-head">
             <span class="rul-k">Sorteo Iberail · Ultra Europe 2027</span>
             ${N > 1 ? '<span class="rul-tir" data-rul-tir></span>' : ''}
@@ -271,10 +301,6 @@
         setTimeout(() => { el.remove(); res(toca); }, 260);
       };
       el.addEventListener('click', e => { if(e.target.closest('[data-rul-x]')) close(); });
-      el.addEventListener('click', e => {
-        const b = e.target.closest('[data-rul-snd]'); if(!b) return;
-        unlock(); setMudo(!mudo()); b.textContent = mudo() ? '🔇' : '🔊'; b.classList.toggle('is-off', mudo());
-      });
 
       const track = el.querySelector('[data-rul-track]'), rail = el.querySelector('[data-rul-rail]');
       const acts = el.querySelector('[data-rul-acts]'), head = el.querySelector('[data-rul-h]'), par = el.querySelector('[data-rul-p]');
@@ -379,8 +405,8 @@
 
       el.addEventListener('click', e => {
         if(e.target.closest('[data-rul-go]') && !abierto){
-          // dentro del toque: desbloquear el audio y cebar los mp3 largos para que luego puedan sonar
-          unlock(); cebar(SND.premio); cebar(SND.ultra);
+          // dentro del toque: desbloquear el audio (y el <audio> de reserva, por si la canción no llega a decodificarse)
+          unlock(); cebar(SND.premio); cebar(SND.ultra); precargar(SND.premio); precargar(SND.ultra);
           return void girar();
         }
         if(e.target.closest('[data-rul-next]')){ unlock(); if(fx && fx.fin) fx.fin(); fx = null; pararMedias(); if(BANDA()) BANDA().calmar(); actual++; preparar(); }

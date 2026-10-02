@@ -5,7 +5,10 @@ como parada estrella. Fundador: Bruno Tundidor. **Titular legal** (autónoma, IA
 alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacidad, rutas.html, contrato). Idioma de la web y del trabajo: **español**.
 
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
-sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
+sesión: sorteo del Ultra). **Importada `iberail-web-v8.4`** (02/10/2026, partía del último commit: página `sorteo.html` con
+cuenta atrás `cuenta-atras.js` + `sorteo-pagina.js`, `bases-sorteo.html`, `condiciones-generales.html`, banda sonora `musica.js`,
+celebraciones `fiesta.js`, tiradas por persona; SQL `13-sorteo-tiradas-y-musica.sql` no está en el repo).
+Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
 
 ## Arquitectura
 
@@ -108,7 +111,11 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   van al bucket público `sorteo` y las URL se guardan en `sorteo_config.sonidos`. SQL: `supabase/sql/sorteo-sonidos.sql`.
   Si no hay subido ninguno, usa los archivos opcionales de `assets/snd/` — `premio.mp3` (cualquier premio), `ultra.mp3` (entrada del
   Ultra; si falta usa premio.mp3) y `tic.mp3` (cada premio que pasa por la flecha). Si no están, suena un tono
-  sintetizado con WebAudio. Botón 🔊 arriba a la derecha; el silencio se recuerda (`ib-srt-mute`).
+  sintetizado con WebAudio. **Sin opción de silenciar** en el sorteo (decisión de Bruno): ni botón 🔊 en la ruleta ni
+  «tocar para silenciar» en la cuenta atrás (allí el botón solo activa el sonido y luego desaparece).
+  **Canción de ganar** (Ultra / premio): se descarga y decodifica mientras gira la cinta y se programa con el reloj del
+  AudioContext en el **mismo instante que el «boom»** (`golpeFinal` → `IBBanda.golpe(tipo, { conMp3, t })`); nada de
+  «cebar» el mp3 sonando en silencio. Más de 12 MB o sin decodificar a tiempo → `<audio>` en el golpe.
   **Panel** (pestaña Sorteo): fecha y hora, nº de entradas, acta, catálogo de premios con cantidades, un
   **desplegable por persona** para asignarle su premio, simulación de lo que verá (elige premio, no cuenta) y
   «Publicar resultado». La configuración del panel manda sobre la constante `DRAW`.

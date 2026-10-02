@@ -6,15 +6,14 @@
    La música empieza a falta de 6 minutos (IBBanda.INICIO_MS) y NO se corta en el 0: el tema hace el drop final y
    pasa solo a la base de tensión de la ruleta (assets/musica.js). El navegador no deja sonar nada hasta que la
    persona toca la página: por eso el botón grande de «Activar sonido» (cualquier toque en la página también vale).
+   Una vez activado, el botón desaparece: en el sorteo no hay opción de silenciar (decisión de Bruno).
    Con un mp3 subido, va sincronizado con la cuenta atrás (su final cae en el 0) y en el 0 entra la base de tensión. */
 (function(){
   const FINAL = 5 * 60 * 1000;   // modo final (visual)
   const MUSICA = (window.IBBanda && IBBanda.INICIO_MS) || 6 * 60 * 1000;   // desde aquí suena la música
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pad = n => String(n).padStart(2, '0');
-  const SND = 'ib-srt-snd';
-  const sndPref = () => { try{ return localStorage.getItem(SND) !== '0'; }catch(e){ return true; } };
-  const setSndPref = v => { try{ localStorage.setItem(SND, v ? '1' : '0'); }catch(e){} };
+  try{ localStorage.removeItem('ib-srt-snd'); }catch(e){}   // preferencia del antiguo botón de silencio
   const banda = () => window.IBBanda || null;
 
   function mount(el, o){
@@ -40,10 +39,9 @@
 
     function pintarSnd(rest){
       const enMusica = rest > 0 && rest <= MUSICA;
-      sndB.hidden = !(rest > 0 && rest <= MUSICA + 10 * 60 * 1000);
-      sndB.classList.toggle('is-on', son);
-      sndB.classList.toggle('is-pulse', enMusica && !son);
-      put(sndB, son ? '🔊 Sonido activado · tocar para silenciar' : (enMusica ? '🔊 Activa el sonido para vivir el final' : '🔊 Activa el sonido: la música empieza a falta de 6 minutos'));
+      sndB.hidden = son || !(rest > 0 && rest <= MUSICA + 10 * 60 * 1000);   // solo para activarlo; no se puede quitar
+      sndB.classList.toggle('is-pulse', enMusica);
+      put(sndB, enMusica ? '🔊 Activa el sonido para vivir el final' : '🔊 Activa el sonido: la música empieza a falta de 6 minutos');
     }
 
     /* ---------- mp3 del panel ---------- */
@@ -86,17 +84,13 @@
     function pararMusica(){ if(banda()) banda().parar(.5); if(mp3){ fade(mp3, 0, 500); mp3._sinc = false; } }
     function desbloquear(){
       try{ if(window.IBSonido) IBSonido.unlock(); }catch(e){}
-      try{ if(banda()) banda().mudo(false); }catch(e){}
       crearMp3();
     }
 
-    sndB.addEventListener('click', () => {
-      son = !son; setSndPref(son);
-      if(son){ desbloquear(); arrancarMusica(); } else pararMusica();
-      pintarSnd(resto());
-    });
-    // cualquier toque en la página cuenta como permiso para el sonido (si no lo ha quitado él)
-    const primerToque = () => { if(!son && sndPref()){ son = true; desbloquear(); arrancarMusica(); pintarSnd(resto()); } };
+    // el botón y cualquier toque en la página activan el sonido (y ya no se apaga)
+    const activar = () => { if(son) return; son = true; desbloquear(); arrancarMusica(); pintarSnd(resto()); };
+    sndB.addEventListener('click', activar);
+    const primerToque = activar;
     el.addEventListener('pointerdown', primerToque, { once: true });
 
     function alCero(){

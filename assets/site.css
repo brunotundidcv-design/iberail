@@ -3548,9 +3548,6 @@ body.srt-lock{overflow:hidden}
 .srtc-simsel{max-width:220px}
 .srtp-premio{padding:7px 10px;border:1px solid #E5DAC6;border-radius:999px;background:#fff;font-size:.76rem;font-weight:600;cursor:pointer;max-width:180px}
 .srtp-premio.is-on{background:linear-gradient(135deg,#FFD66B,#E9A53A);border-color:#E9A53A;color:#2A1611}
-.rul-snd{position:absolute;top:12px;right:12px;z-index:4;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:var(--cream);font-size:14px;cursor:pointer;transition:background .18s}
-.rul-snd:hover{background:rgba(255,255,255,.2)}
-.rul-snd.is-off{opacity:.55}
 .srtc-snd{margin-top:14px}
 .srtc-snd-list{display:grid;gap:8px;margin-top:8px}
 .srtc-snd-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 11px;border:1px solid #E5DAC6;border-radius:12px;background:#fff}
@@ -3591,7 +3588,6 @@ body.srt-lock{overflow:hidden}
 .cta-msg{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(1.05rem,2.2vw,1.6rem);color:#FFF3DC}
 .cta-snd{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;border:1px solid rgba(255,214,107,.4);background:rgba(255,214,107,.1);color:#FFD66B;font:600 .95rem var(--body);cursor:pointer;transition:background .2s,transform .2s}
 .cta-snd:hover{background:rgba(255,214,107,.18)}
-.cta-snd.is-on{border-color:rgba(255,243,220,.2);background:transparent;color:rgba(255,243,220,.7);font-size:.85rem}
 .cta-snd.is-pulse{background:#FFD66B;color:#1F120E;font-size:1.05rem;padding:16px 26px;animation:ctaPulse 1.3s ease-in-out infinite}
 @keyframes ctaPulse{50%{transform:scale(1.05);box-shadow:0 0 0 12px rgba(255,214,107,.15)}}
 .cta-st{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:60px}
@@ -3655,7 +3651,6 @@ body.srt-lock{overflow:hidden}
 .rul-fade{width:16%}
 .rul-go{padding:clamp(16px,2vw,22px) clamp(30px,4vw,52px);font-size:clamp(1.05rem,1.8vw,1.35rem);font-weight:800}
 .rul-wait{font-size:clamp(.75rem,1.2vw,.95rem)}
-.rul-snd{width:46px;height:46px;font-size:19px;top:16px;right:16px}
 .rul-test{top:16px;left:16px;font-size:.66rem}
 .rul-tir{gap:6px}
 .rul-tir i{font-size:clamp(1.3rem,2.4vw,1.8rem)}
