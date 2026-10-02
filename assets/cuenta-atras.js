@@ -172,8 +172,11 @@
     function tick(){
       if(!vivo) return;
       const rest = resto();
-      const sub = o.entradas ? `Tanda ${o.tanda || 1} · sorteamos <b>${o.entradas}</b> de las ${o.total || o.entradas} entradas` : '';
-      put($('[data-k]'), o.sim ? 'Simulación · no cuenta' : (o.at ? `<i></i>${esc(new Date(o.at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }))} · ${pad(new Date(o.at).getHours())}:${pad(new Date(o.at).getMinutes())} h` : 'Próxima tanda'));
+      const tnd = Number(o.tanda) || 1, tot = o.total || o.entradas, quedan = Math.max(o.entradas || 0, tot - (o.entradas || 0) * (tnd - 1));
+      const sub = o.entradas ? (tnd > 1 ? `Sorteo ${tnd} · sorteamos <b>${o.entradas}</b> de las ${quedan} entradas que quedan` : `Tanda 1 · sorteamos <b>${o.entradas}</b> de las ${tot} entradas`) : '';
+      const at = o.at ? new Date(o.at) : null, noche = at && at.getHours() === 0 && at.getMinutes() === 0;   // 00:00 = la noche del día anterior a las 12
+      const diaTxt = at ? new Date(noche ? at - 864e5 : at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+      put($('[data-k]'), o.sim ? 'Simulación · no cuenta' : (at ? `<i></i>${esc(diaTxt)} · ${noche ? 'a las 12 de la noche' : `${pad(at.getHours())}:${pad(at.getMinutes())} h`}` : 'Próxima tanda'));
       put($('[data-sub]'), sub);
       el.classList.toggle('is-final', rest > 0 && rest <= FINAL);
       el.classList.toggle('is-last', rest > 0 && rest <= 10000);

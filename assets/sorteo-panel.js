@@ -19,7 +19,18 @@
     { id: 'd25', label: '25 € de descuento', n: 5, tier: 'bajo' },
     { id: 'd5', label: '5 € de descuento', n: 10, tier: 'bajo' }
   ];
-  const cat = () => ((cfg && cfg.premios && cfg.premios.length) ? cfg.premios : CAT_DEF);
+  // tarjetas Paysafecard (desde el sorteo 2)
+  const PSC = [
+    { id: 'psc75', label: 'Paysafecard de 75 €', n: 1, tier: 'alto' },
+    { id: 'psc50', label: 'Paysafecard de 50 €', n: 2, tier: 'medio' },
+    { id: 'psc25', label: 'Paysafecard de 25 €', n: 3, tier: 'bajo' },
+    { id: 'psc10', label: 'Paysafecard de 10 €', n: 5, tier: 'bajo' }
+  ];
+  // el catálogo guardado + los premios que conoce la web y no están (con 0, para poder añadirlos)
+  const cat = () => {
+    const base = (cfg && cfg.premios && cfg.premios.length) ? cfg.premios : CAT_DEF;
+    return base.concat(CAT_DEF.concat(PSC).filter(d => !base.some(b => b.id === d.id)).map(d => ({ ...d, n: 0 })));
+  };
   const premioLabel = id => (cat().find(p => p.id === id) || {}).label || '';
   const dados = id => [...ganadores.values()].filter(v => v === id).length;
 
@@ -106,9 +117,63 @@
     if(error) return alert('No se pudo guardar: ' + error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-ruleta.sql?');
     cfg = { ...cfg, ...patch }; paint(); if(msg) toast(msg);
   }
+  // fecha de mañana (para «esta noche a las 12» = 00:00 de mañana)
+  const manana = () => { const d = new Date(Date.now() + 864e5); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  function nextHtml(){
+    const c = cfg || {}, t = Number(c.tanda) || 1, n = t + 1;
+    const noche = String(c.hora || '').slice(0, 5) === '00:00';   // 00:00 = la noche del día anterior a las 12
+    const ahora = c.fecha ? `${new Date(new Date(c.fecha + 'T12:00:00') - (noche ? 864e5 : 0)).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${noche ? '12 de la noche' : esc(c.hora || '20:00')}` : 'sin fecha';
+    const hayPsc = cat().some(x => /^psc/.test(x.id) && Number(x.n) > 0);
+    return `<section class="lv-card srtc srtc-next">
+      <div class="srtp-h"><h3>🎟️ Preparar el sorteo ${n}</h3><span class="srtc-now">Ahora en la web: <b>sorteo ${t}</b> · ${ahora} · ${c.publicado ? 'publicado' : 'sin publicar'}</span></div>
+      <p class="srtp-hint">Con un botón: se <b>descarga un archivo con los premios del sorteo ${t}</b> (para que no se pierda quién ganó qué), se borran los premios asignados, se despublica y la web pasa a la <b>cuenta atrás del sorteo ${n}</b>. Las inscripciones y las tiradas extra de cada uno se quedan. La música y los sonidos, igual.</p>
+      <div class="srtc-grid">
+        <label>Día<input class="pl-input" type="date" id="srtNxF" value="${esc(manana())}"></label>
+        <label>Hora <small>(00:00 = esta noche a las 12)</small><input class="pl-input" type="time" id="srtNxH" value="00:00"></label>
+        <label>Entradas del Ultra en este sorteo<input class="pl-input" type="number" min="0" max="20" id="srtNxN" value="${esc(c.entradas || 3)}"></label>
+      </div>
+      <label class="srtc-chk"><input type="checkbox" id="srtNxPsc" ${hayPsc ? 'checked disabled' : 'checked'}> Añadir tarjetas <b>Paysafecard</b> de 10 € (×5), 25 € (×3), 50 € (×2) y 75 € (×1)${hayPsc ? ' · ya están en el catálogo' : ''} <small>(luego cambias las cantidades en «Premios de esta tanda»)</small></label>
+      <div class="srtc-acts"><button type="button" class="btn btn--dark btn--sm" data-srt-next>Preparar el sorteo ${n}</button></div>
+    </section>`;
+  }
+  function descargarCSV(filas, tanda){
+    const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const lin = [['nombre', 'email', 'premio', 'tirada', 'abierto', 'tanda', 'user_id'].join(';')]
+      .concat(filas.map(x => [name(x.user_id), cli(x.user_id).email || '', premioLabel(x.premio || 'entrada') || x.premio || 'entrada', x.tirada || '', x.visto ? new Date(x.visto).toLocaleString('es-ES') : 'no', x.tanda || tanda, x.user_id].map(q).join(';')));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + lin.join('\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = `sorteo-${tanda}-premios.csv`; document.body.appendChild(a); a.click(); a.remove();
+  }
+  async function nuevaTanda(btn){
+    const v = id => (document.getElementById(id) || {}).value;
+    const t = Number((cfg || {}).tanda) || 1, n = t + 1;
+    const fecha = v('srtNxF'), hora = v('srtNxH') || '00:00', ent = Math.max(0, Number(v('srtNxN')) || 0);
+    const psc = !!(document.getElementById('srtNxPsc') || {}).checked;
+    if(!fecha) return alert('Pon el día del sorteo.');
+    const cuando = `${new Date(fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${hora}${hora === '00:00' ? ' (la noche anterior a las 12)' : ''}`;
+    if(!confirm(`¿Preparar el sorteo ${n} para el ${cuando}?\n\n• Se descarga un archivo con los premios del sorteo ${t}.\n• Se borran los premios asignados y queda sin publicar.\n• La web pasa a la cuenta atrás del sorteo ${n}.\n• Las inscripciones y las tiradas extra se quedan.`)) return;
+    btn.disabled = true; btn.textContent = 'Preparando…';
+    const fin = () => { btn.disabled = false; btn.textContent = `Preparar el sorteo ${n}`; };
+    const g = await IB.sb.from('sorteo_ganadores').select('*');
+    if(g.error){ fin(); return alert('No se pudieron leer los premios del sorteo ' + t + ': ' + g.error.message); }
+    const filas = g.data || [];
+    if(filas.length){
+      descargarCSV(filas, t);
+      try{ localStorage.setItem('ib-srt-copia-sorteo-' + t, JSON.stringify(filas)); }catch(e){}
+      const d = await IB.sb.from('sorteo_ganadores').delete().in('user_id', filas.map(x => x.user_id));
+      if(d.error){ fin(); return alert('Se ha descargado la copia, pero no se pudieron borrar los premios: ' + d.error.message); }
+    }
+    let premios = cat().map(x => ({ ...x, n: Number(x.n) || 0 }));
+    premios = premios.map(x => x.id === 'entrada' ? { ...x, n: ent } : x);
+    if(psc) premios = premios.map(x => { const d = PSC.find(p => p.id === x.id); return d && !x.n ? { ...x, n: d.n } : x; });
+    premios = premios.filter(x => x.n > 0);
+    ganadores = new Map(); tirs = new Map();
+    await saveCfg({ tanda: n, fecha, hora, entradas: ent, publicado: false, acta: null, premios }, `<b>Sorteo ${n} preparado</b>${filas.length ? `Copia del sorteo ${t} descargada (${filas.length} ${filas.length === 1 ? 'premio' : 'premios'}). ` : ''}Asigna los premios y publica.`);
+    fin();
+  }
   function cfgHtml(){
     const c = cfg || {}, n = ganadores.size;
-    return `<section class="lv-card srtc">
+    return nextHtml() + `<section class="lv-card srtc">
       <div class="srtp-h"><h3>⚙️ Configuración del sorteo</h3></div>
       <p class="srtp-hint">El sorteo lo celebras tú aparte. Aquí pones <b>cuándo se revela</b> y <b>qué le ha tocado a cada uno</b>; cada persona abre su premio en su cuenta y lo ve al momento. Nadie ve el premio de los demás. Hasta que no le des a «Publicar», nadie ve nada.</p>
       ${cfgErr ? `<p class="lv-empty is-err">${esc(cfgErr)} · Ejecuta <b>supabase/sql/sorteo-ruleta.sql</b> en Supabase.</p>` : ''}
@@ -251,6 +316,8 @@
       const sonidos = { ...((cfg || {}).sonidos || {}) }; delete sonidos[sd.dataset.sndDel];
       return saveCfg({ sonidos }, 'Sonido quitado');
     }
+    const nx = e.target.closest('[data-srt-next]');
+    if(nx) return void nuevaTanda(nx);
     if(e.target.closest('[data-srt-cfg]')){
       const g = id => (document.getElementById(id) || {}).value;
       const premios = cat().map(x => ({ ...x, n: Number((document.querySelector(`[data-cat="${x.id}"]`) || {}).value) || 0 })).filter(x => x.n > 0);

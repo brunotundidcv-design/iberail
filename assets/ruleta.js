@@ -224,7 +224,7 @@
 
   const NADA = { id: '', label: 'Sigue en el sorteo', tier: 'nada' };
   const ICON = { top: '🎟️', alto: '💶', medio: '🍹', bajo: '💶', nada: '🎲' };
-  const icono = p => p.id === 'copas' ? '🍹' : (ICON[p.tier] || '🎲');
+  const icono = p => p.id === 'copas' ? '🍹' : /^psc/.test(p.id || '') ? '💳' : (ICON[p.tier] || '🎲');
 
   // la cinta: muchos huecos repartidos según las cantidades reales del catálogo.
   // Alrededor de donde para: si toca el Ultra, justo antes no hay ninguno (no se ve venir);
@@ -255,7 +255,11 @@
       { id: 'd50', label: '50 € de descuento', n: 3, tier: 'medio' },
       { id: 'copas', label: 'Bono de copas en Split', n: 5, tier: 'medio' },
       { id: 'd25', label: '25 € de descuento', n: 5, tier: 'bajo' },
-      { id: 'd5', label: '5 € de descuento', n: 10, tier: 'bajo' }
+      { id: 'd5', label: '5 € de descuento', n: 10, tier: 'bajo' },
+      { id: 'psc75', label: 'Paysafecard de 75 €', n: 1, tier: 'alto' },
+      { id: 'psc50', label: 'Paysafecard de 50 €', n: 2, tier: 'medio' },
+      { id: 'psc25', label: 'Paysafecard de 25 €', n: 3, tier: 'bajo' },
+      { id: 'psc10', label: 'Paysafecard de 10 €', n: 5, tier: 'bajo' }
     ]).map(p => ({ ...p }));
 
     SND = { ...SND_DEF, ...(o.sonidos || {}) };   // los del panel mandan; si falta uno, el de assets/snd

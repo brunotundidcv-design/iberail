@@ -13,7 +13,10 @@
   const SUPA = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   // ── Próximo sorteo ─────────────────────────────────────────────────────────
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
-  const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
+  // La configuración del panel manda, salvo que sea de una tanda anterior a esta (así la web pasa sola a la nueva).
+  // hora '00:00' = «esta noche a las 12» (se cuenta como la noche del día anterior).
+  const DRAW = { fecha: '2026-10-03', hora: '00:00', entradas: 3, total: 10, tanda: 2,
+    novedad: 'Nuevos premios: tarjetas Paysafecard de 10, 25, 50 y 75 €.' };
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
   let premio = null, ganaEn = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno · ganaEn: tirada en la que sale (null = la última)
   const pagSorteo = /\/sorteo(\.html)?$/.test(location.pathname);
@@ -34,22 +37,35 @@
   const btnAbrir = () => nuevas() ? (pendientes() === 1 ? 'Abrir tu tirada nueva 🎟️' : `Abrir tus ${pendientes()} tiradas nuevas 🎟️`) : 'Abrir mi premio 🎟️';
   const revelable = () => publicado && premio !== null && premio !== undefined && DRAW.fecha && new Date() >= new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00');
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  const ORD = ['', 'primer', 'segundo', 'tercer', 'cuarto', 'quinto', 'sexto', 'séptimo', 'octavo', 'noveno', 'décimo'];
+  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+  const ord = () => ORD[DRAW.tanda || 1] || `${DRAW.tanda}.º`;
+  const quedanAntes = () => Math.max(DRAW.entradas, DRAW.total - DRAW.entradas * ((DRAW.tanda || 1) - 1));   // entradas que quedaban antes de esta tanda
+  const yaDadas = () => DRAW.total - quedanAntes();
+  // cuándo es, en palabras: «hoy a las 20 h», «esta noche a las 12», «mañana a las 20 h», «el sábado 10 de octubre a las 12 de la noche»
+  function cuandoTxt(){
+    const at = drawAt(); if(!at) return '';
+    const noche = at.getHours() === 0 && at.getMinutes() === 0;
+    const dia = noche ? new Date(at - 864e5) : at;                 // las 00:00 son la noche del día anterior
+    const dias = Math.round((new Date(dia.toDateString() + ' 12:00') - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
+    const hora = noche ? 'a las 12 de la noche' : `a las ${(DRAW.hora || '20:00').replace(/:00$/, '')} h`;
+    if(noche && dias === 0) return 'esta noche a las 12';
+    if(noche && dias === 1) return 'mañana a las 12 de la noche';
+    return (dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `el ${DIAS[dia.getDay()]} ${dia.getDate()} de ${dia.toLocaleDateString('es-ES', { month: 'long' })}`) + ' ' + hora;
+  }
+  const pasado = () => { const at = drawAt(); return !!at && new Date() - at > 12 * 36e5; };
   function drawTxt(largo){
     if(!DRAW.fecha) return largo ? 'Fecha y bases, muy pronto.' : '';
-    const d = new Date(DRAW.fecha + 'T12:00:00');
-    const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
-    if(dias < 0) return largo ? 'Ya hemos sorteado las primeras entradas. Sigue apuntado para las siguientes.' : '';
-    const cuando = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `el ${DIAS[d.getDay()]} ${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`;
-    const n = DRAW.entradas;
-    return largo === 'bar' ? `${cuando}, primer sorteo: ${n} de las ${DRAW.total} entradas del Ultra Europe`
+    if(pasado()) return largo ? 'Ya hemos sorteado estas entradas. Sigue apuntado para las siguientes.' : '';
+    const n = DRAW.entradas, cuando = cuandoTxt(), q = quedanAntes();
+    if((DRAW.tanda || 1) === 1) return largo === 'bar' ? `${cap(cuando)}, primer sorteo: ${n} de las ${DRAW.total} entradas del Ultra Europe`
       : `Primer sorteo ${cuando}: repartimos ${n} de las ${DRAW.total} entradas. Las otras ${DRAW.total - n}, más adelante.`;
+    return largo === 'bar' ? `${cap(cuando)}, ${ord()} sorteo: ${n} entradas más del Ultra Europe`
+      : `${cap(ord())} sorteo ${cuando}: repartimos ${n} de las ${q} entradas que quedan${q - n > 0 ? `. Las otras ${q - n}, más adelante` : ''}.`;
   }
   function drawTag(){
-    if(!DRAW.fecha) return '';
-    const d = new Date(DRAW.fecha + 'T12:00:00');
-    const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
-    if(dias < 0) return '';
-    return (dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' : `${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`) + ' · Primer sorteo';
+    if(!DRAW.fecha || pasado()) return '';
+    return cap(cuandoTxt().replace(/ a las .*$/, '').replace(/^esta noche.*/, 'esta noche')) + ' · ' + cap(ord()) + ' sorteo';
   }
   const paintWhen = () => { const t = drawTxt(true); document.querySelectorAll('[data-srt-when]').forEach(el => { el.textContent = t; el.hidden = !t; });
     const tag = drawTag(); if(tag) document.querySelectorAll('[data-srt-tag]').forEach(el => el.textContent = tag); };
@@ -174,7 +190,9 @@
       if(!r.error){ state = r.data ? 'in' : 'out'; tiradas = r.data ? 1 + (Number(r.data.extra) || 0) : 1; ls.set(inKey(u), r.data ? String(tiradas) : null); paint(); }
       // configuración del sorteo (la edita el equipo en el panel) y mi resultado
       const c = await sb.from('sorteo_config').select('*').eq('id', 1).maybeSingle();
-      if(!c.error && c.data){
+      if(!c.error && c.data) sonidos = c.data.sonidos || null;      // la música y los sonidos, siempre los del panel
+      if(!c.error && c.data && (Number(c.data.tanda) || 1) >= (DRAW.tanda || 1)){   // una tanda anterior no pisa la de la web
+        if(c.data.tanda) DRAW.tanda = Number(c.data.tanda);
         if(c.data.fecha) DRAW.fecha = c.data.fecha;
         if(c.data.hora) DRAW.hora = String(c.data.hora).slice(0, 5);
         if(c.data.entradas) DRAW.entradas = c.data.entradas;
@@ -182,15 +200,15 @@
         DRAW.acta = c.data.acta || '';
         publicado = !!c.data.publicado;
         catalogo = Array.isArray(c.data.premios) && c.data.premios.length ? c.data.premios : null;
-        sonidos = c.data.sonidos || null;
         if(publicado && state === 'in'){
           const [g, rs] = await Promise.all([
-            sb.from('sorteo_ganadores').select('premio, tirada, visto').eq('user_id', u.id).maybeSingle()
+            sb.from('sorteo_ganadores').select('premio, tirada, visto, tanda').eq('user_id', u.id).maybeSingle()
             .then(x => x.error ? sb.from('sorteo_ganadores').select('premio, tirada').eq('user_id', u.id).maybeSingle() : x)
             .then(x => x.error ? sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle() : x),   // sin el archivo 13 no hay columna tirada
             sb.rpc('sorteo_restantes')
           ]);
-          if(!g.error){ premio = g.data ? (g.data.premio || 'entrada') : ''; ganaEn = g.data && g.data.tirada ? Number(g.data.tirada) : null; vistoSrv = !!(g.data && g.data.visto); }
+          const fila = !g.error && g.data && (g.data.tanda == null || Number(g.data.tanda) >= DRAW.tanda) ? g.data : null;   // un premio de una tanda anterior no cuenta
+          if(!g.error){ premio = fila ? (fila.premio || 'entrada') : ''; ganaEn = fila && fila.tirada ? Number(fila.tirada) : null; vistoSrv = !!(fila && fila.visto); }
           const r0 = rs && !rs.error && rs.data ? (Array.isArray(rs.data) ? rs.data[0] : rs.data) : null;
           if(r0) restantes = { entradas: Number(r0.entradas) || 0, dadas: Number(r0.dadas) || 0 };
         }
@@ -240,19 +258,19 @@
 
     const o = document.createElement('div');
     o.className = 'srtk'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Sorteo de entradas para el Ultra Europe');
-    const hora = (DRAW.hora || '20:00').replace(':00', '') + ' h';
-    const dia = when.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
+    const t1 = (DRAW.tanda || 1) === 1, q = quedanAntes(), dadas = yaDadas();
     o.innerHTML = `<div class="srtk-box">
         <div class="srtk-beams" aria-hidden="true"></div>
         <button type="button" class="srtk-x" aria-label="Cerrar">✕</button>
         <div class="srtk-in">
-          <span class="srtk-live"><i></i>Primer sorteo · ${esc(dia)} a las ${esc(hora)}</span>
-          <h2 class="srtk-h">Sorteamos las <em>${DRAW.entradas} primeras</em> entradas del <em>Ultra Europe</em></h2>
-          <div class="srtk-strip" aria-label="${DRAW.entradas} de ${DRAW.total} entradas en este sorteo">
-            ${Array.from({ length: DRAW.total }, (_, i) => `<i class="${i < DRAW.entradas ? 'is-now' : ''}" style="--d:${i * 70}ms"></i>`).join('')}
-            <b>${DRAW.entradas} de ${DRAW.total}</b>
+          <span class="srtk-live"><i></i>${esc(cap(ord()))} sorteo · ${esc(cuandoTxt())}</span>
+          <h2 class="srtk-h">${t1 ? `Sorteamos las <em>${DRAW.entradas} primeras</em> entradas` : `Sorteamos <em>${DRAW.entradas} entradas más</em>`} del <em>Ultra Europe</em></h2>
+          <div class="srtk-strip" aria-label="${DRAW.entradas} de ${q} entradas en este sorteo">
+            ${Array.from({ length: DRAW.total }, (_, i) => `<i class="${i < dadas ? 'is-gone' : i < dadas + DRAW.entradas ? 'is-now' : ''}" style="--d:${i * 70}ms"></i>`).join('')}
+            <b>${DRAW.entradas} de ${q}</b>
           </div>
-          <p class="srtk-p"><b>Ojo:</b> este es el primer sorteo y se reparten <b>${DRAW.entradas} de las ${DRAW.total} entradas</b>. Las otras ${DRAW.total - DRAW.entradas} las sorteamos más adelante, así que si no te toca ahora <b>sigues dentro</b> para las siguientes.</p>
+          <p class="srtk-p"><b>Ojo:</b> ${t1 ? `este es el primer sorteo y se reparten <b>${DRAW.entradas} de las ${DRAW.total} entradas</b>. Las otras ${DRAW.total - DRAW.entradas} las sorteamos más adelante` : `es el ${ord()} sorteo y se reparten <b>${DRAW.entradas} de las ${q} entradas que quedan</b>${q - DRAW.entradas > 0 ? `. Las otras ${q - DRAW.entradas} las sorteamos más adelante` : ''}`}, así que si no te toca ahora <b>sigues dentro</b> para las siguientes.</p>
+          ${!t1 && DRAW.novedad ? `<p class="srtk-p srtk-new">✨ ${esc(DRAW.novedad)}</p>` : ''}
           <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Ese día entras en tu cuenta, giras la ruleta y ves tu resultado al momento.</p>
           <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
           <div class="srtk-acts" data-srtk-acts></div>
@@ -260,7 +278,7 @@
         </div>
         <div class="srtk-art" aria-hidden="true">
           <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
-          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>de ${DRAW.total}</small></span>
+          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>de ${q}</small></span>
         </div>
       </div>`;
     const close = () => { o.classList.remove('is-in'); document.body.classList.remove('srt-lock'); clearInterval(t); setTimeout(() => o.remove(), 260); };
@@ -440,7 +458,7 @@
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
-  paint(); bar(); reloj(); check(); setTimeout(takeover, 1400);
+  paint(); paintWhen(); bar(); reloj(); check(); setTimeout(takeover, 1400);
   // después del sorteo, cada 2 min mira si el equipo le ha sumado tiradas (sin abrir la ruleta sola: sale el botón)
   setInterval(() => { if(state === 'in' && revelable() && !document.hidden) check(false); }, 120000);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {

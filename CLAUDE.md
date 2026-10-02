@@ -137,6 +137,16 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   **Fecha del próximo sorteo**: constante `DRAW = { fecha, entradas }` arriba de `sorteo.js` (vacía = «muy pronto»).
   Rellena `[data-srt-when]` y `[data-srt-tag]` de la portada, la barra de arriba y la tarjeta de la cuenta
   («Sorteamos mañana las 3 primeras entradas»). Pasada la fecha deja de salir solo.
+  **Sorteo 2** (02/10/2026): esta noche a las 00:00 (`DRAW` = 2026-10-03 00:00, tanda 2, 3 entradas). Textos según la tanda
+  (`ord()`, `cuandoTxt()`: 00:00 = «esta noche a las 12»; `quedanAntes()` = total − entradas × tandas anteriores); en el aviso,
+  las entradas ya sorteadas salen en verde (`.is-gone`) y `DRAW.novedad` («Nuevos premios: Paysafecard…»).
+  Una configuración del panel de una tanda **anterior** a `DRAW.tanda` no pisa la web (salvo los sonidos), y un premio de
+  `sorteo_ganadores` con `tanda` anterior no cuenta.
+  **Panel → «Preparar el sorteo N»** (`nextHtml` / `nuevaTanda` en `sorteo-panel.js`): descarga `sorteo-<t>-premios.csv`
+  (copia también en localStorage `ib-srt-copia-sorteo-<t>`), borra `sorteo_ganadores`, pone tanda+1, fecha, hora, entradas,
+  sin publicar y sin acta, y añade las Paysafecard. Inscripciones, tiradas extra y sonidos se quedan.
+  **Paysafecard** (desde el sorteo 2): `psc75` ×1, `psc50` ×2, `psc25` ×3, `psc10` ×5 (icono 💳). El catálogo del panel enseña
+  también los premios conocidos que no están (con 0) para poder añadirlos. Bases: segunda tanda + Paysafecard en los apartados 4 y 6.
   SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
