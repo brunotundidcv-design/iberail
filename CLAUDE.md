@@ -145,9 +145,11 @@ Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit de
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
 - `cola-demo.js` — sala de espera de **demostración** para vídeos y proyectos de Bruno (2-31 personas delante, 50 s - 2 min,
-  tren que avanza, «¡Es tu turno!» y se abre la página). **Solo sale con `?cola` en el enlace** (`iberail.com/?cola`,
-  `?cola=23-95` para tomas iguales, tecla R repite; el `?cola` se quita de la barra). La carga un `<script>` del `<head>`
-  de cada página pública (no el panel). **No activarla para todos los visitantes** (decisión tomada: sería engañar).
+  tren que avanza, «¡Es tu turno!» y se abre la página). **Solo en los dispositivos donde se activa**: abrir una vez
+  `iberail.com/?cola` la deja puesta en ese navegador (localStorage `ib-cola`) y sale sola al entrar, una vez por visita
+  (sessionStorage `ib-cola-ok`); `?cola=23-95` para tomas iguales, tecla R repite, `?cola=no` la desactiva. La carga un
+  `<script>` del `<head>` de cada página pública (no el panel). **No activarla para todos los visitantes** (Bruno lo pidió
+  como «temporal»; se le dijo que no: sería engañar a los visitantes). Bruno avisará para quitarla al publicar.
 
 ## Supabase
 

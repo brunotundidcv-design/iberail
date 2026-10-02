@@ -1,8 +1,10 @@
 /* Iberail — sala de espera de DEMOSTRACIÓN (para vídeos y proyectos de Bruno).
-   Solo sale si se abre la web con ?cola en el enlace (iberail.com/?cola, sorteo.html?cola…): a los visitantes normales
-   no les sale nunca. La carga el script del <head> de cada página pública. Por decisión consciente NO se activa para todos.
-     ?cola          personas delante al azar de 2 a 31 y tiempo al azar de 50 s a 2 min
+   Solo sale en los dispositivos donde se ha activado: a los visitantes normales no les sale nunca. La carga el script
+   del <head> de cada página pública. Por decisión consciente NO se activa para todos.
+     ?cola          la enseña y la deja ACTIVADA en ese navegador: desde entonces sale sola al entrar en la web
+                    (una vez por visita: al navegar entre páginas no se repite) · personas 2-31, tiempo 50 s - 2 min
      ?cola=23-95    23 personas y 95 segundos (para repetir la misma toma) · tecla R = otra vez
+     ?cola=no       la desactiva en ese navegador
    Al acabar: «¡Es tu turno!» y se abre la página de debajo. El ?cola se quita de la barra de direcciones al empezar. */
 (function(){
   const CSS = `
@@ -100,11 +102,11 @@ html.is-cola body{visibility:hidden;overflow:hidden}
   <p class="ibq-pie">Tu Europa en tren, desde España</p>
 </div>`;
 
-  const m = /[?&]cola(?:=(\d+)-(\d+))?(?:&|$)/.exec(location.search);
-  if(!m) return;
-  const fijo = m[1] ? { n: +m[1], t: +m[2] } : null;
+  const m = /[?&]cola=(\d+)-(\d+)(?:&|$)/.exec(location.search);
+  const fijo = m ? { n: +m[1], t: +m[2] } : null;
   // fuera el ?cola de la barra de direcciones (que en el vídeo se vea la dirección normal)
-  try{ const u = new URL(location.href); u.searchParams.delete('cola'); history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash); }catch(e){}
+  try{ const u = new URL(location.href); if(u.searchParams.has('cola')){ u.searchParams.delete('cola'); history.replaceState(history.state, '', u.pathname + (u.search || '') + u.hash); } }catch(e){}
+  if(!document.documentElement.classList.contains('is-cola')) return;   // ?cola=no: solo se desactiva
 
   const azar = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
   const COLORES = ['#FFD66B', '#FF8A5B', '#FFE39A', '#F7C9A8', '#FFB86B', '#E9D5B5', '#FFC53D'];
@@ -166,6 +168,7 @@ html.is-cola body{visibility:hidden;overflow:hidden}
   }
   function salir(){
     limpiar();
+    try{ sessionStorage.setItem('ib-cola-ok', '1'); }catch(e){}   // en esta visita ya no vuelve a salir
     document.documentElement.classList.remove('is-cola');
     window.scrollTo(0, 0);
     el.classList.add('is-out');
