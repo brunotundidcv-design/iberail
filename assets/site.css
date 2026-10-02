@@ -3306,6 +3306,17 @@ body.al-lock{overflow:hidden}
 .srtbar-x svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2}
 @media (max-width:640px){.srtbar-a{justify-content:flex-start;text-align:left;font-size:.78rem;gap:8px;padding-left:12px}.srtbar-in{display:none!important}.srtbar-go{padding:4px 10px}}
 @media (prefers-reduced-motion:reduce){.srtbar::before{animation:none}}
+/* reloj del sorteo (barra + menú del móvil) */
+.srtbar-cd{flex-shrink:0;padding:3px 9px;border-radius:8px;background:rgba(255,214,107,.12);border:1px solid rgba(255,214,107,.35);color:#FFD66B;font:700 .8rem/1.2 'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.srtbar-cd[hidden],.mm-srt-cd[hidden]{display:none}
+@media (max-width:640px){.srt-cd-on .srtbar-tk{display:none}.srtbar-cd{font-size:.74rem;padding:3px 7px}}
+.mm-srt-cd{margin-left:auto;margin-right:10px;padding:3px 9px;border-radius:8px;background:#1F120E;color:#FFD66B;font:700 .8rem/1.2 'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.srtbar-go-c{display:none}
+.srt-cd-link{display:inline-flex;align-items:center;gap:6px;padding:12px 4px;color:#FFD66B;font-weight:700;font-size:.95rem;text-decoration:none}
+.srt-cd-link:hover{text-decoration:underline}
+.srt-cd-link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4}
+.srt-cd-on .srtbar-go-a,.srt-cd-on .srtbar-go-b{display:none!important}
+.srt-cd-on .srtbar-go-c{display:inline}
 .hero-srt{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(255,214,107,.1);border:1px solid rgba(255,214,107,.35);color:#FFF3DC;font-size:.84rem;font-weight:600;text-decoration:none;box-shadow:0 0 24px -6px rgba(255,214,107,.45);transition:background-color .2s,transform .2s var(--ease)}
 .hero-srt:hover{background:rgba(255,214,107,.18);transform:translateY(-1px)}
 .hero-srt-new{padding:3px 10px;border-radius:999px;background:linear-gradient(135deg,#FFE08A,#F2B03D);color:#1F120E;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
@@ -3459,6 +3470,10 @@ body.srt-lock{overflow:hidden}
 .srtk-ok b{color:#F0B02A}
 .srtk-f{display:block;margin-top:14px;font-size:.7rem;line-height:1.5;color:rgba(247,240,227,.45)}
 .srtk-art{position:relative;display:grid;place-items:center;min-height:210px}
+/* iPhone (WebKit): dentro de la caja con scroll, los rayos difuminados y animados tapaban el texto normal (título, cuenta atrás,
+   botones) y solo se veía lo que tenía opacidad propia. El contenido va en su propia capa, por encima de los rayos. */
+.srtk-in,.srtk-art{position:relative;z-index:1;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.srtk-beams{pointer-events:none}
 .srtk-tk{position:relative;width:100%;max-width:300px;aspect-ratio:1.85;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:9% 10%;border-radius:18px;background:linear-gradient(125deg,#FFF0C2 0%,#FFD66B 30%,#E9A53A 62%,#FFE39A 100%);color:#2A1611;box-shadow:0 30px 50px -18px rgba(0,0,0,.75);transform:rotate(-4deg);animation:srtFloat 6s ease-in-out infinite;overflow:hidden}
 .srtk-tk::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%);transform:translateX(-120%);animation:srtShine 4.5s ease-in-out 1s infinite}
 .srtk-tk-k{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7}

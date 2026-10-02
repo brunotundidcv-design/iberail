@@ -3,6 +3,7 @@
      sorteo_inscritos (archivo 12-sorteo.sql). Sin cuenta, el botón lleva a crearla y, al entrar,
      queda inscrito solo (ya lo había pedido).
    · Barra de anuncio arriba del todo (SORTEO_BAR = false para quitarla).
+   · Reloj del sorteo (cuenta atrás → sorteo.html) en la barra y en «Sorteo» del menú del móvil: desde 3 días antes hasta 12 h después.
    · Cartel para stories de Instagram (participación extra): se dibuja en el navegador (1080×1920). */
 (function(){
   const IB = window.IB, C = window.IBERAIL_CONFIG || {};
@@ -282,12 +283,34 @@
     el.className = 'srtbar';
     el.innerHTML = `<a class="srtbar-a" href="sorteo.html">
         <span class="srtbar-tk" aria-hidden="true">🎟️</span>
+        <span class="srtbar-cd" data-srt-cd hidden></span>
         <span class="srtbar-t"><b>Sorteo:</b><span class="srtbar-l"> ${drawTxt('bar') || 'regalamos 10 entradas para el Ultra Europe 2027'}</span><span class="srtbar-s"> 10 entradas Ultra</span><span class="srtbar-in"> · ¡Estás dentro con <span data-srt-n>1 tirada</span>!</span></span>
-        <span class="srtbar-go"><span class="srtbar-go-a">Participar gratis</span><span class="srtbar-go-b">Ver sorteo</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <span class="srtbar-go"><span class="srtbar-go-a">Participar gratis</span><span class="srtbar-go-b">Ver sorteo</span><span class="srtbar-go-c">Cuenta atrás</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </a>
       <button type="button" class="srtbar-x" aria-label="Cerrar anuncio del sorteo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
     el.querySelector('.srtbar-x').addEventListener('click', () => { try{ sessionStorage.setItem(KEY, '1'); }catch(e){} el.remove(); });
     document.body.prepend(el);
+  }
+
+  /* ---------- reloj del sorteo: barra + menú del móvil (todas las páginas menos la del sorteo) ---------- */
+  const enVentana = () => { const w = drawAt(); if(!w) return false; const ms = w - new Date(); return ms <= 3 * 864e5 && ms > -12 * 36e5; };
+  function cdTxt(){
+    const r = drawAt() - new Date();
+    if(r <= 0) return '¡Ya!';
+    const p2 = n => String(n).padStart(2, '0');
+    const d = Math.floor(r / 864e5), h = Math.floor(r / 36e5) % 24, m = Math.floor(r / 6e4) % 60, sg = Math.floor(r / 1e3) % 60;
+    return d ? `${d} d ${p2(h)} h` : `${p2(Math.floor(r / 36e5))}:${p2(m)}:${p2(sg)}`;
+  }
+  function reloj(){
+    if(pagSorteo) return;
+    const mm = document.querySelector('.mm-links a[href="sorteo.html"]');
+    if(mm && !mm.querySelector('[data-srt-cd]')) mm.querySelector('svg').insertAdjacentHTML('beforebegin', '<b class="mm-srt-cd" data-srt-cd hidden></b>');
+    const tick = () => {
+      const on = enVentana(), t = on ? cdTxt() : '';
+      document.querySelectorAll('[data-srt-cd]').forEach(x => { x.textContent = t; x.hidden = !on; });
+      document.documentElement.classList.toggle('srt-cd-on', on);
+    };
+    tick(); setInterval(tick, 1000);
   }
 
   /* ---------- cartel para stories ---------- */
@@ -389,7 +412,7 @@
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
-  paint(); bar(); check(); setTimeout(takeover, 1400);
+  paint(); bar(); reloj(); check(); setTimeout(takeover, 1400);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {
     const u = session ? session.user : null;
     if(!u){ user = null; state = 'guest'; paint(); return; }
