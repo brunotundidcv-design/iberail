@@ -3321,6 +3321,9 @@ body.menu-open .srt-fl,body.srt-lock .srt-fl{display:none}
 @media (max-width:880px){body:has(.mbar.is-visible) .srt-fl{bottom:calc(84px + env(safe-area-inset-bottom))}}
 @media (max-width:380px){.srt-fl-t{display:none}}
 .srtbar-go-c{display:none}
+.srt-repe{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;padding:10px 16px;border-radius:999px;border:1px solid rgba(255,214,107,.5);background:rgba(255,214,107,.1);color:#FFD66B;font:700 .88rem/1.2 inherit;font-family:inherit;cursor:pointer}
+.srt-repe:hover{background:rgba(255,214,107,.18)}
+.srt-repe small{font-weight:500;opacity:.75}
 .srt-cd-link{display:inline-flex;align-items:center;gap:6px;padding:12px 4px;color:#FFD66B;font-weight:700;font-size:.95rem;text-decoration:none}
 .srt-cd-link:hover{text-decoration:underline}
 .srt-cd-link svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.4}

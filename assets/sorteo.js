@@ -113,7 +113,7 @@
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
         <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : (nuevas() ? `<b>¡Tienes ${pendientes() === 1 ? 'una tirada nueva' : pendientes() + ' tiradas nuevas'}!</b>` : '<b>¡Ya puedes abrir tu premio!</b>')) : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
       <div class="srt-me-r">${revelable() && !spun() ? `<button type="button" class="btn srt-btn" data-srt-spin>${btnAbrir()}</button>` : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
-        <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
+        <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}${btnRepe()}</div>`
     : `
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
         <b class="srt-me-h">Aún no participas en el sorteo</b>
@@ -191,6 +191,14 @@
       // configuración del sorteo (la edita el equipo en el panel) y mi resultado
       const c = await sb.from('sorteo_config').select('*').eq('id', 1).maybeSingle();
       if(!c.error && c.data) sonidos = c.data.sonidos || null;      // la música y los sonidos, siempre los del panel
+      recogeHist();
+      if(!c.error && c.data && (Number(c.data.tanda) || 1) < (DRAW.tanda || 1) && c.data.publicado && state === 'in' && c.data.fecha){
+        // la config aún es de la tanda anterior: guardo mi premio de esa tanda para poder repetir la tirada
+        const g0 = await sb.from('sorteo_ganadores').select('premio, tirada').eq('user_id', u.id).maybeSingle()
+          .then(x => x.error ? sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle() : x);
+        if(!g0.error && g0.data) guardaHist(c.data.fecha, { tanda: Number(c.data.tanda) || 1, premio: g0.data.premio || 'entrada', tirada: g0.data.tirada ? Number(g0.data.tirada) : null, tiradas: tiradas, catalogo: c.data.premios });
+        paint();
+      }
       if(!c.error && c.data && (Number(c.data.tanda) || 1) >= (DRAW.tanda || 1)){   // una tanda anterior no pisa la de la web
         if(c.data.tanda) DRAW.tanda = Number(c.data.tanda);
         if(c.data.fecha) DRAW.fecha = c.data.fecha;
@@ -208,6 +216,7 @@
             sb.rpc('sorteo_restantes')
           ]);
           const fila = !g.error && g.data && (g.data.tanda == null || Number(g.data.tanda) >= DRAW.tanda) ? g.data : null;   // un premio de una tanda anterior no cuenta
+          if(!g.error && g.data && !fila){ const f0 = Object.keys(PASADOS).find(f => PASADOS[f] === Number(g.data.tanda)); if(f0) guardaHist(f0, { tanda: Number(g.data.tanda), premio: g.data.premio || 'entrada', tirada: g.data.tirada ? Number(g.data.tirada) : null, tiradas: tiradas }); }
           if(!g.error){ premio = fila ? (fila.premio || 'entrada') : ''; ganaEn = fila && fila.tirada ? Number(fila.tirada) : null; vistoSrv = !!(fila && fila.visto); }
           const r0 = rs && !rs.error && rs.data ? (Array.isArray(rs.data) ? rs.data[0] : rs.data) : null;
           if(r0) restantes = { entradas: Number(r0.entradas) || 0, dadas: Number(r0.dadas) || 0 };
@@ -239,11 +248,68 @@
     const yaVisto = !!premio && h.p === premio;
     await IBRuleta.show({ premio: yaVisto ? '' : premio, yaPremio: yaVisto, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos,
       tiradas: tiradas, desde: desde, ganaEn: ganaEn && ganaEn >= desde ? ganaEn : null,
-      onTirada: (i, gan) => { const a = hecho(); guardaHecho({ u: Math.max(a.u, i), p: gan && gan.id ? gan.id : a.p }); paint(); } });
+      onTirada: (i, gan) => {
+        const a = hecho(); guardaHecho({ u: Math.max(a.u, i), p: gan && gan.id ? gan.id : a.p, en: gan && gan.id ? i : a.en });
+        if(gan && gan.id) guardaHist(DRAW.fecha, { tanda: DRAW.tanda, premio: gan.id, tirada: i, tiradas: tiradas, catalogo: catalogo });
+        paint();
+      } });
     paint();
     if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
   }
   document.addEventListener('click', e => { if(e.target.closest('[data-srt-spin]')){ e.preventDefault(); girar(); } });
+
+  /* ---------- repetir la tirada ganadora de un sorteo anterior (para grabarla en vídeo) ----------
+     Se guarda en el navegador del ganador al abrir su premio (y se recoge de lo que ya había guardado), así sigue
+     ahí aunque el equipo borre los premios al preparar el siguiente sorteo. Solo sale si le tocó algo. */
+  const PASADOS = { '2026-10-02': 1 };                                // fecha → número de sorteo
+  const CAT1 = [
+    { id: 'entrada', label: 'Entrada Ultra Europe', n: 3, tier: 'top' },
+    { id: 'd300', label: '300 € de descuento', n: 1, tier: 'alto' },
+    { id: 'd100', label: '100 € de descuento', n: 2, tier: 'alto' },
+    { id: 'd50', label: '50 € de descuento', n: 3, tier: 'medio' },
+    { id: 'copas', label: 'Bono de copas en Split', n: 5, tier: 'medio' },
+    { id: 'd25', label: '25 € de descuento', n: 5, tier: 'bajo' },
+    { id: 'd5', label: '5 € de descuento', n: 10, tier: 'bajo' }
+  ];
+  const HKEY = () => 'ib-srt-hist-' + (user ? user.id : '');
+  function historial(){ try{ return JSON.parse(localStorage.getItem(HKEY()) || '{}') || {}; }catch(e){ return {}; } }
+  function guardaHist(fecha, h){
+    if(!user || !fecha || !h || !h.premio) return;
+    const all = historial(), prev = all[fecha] || {};
+    all[fecha] = { ...prev, ...Object.fromEntries(Object.entries(h).filter(([, v]) => v != null)) };
+    try{ localStorage.setItem(HKEY(), JSON.stringify(all)); }catch(e){}
+  }
+  function recogeHist(){                                              // lo que ya estaba guardado de antes
+    if(!user) return;
+    try{
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i), m = /^ib-srt-tir-(\d{4}-\d{2}-\d{2})-(.+)$/.exec(k || '');
+        if(m && m[2] === user.id && m[1] !== DRAW.fecha){
+          const j = JSON.parse(localStorage.getItem(k) || 'null');
+          if(j && j.p && !historial()[m[1]]) guardaHist(m[1], { tanda: PASADOS[m[1]], premio: j.p, tirada: j.en || j.u, tiradas: j.u });
+        }
+      }
+      Object.keys(PASADOS).forEach(f => {                              // versión antigua: 'ib-srt-visto-<fecha>' = id del premio ('1' = ninguno)
+        const v = localStorage.getItem('ib-srt-visto-' + f);
+        if(f !== DRAW.fecha && v && v !== '1' && !historial()[f]) guardaHist(f, { tanda: PASADOS[f], premio: v, tiradas: tiradas, tirada: tiradas });
+      });
+    }catch(e){}
+  }
+  function repe(){
+    const h = historial();
+    const f = Object.keys(h).filter(x => x !== DRAW.fecha && h[x].premio).sort().pop();
+    return f ? { fecha: f, ...h[f], tanda: h[f].tanda || PASADOS[f] || 1 } : null;
+  }
+  const btnRepe = () => { const h = repe(); return h ? `<button type="button" class="srt-repe" data-srt-repe>🎬 Repetir mi tirada ganadora del sorteo ${h.tanda} <small>(para grabarla)</small></button>` : ''; };
+  async function repetir(){
+    const h = repe(); if(!h || !window.IBRuleta) return;
+    const base = (Array.isArray(h.catalogo) && h.catalogo.length ? h.catalogo : CAT1).map(p => ({ ...p }));
+    if(!base.some(p => p.id === h.premio)){ const d = CAT1.find(p => p.id === h.premio); if(d) base.push({ ...d }); }
+    const N = Math.max(1, Number(h.tiradas) || Number(h.tirada) || 1), en = Math.max(1, Math.min(N, Number(h.tirada) || N));
+    await IBRuleta.show({ premio: h.premio, catalogo: base, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', sonidos: sonidos,
+      tiradas: N, desde: en, ganaEn: en, repe: `Repetición · sorteo ${h.tanda}` });   // no apunta nada: es solo para verla otra vez
+  }
+  document.addEventListener('click', e => { if(e.target.closest('[data-srt-repe]')){ e.preventDefault(); repetir(); } });
 
   /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
   const drawAt = () => DRAW.fecha ? new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00') : null;
@@ -454,11 +520,11 @@
 
   /* para la página del sorteo (assets/sorteo-pagina.js) */
   window.IBSrt = {
-    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), pendientes: pendientes(), nuevas: nuevas(), boton: btnAbrir(), sonidos: sonidos || {} }),
+    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), pendientes: pendientes(), nuevas: nuevas(), boton: btnAbrir(), repe: btnRepe(), sonidos: sonidos || {} }),
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
-  paint(); paintWhen(); bar(); reloj(); check(); setTimeout(takeover, 1400);
+  recogeHist(); paint(); paintWhen(); bar(); reloj(); check(); setTimeout(takeover, 1400);
   // después del sorteo, cada 2 min mira si el equipo le ha sumado tiradas (sin abrir la ruleta sola: sale el botón)
   setInterval(() => { if(state === 'in' && revelable() && !document.hidden) check(false); }, 120000);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {

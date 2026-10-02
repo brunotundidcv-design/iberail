@@ -147,6 +147,12 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   sin publicar y sin acta, y añade las Paysafecard. Inscripciones, tiradas extra y sonidos se quedan.
   **Paysafecard** (desde el sorteo 2): `psc75` ×1, `psc50` ×2, `psc25` ×3, `psc10` ×5 (icono 💳). El catálogo del panel enseña
   también los premios conocidos que no están (con 0) para poder añadirlos. Bases: segunda tanda + Paysafecard en los apartados 4 y 6.
+  **Repetir la tirada ganadora** (para grabar la pantalla): botón «🎬 Repetir mi tirada ganadora del sorteo N» (`.srt-repe`) en
+  «Mi cuenta»/«Mis grupos» y en `sorteo.html`, solo para quien ganó algo en un sorteo anterior. Vuelve a abrir la cinta en esa
+  tirada con el mismo premio y la etiqueta «Repetición · sorteo N»; no apunta nada. Los datos salen del navegador del ganador
+  (`ib-srt-hist-<uid>` = `{fecha: {tanda, premio, tirada, tiradas, catalogo}}`; se rellena al abrir el premio, de
+  `ib-srt-tir-…`/`ib-srt-visto-…` y de su fila de `sorteo_ganadores` mientras exista). `PASADOS` = fecha → nº de sorteo.
+  Si abrió el premio en otro dispositivo y ya se han borrado los premios, en ese dispositivo no sale.
   SQL `12-sorteo.sql` no está en el repo.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):

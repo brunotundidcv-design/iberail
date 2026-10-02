@@ -10,7 +10,8 @@
      test      true = simulación del panel (no cuenta)
      tiradas   cuántas tiradas tiene la persona (1 + extras) · ganaEn  en cuál sale el premio (por defecto, la última)
      desde     primera tirada que se abre (si ya abrió 4 y le suman 1: desde 5) · yaPremio  ya vio su premio antes
-     onTirada  (i, premio) al terminar cada tirada, para apuntar cuántas lleva abiertas */
+     onTirada  (i, premio) al terminar cada tirada, para apuntar cuántas lleva abiertas
+     repe      texto de la etiqueta si es la repetición de una tirada ya hecha (p. ej. «Repetición · sorteo 1») */
 (function(){
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -284,12 +285,13 @@
         ? `<span class="rul-left" data-rul-left>Quedan <b>${Math.max(0, o.restantes.entradas - (o.restantes.dadas || 0))}</b> de ${o.restantes.entradas} entradas por salir</span>` : '';
       el.innerHTML = `<div class="rul-box">
           ${o.test ? '<span class="rul-test">Simulación · no cuenta</span>' : ''}
+          ${o.repe ? `<span class="rul-test rul-repe">${esc(o.repe)}</span>` : ''}
           <div class="rul-head">
             <span class="rul-k">Sorteo Iberail · Ultra Europe 2027</span>
             ${N > 1 ? '<span class="rul-tir" data-rul-tir></span>' : ''}
             <div class="rul-prize" data-rul-prize hidden></div>
             <b class="rul-h" data-rul-h>Abre tu premio</b>
-            <p class="rul-p" data-rul-p>${DESDE > 1 ? `Tienes <b>${NUEVAS === 1 ? '1 tirada nueva' : NUEVAS + ' tiradas nuevas'}</b>. ${NUEVAS === 1 ? '¡Ábrela!' : 'Ábrelas una a una.'}` : N > 1 ? `Tienes <b>${N} tiradas</b>. Ábrelas una a una.` : 'Dale a abrir: la cinta para donde para.'}</p>
+            <p class="rul-p" data-rul-p>${o.repe ? `Tu tirada ${DESDE}${N > 1 ? ` de ${N}` : ''}, otra vez. Pon a grabar la pantalla y ábrela.` : DESDE > 1 ? `Tienes <b>${NUEVAS === 1 ? '1 tirada nueva' : NUEVAS + ' tiradas nuevas'}</b>. ${NUEVAS === 1 ? '¡Ábrela!' : 'Ábrelas una a una.'}` : N > 1 ? `Tienes <b>${N} tiradas</b>. Ábrelas una a una.` : 'Dale a abrir: la cinta para donde para.'}</p>
             ${quedan}
           </div>
           <div class="rul-rail" data-rul-rail>

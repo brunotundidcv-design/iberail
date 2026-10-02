@@ -6,6 +6,9 @@
   let cta = null;
 
   function estado(rest){
+    return estado0(rest) + (IBSrt.get().repe || '');   // «Repetir mi tirada ganadora» (si ganó en un sorteo anterior)
+  }
+  function estado0(rest){
     const s = IBSrt.get();
     if(rest <= 0){
       if(s.state !== 'in') return '<p class="cta-note">Esta tanda ya ha empezado. Apúntate y entras en las siguientes.</p>' + (s.state === 'guest' ? '<button type="button" class="cta-btn" data-srt-join>Crear cuenta y participar</button>' : '<button type="button" class="cta-btn" data-srt-join>Participar gratis</button>');
