@@ -7,7 +7,30 @@
   const eur = n => Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const PART_MIN = 20;
 
+  /* PAUSA: estamos cambiando de pasarela de pago. Mientras PAGOS_PAUSA sea true no se abre Stripe:
+     al pulsar «Pagar» sale un aviso. Para reactivar, ponlo a false. */
+  const PAGOS_PAUSA = true;
+
+  function avisoPausa(){
+    if(document.querySelector('.pay-note.is-pausa')) return;
+    const n = document.createElement('div');
+    n.className = 'pay-note is-pausa';
+    n.setAttribute('role', 'status');
+    const wa = (IB.cfg && IB.cfg.WA_PHONE) || '34930491439';
+    n.innerHTML = '<b>Pagos en mantenimiento</b><span>Nuestra pasarela de pago está dando problemas y la estamos cambiando por una nueva. '
+      + 'Ahora mismo no se puede pagar con tarjeta y no se te ha cobrado nada. Si necesitas pagar ya, '
+      + `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Hola Iberail, quiero hacer un pago de mi viaje')}" target="_blank" rel="noopener">escríbenos por WhatsApp</a>.</span>`;
+    const close = document.createElement('button');
+    close.type = 'button'; close.setAttribute('aria-label', 'Cerrar'); close.textContent = '×';
+    close.onclick = () => n.remove();
+    n.appendChild(close);
+    document.body.appendChild(n);
+    setTimeout(() => n.classList.add('is-in'), 30);
+    setTimeout(() => { n.classList.remove('is-in'); setTimeout(() => n.remove(), 400); }, 15000);
+  }
+
   async function startPayment(btn, groupId, amount, extra){
+    if(PAGOS_PAUSA) return avisoPausa();
     if(!IB.sb) return alert('No podemos conectar ahora mismo. Prueba en un momento.');
     const { data } = await IB.sb.auth.getSession();
     const token = data && data.session && data.session.access_token;

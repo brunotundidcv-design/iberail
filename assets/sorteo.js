@@ -13,7 +13,8 @@
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
   const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
-  let premio = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno
+  let premio = null, ganaEn = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno · ganaEn: tirada en la que sale (null = la última)
+  const pagSorteo = /\/sorteo(\.html)?$/.test(location.pathname);
   const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;
   const spun = () => { try{ return !!localStorage.getItem(spunKey()); }catch(e){ return false; } };
   const markSpun = () => { try{ localStorage.setItem(spunKey(), premio || '1'); }catch(e){} };
@@ -67,7 +68,9 @@
     const txt = `${tiradas} ${tiradas === 1 ? 'tirada' : 'tiradas'}`;
     document.querySelectorAll('[data-srt-n]').forEach(el => { el.textContent = txt; });
     document.querySelectorAll('[data-srt-me]').forEach(meCard);
+    oyentes.forEach(fn => { try{ fn(); }catch(e){} });
   }
+  const oyentes = [];
   // apartado del sorteo arriba en «Mis grupos» y «Mi cuenta»
   function meCard(box){
     if(state === 'guest'){ box.hidden = true; return; }
@@ -79,7 +82,7 @@
         <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
         <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : '<b>¡Ya puedes abrir tu premio!</b>') : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
-      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Abrir mi premio 🎟️</button>' : `<span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
+      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Abrir mi premio 🎟️</button>' : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
         <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
     : `
       <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
@@ -168,10 +171,11 @@
         sonidos = c.data.sonidos || null;
         if(publicado && state === 'in'){
           const [g, rs] = await Promise.all([
-            sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle(),
+            sb.from('sorteo_ganadores').select('premio, tirada').eq('user_id', u.id).maybeSingle()
+            .then(x => x.error ? sb.from('sorteo_ganadores').select('premio').eq('user_id', u.id).maybeSingle() : x),   // sin el archivo 13 no hay columna tirada
             sb.rpc('sorteo_restantes')
           ]);
-          if(!g.error) premio = g.data ? (g.data.premio || 'entrada') : '';
+          if(!g.error){ premio = g.data ? (g.data.premio || 'entrada') : ''; ganaEn = g.data && g.data.tirada ? Number(g.data.tirada) : null; }
           const r0 = rs && !rs.error && rs.data ? (Array.isArray(rs.data) ? rs.data[0] : rs.data) : null;
           if(r0) restantes = { entradas: Number(r0.entradas) || 0, dadas: Number(r0.dadas) || 0 };
         }
@@ -196,7 +200,7 @@
   async function girar(){
     if(!window.IBRuleta || !revelable()) return;
     const sb = await ensureClient();
-    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos });
+    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos, tiradas: tiradas, ganaEn: ganaEn });
     markSpun(); paint();
     if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
   }
@@ -205,7 +209,7 @@
   /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
   const drawAt = () => DRAW.fecha ? new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00') : null;
   function takeover(){
-    const when = drawAt(); if(!when) return;
+    const when = drawAt(); if(!when || pagSorteo) return;              // en la página del sorteo ya está la cuenta atrás
     if(revelable() && !spun()) return girar();                  // ya hay resultado: directo a la ruleta
     const ms = when - new Date();
     if(ms <= 0 || ms > 3 * 864e5) return;                       // solo los 3 días de antes
@@ -231,7 +235,7 @@
           <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Ese día entras en tu cuenta, giras la ruleta y ves tu resultado al momento.</p>
           <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
           <div class="srtk-acts" data-srtk-acts></div>
-          <small class="srtk-f">Sorteo gratuito de Iberail. Hace falta cuenta y móvil para poder avisarte si te toca.</small>
+          <small class="srtk-f">Sorteo gratuito de Iberail para mayores de 18 años. Hace falta cuenta y móvil para poder avisarte si te toca. <a href="bases-sorteo.html">Bases legales</a>.</small>
         </div>
         <div class="srtk-art" aria-hidden="true">
           <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
@@ -254,6 +258,7 @@
     const paintActs = () => {
       acts.innerHTML = state === 'in'
         ? `<div class="srtk-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>Ya estás dentro con <b data-srt-n>${tiradas} ${tiradas === 1 ? 'tirada' : 'tiradas'}</b></span></div>
+           <a class="srtk-cta" href="sorteo.html">Ver la cuenta atrás</a>
            <button type="button" class="srtk-cta srtk-cta--ghost" data-srt-poster>Sube el cartel a tu story y suma otra tirada</button>`
         : `<button type="button" class="srtk-cta" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
            <button type="button" class="srtk-no">Ahora no</button>`;
@@ -275,7 +280,7 @@
     try{ if(sessionStorage.getItem(KEY)) return; }catch(e){}
     const el = document.createElement('div');
     el.className = 'srtbar';
-    el.innerHTML = `<a class="srtbar-a" href="${home ? '#sorteo' : 'index.html#sorteo'}">
+    el.innerHTML = `<a class="srtbar-a" href="sorteo.html">
         <span class="srtbar-tk" aria-hidden="true">🎟️</span>
         <span class="srtbar-t"><b>Sorteo:</b><span class="srtbar-l"> ${drawTxt('bar') || 'regalamos 10 entradas para el Ultra Europe 2027'}</span><span class="srtbar-s"> 10 entradas Ultra</span><span class="srtbar-in"> · ¡Estás dentro con <span data-srt-n>1 tirada</span>!</span></span>
         <span class="srtbar-go"><span class="srtbar-go-a">Participar gratis</span><span class="srtbar-go-b">Ver sorteo</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
@@ -377,6 +382,12 @@
     }catch(e){ alert('No se pudo preparar el cartel. Prueba otra vez.'); }
     finally{ btn.disabled = false; btn.innerHTML = label; }
   });
+
+  /* para la página del sorteo (assets/sorteo-pagina.js) */
+  window.IBSrt = {
+    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), sonidos: sonidos || {} }),
+    refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
+  };
 
   paint(); bar(); check(); setTimeout(takeover, 1400);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {

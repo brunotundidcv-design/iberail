@@ -8,6 +8,8 @@
   const esc = IB.esc;
   let started = false, loaded = false, rows = [], clientes = {}, err = '', q = '', fresh = new Set(), tick = null, busy = new Set(), armed = null, armT = null;
   let cfg = null, cfgErr = '', ganadores = new Map();   // user_id → id del premio ('' = sin premio)
+  let tirs = new Map(), tirOk = true;                   // user_id → en qué tirada le sale (sin dato = la última) · tirOk: existe la columna (archivo 13)
+  const MAX_MB = 50;                                    // límite de subida de mp3 (Supabase gratis: 50 MB por archivo)
   const CAT_DEF = [
     { id: 'entrada', label: 'Entrada Ultra Europe', n: 3, tier: 'top' },
     { id: 'd300', label: '300 € de descuento', n: 1, tier: 'alto' },
@@ -73,6 +75,7 @@
               ${ex ? `<button type="button" class="srtp-min" data-srt-add="${esc(r.user_id)}" data-d="-1"${wait ? ' disabled' : ''} aria-label="Quitar una tirada extra">−1</button>` : ''}
               <button type="button" class="srtp-ig" data-srt-add="${esc(r.user_id)}" data-d="1"${wait ? ' disabled' : ''}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>+1 Instagram</button>
               <select class="srtp-premio${ganadores.get(r.user_id) ? ' is-on' : ''}" data-srt-premio="${esc(r.user_id)}"${wait ? ' disabled' : ''} title="Qué le ha tocado en el sorteo"><option value="">Sin premio</option>${cat().map(x => `<option value="${esc(x.id)}"${ganadores.get(r.user_id) === x.id ? ' selected' : ''}>${esc(x.label)}</option>`).join('')}</select>
+              ${ganadores.get(r.user_id) && n > 1 && tirOk ? `<select class="srtp-tir" data-srt-tir="${esc(r.user_id)}"${wait ? ' disabled' : ''} title="En qué tirada le sale el premio (en las demás, nada)">${Array.from({ length: n }, (_, i) => i + 1).map(k => `<option value="${k}"${(tirs.get(r.user_id) || n) === k ? ' selected' : ''}>Le toca en la tirada ${k}${k === n ? ' (última)' : ''}</option>`).join('')}</select>` : ''}
               <button type="button" class="srtp-del${armed === r.user_id ? ' is-armed' : ''}" data-srt-del="${esc(r.user_id)}"${wait ? ' disabled' : ''}>${armed === r.user_id ? '¿Seguro? Quitar' : 'Quitar'}</button>
             </div>
           </li>`; }).join('')}</ul>` : `<p class="lv-empty">${t ? 'Nadie coincide con la búsqueda.' : 'Todavía no se ha apuntado nadie. En cuanto alguien pulse «Participar gratis», aparece aquí al momento.'}</p>`}
@@ -87,7 +90,7 @@
     const [r, c, g] = await Promise.all([
       IB.sb.from('sorteo_inscritos').select('*').order('created_at', { ascending: false }),
       IB.sb.from('sorteo_config').select('*').eq('id', 1).maybeSingle(),
-      IB.sb.from('sorteo_ganadores').select('user_id, premio, visto'),
+      IB.sb.from('sorteo_ganadores').select('user_id, premio, visto, tirada').then(x => { tirOk = !x.error; return x.error ? IB.sb.from('sorteo_ganadores').select('user_id, premio, visto') : x; }),
       loadClientes()
     ]);
     err = r.error ? r.error.message : '';
@@ -95,6 +98,7 @@
     cfgErr = c.error ? c.error.message : '';
     cfg = c.data || { fecha: '', hora: '20:00', entradas: 3, total: 10, tanda: 1, publicado: false, acta: '' };
     ganadores = new Map((g.data || []).map(x => [x.user_id, x.premio || 'entrada']));
+    tirs = new Map((g.data || []).filter(x => x.tirada).map(x => [x.user_id, Number(x.tirada)]));
     loaded = true;
   }
   async function saveCfg(patch, msg){
@@ -127,8 +131,9 @@
       </div>
       <div class="srtc-snd">
         <b>Sonidos</b>
-        <p class="srtp-hint">Sube tus mp3 y suenan al abrir el premio. Si no subes ninguno, suena uno hecho por la web.</p>
+        <p class="srtp-hint">Sube tus mp3 (hasta ${MAX_MB} MB cada uno). Si no subes ninguno, suena uno hecho por la web. Si no subes música, suena el tema propio de la web (sin derechos de autor), que empieza a falta de 6 minutos con el drop justo en el 0 y sigue sin cortes en la ruleta. Si subes tu canción, va sincronizada: su final cae justo en el 0 (si dura menos de 6 minutos, empieza cuando falta lo que dura). La de «ganar el Ultra» entra en el mismo instante del golpe.</p>
         <div class="srtc-snd-list">${[
+          ['cuenta', 'Música de la cuenta atrás (últimos 5 minutos)'],
           ['ultra', 'Al ganar una entrada del Ultra'],
           ['premio', 'Al ganar cualquier otro premio'],
           ['tic', 'Cada premio que pasa (muy cortito)']
@@ -143,8 +148,19 @@
       </div>
       <div class="srtc-acts">
         <button type="button" class="btn btn--dark btn--sm" data-srt-cfg>Guardar</button>
-        <select class="pl-input srtc-simsel" id="srtSim">${cat().map(x => `<option value="${esc(x.id)}">${esc(x.label)}</option>`).join('')}<option value="">Sin premio</option></select>
-        <button type="button" class="btn btn--ghost btn--sm" data-srt-sim>Simular lo que verá</button>
+      </div>
+      <div class="srtc-sim">
+        <b>🎬 Simulador <small>(solo lo ves tú, no cuenta para nada)</small></b>
+        <div class="srtc-sim-row">
+          <label>Premio<select class="pl-input srtc-simsel" id="srtSim">${cat().map(x => `<option value="${esc(x.id)}">${esc(x.label)}</option>`).join('')}<option value="">Sin premio</option></select></label>
+          <label>Tiradas<input class="pl-input" type="number" min="1" max="20" id="srtSimN" value="1"></label>
+          <label>Le toca en la tirada<input class="pl-input" type="number" min="1" max="20" id="srtSimEn" value="1"></label>
+          <button type="button" class="btn btn--ghost btn--sm" data-srt-sim>Simular la ruleta</button>
+        </div>
+        <div class="srtc-sim-row">
+          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="320">5 min 20 s (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
+          <button type="button" class="btn btn--dark btn--sm" data-srt-simcd>Simular la cuenta atrás + ruleta</button>
+        </div>
       </div>
       <div class="srtc-pub${c.publicado ? ' is-on' : ''}">
         <div><b>${c.publicado ? 'Publicado: la ruleta ya está disponible' : 'Sin publicar'}</b>
@@ -181,17 +197,27 @@
     const f = e.target.closest('[data-snd]');
     if(f){
       const k = f.dataset.snd, file = f.files && f.files[0]; if(!file) return;
-      if(file.size > 5 * 1024 * 1024) return alert('El archivo es muy grande (máximo 5 MB).');
+      if(file.size > MAX_MB * 1024 * 1024) return alert(`El archivo es muy grande (máximo ${MAX_MB} MB). Prueba a exportarlo en mp3 a 192 kbps: 5 minutos ocupan unos 7 MB.`);
       const lbl = f.closest('label'); const txt = lbl ? lbl.firstChild.textContent : '';
       if(lbl) lbl.firstChild.textContent = 'Subiendo…';
       const ext = (file.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g, '');
       const path = `${k}-${Date.now()}.${ext}`;
       const up = await IB.sb.storage.from('sorteo').upload(path, file, { upsert: true, contentType: file.type || 'audio/mpeg' });
       if(lbl) lbl.firstChild.textContent = txt;
-      if(up.error) return alert('No se pudo subir: ' + up.error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-sonidos.sql?');
+      if(up.error) return alert('No se pudo subir: ' + up.error.message + (/size|large|exceed/i.test(up.error.message || '') ? '\n\nEjecuta 13-sorteo-tiradas-y-musica.sql en Supabase para subir el límite a 50 MB.' : '\n\n¿Has ejecutado supabase/sql/sorteo-sonidos.sql?'));
       const { data } = IB.sb.storage.from('sorteo').getPublicUrl(path);
       const sonidos = { ...((cfg || {}).sonidos || {}), [k]: data.publicUrl };
       return saveCfg({ sonidos }, 'Sonido subido');
+    }
+    const st = e.target.closest('[data-srt-tir]');
+    if(st){
+      const uid = st.dataset.srtTir, k = Number(st.value);
+      busy.add(uid); paint();
+      const { error } = await IB.sb.from('sorteo_ganadores').update({ tirada: k }).eq('user_id', uid);
+      busy.delete(uid);
+      if(error){ paint(); return alert('No se pudo guardar: ' + error.message + '\n\n¿Has ejecutado 13-sorteo-tiradas-y-musica.sql?'); }
+      tirs.set(uid, k); paint();
+      return toast(`<b>${esc(name(uid))}: premio en la tirada ${k}</b>En las demás tiradas le saldrá «nada».`);
     }
     const sel = e.target.closest('[data-srt-premio]'); if(!sel) return;
     const uid = sel.dataset.srtPremio, premio = sel.value;
@@ -201,7 +227,7 @@
       : await IB.sb.from('sorteo_ganadores').delete().eq('user_id', uid);
     busy.delete(uid);
     if(error){ paint(); return alert('No se pudo guardar: ' + error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-ruleta.sql y sorteo-premios.sql?'); }
-    premio ? ganadores.set(uid, premio) : ganadores.delete(uid); paint();
+    premio ? ganadores.set(uid, premio) : (ganadores.delete(uid), tirs.delete(uid)); paint();
     toast(premio ? `<b>${esc(name(uid))} → ${esc(premioLabel(premio))}</b>Lo verá al abrir su premio.` : `<b>${esc(name(uid))} se queda sin premio</b>`);
   });
   root.addEventListener('input', e => {
@@ -210,16 +236,39 @@
     const i = document.getElementById('srtQ'); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} }
   });
   // quitar a alguien del sorteo: primer toque arma el botón, el segundo (en 4 s) lo borra
+  let oyendo = null;
   root.addEventListener('click', async e => {
+    const pl = e.target.closest('[data-snd-play]');
+    if(pl){
+      if(oyendo){ const era = oyendo.src; oyendo.pause(); oyendo = null; root.querySelectorAll('[data-snd-play]').forEach(b => b.textContent = 'Escuchar'); if(era === pl.dataset.sndPlay) return; }
+      oyendo = new Audio(pl.dataset.sndPlay); pl.textContent = 'Parar';
+      oyendo.addEventListener('ended', () => { pl.textContent = 'Escuchar'; oyendo = null; });
+      return void oyendo.play().catch(() => { pl.textContent = 'Escuchar'; alert('No se pudo reproducir el archivo.'); });
+    }
+    const sd = e.target.closest('[data-snd-del]');
+    if(sd){
+      if(!confirm('¿Quitar este sonido? Volverá a sonar el de la web.')) return;
+      const sonidos = { ...((cfg || {}).sonidos || {}) }; delete sonidos[sd.dataset.sndDel];
+      return saveCfg({ sonidos }, 'Sonido quitado');
+    }
     if(e.target.closest('[data-srt-cfg]')){
       const g = id => (document.getElementById(id) || {}).value;
       const premios = cat().map(x => ({ ...x, n: Number((document.querySelector(`[data-cat="${x.id}"]`) || {}).value) || 0 })).filter(x => x.n > 0);
       return saveCfg({ fecha: g('srtFecha') || null, hora: g('srtHora') || '20:00', entradas: Number(g('srtN')) || 3, total: Number(g('srtTot')) || 10, acta: (g('srtActa') || '').trim() || null, premios }, 'Configuración guardada');
     }
-    if(e.target.closest('[data-srt-sim]') && window.IBRuleta){
-      const pid = (document.getElementById('srtSim') || {}).value;
-      return void IBRuleta.show({ premio: pid, catalogo: cat(), nombre: 'Bruno', acta: (cfg || {}).acta, test: true, sonidos: (cfg || {}).sonidos,
+    const simRuleta = () => {
+      const v = id => (document.getElementById(id) || {}).value;
+      return IBRuleta.show({ premio: v('srtSim'), catalogo: cat(), nombre: 'Bruno', acta: (cfg || {}).acta, test: true, sonidos: (cfg || {}).sonidos,
+        tiradas: Number(v('srtSimN')) || 1, ganaEn: Number(v('srtSimEn')) || 1,
         restantes: { entradas: Number((cfg || {}).entradas) || 3, dadas: 0 } });
+    };
+    if(e.target.closest('[data-srt-sim]') && window.IBRuleta) return void simRuleta();
+    if(e.target.closest('[data-srt-simcd]') && window.IBCuenta && window.IBRuleta){
+      const c = cfg || {};
+      const sim = IBCuenta.simular({ segundos: Number((document.getElementById('srtSimT') || {}).value) || 320, musica: (c.sonidos || {}).cuenta || '',
+        tanda: c.tanda || 1, entradas: c.entradas || 3, total: c.total || 10,
+        onZero: () => { sim.close(true); simRuleta(); } });   // close(true): la música sigue sin cortes en la ruleta
+      return;
     }
     if(e.target.closest('[data-srt-pub]')){
       const on = !(cfg || {}).publicado;
