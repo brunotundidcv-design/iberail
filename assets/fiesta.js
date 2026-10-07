@@ -129,6 +129,7 @@
       capa.setAttribute('role', 'dialog'); capa.setAttribute('aria-modal', 'true'); capa.setAttribute('aria-label', '¡Te ha tocado una entrada para el Ultra Europe 2027!');
       capa.innerHTML = `
         <div class="ru-rays" aria-hidden="true"></div>
+        <button type="button" class="ru-snd" data-ru-snd aria-label="Activar o quitar el sonido">${S() && S().mudo() ? '🔇' : '🔊'}</button>
         <div class="ru-rings" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="ru-in">
           ${op.test ? '<span class="ru-test">Simulación · no cuenta</span>' : ''}
@@ -168,6 +169,8 @@
       capa.addEventListener('pointerleave', () => { wrap.style.removeProperty('--ry'); wrap.style.removeProperty('--rx'); });
       capa.addEventListener('click', e => {
         if(e.target.closest('[data-ru-ok]')) return cerrar();
+        const sn = e.target.closest('[data-ru-snd]');
+        if(sn && S()){ S().unlock(); S().setMudo(!S().mudo()); sn.textContent = S().mudo() ? '🔇' : '🔊'; const rb = el.querySelector('[data-rul-snd]'); if(rb){ rb.textContent = sn.textContent; rb.classList.toggle('is-off', S().mudo()); } return; }
         const sh = e.target.closest('[data-ru-share]'); if(sh) compartir(sh, nombre);
       });
       document.addEventListener('keydown', teclado);

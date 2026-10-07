@@ -457,7 +457,6 @@
       </header>
       <div class="gx-body">
         ${vipBar}
-        ${prev ? '' : `<div class="ct-slot" data-contrato="${esc(g.id)}"></div>`}
         ${prev ? '' : `<div class="sg-slot" data-seguro="${esc(g.id)}"></div>`}
         ${prev ? '' : payBox(g)}
         ${limBox(g, prev)}

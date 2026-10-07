@@ -164,7 +164,6 @@
     if(v === 'avi'){ loadClients(); paintAvisos(); }
     if(v === 'rrp'){ loadClients(); paintRrpp(); }
     if(v === 'wha') paintWa();
-    if(v === 'con' && window.IBContratos) IBContratos.show();
     if(v === 'cor' && window.IBCorreos) IBCorreos.show();
     if(v === 'liv' && window.IBLive) IBLive.show();
     if(v === 'srt' && window.IBSorteo) IBSorteo.show();
@@ -1142,7 +1141,7 @@
       taken.map(c => `<div class="adm-cand is-taken" title="Cada persona solo puede estar en un grupo"><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>Ya está en «${esc(groupsOf(c.id)[0].nombre)}»</small></span><button type="button" class="pl-link" data-open-group="${esc(groupsOf(c.id)[0].id)}">Ver su grupo</button></div>`).join('');
     p.innerHTML = head(`GRUPO · creado ${esc(ago(g.created_at))}`, esc(g.nombre)) + `
       <div class="adm-p-rename"><input class="pl-input" id="grName" value="${esc(g.nombre)}" maxlength="80" aria-label="Nombre del grupo"><button type="button" class="btn btn--ghost btn--sm" data-rename>Cambiar nombre</button></div>
-      <label class="adm-f-field adm-p-marca"><span>Marca del grupo <small>(contrato, pagos y seguro salen con este nombre)</small></span><select class="pl-input" id="grMarca"><option value="iberail"${marcaDe(g) !== 'zarping' ? ' selected' : ''}>Iberail</option><option value="zarping"${marcaDe(g) === 'zarping' ? ' selected' : ''}>Zarping</option></select></label>
+      <label class="adm-f-field adm-p-marca"><span>Marca del grupo <small>(pagos y seguro salen con este nombre)</small></span><select class="pl-input" id="grMarca"><option value="iberail"${marcaDe(g) !== 'zarping' ? ' selected' : ''}>Iberail</option><option value="zarping"${marcaDe(g) === 'zarping' ? ' selected' : ''}>Zarping</option></select></label>
       <div class="adm-f-field adm-p-lim">
         <span>Fecha límite de pago <small>(sale en pequeño en la ficha de todos los del grupo)</small></span>
         <div class="adm-p-lim-row">
@@ -1176,7 +1175,6 @@
       </section>
       <section class="adm-docs" data-docs="g:${esc(g.id)}">${docsHtml('g:' + g.id, g)}</section>
       <section class="adm-docs al-adm" data-aloj-admin="${esc(g.id)}"></section>
-      <section class="adm-docs ct-adm" data-contratos-admin="${esc(g.id)}"></section>
       <section class="adm-docs sg-adm" data-seguro-admin="${esc(g.id)}"></section>
       <div class="adm-p-danger"><button type="button" class="pl-link dash-del" data-del-group>Eliminar grupo (y su ruta y documentos)</button></div>`;
   }

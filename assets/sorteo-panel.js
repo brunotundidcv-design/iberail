@@ -61,7 +61,7 @@
       </div>
       <section class="lv-card srtp">
         <div class="srtp-h">
-          <h3>🎟️ Inscritos al sorteo · 10 entradas Ultra Europe</h3>
+          <h3>🎟️ Apuntados a los sorteos · entradas Ultra Europe</h3>
           <input class="pl-input srtp-q" id="srtQ" type="search" placeholder="Buscar por nombre, correo o teléfono" value="${esc(q)}" aria-label="Buscar inscrito">
         </div>
         <p class="srtp-hint">Cada persona tiene <b>1 tirada</b> por apuntarse. Si sube el cartel a su story mencionando a @iberailspain, pulsa <b>«+1 Instagram»</b> y le sumas otra. Lo ve al momento en su cuenta.</p>
@@ -109,18 +109,17 @@
   function cfgHtml(){
     const c = cfg || {}, n = ganadores.size;
     return `<section class="lv-card srtc">
-      <div class="srtp-h"><h3>⚙️ Configuración del sorteo</h3></div>
-      <p class="srtp-hint">El sorteo lo celebras tú aparte. Aquí pones <b>cuándo se revela</b> y <b>qué le ha tocado a cada uno</b>; cada persona abre su premio en su cuenta y lo ve al momento. Nadie ve el premio de los demás. Hasta que no le des a «Publicar», nadie ve nada.</p>
+      <div class="srtp-h"><h3>⚙️ Sorteo actual</h3><button type="button" class="btn btn--ghost btn--sm" data-srt-nuevo>🆕 Preparar un sorteo nuevo</button></div>
+      <p class="srtp-hint">Haces sorteos cuando quieras: pones <b>el día y la hora</b>, <b>cuántas entradas</b> se sortean y <b>qué le ha tocado a cada uno</b>; a esa hora cada persona abre su premio en su cuenta. Nadie ve el premio de los demás y, hasta que no le des a «Publicar», nadie ve nada. Cuando acabe, pulsa <b>«Preparar un sorteo nuevo»</b>: se guarda la lista de ganadores en tu ordenador y empiezas el siguiente de cero (los apuntados siguen dentro con sus tiradas).</p>
       ${cfgErr ? `<p class="lv-empty is-err">${esc(cfgErr)} · Ejecuta <b>supabase/sql/sorteo-ruleta.sql</b> en Supabase.</p>` : ''}
       <div class="srtc-grid">
-        <label>Día de la revelación<input class="pl-input" type="date" id="srtFecha" value="${esc(c.fecha || '')}"></label>
+        <label>Día del sorteo<input class="pl-input" type="date" id="srtFecha" value="${esc(c.fecha || '')}"></label>
         <label>Hora<input class="pl-input" type="time" id="srtHora" value="${esc(c.hora || '20:00')}"></label>
-        <label>Entradas de esta tanda<input class="pl-input" type="number" min="1" max="20" id="srtN" value="${esc(c.entradas || 3)}"></label>
-        <label>Entradas en total<input class="pl-input" type="number" min="1" max="50" id="srtTot" value="${esc(c.total || 10)}"></label>
+        <label>Entradas que se sortean<input class="pl-input" type="number" min="1" max="50" id="srtN" value="${esc(c.entradas || 1)}"></label>
         <label class="srtc-wide">Cómo se hizo el sorteo <small>(se lo enseñamos a quien pregunte)</small><input class="pl-input" id="srtActa" maxlength="200" value="${esc(c.acta || '')}" placeholder="Ej.: sorteo celebrado el 1 de octubre de 2026 con random.org entre los 48 apuntados."></label>
       </div>
       <div class="srtc-cat">
-        <b>Premios de esta tanda</b>
+        <b>Premios de este sorteo</b>
         <p class="srtp-hint">Esto es lo que ve la gente pasar por la cinta. Solo pon premios que de verdad vas a dar.</p>
         <div class="srtc-cat-list">${cat().map(x => {
           const d = dados(x.id);
@@ -131,9 +130,9 @@
       </div>
       <div class="srtc-snd">
         <b>Sonidos</b>
-        <p class="srtp-hint">Sube tus mp3 (hasta ${MAX_MB} MB cada uno). Si no subes ninguno, suena uno hecho por la web. Si no subes música, suena el tema propio de la web (sin derechos de autor), que empieza cuando quedan 8:51 con el drop justo en el 0 y sigue sin cortes en la ruleta. Si subes tu canción, va sincronizada: su final cae justo en el 0 (si dura menos de 8:51, empieza cuando falta lo que dura) y lleva un eco suave al final que se va apagando. La de «ganar el Ultra» entra en el mismo instante del golpe.</p>
+        <p class="srtp-hint">Sube tus mp3 (hasta ${MAX_MB} MB cada uno). Si no subes ninguno, suena uno hecho por la web. Si no subes música, suena el tema propio de la web (sin derechos de autor), que empieza a falta de 6 minutos con el drop justo en el 0 y sigue sin cortes en la ruleta. Si subes tu canción, va sincronizada: su final cae justo en el 0 (si dura menos de 6 minutos, empieza cuando falta lo que dura). La de «ganar el Ultra» entra en el mismo instante del golpe.</p>
         <div class="srtc-snd-list">${[
-          ['cuenta', 'Música de la cuenta atrás (desde 8:51, con eco al final)'],
+          ['cuenta', 'Música de la cuenta atrás (últimos 5 minutos)'],
           ['ultra', 'Al ganar una entrada del Ultra'],
           ['premio', 'Al ganar cualquier otro premio'],
           ['tic', 'Cada premio que pasa (muy cortito)']
@@ -158,7 +157,7 @@
           <button type="button" class="btn btn--ghost btn--sm" data-srt-sim>Simular la ruleta</button>
         </div>
         <div class="srtc-sim-row">
-          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="540">9 min (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
+          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="320">5 min 20 s (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
           <button type="button" class="btn btn--dark btn--sm" data-srt-simcd>Simular la cuenta atrás + ruleta</button>
         </div>
       </div>
@@ -251,10 +250,22 @@
       const sonidos = { ...((cfg || {}).sonidos || {}) }; delete sonidos[sd.dataset.sndDel];
       return saveCfg({ sonidos }, 'Sonido quitado');
     }
+    // nuevo sorteo: guarda la lista de ganadores del actual (CSV), los borra y deja el siguiente sin publicar
+    if(e.target.closest('[data-srt-nuevo]')){
+      if(!confirm('¿Preparar un sorteo nuevo?\n\n· Se descarga en tu ordenador la lista de ganadores del sorteo actual (guárdala: la necesitas para Hacienda y por si alguien reclama).\n· Se borran los premios asignados para empezar de cero.\n· Los apuntados siguen dentro con sus tiradas.\n· El nuevo sorteo queda sin publicar hasta que lo publiques.')) return;
+      const filas = [['nombre', 'email', 'telefono', 'premio', 'tirada', 'fecha_sorteo']].concat([...ganadores.entries()].map(([uid, p]) => [name(uid), cli(uid).email || '', cli(uid).telefono || '', premioLabel(p) || p, tirs.get(uid) || '', (cfg || {}).fecha || '']));
+      const csv = '﻿' + filas.map(f => f.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = `ganadores-sorteo-${(cfg || {}).fecha || 'sin-fecha'}.csv`; document.body.appendChild(a); a.click(); a.remove();
+      const { error } = await IB.sb.from('sorteo_ganadores').delete().not('user_id', 'is', null);
+      if(error) return alert('No se pudieron borrar los premios: ' + error.message);
+      ganadores = new Map(); tirs = new Map();
+      return saveCfg({ publicado: false, fecha: null, acta: null, tanda: (Number((cfg || {}).tanda) || 1) + 1 }, 'Listo: prepara el nuevo sorteo (día, hora, entradas y premios) y publícalo');
+    }
     if(e.target.closest('[data-srt-cfg]')){
       const g = id => (document.getElementById(id) || {}).value;
       const premios = cat().map(x => ({ ...x, n: Number((document.querySelector(`[data-cat="${x.id}"]`) || {}).value) || 0 })).filter(x => x.n > 0);
-      return saveCfg({ fecha: g('srtFecha') || null, hora: g('srtHora') || '20:00', entradas: Number(g('srtN')) || 3, total: Number(g('srtTot')) || 10, acta: (g('srtActa') || '').trim() || null, premios }, 'Configuración guardada');
+      return saveCfg({ fecha: g('srtFecha') || null, hora: g('srtHora') || '20:00', entradas: Number(g('srtN')) || 1, acta: (g('srtActa') || '').trim() || null, premios }, 'Configuración guardada');
     }
     const simRuleta = () => {
       const v = id => (document.getElementById(id) || {}).value;
@@ -273,7 +284,7 @@
     if(e.target.closest('[data-srt-pub]')){
       const on = !(cfg || {}).publicado;
       const ent = dados('entrada');
-      if(on && ent !== (Number(cfg.entradas) || 0) && !confirm(`Has asignado ${ent} entrada(s) y la tanda es de ${cfg.entradas}. ¿Publicar igualmente?`)) return;
+      if(on && ent !== (Number(cfg.entradas) || 0) && !confirm(`Has asignado ${ent} entrada(s) y en este sorteo se sortean ${cfg.entradas}. ¿Publicar igualmente?`)) return;
       if(on && !confirm('Al publicar, cada persona podrá abrir su premio a partir de la hora que has puesto. ¿Seguimos?')) return;
       return saveCfg({ publicado: on }, on ? 'Publicado: ya pueden girar la ruleta' : 'Despublicado');
     }
