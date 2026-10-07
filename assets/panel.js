@@ -59,6 +59,7 @@
   let view = 'sol';
   let clients = [], clientsState = 'idle', clientsErr = '';      // idle | loading | ok | error
   let cliFilter = 'all', cliSort = 'new', cliQuery = '';
+  let gruFilter = 'all', gruSort = 'new', gruQuery = '';         // pestaña Grupos: con pagos pendientes / todo cobrado, orden y búsqueda
   const selected = new Set();
   let groups = [], members = [], groupsErr = '';
   let notes = {}, notesTable = true;
@@ -308,7 +309,7 @@
     box.innerHTML = `
       <button type="button" data-go-view="sol"${nuevas ? ' class="is-hot"' : ''}><span class="adm-ov-ic">${I_DOC}</span><b>${nuevas}</b><span>${plural(nuevas, 'Solicitud nueva', 'Solicitudes nuevas')}</span></button>
       <button type="button" data-go-view="cli"><span class="adm-ov-ic">${I_USERS}</span><b>${clientesN}</b><span>${activos != null ? `Clientes · ${activos} activos esta semana` : 'Clientes registrados'}</span></button>
-      <button type="button" data-go-view="gru"><span class="adm-ov-ic">${I_EUR}</span><b>${pagosErr ? '—' : eur(pendiente)}</b><span>${pagosErr ? `Pagos sin activar · ${nG(gruposN)}` : conDeuda > 0 ? `Pendiente de cobro · ${conDeuda} ${plural(conDeuda, 'persona', 'personas')} en ${gruposDeuda} de ${nG(gruposN)}` : `Pendiente de cobro · ${nG(gruposN)}`}</span></button>
+      <button type="button" data-go-view="gru" data-go-filter="deben"><span class="adm-ov-ic">${I_EUR}</span><b>${pagosErr ? '—' : eur(pendiente)}</b><span>${pagosErr ? `Pagos sin activar · ${nG(gruposN)}` : conDeuda > 0 ? `Pendiente de cobro · ${conDeuda} ${plural(conDeuda, 'persona', 'personas')} en ${gruposDeuda} de ${nG(gruposN)}` : `Pendiente de cobro · ${nG(gruposN)}`}</span></button>
       <button type="button" data-go-view="avi"><span class="adm-ov-ic">${I_BELL}</span><b>${abiertos == null ? '—' : abiertos}</b><span>${abiertos == null ? 'Avisos sin activar' : plural(abiertos, 'Aviso que falta por leer', 'Avisos que faltan por leer')}</span></button>`;
   }
   function visibleClients(){
@@ -323,8 +324,47 @@
     if(cliSort === 'grupo') list = list.slice().sort((a, b) => ((groupsOf(a.id)[0] || {}).nombre || '￿').localeCompare((groupsOf(b.id)[0] || {}).nombre || '￿', 'es') || clientName(a).localeCompare(clientName(b), 'es'));
     return list;
   }
+  /* altas por semana: las últimas 12 semanas (de lunes a domingo), la última en curso */
+  const lunesDe = ms => { const d = new Date(ms); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.getTime(); };
+  function altasSemana(n){
+    const hoyL = lunesDe(Date.now()), sem = [];
+    for(let i = n - 1; i >= 0; i--){ const d = new Date(hoyL); d.setDate(d.getDate() - 7 * i); sem.push({ t: d.getTime(), n: 0 }); }
+    const idx = new Map(sem.map((s, i) => [s.t, i]));
+    clients.forEach(c => { if(c.id === meId || !c.registrado) return; const i = idx.get(lunesDe(new Date(c.registrado).getTime())); if(i != null) sem[i].n++; });
+    return sem;
+  }
+  let cliTopKey = '';
+  function paintCliTop(){
+    const box = $('#cliTop'); if(!box) return;
+    if(clientsState !== 'ok' || !clients.length){ box.innerHTML = ''; cliTopKey = ''; return; }
+    const key = clients.length + '|' + (clients[0] || {}).id; if(key === cliTopKey) return; cliTopKey = key;
+    const sem = altasSemana(12), max = Math.max(1, ...sem.map(s => s.n)), total = sem.reduce((a, s) => a + s.n, 0);
+    const ult = sem[sem.length - 1], pico = sem.reduce((a, s, i) => s.n > sem[a].n ? i : a, 0);
+    const corto = ms => new Date(ms).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+    const tip = (s, i) => `${i === sem.length - 1 ? 'Esta semana (en curso)' : 'Semana del ' + corto(s.t)} · ${s.n} ${plural(s.n, 'alta', 'altas')}`;
+    box.innerHTML = `<section class="adm-chart" aria-labelledby="cliChartH">
+      <div class="adm-chart-h">
+        <div><h3 id="cliChartH">Altas por semana</h3><small>Últimas 12 semanas · <b>${total}</b> ${plural(total, 'alta', 'altas')} · esta semana van <b>${ult.n}</b></small></div>
+        <button type="button" class="btn btn--ghost btn--sm" id="cliCsv">Exportar CSV</button>
+      </div>
+      <div class="adm-chart-plot" role="group" aria-label="Altas por semana, últimas 12 semanas">
+        <div class="adm-cols">${sem.map((s, i) => `<div class="adm-col" tabindex="0" role="img" aria-label="${esc(tip(s, i))}" data-tip="${esc(tip(s, i))}">${(i === sem.length - 1 || i === pico) && s.n ? `<span class="adm-col-v">${s.n}</span>` : ''}<i style="height:${s.n ? Math.max(2, Math.round(s.n / max * 100)) : 0}%"></i></div>`).join('')}</div>
+        <div class="adm-chart-x" aria-hidden="true"><span>${esc(corto(sem[0].t))}</span><span>esta semana</span></div>
+        <div class="adm-chart-tip" aria-hidden="true" hidden></div>
+      </div>
+    </section>`;
+  }
+  function chartTip(e, show){
+    const col = e.target.closest && e.target.closest('.adm-col'); if(!col) return;
+    const plot = col.closest('.adm-chart-plot'), tip = plot && plot.querySelector('.adm-chart-tip'); if(!tip) return;
+    if(!show){ tip.hidden = true; return; }
+    const bar = col.querySelector('i'), pr = plot.getBoundingClientRect(), br = (bar && bar.offsetHeight ? bar : col).getBoundingClientRect();
+    tip.textContent = col.dataset.tip; tip.hidden = false;
+    tip.style.left = (br.left + br.width / 2 - pr.left) + 'px'; tip.style.top = (br.top - pr.top) + 'px';
+  }
   function paintClients(){
     const box = $('#cliList');
+    paintCliTop();
     if(clientsState === 'loading' || clientsState === 'idle'){ box.innerHTML = '<div class="auth-spin"></div>'; return; }
     if(clientsState === 'error'){ box.innerHTML = `<div class="adm-empty"><b>No se pueden cargar los clientes.</b><span>${esc(clientsErr)}</span></div>`; return; }
     const list = visibleClients();
@@ -638,15 +678,41 @@
   });
 
   /* ---------- grupos ---------- */
+  function syncGruUi(){
+    $$('#gruTabs .chip').forEach(x => x.classList.toggle('is-on', x.dataset.gf === gruFilter));
+    const s = $('#gruSort'); if(s) s.value = gruSort;
+  }
+  function visibleGroups(){
+    const q = norm(gruQuery);
+    let list = groups.filter(g => {
+      if(gruFilter !== 'all' && !pagosErr){
+        const m = groupMoney(g.id);
+        if(gruFilter === 'deben' && !(m.falta > 0)) return false;
+        if(gruFilter === 'cobrado' && !(m.total > 0 && m.falta === 0)) return false;
+      }
+      return !q || norm([g.nombre].concat(membersOf(g.id).map(c => `${c.nombre || ''} ${c.email || ''}`)).join(' ')).includes(q);
+    });
+    if(gruSort === 'falta' && !pagosErr) list = list.map(g => [g, groupMoney(g.id).falta]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    else if(gruSort === 'az') list = list.slice().sort((a, b) => String(a.nombre).localeCompare(String(b.nombre), 'es'));
+    else list = list.slice().sort((a, b) => (!!b.vip - !!a.vip));   // los VIP primero; dentro de cada bloque, el orden de creación
+    return list;
+  }
   function paintGroups(){
-    const box = $('#gruList');
-    if(groupsErr){ box.innerHTML = `<div class="adm-empty"><b>Los grupos aún no están activados.</b><span>${esc(groupsErr)}</span></div>`; return; }
-    if(!groups.length){ box.innerHTML = '<div class="adm-empty"><b>Todavía no hay grupos.</b><span>Crea uno aquí o selecciona personas en «Clientes» y júntalas en un grupo.</span></div>'; return; }
-    // los VIP primero; dentro de cada bloque se mantiene el orden de creación
-    box.innerHTML = groups.slice().sort((a, b) => (!!b.vip - !!a.vip)).map(g => {
+    const box = $('#gruList'), sum = $('#gruSum');
+    if(groupsErr){ box.innerHTML = `<div class="adm-empty"><b>Los grupos aún no están activados.</b><span>${esc(groupsErr)}</span></div>`; if(sum) sum.textContent = ''; return; }
+    if(!groups.length){ box.innerHTML = '<div class="adm-empty"><b>Todavía no hay grupos.</b><span>Crea uno aquí o selecciona personas en «Clientes» y júntalas en un grupo.</span></div>'; if(sum) sum.textContent = ''; return; }
+    const list = visibleGroups();
+    if(sum){
+      let personas = 0, falta = 0, deben = 0;
+      list.forEach(g => { personas += members.filter(m => String(m.grupo_id) === String(g.id)).length; if(!pagosErr){ const m = groupMoney(g.id); falta += m.falta; if(m.falta > 0) deben++; } });
+      sum.innerHTML = `<b>${list.length}</b> ${plural(list.length, 'grupo', 'grupos')} · <b>${personas}</b> ${plural(personas, 'persona', 'personas')}` +
+        (pagosErr ? '' : falta > 0 ? ` · <b>${eur(falta)}</b> por cobrar${deben < list.length ? ` en ${deben} ${plural(deben, 'grupo', 'grupos')}` : ''}` : ' · todo cobrado');
+    }
+    if(!list.length){ box.innerHTML = '<div class="adm-empty"><b>Ningún grupo coincide.</b><span>Prueba con otro filtro o búsqueda.</span></div>'; return; }
+    box.innerHTML = list.map(g => {
       const ms = membersOf(g.id), rs = rows.filter(r => String(r.grupo_id) === String(g.id)), m = pagosErr ? null : groupMoney(g.id);
       const pct = m && m.total ? Math.min(100, Math.floor(m.cubierto / m.total * 100)) : 0;
-      const money = m && m.total ? `<span class="adm-gcard-money"><span><b>${eur(m.cubierto)}</b> de ${eur(m.total)}${m.pend ? ` · ${m.pend} ${plural(m.pend, 'debe', 'deben')}` : ' · todo cobrado'}</span>${m.extra > 0 ? `<em class="adm-gcard-extra">${eur(m.extra)} cobrados de más: revísalo</em>` : ''}<span class="adm-bar-p${m.falta ? '' : ' is-full'}"><i style="width:${pct}%"></i></span></span>` : '';
+      const money = m && m.total ? `<span class="adm-gcard-money"><span><b>${eur(m.cubierto)}</b> de ${eur(m.total)}${m.pend ? ` · ${m.pend} ${plural(m.pend, 'debe', 'deben')}` : ' · todo cobrado'}</span>${m.falta > 0 && gruSort === 'falta' ? `<em class="adm-gcard-due">Faltan ${eur(m.falta)}</em>` : ''}${m.extra > 0 ? `<em class="adm-gcard-extra">${eur(m.extra)} cobrados de más: revísalo</em>` : ''}<span class="adm-bar-p${m.falta ? '' : ' is-full'}"><i style="width:${pct}%"></i></span></span>` : '';
       return `<button type="button" class="adm-gcard${g.vip ? ' is-vip' : ''}" data-open-group="${esc(g.id)}">
         <span class="adm-gcard-top"><b>${g.vip ? `<i class="adm-gcard-vip" title="Grupo VIP">${I_STAR}VIP</i>` : ''}${zpTag(g)}${esc(g.nombre)}</b><small>${ms.length} ${plural(ms.length, 'persona', 'personas')}</small></span>
         <span class="adm-avs">${ms.slice(0, 7).map(c => `<i>${esc(initials(clientName(c)))}</i>`).join('')}${ms.length > 7 ? `<i>+${ms.length - 7}</i>` : ''}</span>
@@ -1446,14 +1512,26 @@
   }
 
   /* ---------- CSV ---------- */
+  // celda segura: entre comillas y sin que Excel la lea como fórmula si alguien escribe «=…» en su nombre
+  const csvCell = v => { let s = String(v == null ? '' : v); if(/^[=@\t\r]/.test(s) || (/^[+\-]/.test(s) && !/^[+\-]?[\d\s().,-]+$/.test(s))) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };   // los teléfonos (+34…) se quedan como están
+  function bajar(texto, nombre){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([texto], { type: 'text/csv;charset=utf-8' }));
+    a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  function cliCsv(){
+    const cols = [['nombre', c => clientName(c)], ['email', c => c.email], ['telefono', c => c.telefono], ['grupo', c => groupsOf(c.id).map(g => g.nombre).join(' / ')],
+      ['registrado', c => c.registrado ? String(c.registrado).slice(0, 10) : ''], ['ultimo_acceso', c => c.ultimo_acceso ? String(c.ultimo_acceso).slice(0, 10) : ''], ['verificado', c => c.verificado ? 'Sí' : 'No']];
+    const list = visibleClients().filter(c => c.id !== meId);
+    bajar('\ufeff' + cols.map(x => x[0]).join(';') + '\n' + list.map(c => cols.map(x => csvCell(x[1](c))).join(';')).join('\n'), `iberail-clientes-${today()}.csv`);
+    toast(`${list.length} ${plural(list.length, 'cliente exportado', 'clientes exportados')} a CSV`);
+  }
   function csv(){
     const cols = ['ref', 'created_at', 'estado', 'nombre', 'email', 'telefono', 'salida', 'fecha_salida', 'flexible', 'dias', 'viajeros', 'paradas', 'estilo', 'alojamiento', 'presupuesto', 'acepta_publicidad', 'notas', 'nota_interna'];
-    const cell = v => { if(typeof v === 'boolean') v = v ? 'Sí' : 'No'; const s = Array.isArray(v) ? (typeof v[0] === 'object' ? v.map(p => `${p.ciudad} (${p.dias})`).join(' > ') : v.join(', ')) : (v == null ? '' : String(v)); return '"' + s.replace(/"/g, '""') + '"'; };
+    const cell = v => { if(typeof v === 'boolean') v = v ? 'Sí' : 'No'; const s = Array.isArray(v) ? (typeof v[0] === 'object' ? v.map(p => `${p.ciudad} (${p.dias})`).join(' > ') : v.join(', ')) : (v == null ? '' : String(v)); return csvCell(s); };
     const out = '﻿' + cols.join(';') + '\n' + visible().map(r => cols.map(c => cell(c === 'nota_interna' ? noteOf(r) : r[c])).join(';')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([out], { type: 'text/csv;charset=utf-8' }));
-    a.download = `iberail-solicitudes-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a); a.click(); a.remove();
+    bajar(out, `iberail-solicitudes-${new Date().toISOString().slice(0, 10)}.csv`);
   }
 
   async function setMarca(gid, marca){
@@ -1494,6 +1572,9 @@
     const g = e.target.closest('[data-open-group]'); if(g) return openDrawer({ kind: 'grupo', id: g.dataset.openGroup });
     const n = e.target.closest('[data-new-for]'); if(n) return startNew('cliente', n.dataset.newFor);
   });
+  $('#cliTop').addEventListener('click', e => { if(e.target.closest('#cliCsv')) cliCsv(); });
+  ['pointerover', 'focusin'].forEach(ev => $('#cliTop').addEventListener(ev, e => chartTip(e, true)));
+  ['pointerout', 'focusout'].forEach(ev => $('#cliTop').addEventListener(ev, e => chartTip(e, false)));
   $('#cliBulk').addEventListener('click', async e => {
     if(e.target.closest('[data-bulk-clear]')){ selected.clear(); paintClients(); return; }
     const b = e.target.closest('[data-bulk-add]'); if(!b) return;
@@ -1507,10 +1588,17 @@
   // avisos
   $('#aviNew').addEventListener('click', () => startNewAviso('todos'));
   $('#aviList').addEventListener('click', e => { avisoAction(e.target); });
-  $('#admOverview').addEventListener('click', e => { const b = e.target.closest('[data-go-view]'); if(b) setView(b.dataset.goView); });
+  $('#admOverview').addEventListener('click', e => {
+    const b = e.target.closest('[data-go-view]'); if(!b) return;
+    if(b.dataset.goFilter){ gruFilter = b.dataset.goFilter; gruSort = 'falta'; syncGruUi(); }
+    setView(b.dataset.goView);
+  });
   // grupos
   $('#gruNew').addEventListener('click', () => { ng = { nombre: '', uids: [] }; openDrawer({ kind: 'nuevo-grupo', id: 'nuevo' }); setTimeout(() => { const i = $('#ngName'); if(i) i.focus(); }, 80); });
   $('#gruList').addEventListener('click', e => { const g = e.target.closest('[data-open-group]'); if(g) openDrawer({ kind: 'grupo', id: g.dataset.openGroup }); });
+  $('#gruTabs').addEventListener('click', e => { const b = e.target.closest('[data-gf]'); if(!b) return; gruFilter = b.dataset.gf; syncGruUi(); paintGroups(); });
+  $('#gruSort').addEventListener('change', e => { gruSort = e.target.value; paintGroups(); });
+  $('#gruSearch').addEventListener('input', e => { gruQuery = e.target.value; paintGroups(); });
 
   // drawer: escribir
   $('#admDrawer').addEventListener('input', e => {
@@ -1645,7 +1733,15 @@
     }
     const dr = t.closest('[data-del-route]'); if(dr){ if(armed(dr, 'Se borrará con sus billetes. Toca otra vez')) deleteRoute(r); return; }
   });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape' && drawer) closeDrawer(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && drawer) return closeDrawer();
+    // «/» lleva al buscador de la pestaña abierta (solicitudes, clientes o grupos)
+    const a = document.activeElement;
+    if(e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !drawer && !(a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable))){
+      const s = $({ sol: '#admSearch', cli: '#cliSearch', gru: '#gruSearch' }[view] || '#none');
+      if(s){ e.preventDefault(); s.focus(); s.select(); }
+    }
+  });
   setInterval(() => { if(!drawer){ paintList(); if(view === 'cli') paintClients(); } }, 60000);
 
   // sugerencias para los formularios

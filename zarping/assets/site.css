@@ -3680,3 +3680,29 @@ body.srt-lock{overflow:hidden}
 .cor-chip{border:1.5px solid var(--line);background:var(--cream);border-radius:99px;padding:5px 12px;font:inherit;font-size:.82rem;font-weight:600;color:var(--ink);cursor:pointer;transition:border-color .2s}
 .cor-chip:hover{border-color:var(--coral)}
 @media (max-width:900px){.cor-row--3{grid-template-columns:1fr}}
+
+/* panel · Grupos: resumen del filtro y lo que falta (v9.3) */
+.adm-gru-sum{margin:-4px 0 14px}
+.adm-gru-sum b{color:var(--ink)}
+.adm-gcard-due{display:block;margin-top:2px;font-style:normal;font-weight:700;font-size:.8rem;color:#B0203A}
+/* panel · Clientes: altas por semana (una serie, columnas de 24 px como máximo, punta redondeada de 4 px) */
+.adm-cli-top{margin:0 0 16px}
+.adm-chart{padding:16px 18px 12px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line)}
+.adm-chart-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px 16px;flex-wrap:wrap}
+.adm-chart-h h3{margin:0;font-size:1rem}
+.adm-chart-h small{display:block;margin-top:2px;color:var(--muted);font-size:.82rem}
+.adm-chart-h small b{color:var(--ink)}
+.adm-chart-plot{position:relative;margin-top:10px}
+.adm-cols{display:flex;align-items:flex-end;height:112px;padding-top:18px;border-bottom:1px solid var(--line)}
+.adm-col{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;outline:none}
+.adm-col i{display:block;width:min(24px,56%);background:#C43730;border-radius:4px 4px 0 0;transition:filter .15s}
+.adm-col:hover i,.adm-col:focus-visible i{filter:brightness(1.15)}
+.adm-col:focus-visible{box-shadow:inset 0 0 0 2px rgba(26,22,20,.25);border-radius:6px}
+.adm-col-v{margin-bottom:4px;font-size:.72rem;font-weight:700;color:var(--ink);line-height:1}
+.adm-chart-x{display:flex;justify-content:space-between;margin-top:6px;font-size:.74rem;color:var(--muted)}
+.adm-chart-tip{position:absolute;z-index:3;transform:translate(-50%,calc(-100% - 8px));padding:6px 10px;border-radius:10px;background:var(--ink);color:var(--cream);font-size:.78rem;font-weight:600;white-space:nowrap;pointer-events:none}
+.adm-chart-tip[hidden]{display:none}
+/* sorteo · «Añadir al calendario» (discreto, debajo de los botones) */
+.cta-cal{border:0;background:none;padding:6px 10px;color:rgba(255,243,220,.72);font:600 .85rem var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.cta-cal:hover{color:#FFF3DC}
+

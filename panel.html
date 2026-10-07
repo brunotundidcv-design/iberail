@@ -134,6 +134,7 @@
           <div class="pl-search adm-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="cliSearch" type="search" placeholder="Nombre, correo o teléfono" aria-label="Buscar clientes"></div>
         </div>
       </div>
+      <div class="adm-cli-top" id="cliTop"></div>
       <div class="adm-list" id="cliList"></div>
       <div class="adm-bulk" id="cliBulk" hidden>
         <b id="cliBulkN"></b>
@@ -145,9 +146,22 @@
 
     <div class="adm-view" data-view="gru" hidden>
       <div class="adm-bar">
-        <p class="adm-hint">Mete a varias personas en un grupo: la ruta y los documentos del grupo los ven todos en su cuenta.</p>
-        <button type="button" class="btn btn--dark btn--sm" id="gruNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Nuevo grupo</span></button>
+        <div class="chips" id="gruTabs">
+          <button class="chip is-on" type="button" data-gf="all">Todos</button>
+          <button class="chip" type="button" data-gf="deben">Con pagos pendientes</button>
+          <button class="chip" type="button" data-gf="cobrado">Todo cobrado</button>
+        </div>
+        <div class="adm-bar-r">
+          <select class="adm-select" id="gruSort" aria-label="Ordenar grupos">
+            <option value="new">Más recientes</option>
+            <option value="falta">Lo que más deben</option>
+            <option value="az">Nombre A–Z</option>
+          </select>
+          <div class="pl-search adm-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="gruSearch" type="search" placeholder="Buscar" aria-label="Buscar grupos por nombre o persona"></div>
+          <button type="button" class="btn btn--dark btn--sm" id="gruNew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Nuevo grupo</span></button>
+        </div>
       </div>
+      <p class="adm-hint adm-gru-sum" id="gruSum" aria-live="polite"></p>
       <div class="adm-groups" id="gruList"></div>
     </div>
 
