@@ -25,6 +25,7 @@
 
   async function start(){
     if(window.IB && window.IB.sb) sb = window.IB.sb;
+    else if(window.IB && window.IB.ensureSb){ sb = await window.IB.ensureSb(); if(!sb) return; }   // el mismo cliente que el resto de la página
     else {
       await loadLib();
       if(!window.supabase || !window.supabase.createClient) return;

@@ -15,6 +15,26 @@
   IB.enabled = !!IB.sb;           // cuentas activas en esta página
   IB.hasPhone = !!C.WA_PHONE;
 
+  /* Un solo cliente de Supabase por página. En las páginas sin cuenta la librería se carga una vez, cuando
+     alguien la pide (sorteo, «en directo»…): antes cada script cargaba la suya y había dos sesiones a la vez. */
+  const SUPA_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  let sbPend = null;
+  IB.ensureSb = () => {
+    if(IB.sb) return Promise.resolve(IB.sb);
+    if(!IB.configured) return Promise.resolve(null);
+    return sbPend || (sbPend = new Promise(res => {
+      const go = () => {
+        try{ IB.sb = IB.sb || window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } }); }
+        catch(e){ IB.sb = null; }
+        if(!IB.sb) sbPend = null;
+        res(IB.sb);
+      };
+      if(window.supabase && window.supabase.createClient) return go();
+      const s = document.createElement('script'); s.src = SUPA_JS; s.async = true; s.onload = go; s.onerror = () => { sbPend = null; res(null); };
+      document.head.appendChild(s);
+    }));
+  };
+
   /* Marcas de la misma titular (Andrea Tundidor, IAE 755). El JS es común: cada web dice la suya en
      config.js (MARCA) y lo que depende del grupo (contrato, pagos) usa grupos.marca. */
   IB.BRANDS = {

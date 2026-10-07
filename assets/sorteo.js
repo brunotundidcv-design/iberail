@@ -3,13 +3,17 @@
    · Para participar hay que pulsar «Participar gratis» con la sesión iniciada: se guarda en la tabla
      sorteo_inscritos (archivo 12-sorteo.sql). Sin cuenta, el botón lleva a crearla y, al entrar,
      queda inscrito solo (ya lo había pedido).
-   · Barra de anuncio arriba del todo (SORTEO_BAR = false para quitarla).
+   · Discreto (v9.2): sin aviso a pantalla completa ni ruleta que se abre sola en cualquier página.
+     Barra fina arriba SOLO en la semana del sorteo (BAR_DIAS) o cuando ya puedes ver tu resultado
+     (SORTEO_BAR = false para quitarla). El resultado se abre en sorteo.html o con el botón «Ver mi resultado».
+   · La cinta (ruleta.js + fiesta.js) se carga solo cuando alguien va a ver su resultado.
    · Cartel para stories de Instagram (participación extra): se dibuja en el navegador (1080×1920). */
 (function(){
   const IB = window.IB, C = window.IBERAIL_CONFIG || {};
   if(!IB || document.getElementById('admApp')) return;
   const SORTEO_BAR = true;
-  const SUPA = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  const BAR_DIAS = 7;                                   // la barra de arriba sale solo en los 7 días antes del sorteo
+  const SRC = (document.currentScript && document.currentScript.src) || '';
   // ── Próximo sorteo ─────────────────────────────────────────────────────────
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
   const DRAW = { fecha: '', hora: '20:00', entradas: 1, tanda: 1 };   // lo rellena el panel (sorteo_config)
@@ -36,14 +40,15 @@
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
     // sorteos sueltos: el equipo programa uno cuando quiere desde el panel (día, hora y entradas)
-    const PRONTO = 'Pronto habrá un nuevo sorteo. Sigue apuntado: entras en todos.';
+    const PRONTO = 'Pronto habrá un nuevo sorteo. Si ya estás apuntado, entras en todos.';
     if(!DRAW.fecha) return largo ? PRONTO : '';
     const d = new Date(DRAW.fecha + 'T12:00:00');
     const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
     if(dias < 0) return largo ? PRONTO : '';
     const cuando = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `el ${DIAS[d.getDay()]} ${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`;
     const n = DRAW.entradas, ent = `${n} ${n === 1 ? 'entrada' : 'entradas'}`;
-    return largo === 'bar' ? `próximo sorteo ${cuando} a las ${DRAW.hora || '20:00'} h: ${ent} para el Ultra Europe`
+    if(largo === 'corto') return `${dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : DIAS[d.getDay()] + ' ' + d.getDate()} · ${DRAW.hora || '20:00'} h`;
+    return largo === 'bar' ? `${cuando} a las ${DRAW.hora || '20:00'} h · ${ent} para el Ultra Europe`
       : `Próximo sorteo ${cuando} a las ${DRAW.hora || '20:00'} h: sorteamos ${ent} para el Ultra Europe.`;
   }
   function drawTag(){
@@ -66,24 +71,18 @@
   let state = !user ? 'guest' : ls.get(inKey(user)) ? 'in' : 'out';
   let tiradas = Number(user && ls.get(inKey(user))) || 1;   // 1 por apuntarse + las extra que suma el equipo
 
-  function ensureClient(){
-    if(IB.sb) return Promise.resolve(IB.sb);
-    if(!IB.configured) return Promise.resolve(null);
-    return new Promise(res => {
-      const go = () => { try{ IB.sb = IB.sb || window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } }); }catch(e){ IB.sb = null; } res(IB.sb); };
-      if(window.supabase && window.supabase.createClient) return go();
-      const s = document.createElement('script'); s.src = SUPA; s.async = true; s.onload = go; s.onerror = () => res(null);
-      document.head.appendChild(s);
-    });
-  }
+  // el cliente de Supabase es el de la página (app.js): uno solo aunque lo pidan sorteo.js y live.js a la vez
+  const ensureClient = () => IB.ensureSb ? IB.ensureSb() : Promise.resolve(IB.sb || null);
+  const partTxt = n => `${n} ${n === 1 ? 'participación' : 'participaciones'}`;
 
   /* ---------- pintar según el estado ---------- */
   function paint(){
     document.body.classList.remove('srt-st-guest', 'srt-st-out', 'srt-st-in');
     document.body.classList.add('srt-st-' + state);
-    const txt = `${tiradas} ${tiradas === 1 ? 'tirada' : 'tiradas'}`;
+    const txt = partTxt(tiradas);
     document.querySelectorAll('[data-srt-n]').forEach(el => { el.textContent = txt; });
     document.querySelectorAll('[data-srt-me]').forEach(meCard);
+    pintarBar();
     oyentes.forEach(fn => { try{ fn(); }catch(e){} });
   }
   const oyentes = [];
@@ -92,23 +91,25 @@
     if(state === 'guest'){ box.hidden = true; return; }
     box.hidden = false;
     const extra = Math.max(0, tiradas - 1);
-    const chips = Array.from({ length: Math.min(tiradas, 12) }, (_, i) => `<i class="${i ? 'is-extra' : ''}">🎟️</i>`).join('');
+    const IG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
+    const estado = revelable()
+      ? (spun() ? (premio ? '<b>Te ha tocado premio.</b> Te escribimos por WhatsApp.' : 'Esta vez no ha habido suerte. Sigues dentro para los próximos.') : '<b>Ya puedes ver tu resultado.</b>')
+      : (drawTxt() || 'Te avisaremos cuando haya sorteo.');
     box.innerHTML = state === 'in' ? `
-      <div class="srt-me-l"><span class="srt-me-k">Sorteo · entradas Ultra Europe</span>
-        <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
-        <span class="srt-me-chips" aria-hidden="true">${chips}</span>
-        <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : '<b>¡Ya puedes abrir tu premio!</b>') : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
-      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Abrir mi premio 🎟️</button>' : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
-        <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
+      <div class="srt-me-l"><span class="srt-me-k">Sorteo · Ultra Europe</span>
+        <b class="srt-me-h">Estás dentro con ${partTxt(tiradas)}</b>
+        <small>1 por apuntarte${extra ? ` · +${extra} por tu story de Instagram` : ''}. ${estado}</small></div>
+      <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Ver mi resultado</button>' : `<a class="srt-me-go" href="sorteo.html">Ver el sorteo →</a><span>${extra ? 'Tu story ya cuenta. Compártelo también para que se apunten tus amigos.' : '¿Otra participación? Sube el cartel a tu story mencionando a <b>@iberailspain</b>.'}</span>
+        <button type="button" class="srt-ig-btn" data-srt-poster>${IG}Compartir cartel</button>`}</div>`
     : `
-      <div class="srt-me-l"><span class="srt-me-k">Sorteo · entradas Ultra Europe</span>
+      <div class="srt-me-l"><span class="srt-me-k">Sorteo · Ultra Europe</span>
         <b class="srt-me-h">Aún no participas en el sorteo</b>
-        <small>Pulsa el botón y entras con 1 tirada. Si además subes nuestro cartel a tu story, te sumamos otra.${drawTxt() ? ' <b>' + drawTxt() + '</b>' : ''}</small></div>
+        <small>Es gratis: pulsa el botón y entras con 1 participación. Si subes nuestro cartel a tu story, te sumamos otra.${drawTxt() ? ' <b>' + drawTxt() + '</b>' : ''}</small></div>
       <div class="srt-me-r"><button type="button" class="btn srt-btn" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>`;
   }
   function toast(msg){
     const t = document.createElement('div'); t.className = 'srt-toast'; t.setAttribute('role', 'status');
-    t.innerHTML = `<span>🎟️</span><div>${msg}</div>`;
+    t.innerHTML = `<span aria-hidden="true">✓</span><div>${msg}</div>`;
     document.body.appendChild(t);
     requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('is-in')));
     setTimeout(() => { t.classList.remove('is-in'); setTimeout(() => t.remove(), 400); }, 5200);
@@ -163,7 +164,7 @@
     const { error } = await sb.from('sorteo_inscritos').insert({ user_id: u.id });
     if(error && error.code !== '23505' && !/duplicate/i.test(error.message || '')) throw error;
     user = u; state = 'in'; tiradas = Math.max(1, tiradas); ls.set(inKey(u), String(tiradas)); ls.set(WANT, null); paint();
-    toast(auto ? '<b>¡Listo! Ya estás dentro de los sorteos</b>de entradas para el Ultra Europe.' : `<b>¡Ya estás dentro del sorteo!</b>${drawTxt() || 'Te avisaremos del día de la ruleta.'} Mucha suerte 🍀`);
+    toast(auto ? '<b>¡Listo! Ya estás dentro del sorteo</b>Entras en todos los sorteos de entradas para el Ultra Europe.' : `<b>¡Ya estás dentro del sorteo!</b>${drawTxt() || 'Te avisaremos cuando haya sorteo.'} Mucha suerte.`);
   }
   async function check(){
     if(!user){
@@ -208,7 +209,7 @@
           if(r0) restantes = { entradas: Number(r0.entradas) || 0, dadas: Number(r0.dadas) || 0 };
         }
         paintWhen(); paint();
-        if(revelable() && !spun()) setTimeout(girar, 900);
+        if(pagSorteo && revelable() && !spun()) setTimeout(girar, 900);   // en el resto de páginas, solo con el botón
       }
       if(state === 'out' && ls.get(WANT)) await join(true);   // lo pidió antes de tener cuenta
     }catch(e){}
@@ -225,12 +226,28 @@
     finally{ b.disabled = false; b.innerHTML = label; }
   });
 
+  // la cinta y las celebraciones solo se descargan cuando alguien va a ver su resultado
+  const cargas = {};
+  function cargarJs(nombre){
+    const url = SRC ? SRC.replace(/sorteo\.js(\?.*)?$/, nombre) : 'assets/' + nombre;
+    return cargas[url] || (cargas[url] = new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = url; s.async = true;
+      s.onload = res; s.onerror = () => { delete cargas[url]; rej(new Error(nombre)); };
+      document.head.appendChild(s);
+    }));
+  }
+  async function ruletaLista(){
+    if(window.IBRuleta) return true;
+    try{ if(!window.IBFiesta) await cargarJs('fiesta.js'); await cargarJs('ruleta.js'); }catch(e){}
+    return !!window.IBRuleta;
+  }
   // una sola ruleta a la vez (antes, cada comprobación podía abrir otra encima)
   let girando = false;
   async function girar(){
-    if(girando || !window.IBRuleta || !revelable() || spun() || document.querySelector('.rul')) return;
+    if(girando || !revelable() || spun() || document.querySelector('.rul')) return;
     girando = true;
     try{
+      if(!(await ruletaLista())){ alert('No se pudo abrir tu resultado. Revisa la conexión y prueba otra vez.'); return; }
       const sb = await ensureClient();
       await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos,
         tiradas: tiradas, ganaEn: ganaEn, desde: abiertas() + 1, onTirada: i => marcar(i) });
@@ -240,84 +257,37 @@
   }
   document.addEventListener('click', e => { if(e.target.closest('[data-srt-spin]')){ e.preventDefault(); girar(); } });
 
-  /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
   const drawAt = () => DRAW.fecha ? horaMadrid(DRAW.fecha, DRAW.hora) : null;
-  function takeover(){
-    const when = drawAt(); if(!when || pagSorteo) return;              // en la página del sorteo ya está la cuenta atrás
-    if(revelable() && !spun()) return girar();                  // ya hay resultado: directo a la ruleta
-    const ms = when - new Date();
-    if(ms <= 0 || ms > 3 * 864e5) return;                       // solo los 3 días de antes
-    const KEY = 'ib-srt-tk-' + DRAW.fecha + '-' + new Date().toDateString();
-    try{ if(localStorage.getItem(KEY)) return; }catch(e){}
-    try{ localStorage.setItem(KEY, '1'); }catch(e){}
 
-    const o = document.createElement('div');
-    o.className = 'srtk'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); o.setAttribute('aria-label', 'Sorteo de entradas para el Ultra Europe');
-    const hora = (DRAW.hora || '20:00').replace(':00', '') + ' h';
-    const dia = when.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', '');
-    o.innerHTML = `<div class="srtk-box">
-        <div class="srtk-beams" aria-hidden="true"></div>
-        <button type="button" class="srtk-x" aria-label="Cerrar">✕</button>
-        <div class="srtk-in">
-          <span class="srtk-live"><i></i>Próximo sorteo · ${esc(dia)} a las ${esc(hora)}</span>
-          <h2 class="srtk-h">Sorteamos <em>${DRAW.entradas} ${DRAW.entradas === 1 ? 'entrada' : 'entradas'}</em> para el <em>Ultra Europe</em></h2>
-          <p class="srtk-p">Hacemos sorteos de vez en cuando. Si no te toca en este, <b>sigues dentro</b> para los siguientes sin hacer nada.</p>
-          <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Ese día entras en tu cuenta, giras la ruleta y ves tu resultado al momento.</p>
-          <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
-          <div class="srtk-acts" data-srtk-acts></div>
-          <small class="srtk-f">Sorteo gratuito de Iberail para mayores de 18 años. Hace falta cuenta y móvil para poder avisarte si te toca. <a href="bases-sorteo.html">Bases legales</a>.</small>
-        </div>
-        <div class="srtk-art" aria-hidden="true">
-          <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
-          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>gratis</small></span>
-        </div>
-      </div>`;
-    const close = () => { o.classList.remove('is-in'); document.body.classList.remove('srt-lock'); clearInterval(t); setTimeout(() => o.remove(), 260); };
-    o.addEventListener('click', e => { if(e.target === o || e.target.closest('.srtk-x')) close(); });
-    document.addEventListener('keydown', function esc(e){ if(e.key === 'Escape' && o.isConnected){ close(); document.removeEventListener('keydown', esc); } });
-
-    const cd = o.querySelector('[data-srtk-cd]'), acts = o.querySelector('[data-srtk-acts]');
-    const pad = n => String(n).padStart(2, '0');
-    const tick = () => {
-      let r = Math.max(0, drawAt() - new Date());
-      if(r <= 0){ cd.innerHTML = '<b class="srtk-now">¡Estamos sorteando ahora mismo!</b>'; return; }
-      const d = Math.floor(r / 864e5), h = Math.floor(r / 36e5) % 24, m = Math.floor(r / 6e4) % 60, sg = Math.floor(r / 1e3) % 60;
-      const u = [[d, 'días'], [h, 'horas'], [m, 'min'], [sg, 'seg']].filter((x, i) => i || d);
-      cd.innerHTML = u.map(([v, k]) => `<span><b>${pad(v)}</b><small>${k}</small></span>`).join('<i>:</i>');
-    };
-    const paintActs = () => {
-      acts.innerHTML = state === 'in'
-        ? `<div class="srtk-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span>Ya estás dentro con <b data-srt-n>${tiradas} ${tiradas === 1 ? 'tirada' : 'tiradas'}</b></span></div>
-           <a class="srtk-cta" href="sorteo.html">Ver la cuenta atrás</a>
-           <button type="button" class="srtk-cta srtk-cta--ghost" data-srt-poster>Sube el cartel a tu story y suma otra tirada</button>`
-        : `<button type="button" class="srtk-cta" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-           <button type="button" class="srtk-no">Ahora no</button>`;
-    };
-    paintActs(); tick();
-    const t = setInterval(tick, 1000);
-    o.addEventListener('click', e => { if(e.target.closest('.srtk-no')) close(); });
-    const obs = setInterval(() => { if(!o.isConnected) return clearInterval(obs); paintActs(); }, 1500);
-
-    document.body.appendChild(o);
-    document.body.classList.add('srt-lock');
-    requestAnimationFrame(() => requestAnimationFrame(() => o.classList.add('is-in')));
+  /* ---------- barra fina arriba: solo la semana del sorteo o con el resultado pendiente de ver ---------- */
+  const BAR_KEY = 'ib-sorteo-bar-cerrada';
+  let barEl = null;
+  function barInfo(){
+    if(!SORTEO_BAR || pagSorteo) return null;
+    if(state === 'in' && revelable() && !spun()) return { l: 'Ya puedes ver tu resultado del sorteo', s: 'Tu resultado del sorteo', go: 'Verlo' };
+    const at = drawAt(), ms = at ? at - Date.now() : -1;
+    if(ms <= 0 || ms > BAR_DIAS * 864e5) return null;
+    return { l: 'Sorteo ' + drawTxt('bar'), s: 'Sorteo Ultra · ' + drawTxt('corto'), go: state === 'in' ? 'Ver' : 'Participar' };
   }
-
-  /* ---------- barra de anuncio ---------- */
-  function bar(){
-    const KEY = 'ib-sorteo-bar-cerrada';
-    if(!SORTEO_BAR) return;
-    try{ if(sessionStorage.getItem(KEY)) return; }catch(e){}
-    const el = document.createElement('div');
-    el.className = 'srtbar';
-    el.innerHTML = `<a class="srtbar-a" href="sorteo.html">
-        <span class="srtbar-tk" aria-hidden="true">🎟️</span>
-        <span class="srtbar-t"><b>Sorteo:</b><span class="srtbar-l"> ${drawTxt('bar') || 'sorteamos entradas para el Ultra Europe 2027'}</span><span class="srtbar-s"> Entradas Ultra</span><span class="srtbar-in"> · ¡Estás dentro con <span data-srt-n>1 tirada</span>!</span></span>
-        <span class="srtbar-go"><span class="srtbar-go-a">Participar gratis</span><span class="srtbar-go-b">Ver sorteo</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  function pintarBar(){
+    let cerrada = false; try{ cerrada = !!sessionStorage.getItem(BAR_KEY); }catch(e){}
+    const info = cerrada ? null : barInfo();
+    if(!info){ if(barEl){ barEl.remove(); barEl = null; } return; }
+    if(!barEl){
+      barEl = document.createElement('div'); barEl.className = 'srtbar';
+      barEl.addEventListener('click', e => {
+        if(!e.target.closest('.srtbar-x')) return;
+        try{ sessionStorage.setItem(BAR_KEY, '1'); }catch(err){}
+        barEl.remove(); barEl = null;
+      });
+      document.body.prepend(barEl);
+    }
+    const h = `<a class="srtbar-a" href="sorteo.html">
+        <span class="srtbar-t"><span class="srtbar-l">${esc(info.l)}</span><span class="srtbar-s">${esc(info.s)}</span></span>
+        <span class="srtbar-go">${esc(info.go)}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </a>
-      <button type="button" class="srtbar-x" aria-label="Cerrar anuncio del sorteo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
-    el.querySelector('.srtbar-x').addEventListener('click', () => { try{ sessionStorage.setItem(KEY, '1'); }catch(e){} el.remove(); });
-    document.body.prepend(el);
+      <button type="button" class="srtbar-x" aria-label="Cerrar aviso del sorteo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
+    if(barEl._h !== h){ barEl._h = h; barEl.innerHTML = h; }
   }
 
   /* ---------- cartel para stories ---------- */
@@ -403,7 +373,7 @@
       const blob = await draw();
       const file = new File([blob], 'iberail-sorteo-ultra.png', { type: 'image/png' });
       if(navigator.canShare && navigator.canShare({ files: [file] })){
-        try{ await navigator.share({ files: [file], text: 'Sorteos de entradas para el Ultra Europe con @iberailspain 🎟️ iberail.com' }); }
+        try{ await navigator.share({ files: [file], text: 'Sorteos de entradas para el Ultra Europe con @iberailspain · iberail.com' }); }
         catch(e){ if(e && e.name !== 'AbortError') throw e; }
       } else {
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
@@ -419,10 +389,10 @@
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
-  paint(); bar(); check(); setTimeout(takeover, 1400);
-  if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {
+  paint(); check();
+  ensureClient().then(sb => { if(sb) sb.auth.onAuthStateChange((_ev, session) => {
     const u = session ? session.user : null;
-    if(!u){ user = null; state = 'guest'; premio = null; ganaEn = null; paint(); return; }
+    if(!u){ if(user){ user = null; state = 'guest'; premio = null; ganaEn = null; paint(); } return; }
     if(!user || user.id !== u.id){ premio = null; ganaEn = null; user = u; state = ls.get(inKey(u)) ? 'in' : 'out'; paint(); setTimeout(check, 0); }
-  });
+  }); });
 })();

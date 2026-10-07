@@ -12,16 +12,16 @@
       if(s.revelable && !s.spun){
         const nuevas = s.tiradas - s.abiertas;
         return s.abiertas
-          ? `<button type="button" class="cta-btn is-glow" data-srt-spin>¡Tienes ${nuevas === 1 ? 'una tirada nueva' : nuevas + ' tiradas nuevas'}! 🎟️</button><p class="cta-note">Ábrela${nuevas === 1 ? '' : 's'} ahora.</p>`
-          : `<button type="button" class="cta-btn is-glow" data-srt-spin>Abrir mi premio 🎟️</button><p class="cta-note">Tienes ${s.tiradas} ${s.tiradas === 1 ? 'tirada' : 'tiradas'}.</p>`;
+          ? `<button type="button" class="cta-btn is-glow" data-srt-spin>Ver ${nuevas === 1 ? 'tu participación nueva' : 'tus ' + nuevas + ' participaciones nuevas'}</button>`
+          : `<button type="button" class="cta-btn is-glow" data-srt-spin>Ver mi resultado</button><p class="cta-note">Tienes ${s.tiradas} ${s.tiradas === 1 ? 'participación' : 'participaciones'}.</p>`;
       }
-      if(s.spun) return '<p class="cta-note">Ya has abierto tu premio de este sorteo. Si te ha tocado, te escribimos por WhatsApp. Sigues dentro para los próximos.</p>';
-      return '<p class="cta-note">Preparando los resultados… en unos segundos puedes abrir tu premio.</p>';
+      if(s.spun) return '<p class="cta-note">Ya has visto tu resultado de este sorteo. Si te ha tocado, te escribimos por WhatsApp. Sigues dentro para los próximos.</p>';
+      return '<p class="cta-note">Preparando los resultados… en unos segundos puedes ver el tuyo.</p>';
     }
     if(s.state === 'guest') return '<button type="button" class="cta-btn" data-srt-join>Crear cuenta y participar gratis</button><p class="cta-note">En un minuto estás dentro.</p>';
-    if(s.state === 'out') return '<button type="button" class="cta-btn" data-srt-join>Participar gratis</button><p class="cta-note">Entras con 1 tirada. Sube nuestro cartel a tu story y suma otra.</p>';
-    return `<div class="cta-ok">✓ Estás dentro con <b>${s.tiradas} ${s.tiradas === 1 ? 'tirada' : 'tiradas'}</b></div>
-      <button type="button" class="cta-btn cta-btn--ghost" data-srt-poster>Sube el cartel a tu story y suma otra tirada</button>`;
+    if(s.state === 'out') return '<button type="button" class="cta-btn" data-srt-join>Participar gratis</button><p class="cta-note">Entras con 1 participación. Sube nuestro cartel a tu story y te sumamos otra.</p>';
+    return `<div class="cta-ok">✓ Estás dentro con <b>${s.tiradas} ${s.tiradas === 1 ? 'participación' : 'participaciones'}</b></div>
+      <button type="button" class="cta-btn cta-btn--ghost" data-srt-poster>Sube el cartel a tu story y suma otra participación</button>`;
   }
 
   let vigilando = false;

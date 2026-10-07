@@ -300,14 +300,15 @@
     const clientesN = clientsState === 'ok' ? clients.filter(c => c.id !== meId).length : '—';
     const activos = clientsState === 'ok' && clients.some(c => 'ultimo_acceso' in c) ? clients.filter(c => c.id !== meId && c.ultimo_acceso && Date.now() - new Date(c.ultimo_acceso) < 7 * 864e5).length : null;
     const gruposN = groupsErr ? '—' : groups.length;
-    let pendiente = 0, conDeuda = 0;
-    if(!pagosErr) groups.forEach(g => { const m = groupMoney(g.id); pendiente += m.falta; conDeuda += m.pend; });
+    let pendiente = 0, conDeuda = 0, gruposDeuda = 0;
+    if(!pagosErr) groups.forEach(g => { const m = groupMoney(g.id); pendiente += m.falta; conDeuda += m.pend; if(m.falta > 0) gruposDeuda++; });
+    const nG = n => `${n} ${plural(Number(n) || 0, 'grupo', 'grupos')}`;
     const abiertos = avisosErr ? null : avisos.filter(a => audienceOf(a) && readCountOf(a.id) < audienceOf(a)).length;
     const nuevas = rows.filter(r => r.estado === 'nueva').length;
     box.innerHTML = `
       <button type="button" data-go-view="sol"${nuevas ? ' class="is-hot"' : ''}><span class="adm-ov-ic">${I_DOC}</span><b>${nuevas}</b><span>${plural(nuevas, 'Solicitud nueva', 'Solicitudes nuevas')}</span></button>
       <button type="button" data-go-view="cli"><span class="adm-ov-ic">${I_USERS}</span><b>${clientesN}</b><span>${activos != null ? `Clientes · ${activos} activos esta semana` : 'Clientes registrados'}</span></button>
-      <button type="button" data-go-view="gru"><span class="adm-ov-ic">${I_EUR}</span><b>${pagosErr ? '—' : eur(pendiente)}</b><span>${pagosErr ? 'Pagos sin activar' : `Pendiente de cobro${conDeuda > 0 ? ` · ${conDeuda} ${plural(conDeuda, 'persona', 'personas')}` : ''}`} · ${gruposN} ${plural(Number(gruposN) || 0, 'grupo', 'grupos')}</span></button>
+      <button type="button" data-go-view="gru"><span class="adm-ov-ic">${I_EUR}</span><b>${pagosErr ? '—' : eur(pendiente)}</b><span>${pagosErr ? `Pagos sin activar · ${nG(gruposN)}` : conDeuda > 0 ? `Pendiente de cobro · ${conDeuda} ${plural(conDeuda, 'persona', 'personas')} en ${gruposDeuda} de ${nG(gruposN)}` : `Pendiente de cobro · ${nG(gruposN)}`}</span></button>
       <button type="button" data-go-view="avi"><span class="adm-ov-ic">${I_BELL}</span><b>${abiertos == null ? '—' : abiertos}</b><span>${abiertos == null ? 'Avisos sin activar' : plural(abiertos, 'Aviso que falta por leer', 'Avisos que faltan por leer')}</span></button>`;
   }
   function visibleClients(){

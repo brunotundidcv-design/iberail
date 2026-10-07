@@ -1,9 +1,8 @@
-/* Iberail — celebraciones del sorteo (las usa assets/ruleta.js)
-   · IBFiesta.premio(el, { tier, item })        → confeti a cañonazos, el premio salta y brilla   →  { fin() }
-   · IBFiesta.ultra(el, { nombre, test, onCerrar }) → a pantalla completa: destello, onda expansiva, rayos,
-       fuegos artificiales, lluvia de confeti, la entrada dorada en 3D con su nombre, «¡TE VAS AL ULTRA!»
-       letra a letra y botón para compartirlo en su story                                    →  { fin() }
-   Con «reducir movimiento» activado en el móvil: sin destellos, sin temblores y sin partículas. */
+/* Iberail — celebraciones del sorteo (las usa assets/ruleta.js). Discretas desde la v9.2: confeti corto y nada más.
+   · IBFiesta.premio(el, { tier, item })        → un golpe de confeti y el premio se marca   →  { fin() }
+   · IBFiesta.ultra(el, { nombre, test, onCerrar }) → capa con la entrada dorada a su nombre, «¡Te vas al Ultra!»,
+       un poco de confeti y botón para compartirlo en su story (sin destellos, temblores ni fuegos)   →  { fin() }
+   Con «reducir movimiento» activado en el móvil: sin partículas. */
 (function(){
   const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -86,55 +85,39 @@
   function premio(el, op){
     op = op || {};
     const box = el.querySelector('.rul-box');
-    vibrar([70, 40, 110]);
+    vibrar(60);
     if(reduce()) return { fin(){} };
-    box.classList.remove('fx-bump'); void box.offsetWidth; box.classList.add('fx-bump');
     const glow = document.createElement('div'); glow.className = 'fx-glow' + (op.tier === 'alto' ? ' is-alto' : ''); glow.setAttribute('aria-hidden', 'true'); el.appendChild(glow);
     const fx = lienzo(el);
     const W = fx.W, H = fx.H;
-    // dos cañones desde abajo y una explosión donde ha parado la cinta
-    fx.confeti(0, H * .92, 110, -1.05, .55, 1500);
-    fx.confeti(W, H * .92, 110, -2.09, .55, 1500);
-    const r = op.item && op.item.getBoundingClientRect();
-    if(r && r.width) fx.chispas(r.left + r.width / 2, r.top + r.height / 2, 70, ORO, 380);
-    setTimeout(() => { fx.confeti(W * .5, H * .95, 90, -1.57, .9, 1650); }, 450);
-    fx.cada(.05, 2.4, () => fx.confeti(al(0, fx.W), -20, 2, 1.57, .6, 120));   // lluvia
-    if(op.tier === 'alto'){ [0, 380, 760].forEach(t => setTimeout(() => fx.cohete(null, al(H * .55, H * .8)), t)); }
+    // un solo golpe de confeti desde abajo (sin cañones, chispas ni cohetes)
+    fx.confeti(W * .5, H * .95, op.tier === 'alto' ? 120 : 80, -1.57, .9, 1450);
+    fx.cada(.08, 1.2, () => fx.confeti(al(0, fx.W), -20, 1, 1.57, .6, 120));
     let hecho = false;
-    return { fin(){ if(hecho) return; hecho = true; fx.fin(); glow.remove(); box.classList.remove('fx-bump'); } };
+    return { fin(){ if(hecho) return; hecho = true; fx.fin(); glow.remove(); } };
   }
 
   /* ======================= ¡ULTRA! ======================= */
   function ultra(el, op){
     op = op || {};
     const r = reduce(), box = el.querySelector('.rul-box'), nombre = String(op.nombre || '').trim();
-    vibrar([220, 90, 220, 90, 600]);
+    vibrar([120, 60, 160]);
     const timers = [];
     const luego = (ms, fn) => timers.push(setTimeout(fn, ms));
     let fx = null, capa = null, hecho = false;
 
-    // 1) el golpe: destello y temblor
-    if(!r){
-      const fl = document.createElement('div'); fl.className = 'fx-flash'; fl.setAttribute('aria-hidden', 'true'); el.appendChild(fl);
-      luego(1300, () => fl.remove());
-      box.classList.add('fx-shake'); luego(900, () => box.classList.remove('fx-shake'));
-    }
-
     // 2) la capa a pantalla completa
-    const letras = t => t.split('').map((ch, i) => ch === ' ' ? '<span class="ru-sp"> </span>' : `<span class="ru-l" style="--i:${i}">${esc(ch)}</span>`).join('');
-    luego(r ? 0 : 650, () => {
+    luego(r ? 0 : 450, () => {
       if(hecho) return;
       capa = document.createElement('div');
-      capa.className = 'ru' + (r ? ' is-calm' : '');
+      capa.className = 'ru is-calm';
       capa.setAttribute('role', 'dialog'); capa.setAttribute('aria-modal', 'true'); capa.setAttribute('aria-label', '¡Te ha tocado una entrada para el Ultra Europe 2027!');
       capa.innerHTML = `
-        <div class="ru-rays" aria-hidden="true"></div>
         <button type="button" class="ru-snd" data-ru-snd aria-label="Activar o quitar el sonido">${S() && S().mudo() ? '🔇' : '🔊'}</button>
-        <div class="ru-rings" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="ru-in">
           ${op.test ? '<span class="ru-test">Simulación · no cuenta</span>' : ''}
-          <span class="ru-k">🎉 Sorteo Iberail · ¡Premio gordo! 🎉</span>
-          <h2 class="ru-h" aria-label="¡Te vas al Ultra!"><span class="ru-row">${letras('¡TE VAS')}</span> <span class="ru-row">${letras('AL ULTRA!')}</span></h2>
+          <span class="ru-k">Sorteo Iberail · Ultra Europe 2027</span>
+          <h2 class="ru-h">¡Te vas al Ultra!</h2>
           <div class="ru-tk-wrap" data-ru-tilt>
             <div class="ru-tk">
               <div class="ru-tk-main">
@@ -150,23 +133,14 @@
           </div>
           <p class="ru-p">Enhorabuena${nombre ? ', <b>' + esc(nombre) + '</b>' : ''}. Tu abono de 3 días para el <b>Ultra Europe 2027</b> es tuyo. Te escribimos por WhatsApp con todos los detalles.</p>
           <div class="ru-acts">
-            <button type="button" class="ru-share" data-ru-share>📸 Compártelo en tu story</button>
-            <button type="button" class="ru-ok" data-ru-ok>¡Vamos! 🎉</button>
+            <button type="button" class="ru-share" data-ru-share>Compártelo en tu story</button>
+            <button type="button" class="ru-ok" data-ru-ok>¡Vamos!</button>
           </div>
         </div>`;
       el.appendChild(capa);
       requestAnimationFrame(() => requestAnimationFrame(() => capa.classList.add('is-in')));
-      const ok = capa.querySelector('[data-ru-ok]'); setTimeout(() => { try{ ok.focus({ preventScroll: true }); }catch(e){} }, 2600);
+      const ok = capa.querySelector('[data-ru-ok]'); setTimeout(() => { try{ ok.focus({ preventScroll: true }); }catch(e){} }, 900);
 
-      // la entrada se inclina siguiendo el dedo o el ratón
-      const wrap = capa.querySelector('[data-ru-tilt]');
-      capa.addEventListener('pointermove', e => {
-        const b = wrap.getBoundingClientRect(); if(!b.width) return;
-        const x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5;
-        wrap.style.setProperty('--ry', (x * 22).toFixed(2) + 'deg'); wrap.style.setProperty('--rx', (-y * 16).toFixed(2) + 'deg');
-        wrap.style.setProperty('--hx', ((x + .5) * 100).toFixed(1) + '%');
-      });
-      capa.addEventListener('pointerleave', () => { wrap.style.removeProperty('--ry'); wrap.style.removeProperty('--rx'); });
       capa.addEventListener('click', e => {
         if(e.target.closest('[data-ru-ok]')) return cerrar();
         const sn = e.target.closest('[data-ru-snd]');
@@ -176,17 +150,12 @@
       document.addEventListener('keydown', teclado);
 
       if(r) return;
-      // 3) fuegos artificiales y confeti
+      // 3) un poco de confeti (nada de fuegos ni lluvia sin fin)
       fx = lienzo(capa);
       const W = fx.W, H = fx.H;
-      fx.confeti(0, H, 160, -1.0, .6, 1750);
-      fx.confeti(W, H, 160, -2.14, .6, 1750);
-      luego(350, () => fx && fx.confeti(W / 2, H * .45, 140, -1.57, 6.28, 900));
-      for(let i = 0; i < 5; i++) luego(500 + i * 260, () => fx && fx.cohete(null, al(H * .55, H * .85)));
-      luego(1900, () => fx && fx.cada(.42, 8, () => { fx.cohete(null, al(H * .5, H * .88)); if(Math.random() < .35) fx.cohete(null, al(H * .5, H * .88)); }));
-      luego(10000, () => fx && fx.cada(1.6, Infinity, () => fx.cohete(null, al(H * .5, H * .85))));
-      fx.cada(.03, 7, () => fx.confeti(al(0, fx.W), -20, 2, 1.57, .5, 140));   // lluvia de confeti
-      luego(3200, () => fx && fx.cada(.09, Infinity, () => fx.confeti(al(0, fx.W), -20, 1, 1.57, .5, 110)));
+      fx.confeti(0, H, 90, -1.0, .6, 1600);
+      fx.confeti(W, H, 90, -2.14, .6, 1600);
+      fx.cada(.06, 2.2, () => fx.confeti(al(0, fx.W), -20, 1, 1.57, .5, 130));
     });
 
     function teclado(e){ if(e.key === 'Escape' && capa) cerrar(); }
@@ -203,7 +172,6 @@
         if(hecho) return; hecho = true;
         timers.forEach(clearTimeout); document.removeEventListener('keydown', teclado);
         if(fx){ fx.fin(); fx = null; } if(capa){ capa.remove(); capa = null; }
-        box.classList.remove('fx-shake'); el.querySelectorAll('.fx-flash').forEach(x => x.remove());
       }
     };
   }

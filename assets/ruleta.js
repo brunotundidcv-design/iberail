@@ -1,8 +1,10 @@
-/* Iberail — apertura del premio del sorteo (cinta estilo «caja», con flecha en el centro)
-   El sorteo se celebra aparte; el equipo marca en el panel qué le ha tocado a cada uno y publica.
-   Esta cinta es la forma de enseñárselo: pasa el catálogo real de premios y frena en el suyo.
+/* Iberail — resultado del sorteo (cinta con flecha en el centro)
+   El sorteo se celebra aparte (al azar, punto 5 de las bases); el equipo marca en el panel qué le ha tocado
+   a cada uno y publica. Esta cinta es la forma de enseñárselo: pasa el catálogo real de premios y para en el suyo.
    En la cinta solo salen premios que existen de verdad (ver supabase/sql/sorteo-premios.sql).
-   Las celebraciones (confeti, fuegos, la entrada dorada del Ultra) están en assets/fiesta.js.
+   Discreta (v9.2): un solo frenado de ~6 s, sin parón de «tensión», sin música de fondo y SIN colocar a propósito
+   el Ultra al lado cuando no toca (el «casi» forzado cantaba mucho): las piezas de alrededor salen al azar.
+   Las celebraciones (confeti y la entrada del Ultra) están en assets/fiesta.js.
 
    Uso:  IBRuleta.show({ premio, catalogo, nombre, restantes, acta, test, tiradas, ganaEn })  →  Promise
      premio    id del premio ganado, o null / '' si no le ha tocado nada
@@ -87,7 +89,7 @@
     const m = media(url); if(!m || !m._ok || mudo()) return false;
     try{ m.currentTime = 0; m.volume = vol == null ? .9 : vol; m.muted = false; m.play().catch(() => {}); sonando.add(m); m.addEventListener('ended', () => sonando.delete(m), { once: true }); return true; }catch(e){ return false; }
   }
-  function aplicarMudo(){ if(OUT) OUT.gain.value = mudo() ? 0 : 1; sonando.forEach(m => { m.muted = mudo(); }); if(window.IBBanda) IBBanda.mudo(mudo()); }
+  function aplicarMudo(){ if(OUT) OUT.gain.value = mudo() ? 0 : 1; sonando.forEach(m => { m.muted = mudo(); }); if(window.IBBanda) IBBanda.mudo(mudo()); }   // IBBanda: música de la cuenta atrás (sorteo.html)
   // se apagan en 0,8 s en vez de cortarse en seco (en iPhone el volumen no se puede tocar: ahí se paran al final)
   function pararMedias(){
     sonando.forEach(m => { const v0 = m.volume, t0 = performance.now(); const paso = () => { const x = Math.min(1, (performance.now() - t0) / 800); try{ m.volume = v0 * (1 - x); }catch(e){} if(x < 1) requestAnimationFrame(paso); else { try{ m.pause(); m.volume = v0; }catch(e){} } }; requestAnimationFrame(paso); });
@@ -112,22 +114,13 @@
   function clic(vel){
     const a = ctx(); if(!a || mudo()) return;
     const t = a.currentTime;
-    soplo(t, 'bandpass', 2600 + vel * 1600, .7, .035, 0, 5);
-    tono(1700 + vel * 600, t, .05, .28, 'triangle', 650);
+    soplo(t, 'bandpass', 2600 + vel * 1600, .32, .03, 0, 5);
+    tono(1700 + vel * 600, t, .045, .12, 'triangle', 650);
   }
   function tic(vel){
     if(mudo()) return;
     const b = bufListo[SND.tic];
-    if(b) sonar(b, .55, .92 + vel * .25); else clic(vel);
-  }
-  function zumbido(){   // al arrancar la cinta
-    const a = ctx(); if(!a || mudo()) return;
-    soplo(a.currentTime, 'bandpass', 3000, .22, 2.2, 400, 2);
-  }
-  function latido(){
-    const a = ctx(); if(!a || mudo()) return;
-    const t = a.currentTime;
-    tono(70, t, .22, .7, 'sine', 40); tono(62, t + .2, .26, .55, 'sine', 36);
+    if(b) sonar(b, .4, .92 + vel * .25); else clic(vel);
   }
   function metal(n, t, dur, vol){   // «metales»: tres dientes de sierra desafinados con filtro que se abre
     const a = ctx(), o = out(); if(!a || !o) return;
@@ -150,33 +143,9 @@
     soplo(t + .45, 'highpass', 5000, .2, 1.4);
     for(let i = 0; i < 8; i++) tono(2400 + Math.random() * 2400, t + .5 + i * .11, .25, .05, 'sine');
   }
-  function fanfarriaUltra(){
-    const a = ctx(); if(!a) return; const t = a.currentTime + .03;
-    boom(t);
-    const acordes = [[[60, 64, 67], .55], [[65, 69, 72], .55], [[67, 71, 74], .7], [[72, 76, 79, 84], 2.8]];
-    let x = t + .35;
-    acordes.forEach(([ns, d], i) => { ns.forEach(n => { metal(n, x, d, .032); metal(n - 12, x, d, .022); }); if(i === 3){ boom(x); } x += d; });
-    for(let i = 0; i < 22; i++) soplo(t + 1.25 + i * .045, 'bandpass', 140, .1 + i * .02, .08, 0, 2);   // redoble de timbales
-    for(let i = 0; i < 18; i++) tono(2000 + Math.random() * 3000, t + 2.2 + i * .14, .3, .045, 'sine');
-  }
-  const BANDA = () => window.IBBanda || null;   // assets/musica.js: la música continua (cuenta atrás → tensión → fiesta)
-  // golpe final: con la banda sonora, el impacto y la música siguiente van pegados (sin silencio entre medias)
-  function golpeFinal(gan){
-    const b = BANDA();
-    if(!b){ if(gan.id) fanfarria(gan.tier === 'top'); else pena(); return; }
-    if(!gan.id){ b.golpe('nada'); pena(); return; }
-    const top = gan.tier === 'top';
-    const conMp3 = !mudo() && (top ? (tocarMedia(SND.ultra, .95) || (SND.ultra !== SND_DEF.ultra && tocarMedia(SND_DEF.ultra, .95))) : tocarMedia(SND.premio, .9));
-    b.golpe(top ? 'ultra' : 'premio', { conMp3 });
-  }
   function fanfarria(top){
     if(mudo()) return;
-    if(top){
-      // con mp3: golpe sintetizado + la canción; sin mp3: la fanfarria completa (ya lleva su golpe)
-      if(tocarMedia(SND.ultra, .95) || (SND.ultra !== SND_DEF.ultra && tocarMedia(SND_DEF.ultra, .95))){ const a = ctx(); if(a) boom(a.currentTime + .02); }
-      else fanfarriaUltra();
-      return;
-    }
+    if(top && (tocarMedia(SND.ultra, .9) || (SND.ultra !== SND_DEF.ultra && tocarMedia(SND_DEF.ultra, .9)))) return;   // mp3 del panel
     if(!tocarMedia(SND.premio, .9)) fanfarriaPremio();
   }
   function pena(){   // no ha tocado: dos notas que bajan, suave
@@ -194,9 +163,8 @@
   const ICON = { top: '🎟️', alto: '💶', medio: '🍹', bajo: '💶', nada: '🎲' };
   const icono = p => p.id === 'copas' ? '🍹' : (ICON[p.tier] || '🎲');
 
-  // la cinta: muchos huecos repartidos según las cantidades reales del catálogo.
-  // Alrededor de donde para se colocan las piezas para que haya tensión hasta el final:
-  // si toca el Ultra, justo antes no hay ninguno (no se ve venir); si no toca, el Ultra queda justo detrás («casi»).
+  // la cinta: huecos repartidos según las cantidades reales del catálogo, todos al azar.
+  // Solo se fija la pieza donde para (el resultado); las de alrededor son las que salgan.
   function construir(catalogo, gan, largo, en){
     const pool = [];
     catalogo.forEach(p => { for(let i = 0; i < Math.max(1, Number(p.n) || 1); i++) pool.push(p); });
@@ -204,13 +172,7 @@
     for(let i = 0; i < vacios; i++) pool.push(NADA);
     const cinta = [];
     for(let i = 0; i < largo; i++) cinta.push(pool[Math.floor(Math.random() * pool.length)]);
-    const top = catalogo.find(p => p.tier === 'top'), otros = catalogo.filter(p => p.tier !== 'top');
-    const otro = () => otros.length && Math.random() < .6 ? otros[Math.floor(Math.random() * otros.length)] : NADA;
-    if(top && gan.tier === 'top') for(let i = en - 14; i < en; i++) if(cinta[i] && cinta[i].tier === 'top') cinta[i] = otro();
     cinta[en] = gan;
-    cinta[en - 1] = otro();
-    cinta[en + 1] = top && gan.tier !== 'top' ? top : otro();
-    if(top && gan.tier !== 'top') cinta[en - 3] = top;   // pasa uno por delante poco antes de frenar
     return cinta;
   }
 
@@ -229,7 +191,7 @@
     SND = { ...SND_DEF, ...(o.sonidos || {}) };   // los del panel mandan; si falta uno, el de assets/snd
     cargar(SND.tic).then(b => { if(b) bufListo[SND.tic] = b; });
     media(SND.premio); media(SND.ultra);
-    const LARGO = 150, GANA_EN = 140;               // el resultado cae en esta posición
+    const LARGO = 70, GANA_EN = 60;                 // el resultado cae en esta posición
     // el premio asignado SIEMPRE se enseña, aunque no esté en el catálogo publicado
     const premio = catalogo.find(p => p.id === o.premio) || (o.premio ? { id: o.premio, label: o.premio === 'entrada' ? 'Entrada Ultra Europe' : 'Premio sorpresa', tier: o.premio === 'entrada' ? 'top' : 'alto' } : null);
     // tiradas: cada una se abre por separado; el premio sale solo en la que diga el panel (por defecto, la última)
@@ -253,8 +215,8 @@
             <span class="rul-k">Sorteo Iberail · Ultra Europe 2027</span>
             ${N > 1 ? '<span class="rul-tir" data-rul-tir></span>' : ''}
             <div class="rul-prize" data-rul-prize hidden></div>
-            <b class="rul-h" data-rul-h>Abre tu premio</b>
-            <p class="rul-p" data-rul-p>${N > 1 ? `Tienes <b>${N} tiradas</b>. Ábrelas una a una.` : 'Dale a abrir: la cinta para donde para.'}</p>
+            <b class="rul-h" data-rul-h>Tu resultado</b>
+            <p class="rul-p" data-rul-p>${N > 1 ? `Tienes <b>${N} participaciones</b>. Se ven una a una.` : 'Pulsa el botón para ver qué te ha tocado.'}</p>
             ${quedan}
           </div>
           <div class="rul-rail" data-rul-rail>
@@ -263,13 +225,12 @@
             <span class="rul-fade rul-fade--l" aria-hidden="true"></span><span class="rul-fade rul-fade--r" aria-hidden="true"></span>
           </div>
           <div class="rul-acts" data-rul-acts></div>
-          ${o.acta ? `<small class="rul-acta">${esc(o.acta)}</small>` : ''}
+          <small class="rul-acta">${o.acta ? esc(o.acta) + ' · ' : ''}Los ganadores se eligen al azar antes de esta hora; aquí solo ves tu resultado. <a href="bases-sorteo.html" target="_blank" rel="noopener">Bases</a></small>
         </div>`;
 
       let fx = null;   // celebración en marcha (para pararla al cerrar)
       const close = () => {
         if(fx && fx.fin) fx.fin(); fx = null; pararMedias();
-        if(BANDA()) BANDA().parar(1.8);   // la música se apaga poco a poco, no de golpe
         el.classList.remove('is-in'); document.body.classList.remove('srt-lock');
         setTimeout(() => { el.remove(); res(toca); }, 260);
       };
@@ -291,8 +252,8 @@
         track.innerHTML = cinta.map(p => `<div class="rul-it is-${esc(p.tier)}"><span class="rul-it-i">${icono(p)}</span><b>${esc(p.label)}</b></div>`).join('');
         el.classList.remove('is-win', 'is-lose', 'is-top', 'is-tense', 'is-fast');
         prizeEl.hidden = true; prizeEl.innerHTML = '';
-        if(tirEl) tirEl.innerHTML = Array.from({ length: N }, (_, i) => `<i class="${i + 1 < actual ? 'is-used' : i + 1 === actual ? 'is-now' : ''}">🎟️</i>`).join('') + `<b>Tirada ${actual} de ${N}</b>`;
-        acts.innerHTML = `<button type="button" class="rul-go" data-rul-go>${N > 1 ? `Abrir tirada ${actual}` : 'Abrir mi premio'}</button>`;
+        if(tirEl) tirEl.innerHTML = Array.from({ length: N }, (_, i) => `<i class="${i + 1 < actual ? 'is-used' : i + 1 === actual ? 'is-now' : ''}"></i>`).join('') + `<b>Participación ${actual} de ${N}</b>`;
+        acts.innerHTML = `<button type="button" class="rul-go" data-rul-go>${N > 1 ? `Ver la participación ${actual}` : 'Ver mi resultado'}</button>`;
         abierto = false;
       }
 
@@ -309,10 +270,10 @@
 
       async function girar(){
         abierto = true;
-        acts.innerHTML = '<span class="rul-wait">Girando…</span>';
-        head.textContent = N > 1 ? `Tirada ${actual}…` : 'Girando…';
-        par.textContent = 'Mucha suerte 🤞';
-        el.classList.add('is-spin', 'is-fast');
+        acts.innerHTML = '<span class="rul-wait">Un momento…</span>';
+        head.textContent = N > 1 ? `Participación ${actual} de ${N}` : 'Tu resultado';
+        par.textContent = '';
+        el.classList.add('is-spin');
         const gan = resultado(actual), r = reduce();
         const it = track.querySelector('.rul-it');
         const anchoIt = it.getBoundingClientRect().width, hueco = parseFloat(getComputedStyle(track).gap) || 10;
@@ -321,7 +282,7 @@
         track.style.gap = hueco + 'px'; track.querySelectorAll('.rul-it').forEach(x => { x.style.flex = `0 0 ${anchoIt}px`; });
         const centro = rail.getBoundingClientRect().width / 2;
         const xDe = (i, frac) => -(i * paso + paso * frac - centro);   // frac: 0 = borde izquierdo de la pieza, .5 = centro
-        // un clic cada vez que una pieza pasa por la flecha, leyendo la posición real (sirve para las dos fases)
+        // un clic suave cada vez que una pieza pasa por la flecha, leyendo la posición real
         let ult = -1, vivo = true, xAnt = 0, tAnt = performance.now();
         const bucle = () => {
           if(!vivo || !el.isConnected) return;
@@ -331,23 +292,10 @@
           if(n !== ult){ if(ult >= 0) tic(vel); ult = n; }
           requestAnimationFrame(bucle);
         };
-        if(!r){ zumbido(); requestAnimationFrame(bucle); }
-        const T1 = r ? 250 : 16000, PAUSA = r ? 0 : 1300, T2 = r ? 200 : 3000;
-        const b = BANDA();
-        if(b) b.tension(.6, true);   // la música no se para: pasa a la base de tensión al empezar a girar
-        setTimeout(() => el.classList.remove('is-fast'), T1 * .42);
-        setTimeout(() => { if(b && el.isConnected) b.tension(.82); }, T1 * .55);   // frenando: latidos más seguidos
-        // fase 1 (~16 s): gira y frena dejando la flecha en la pieza de antes
-        await mover(xDe(GANA_EN - 1, .5 + (Math.random() - .5) * .3), T1, 'cubic-bezier(.1,.62,.08,1)');
-        if(!el.isConnected){ vivo = false; return; }
-        // pausa con latido… y una subida con redoble que acaba justo cuando para la cinta
-        head.textContent = '¿Y…?';
-        el.classList.add('is-tense');
-        if(b){ b.tension(1); b.subida((PAUSA + T2) / 1000); } else if(!r) latido();
-        if(!r){ vibrar(40); await espera(PAUSA); }
-        // fase 2 (~3 s): avanza muy despacio hasta el resultado (si no toca, se queda pegada al Ultra)
-        const fin = gan.id ? .5 + (Math.random() - .5) * .3 : .8 + Math.random() * .12;
-        await mover(xDe(GANA_EN, fin), T2, 'cubic-bezier(.45,0,.2,1)');
+        if(!r) requestAnimationFrame(bucle);
+        // un solo frenado natural; el punto donde para dentro de la pieza es al azar (gane o no)
+        const fin = .22 + Math.random() * .56;
+        await mover(xDe(GANA_EN, fin), r ? 250 : 6200, 'cubic-bezier(.12,.62,.12,1)');
         vivo = false;
         if(!el.isConnected) return;
 
@@ -355,7 +303,7 @@
         const c2 = rail.getBoundingClientRect().width / 2, xOk = -(GANA_EN * paso + paso * fin - c2);
         if(Math.abs(xOk - posX()) > 2) await mover(xOk, 350, 'ease-out');
         if(o.onTirada){ try{ o.onTirada(actual); }catch(e){} }
-        el.classList.remove('is-spin', 'is-tense'); el.classList.add(gan.id ? 'is-win' : 'is-lose');
+        el.classList.remove('is-spin'); el.classList.add(gan.id ? 'is-win' : 'is-lose');
         if(gan.tier === 'top') el.classList.add('is-top');
         track.children[GANA_EN].classList.add('is-got');
         const quedanT = N - actual;
@@ -366,18 +314,18 @@
           par.innerHTML = gan.id === 'entrada'
             ? `Enhorabuena${coma}. Te escribimos por WhatsApp con los detalles de tu entrada para el Ultra Europe.`
             : `Enhorabuena${coma}. Te lo aplicamos en tu viaje con nosotros: te escribimos por WhatsApp para dejártelo apuntado.`;
-          golpeFinal(gan);
+          fanfarria(gan.tier === 'top'); vibrar(60);
         } else {
-          head.innerHTML = N > 1 ? `Tirada ${actual}: esta vez no` : 'Esta vez no ha salido premio';
-          par.innerHTML = quedanT ? `Te ${quedanT === 1 ? 'queda 1 tirada' : `quedan ${quedanT} tiradas`}. ¡A por la siguiente!`
-            : (toca ? `Ya tienes tu premio${coma}. ¡Nos vemos en Split!` : 'Sigues dentro para los próximos sorteos sin hacer nada. Sube nuestro cartel a tu story y suma otra tirada.');
-          golpeFinal(gan); vibrar(30);
+          head.innerHTML = N > 1 ? `Participación ${actual}: esta vez no` : 'Esta vez no ha habido suerte';
+          par.innerHTML = quedanT ? `Te ${quedanT === 1 ? 'queda 1 más' : `quedan ${quedanT} más`}.`
+            : (toca ? `Ya tienes tu premio${coma}. ¡Nos vemos en Split!` : 'Sigues dentro para los próximos sorteos sin hacer nada.');
+          pena();
         }
         acts.innerHTML = quedanT
-          ? `<button type="button" class="rul-go" data-rul-next>Siguiente tirada (${actual + 1} de ${N})</button>`
-          : `<button type="button" class="rul-go rul-go--ghost" data-rul-x>${toca ? '¡Genial!' : 'Entendido'}</button>`;
+          ? `<button type="button" class="rul-go" data-rul-next>Ver la siguiente (${actual + 1} de ${N})</button>`
+          : `<button type="button" class="rul-go rul-go--ghost" data-rul-x>${toca ? '¡Genial!' : 'Cerrar'}</button>`;
 
-        // celebración (assets/fiesta.js): la del Ultra va a pantalla completa encima de la ruleta
+        // celebración (assets/fiesta.js), corta y sin fuegos
         const F = window.IBFiesta;
         if(gan.id && F){
           if(fx && fx.fin) fx.fin();
@@ -393,7 +341,7 @@
           unlock(); cebar(SND.premio); cebar(SND.ultra);
           return void girar();
         }
-        if(e.target.closest('[data-rul-next]')){ unlock(); if(fx && fx.fin) fx.fin(); fx = null; pararMedias(); if(BANDA()) BANDA().calmar(); actual++; preparar(); }
+        if(e.target.closest('[data-rul-next]')){ unlock(); if(fx && fx.fin) fx.fin(); fx = null; pararMedias(); actual++; preparar(); }
       });
 
       preparar();

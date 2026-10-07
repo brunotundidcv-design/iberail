@@ -5,7 +5,7 @@
    · IBCuenta.simular({ segundos, musica, onZero })  →  la abre encima de todo (panel)
    La música empieza a falta de 6 minutos (IBBanda.INICIO_MS) y NO se corta en el 0: el tema hace el drop final y
    pasa solo a la base de tensión de la ruleta (assets/musica.js). El navegador no deja sonar nada hasta que la
-   persona toca la página: por eso el botón grande de «Activar sonido» (cualquier toque en la página también vale).
+   persona lo pide: solo suena si pulsa «Activar sonido» (v9.2: ya no arranca con cualquier toque en la página).
    Con un mp3 subido, va sincronizado con la cuenta atrás (su final cae en el 0) y en el 0 entra la base de tensión. */
 (function(){
   const FINAL = 5 * 60 * 1000;   // modo final (visual)
@@ -13,7 +13,6 @@
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const pad = n => String(n).padStart(2, '0');
   const SND = 'ib-srt-snd';
-  const sndPref = () => { try{ return localStorage.getItem(SND) !== '0'; }catch(e){ return true; } };
   const setSndPref = v => { try{ localStorage.setItem(SND, v ? '1' : '0'); }catch(e){} };
   const banda = () => window.IBBanda || null;
 
@@ -42,8 +41,7 @@
       const enMusica = rest > 0 && rest <= MUSICA;
       sndB.hidden = !(rest > 0 && rest <= MUSICA + 10 * 60 * 1000);
       sndB.classList.toggle('is-on', son);
-      sndB.classList.toggle('is-pulse', enMusica && !son);
-      put(sndB, son ? '🔊 Sonido activado · tocar para silenciar' : (enMusica ? '🔊 Activa el sonido para vivir el final' : '🔊 Activa el sonido: la música empieza a falta de 6 minutos'));
+      put(sndB, son ? 'Sonido activado · quitar' : (enMusica ? 'Activar sonido' : 'Activar sonido (la música empieza a falta de 6 minutos)'));
     }
 
     /* ---------- mp3 del panel ---------- */
@@ -95,10 +93,6 @@
       if(son){ desbloquear(); arrancarMusica(); } else pararMusica();
       pintarSnd(resto());
     });
-    // cualquier toque en la página cuenta como permiso para el sonido (si no lo ha quitado él)
-    // («click» y no «pointerdown»: en iPhone solo el click/touchend cuenta como gesto para el audio; el propio botón va aparte)
-    const primerToque = e => { if(e && e.target && e.target.closest && e.target.closest('[data-snd]')) return; if(!son && sndPref()){ son = true; desbloquear(); arrancarMusica(); pintarSnd(resto()); } };
-    el.addEventListener('click', primerToque);
 
     function alCero(){
       fin = true;
@@ -132,11 +126,11 @@
         if(sec !== ultS){ ultS = sec; if(rest <= MUSICA) arrancarMusica(); }
       }
       put(msg, !o.at ? 'Pronto habrá un nuevo sorteo. Si estás apuntado, entras en todos sin hacer nada.'
-        : rest <= 0 ? 'Entra en tu cuenta y abre tu premio.'
-        : rest <= 10000 ? '¡Allá vamos!'
-        : rest <= 60000 ? 'Último minuto. Que nadie se mueva.'
+        : rest <= 0 ? 'Entra en tu cuenta y mira tu resultado.'
+        : rest <= 10000 ? 'Ya casi está.'
+        : rest <= 60000 ? 'Último minuto.'
         : rest <= FINAL ? 'Recta final: quedan menos de 5 minutos'
-        : 'para descubrir quién se lleva las entradas');
+        : 'para ver los resultados del sorteo');
       pintarSnd(rest);
       if(o.estado) put(st, o.estado(rest));
     }
@@ -175,8 +169,8 @@
     // seguir = true cuando pasa a la ruleta: la música no se corta
     const close = seguir => { if(cerrado) return; cerrado = true; c.destroy(seguir === true); wrap.remove(); document.body.classList.remove('srt-lock'); };
     wrap.querySelector('.cta-sim-x').addEventListener('click', () => close(false));
-    // en la simulación, el clic del panel ya cuenta como permiso: el sonido arranca solo
-    setTimeout(() => { const i = wrap.querySelector('.cta-sim-in'); if(i) i.dispatchEvent(new MouseEvent('click', { bubbles: true })); }, 30);
+    // en la simulación, el clic del panel ya cuenta como permiso: se activa el sonido con su botón
+    setTimeout(() => { const b = wrap.querySelector('[data-snd]'); if(b && !b.classList.contains('is-on')) b.click(); }, 30);
     return { close };
   }
 

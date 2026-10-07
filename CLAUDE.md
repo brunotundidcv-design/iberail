@@ -6,6 +6,7 @@ alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacid
 
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
 sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
+**Importada `iberail-web-v9.1`** (07/10/2026, partía de 4803f14 = v8.8: sorteos sueltos, contratos por correo — fuera `contratos.js` y la firma en la web, también en Zarping —, «correo a un cliente» en el panel). **v9.2** (07/10/2026): sorteo discreto (ver `sorteo.js`), y `tools/demo/` para la versión de demo del panel.
 **Importada `iberail-web-v8.8`** (02/10/2026, partía de b01e727: página `sorteo.html` con cuenta atrás, `bases-sorteo.html`,
 `condiciones-generales.html`, `fiesta.js`, `musica.js`, `cuenta-atras.js`, `sorteo-pagina.js`, pagos en pausa `PAGOS_PAUSA` en `payment.js`).
 
@@ -133,6 +134,23 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   Vuelta: `grupos.html?seguro=ok|cancelado`. Panel (`[data-seguro-admin]`): oferta (plan, cancelación, precio, límite,
   aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
+
+## Sorteo discreto (v9.2) y panel de demo
+
+- **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana
+  del sorteo (`BAR_DIAS`) o cuando ya puedes ver tu resultado; la ruleta ya no se abre sola fuera de `sorteo.html`.
+  Cinta con un solo frenado de ~6 s, sin parón de tensión, sin música de fondo y **sin colocar el Ultra al lado a propósito
+  cuando no toca** (las piezas de alrededor salen al azar); celebración corta (confeti, sin fuegos ni destellos). Debajo de la
+  cinta: «Los ganadores se eligen al azar antes de esta hora; aquí solo ves tu resultado» (lo mismo que dicen las bases, punto 5).
+  Textos: «participaciones» en vez de «tiradas», «Ver mi resultado» en vez de «Abrir mi premio». `ruleta.js` y `fiesta.js`
+  solo se cargan en `sorteo.html` y en el panel; en el resto los descarga `sorteo.js` cuando hace falta. La música de la cuenta
+  atrás solo suena si se pulsa «Activar sonido».
+- **Un solo cliente de Supabase por página**: `IB.ensureSb()` en `app.js` (antes `sorteo.js` y `live.js` podían crear dos).
+- **Panel de demo** (`tools/demo/`): `python3 tools/demo/build.py <carpeta> [versión]` crea el zip normal y el `-demo`, cuyo
+  `panel.html` funciona sin Supabase con `supabase-demo.js` (Supabase en memoria) y `datos-demo.js` (datos inventados con semilla
+  fija: 2.190 clientes, 74 grupos, 260.180 € pendientes, solicitudes, WhatsApp, avisos, «En directo» que se mueve…). Lleva la
+  etiqueta «Demo · datos de ejemplo» y **no se activa en iberail.com / zarping.com**. Es solo para presentar: no subirlo a Netlify.
+  También sirve para probar la web en un navegador sin tocar la base de datos real (ver cómo se usa en las pruebas con Playwright).
 
 ## Supabase
 
