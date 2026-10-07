@@ -370,10 +370,12 @@ async function pagado(gid: number, uid: string) {
 /* ============================ eventos de la base de datos ============================ */
 async function evento(ev: any) {
   const { type, table, record: r, old_record: o } = ev || {};
+  // con cuenta, el correo va siempre al de la cuenta (no al que escriba el navegador en la fila)
+  const paraRuta = async (x: any) => (x?.user_id && (await usuario(x.user_id))?.email) || x?.email;
   if (table === 'rutas' && type === 'INSERT' && r?.email && !r.creada_por_equipo)
-    return unaVezYEnviar(`ruta:${r.id}`, r.email, C.ruta_recibida(r));
+    return unaVezYEnviar(`ruta:${r.id}`, await paraRuta(r), C.ruta_recibida(r));
   if (table === 'rutas' && type === 'UPDATE' && r?.estado === 'presupuesto_enviado' && o?.estado !== 'presupuesto_enviado' && r.email)
-    return unaVezYEnviar(`presupuesto:${r.id}`, r.email, C.presupuesto(r));
+    return unaVezYEnviar(`presupuesto:${r.id}`, await paraRuta(r), C.presupuesto(r));
   if (table === 'grupo_miembros' && (type === 'INSERT' || type === 'UPDATE') && r?.user_id) {
     const u = await usuario(r.user_id); if (!u) return 'sin_usuario';
     const g = await grupo(r.grupo_id), out = [];

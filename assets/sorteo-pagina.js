@@ -58,5 +58,6 @@
     const at = s.at && (Date.now() - s.at < 2 * 864e5 || (s.revelable && !s.spun)) ? s.at : null;
     const o = { at, musica: (s.sonidos || {}).cuenta || '', entradas: s.draw.entradas, estado: rest => estado(at ? rest : Infinity), onZero: alCero };
     if(!cta) cta = IBCuenta.mount(box, o); else cta.set(o);
+    if(at && +at <= Date.now()) alCero();   // abierta después de la hora: también se espera al resultado
   });
 })();

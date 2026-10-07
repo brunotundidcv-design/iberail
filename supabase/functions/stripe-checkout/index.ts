@@ -86,6 +86,7 @@ async function pagar(req: Request) {
     headers: { Authorization: `Bearer ${env('STRIPE_SECRET_KEY')}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form({
       mode: 'payment',
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       locale: 'es',
       customer_email: user.email,
       client_reference_id: `${gid}:${user.id}`,
@@ -126,6 +127,7 @@ async function pagarSeguro(user: any, gid: number) {
     headers: { Authorization: `Bearer ${env('STRIPE_SECRET_KEY')}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: form({
       mode: 'payment',
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       locale: 'es',
       customer_email: user.email,
       client_reference_id: `seguro:${gid}:${user.id}`,

@@ -518,7 +518,7 @@
     };
     let kept = [], post = others.slice(), best = Infinity;
     const mustBefore = B >= 2 && others.length > 0;
-    if(others.length <= 9){
+    if(others.length <= 7){   // con más paradas, probar todas las combinaciones bloqueaba la página (2 s por clic con 9)
       for(let mask = 0; mask < (1 << others.length); mask++){
         const bef = others.filter((_, j) => mask & (1 << j));
         if(bef.length * 2 > B) continue;

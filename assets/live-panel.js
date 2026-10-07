@@ -37,6 +37,7 @@
       case 'contrato_firmado': return `<b>Firmó el contrato</b>${d.tipo === 'menor' ? ' (firmado por su padre, madre o tutor)' : ''}`;
       case 'seguro_pedido': return `<b>Añadió ${/^Zarping/.test(a.pagina || '') ? 'Zarping' : 'Iberail'} Protect</b> a su viaje${d.precio ? ` (${esc(d.precio)} €)` : ''}`;
       case 'contrato_descargado': return 'Abrió o descargó su <b>contrato firmado</b>';
+      case 'pago_de_mas': return `<b>Ha pagado ${esc(d.de_mas)} € de más</b> con tarjeta: revisa sus pagos y devuélvele la diferencia en Stripe`;
       case 'seguro_duplicado': return `<b>Pagó el seguro dos veces</b> (${esc(d.importe)} €): devuélvele el segundo pago en Stripe`;
       default: return esc(a.tipo);
     }

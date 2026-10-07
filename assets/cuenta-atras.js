@@ -98,8 +98,7 @@
       fin = true;
       // sin cortes: con el tema propio, el drop final ya está sonando y pasa solo a la tensión; con mp3, entra la base
       if(son){
-        if(mp3 && !mp3.paused){ setTimeout(() => mp3 && fade(mp3, 0, 2500), 400); if(banda()) banda().tension(.22, true); }
-        else if(banda() && !banda().sonando()) banda().tension(.22, true);
+        if(mp3 && !mp3.paused) setTimeout(() => mp3 && fade(mp3, 0, 2500), 400);
       }
       if(o.onZero) o.onZero();
     }
@@ -108,7 +107,7 @@
       if(!vivo) return;
       const rest = resto();
       const sub = o.at && o.entradas ? `Sorteamos <b>${o.entradas}</b> ${o.entradas == 1 ? 'entrada' : 'entradas'} para el Ultra Europe` : '';
-      put($('[data-k]'), o.sim ? 'Simulación · no cuenta' : (o.at ? `<i></i>${esc(new Date(o.at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }))} · ${pad(new Date(o.at).getHours())}:${pad(new Date(o.at).getMinutes())} h` : 'Próximo sorteo'));
+      put($('[data-k]'), o.sim ? 'Simulación · no cuenta' : (o.at ? `<i></i>${esc(new Date(o.at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' }))} · ${esc(new Date(o.at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }))} h` : 'Próximo sorteo'));
       put($('[data-sub]'), sub);
       el.classList.toggle('is-final', rest > 0 && rest <= FINAL);
       el.classList.toggle('is-last', rest > 0 && rest <= 10000);

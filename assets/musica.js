@@ -215,7 +215,7 @@
       if(k === PASO_CERO) impacto(t, true);
       if(b < 8) drop(t, k, s, b, MENOR, 1, true);
       else if(b < 16){ if(s === 0) padNivel(t, .06 * (16 - b) / 8, 3000 - b * 120, 0); if(s % 4 === 0 && b < 12) bombo(t, .7); if(s === 0) P().acorde(t, MENOR.pad[b % 4]); if(s % 4 === 2 && b < 12) charles(t, .07, true); }
-      else { modo = 'tension'; nivel = Math.min(nivel || .25, .3); base = k; pasoTension(k, t); }
+      else { if(!apagando) API.parar(2); return; }   // tras el drop final se apaga (la cinta va sin música)
       return;
     }
     const [sec, lb] = secCuenta(k), b = Math.floor(k / 16), ch2 = Math.floor(b / 2) % 4, ch1 = b % 4;

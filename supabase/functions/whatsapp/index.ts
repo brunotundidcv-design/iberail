@@ -14,11 +14,15 @@ const CONOCIMIENTO = "# IBERAIL — LO QUE SABES\n\n## Quiénes somos\n- Iberail
 const MODELO = 'claude-sonnet-5';
 
 /* ---------- instrucciones de la IA ---------- */
-function sistema({ ahora, nombre, prueba } = {}) {
+// La caché de la IA funciona por prefijo: lo fijo va primero (y se cachea) y lo que cambia en cada mensaje
+// (la fecha con la hora, el nombre de quien escribe, si es una prueba) va después, en un bloque aparte.
+function contexto({ ahora, nombre, prueba } = {}) {
   const fecha = (ahora || new Date()).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return `HOY: ${fecha} (hora de España).${nombre ? `\nNOMBRE DE WHATSAPP DE QUIEN ESCRIBE: ${nombre} (úsalo con naturalidad, solo el nombre de pila).` : ''}${prueba ? '\n(Esto es una prueba desde el panel de Iberail.)' : ''}`;
+}
+function sistema() {
   return `Eres el asistente virtual de Iberail en WhatsApp. Atiendes a clientes y a gente interesada en viajar de Interrail con Iberail.
-
-HOY: ${fecha} (hora de España).${nombre ? `\nNOMBRE DE WHATSAPP DE QUIEN ESCRIBE: ${nombre} (úsalo con naturalidad, solo el nombre de pila).` : ''}${prueba ? '\n(Esto es una prueba desde el panel de Iberail.)' : ''}
+La fecha de hoy y el nombre de quien escribe van al final, después de estas instrucciones.
 
 CÓMO HABLAS
 - Español de España, cercano y con tuteo, como un compañero del equipo que sabe mucho de Interrail. Si te escriben en otro idioma, responde en ese idioma.
@@ -159,13 +163,20 @@ function aMensajes(historial) {
 }
 
 /* ---------- la IA con sus herramientas ---------- */
+// modelos que aceptan output_config.effort (si AI_MODEL apunta a otro, se manda sin él)
+const conEsfuerzo = (m: string) => /^claude-(fable|mythos)-5|^claude-opus-(5|4-[5-8])|^claude-sonnet-(5|4-6)/.test(String(m || ''));
 async function responder({ tel, nombre, historial, deps, prueba = false }) {
   const messages = aMensajes(historial);
   if (!messages.length || messages[messages.length - 1].role !== 'user') return { texto: '', acciones: [] };
-  const system = [{ type: 'text', text: sistema({ ahora: deps.now(), nombre, prueba }), cache_control: { type: 'ephemeral' } }];
+  const system = [
+    { type: 'text', text: sistema(), cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: contexto({ ahora: deps.now(), nombre, prueba }) }
+  ];
   const acciones = [];
   for (let vuelta = 0; vuelta < 5; vuelta++) {
-    const res = await deps.ai.messages({ model: deps.modelo || MODELO, max_tokens: 700, system, tools: HERRAMIENTAS, messages });
+    const modelo = deps.modelo || MODELO;
+    const res = await deps.ai.messages({ model: modelo, max_tokens: 4000, ...(conEsfuerzo(modelo) ? { output_config: { effort: 'low' } } : {}), system, tools: HERRAMIENTAS, messages });
+    if (res && (res.stop_reason === 'max_tokens' || res.stop_reason === 'refusal')) throw new Error('respuesta ' + res.stop_reason);
     const content = (res && res.content) || [];
     const usos = content.filter(c => c.type === 'tool_use');
     const texto = content.filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
@@ -435,14 +446,20 @@ const deps = {
 };
 
 /* ---------- seguridad del webhook ---------- */
+// comparación en tiempo constante (no da pistas de cuántos caracteres coinciden)
+function igual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
 async function firmaOk(req: Request, raw: string) {
   const secreto = env('WA_APP_SECRET');
-  if (!secreto) return true;
+  if (!secreto) return false;
   const sig = req.headers.get('x-hub-signature-256') || '';
   const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secreto), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(raw)));
   const hex = 'sha256=' + [...mac].map(b => b.toString(16).padStart(2, '0')).join('');
-  return hex.length === sig.length && hex === sig;
+  return igual(hex, sig);
 }
 async function esEquipo(req: Request) {
   const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
@@ -469,9 +486,11 @@ Deno.serve(async (req) => {
 
   // mensajes que llegan de WhatsApp
   if (body.object === 'whatsapp_business_account' || Array.isArray(body.entry)) {
-    const clave = env('WA_WEBHOOK_KEY');
-    if (clave && url.searchParams.get('k') !== clave) return new Response('forbidden', { status: 403 });
-    if (!(await firmaOk(req, raw))) return new Response('bad signature', { status: 401 });
+    // Meta firma con WA_APP_SECRET; 360dialog y Dualhook no firman, así que ahí basta la clave en la URL (?k=WA_WEBHOOK_KEY)
+    const clave = env('WA_WEBHOOK_KEY'), secreto = env('WA_APP_SECRET');
+    if (!clave && !secreto) { console.error('webhook sin proteger: pon WA_APP_SECRET (Meta) o WA_WEBHOOK_KEY en los secretos de la función'); return new Response('webhook sin proteger', { status: 503 }); }
+    if (clave && !igual(url.searchParams.get('k') || '', clave)) return new Response('forbidden', { status: 403 });
+    if (secreto && !(await firmaOk(req, raw))) return new Response('bad signature', { status: 401 });
     // se contesta a WhatsApp al momento y el trabajo sigue en segundo plano
     const tarea = procesarWebhook(body, deps).catch(e => console.error('webhook', e));
     // @ts-ignore EdgeRuntime existe en Supabase

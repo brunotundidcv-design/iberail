@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     const datos = { estado: 'pagado', precio: Number(s.amount_total) / 100, plan: s.metadata?.plan || 'completo', cancelacion: s.metadata?.cancelacion !== '0', stripe_session: s.id, pagado_at: new Date().toISOString() };
     const { data: prev } = await sb.from('seguros').select('id, estado, stripe_session').eq('grupo_id', gid).eq('user_id', uid).neq('estado', 'anulado').maybeSingle();
     // ya lo tenía pagado con otro pago: NO se pisa el primero (se perdería el rastro de un cobro). Se avisa al equipo para devolverlo.
-    if (prev && ['pagado', 'contratado'].includes(prev.estado) && prev.stripe_session && prev.stripe_session !== s.id) {
+    if (prev && ['pagado', 'contratado'].includes(prev.estado) && prev.stripe_session !== s.id) {
       console.error('seguro pagado dos veces', { grupo: gid, user: uid, primero: prev.stripe_session, segundo: s.id });
       await sb.from('actividad').insert({ user_id: uid, tipo: 'seguro_duplicado', pagina: 'Stripe', detalle: { grupo_id: gid, sesion: s.id, importe: Number(s.amount_total) / 100 } }).then(() => {}, () => {});
       return new Response('duplicado: revisar el reembolso', { status: 200 });
@@ -66,5 +66,16 @@ Deno.serve(async (req) => {
     stripe_session: s.id
   }, { onConflict: 'stripe_session', ignoreDuplicates: true });
   if (error) { console.error('pagos', error); return new Response('error al guardar', { status: 500 }); }   // Stripe lo reintenta
+  try {
+    const [{ data: m }, { data: ps }] = await Promise.all([
+      sb.from('grupo_miembros').select('importe').eq('grupo_id', gid).eq('user_id', uid).maybeSingle(),
+      sb.from('pagos').select('importe').eq('grupo_id', gid).eq('user_id', uid)
+    ]);
+    const imp = Number(m?.importe || 0), pagado = Math.round((ps || []).reduce((a: number, p: any) => a + Number(p.importe), 0) * 100) / 100;
+    if (imp > 0 && pagado > imp + 0.004) {
+      console.error('pago de más', { grupo: gid, user: uid, importe: imp, pagado });
+      await sb.from('actividad').insert({ user_id: uid, tipo: 'pago_de_mas', pagina: 'Stripe', detalle: { grupo_id: gid, sesion: s.id, de_mas: Math.round((pagado - imp) * 100) / 100 } });
+    }
+  } catch (e) { console.error('comprobar pago de más', e); }
   return new Response('ok', { status: 200 });
 });

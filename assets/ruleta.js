@@ -231,6 +231,7 @@
       let fx = null;   // celebración en marcha (para pararla al cerrar)
       const close = () => {
         if(fx && fx.fin) fx.fin(); fx = null; pararMedias();
+        if(window.IBBanda) IBBanda.parar(1.8);   // por si venía sonando la música de la cuenta atrás
         el.classList.remove('is-in'); document.body.classList.remove('srt-lock');
         setTimeout(() => { el.remove(); res(toca); }, 260);
       };

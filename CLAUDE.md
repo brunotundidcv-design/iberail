@@ -6,7 +6,7 @@ alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacid
 
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
 sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
-**Importada `iberail-web-v9.1`** (07/10/2026, partía de 4803f14 = v8.8: sorteos sueltos, contratos por correo — fuera `contratos.js` y la firma en la web, también en Zarping —, «correo a un cliente» en el panel). **v9.2** (07/10/2026): sorteo discreto (ver `sorteo.js`), y `tools/demo/` para la versión de demo del panel.
+**Importada `iberail-web-v9.1`** (07/10/2026, partía de 4803f14 = v8.8: sorteos sueltos, contratos por correo — fuera `contratos.js` y la firma en la web, también en Zarping —, «correo a un cliente» en el panel). **v9.2** (07/10/2026): sorteo discreto (ver `sorteo.js`), y `tools/demo/` para la versión de demo del panel. **v9.3** (07/10/2026): revisión de bugs de toda la web, panel y funciones (ver «v9.3» más abajo).
 **Importada `iberail-web-v8.8`** (02/10/2026, partía de b01e727: página `sorteo.html` con cuenta atrás, `bases-sorteo.html`,
 `condiciones-generales.html`, `fiesta.js`, `musica.js`, `cuenta-atras.js`, `sorteo-pagina.js`, pagos en pausa `PAGOS_PAUSA` en `payment.js`).
 
@@ -152,6 +152,22 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   etiqueta «Demo · datos de ejemplo» y **no se activa en iberail.com / zarping.com**. Es solo para presentar: no subirlo a Netlify.
   También sirve para probar la web en un navegador sin tocar la base de datos real (ver cómo se usa en las pruebas con Playwright).
 
+## v9.3 (revisión completa)
+
+- Panel: Grupos con filtros «Con pagos pendientes / Todo cobrado», orden «Lo que más deben» y buscador; Clientes con gráfica
+  de altas por semana y «Exportar CSV»; atajo «/» al buscador; dinero en céntimos (`r2`); pagos en directo; mensajes con la
+  marca del grupo (`IB.marcaGrupo`); borradores que no se pierden al repintar (Sorteo y seguro).
+- Sorteo: «Añadir al calendario» (.ics) en sorteo.html; si se abre después de la hora, espera al resultado; la música se apaga
+  tras el drop final (la cinta no lleva música).
+- `correos`: acciones `manual`, `manual_pendientes`, `manual_plantilla` y `ejemplo` tipo `manual` («Correo a un cliente» de la
+  v9.1; los textos preparados por persona aún no se guardan). Ruta recibida / presupuesto van al correo de la cuenta.
+- `stripe-checkout`: las sesiones caducan a los 30 min. `stripe-webhook`: avisa en `actividad` de `pago_de_mas` y
+  `seguro_duplicado` (salen en «En directo») y no pisa un seguro ya pagado.
+- `whatsapp`: **el webhook exige `WA_APP_SECRET` (Meta) o `WA_WEBHOOK_KEY` (360dialog/Dualhook); sin ninguno responde 503.**
+  Firma comparada en tiempo constante. Prompt fijo cacheado + bloque aparte con fecha/nombre; `max_tokens` 4000 con
+  `effort: low`; si se corta o se niega, avisa al equipo.
+- 404.html con `<base href="/">`. Planificador: combinaciones del Ultra solo hasta 7 paradas (con 9 bloqueaba 2 s por clic).
+
 ## Supabase
 
 Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `avisos`, `avisos_leidos`,
@@ -252,10 +268,6 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 - Falta `build.py` y el esquema de Supabase para tener el proyecto completo.
 - `sitemap.xml` sin `lastmod`.
-- **WhatsApp**: si `WA_APP_SECRET` no está puesto, el webhook acepta peticiones sin firmar (cualquiera puede
-  hacer que el bot escriba y gaste). Debería ser obligatorio.
-- **WhatsApp**: la fecha con minutos va al principio del prompt del sistema → la caché de prompts de la IA
-  se invalida cada minuto. Mover la fecha a un bloque aparte, después de la parte cacheada.
 - Tiempo de respuesta incoherente: la barra superior, portada y contacto dicen «máx. 30 min»; el aviso emergente
   (`site.js`, `BUSY`: clientes 1 h / nuevos 3 h) y el planificador dicen «hasta 3 h»; el bot «hasta 1 hora».
 
