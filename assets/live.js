@@ -69,8 +69,6 @@
     const map = t.closest('[data-gm-open]'); if(map) return log('mapa');
     const doc = t.closest('.tk-open'); if(doc) return log('documento', { titulo: txt(doc) });
     const wa = t.closest('a[href*="wa.me"], a[href*="w.app"]'); if(wa) return log('whatsapp');
-    const cto = t.closest('[data-ct-open]'); if(cto) return log('contrato_abierto');
-    const ctp = t.closest('[data-ct-print]'); if(ctp) return log('contrato_descargado');
     const tab = t.closest('#dashTabs [data-t]'); if(tab) return; // ya se apunta con el cambio de pestaña
   }, true);
   // fotos vistas en la galería de un alojamiento (lo avisa alojamientos.js al cerrarla)
@@ -78,8 +76,6 @@
 
   // seguro añadido al viaje (lo avisa seguro.js)
   addEventListener('ib:seguro', e => log('seguro_pedido', { precio: (e.detail || {}).precio }));
-  // contrato firmado (lo avisa contratos.js)
-  addEventListener('ib:contrato-firmado', e => log('contrato_firmado', { tipo: (e.detail || {}).tipo }));
 
   // se arranca cuando la página ya ha cargado, para no retrasarla
   const go = () => setTimeout(start, 1200);

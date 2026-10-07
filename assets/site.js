@@ -236,7 +236,7 @@ document.querySelectorAll('.dest-grid .ticket-body').forEach(body => {
 /* ---------- aviso emergente: tiempo de respuesta más largo de lo normal ----------
    Para quitarlo cuando baje la demanda: on: false */
 (function(){
-  const BUSY = { on: true, clientes: '1 h', nuevos: '3 h' };
+  const BUSY = { on: false, clientes: '1 h', nuevos: '3 h' };
   const MARCA = (window.IBERAIL_CONFIG || {}).MARCA;
   if(MARCA && MARCA !== 'iberail') return;   // solo en Iberail
   if(!BUSY.on || document.getElementById('admApp')) return;

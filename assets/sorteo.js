@@ -1,4 +1,5 @@
-/* Iberail — sorteo de 10 entradas para el Ultra Europe (en todas las páginas menos el panel)
+/* Iberail — sorteos de entradas para el Ultra Europe (en todas las páginas menos el panel).
+   Sorteos sueltos: el equipo programa cada uno cuando quiere desde el panel (día, hora y entradas).
    · Para participar hay que pulsar «Participar gratis» con la sesión iniciada: se guarda en la tabla
      sorteo_inscritos (archivo 12-sorteo.sql). Sin cuenta, el botón lleva a crearla y, al entrar,
      queda inscrito solo (ya lo había pedido).
@@ -11,31 +12,46 @@
   const SUPA = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
   // ── Próximo sorteo ─────────────────────────────────────────────────────────
   // Cámbialo aquí cuando haya nueva tanda. fecha vacía = «muy pronto» (como antes).
-  const DRAW = { fecha: '2026-10-02', hora: '20:00', entradas: 3, total: 10, tanda: 1 };
+  const DRAW = { fecha: '', hora: '20:00', entradas: 1, tanda: 1 };   // lo rellena el panel (sorteo_config)
   const esc = (window.IB && IB.esc) || (t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])));
   let premio = null, ganaEn = null, publicado = false, catalogo = null, restantes = null, sonidos = null;   // premio: id del premio, '' si ninguno · ganaEn: tirada en la que sale (null = la última)
   const pagSorteo = /\/sorteo(\.html)?$/.test(location.pathname);
-  const spunKey = () => 'ib-srt-visto-' + DRAW.fecha;
-  const spun = () => { try{ return !!localStorage.getItem(spunKey()); }catch(e){ return false; } };
-  const markSpun = () => { try{ localStorage.setItem(spunKey(), premio || '1'); }catch(e){} };
-  const revelable = () => publicado && premio !== null && premio !== undefined && DRAW.fecha && new Date() >= new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00');
+  // tiradas ya abiertas en esta tanda (por cuenta): si el equipo suma tiradas después, se pueden abrir las nuevas
+  // (el sorteo 1 conserva la clave antigua, sin número, para no volver a abrir lo ya abierto)
+  const tirKey = () => 'ib-srt-tir-' + DRAW.fecha + (DRAW.tanda > 1 ? '-s' + DRAW.tanda : '') + '-' + (user ? user.id : '');
+  const abiertas = () => { try{ const n = parseInt(localStorage.getItem(tirKey()), 10); if(n >= 0) return n; return DRAW.tanda <= 1 && localStorage.getItem('ib-srt-visto-' + DRAW.fecha) ? 1 : 0; }catch(e){ return 0; } };
+  const marcar = n => { try{ if(n > abiertas()) localStorage.setItem(tirKey(), String(n)); }catch(e){} };
+  const spun = () => abiertas() >= tiradas;
+  // la hora del sorteo es la de España (Madrid), aunque el móvil esté en Canarias o en el extranjero
+  function horaMadrid(fecha, hora){
+    const [y, m, d] = String(fecha).split('-').map(Number), [hh, mm] = String(hora || '20:00').split(':').map(Number);
+    const objetivo = Date.UTC(y, m - 1, d, hh, mm || 0); let t = objetivo;
+    try{
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Madrid', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      for(let i = 0; i < 2; i++){ const p = {}; f.formatToParts(new Date(t)).forEach(x => { p[x.type] = x.value; }); t -= Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute) - objetivo; }
+      return new Date(t);
+    }catch(e){ return new Date(fecha + 'T' + (hora || '20:00') + ':00'); }
+  }
+  const revelable = () => publicado && premio !== null && premio !== undefined && DRAW.fecha && new Date() >= horaMadrid(DRAW.fecha, DRAW.hora);
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   function drawTxt(largo){
-    if(!DRAW.fecha) return largo ? 'Fecha y bases, muy pronto.' : '';
+    // sorteos sueltos: el equipo programa uno cuando quiere desde el panel (día, hora y entradas)
+    const PRONTO = 'Pronto habrá un nuevo sorteo. Sigue apuntado: entras en todos.';
+    if(!DRAW.fecha) return largo ? PRONTO : '';
     const d = new Date(DRAW.fecha + 'T12:00:00');
     const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
-    if(dias < 0) return largo ? 'Ya hemos sorteado las primeras entradas. Sigue apuntado para las siguientes.' : '';
+    if(dias < 0) return largo ? PRONTO : '';
     const cuando = dias === 0 ? 'hoy' : dias === 1 ? 'mañana' : `el ${DIAS[d.getDay()]} ${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`;
-    const n = DRAW.entradas;
-    return largo === 'bar' ? `${cuando}, primer sorteo: ${n} de las ${DRAW.total} entradas del Ultra Europe`
-      : `Primer sorteo ${cuando}: repartimos ${n} de las ${DRAW.total} entradas. Las otras ${DRAW.total - n}, más adelante.`;
+    const n = DRAW.entradas, ent = `${n} ${n === 1 ? 'entrada' : 'entradas'}`;
+    return largo === 'bar' ? `próximo sorteo ${cuando} a las ${DRAW.hora || '20:00'} h: ${ent} para el Ultra Europe`
+      : `Próximo sorteo ${cuando} a las ${DRAW.hora || '20:00'} h: sorteamos ${ent} para el Ultra Europe.`;
   }
   function drawTag(){
     if(!DRAW.fecha) return '';
     const d = new Date(DRAW.fecha + 'T12:00:00');
     const dias = Math.round((d - new Date(new Date().toDateString() + ' 12:00')) / 864e5);
     if(dias < 0) return '';
-    return (dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' : `${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`) + ' · Primer sorteo';
+    return (dias === 0 ? 'Hoy' : dias === 1 ? 'Mañana' : `${d.getDate()} de ${d.toLocaleDateString('es-ES', { month: 'long' })}`) + ' · Próximo sorteo';
   }
   const paintWhen = () => { const t = drawTxt(true); document.querySelectorAll('[data-srt-when]').forEach(el => { el.textContent = t; el.hidden = !t; });
     const tag = drawTag(); if(tag) document.querySelectorAll('[data-srt-tag]').forEach(el => el.textContent = tag); };
@@ -78,14 +94,14 @@
     const extra = Math.max(0, tiradas - 1);
     const chips = Array.from({ length: Math.min(tiradas, 12) }, (_, i) => `<i class="${i ? 'is-extra' : ''}">🎟️</i>`).join('');
     box.innerHTML = state === 'in' ? `
-      <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
+      <div class="srt-me-l"><span class="srt-me-k">Sorteo · entradas Ultra Europe</span>
         <b class="srt-me-h">Tienes <em>${tiradas}</em> ${tiradas === 1 ? 'tirada' : 'tiradas'} en la ruleta</b>
         <span class="srt-me-chips" aria-hidden="true">${chips}</span>
         <small>1 por apuntarte${extra ? ` · +${extra} extra${extra === 1 ? '' : 's'} por tu story de Instagram` : ''}. ${revelable() ? (spun() ? (premio ? '<b>¡Te ha tocado premio! Te escribimos por WhatsApp.</b>' : 'Esta vez no ha salido premio. Sigues dentro para las siguientes.') : '<b>¡Ya puedes abrir tu premio!</b>') : (drawTxt() || 'Te avisaremos del día de la ruleta.')}</small></div>
       <div class="srt-me-r">${revelable() && !spun() ? '<button type="button" class="btn srt-btn" data-srt-spin>Abrir mi premio 🎟️</button>' : `<a class="srt-me-go" href="sorteo.html">Ver la cuenta atrás →</a><span>${extra ? '¡Tu story ya cuenta! ✓ Comparte el cartel para que se apunten también tus amigos.' : 'Suma otra tirada: sube el cartel a tu story mencionando a <b>@iberailspain</b>'}</span>
         <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>`}</div>`
     : `
-      <div class="srt-me-l"><span class="srt-me-k">Sorteo · 10 entradas Ultra Europe</span>
+      <div class="srt-me-l"><span class="srt-me-k">Sorteo · entradas Ultra Europe</span>
         <b class="srt-me-h">Aún no participas en el sorteo</b>
         <small>Pulsa el botón y entras con 1 tirada. Si además subes nuestro cartel a tu story, te sumamos otra.${drawTxt() ? ' <b>' + drawTxt() + '</b>' : ''}</small></div>
       <div class="srt-me-r"><button type="button" class="btn srt-btn" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>`;
@@ -147,10 +163,22 @@
     const { error } = await sb.from('sorteo_inscritos').insert({ user_id: u.id });
     if(error && error.code !== '23505' && !/duplicate/i.test(error.message || '')) throw error;
     user = u; state = 'in'; tiradas = Math.max(1, tiradas); ls.set(inKey(u), String(tiradas)); ls.set(WANT, null); paint();
-    toast(auto ? '<b>¡Listo! Ya estás dentro del sorteo</b>de las 10 entradas para el Ultra Europe.' : `<b>¡Ya estás dentro del sorteo!</b>${drawTxt() || 'Te avisaremos del día de la ruleta.'} Mucha suerte 🍀`);
+    toast(auto ? '<b>¡Listo! Ya estás dentro de los sorteos</b>de entradas para el Ultra Europe.' : `<b>¡Ya estás dentro del sorteo!</b>${drawTxt() || 'Te avisaremos del día de la ruleta.'} Mucha suerte 🍀`);
   }
   async function check(){
-    if(!user) return;
+    if(!user){
+      // sin sesión también se enseña el próximo sorteo (necesita 14-sorteo-publico.sql: lectura pública de sorteo_config)
+      const sb0 = await ensureClient(); if(!sb0) return;
+      try{
+        const c0 = await sb0.from('sorteo_config').select('fecha, hora, entradas, tanda, sonidos').eq('id', 1).maybeSingle();
+        if(!c0.error && c0.data){
+          DRAW.fecha = c0.data.fecha || ''; if(c0.data.hora) DRAW.hora = String(c0.data.hora).slice(0, 5);
+          if(c0.data.entradas) DRAW.entradas = c0.data.entradas; if(c0.data.tanda) DRAW.tanda = Number(c0.data.tanda) || 1;
+          sonidos = c0.data.sonidos || null; paintWhen(); paint();
+        }
+      }catch(e){}
+      return;
+    }
     const sb = await ensureClient(); if(!sb) return;
     try{
       const { data } = await sb.auth.getSession(); const u = data && data.session ? data.session.user : null;
@@ -161,10 +189,10 @@
       // configuración del sorteo (la edita el equipo en el panel) y mi resultado
       const c = await sb.from('sorteo_config').select('*').eq('id', 1).maybeSingle();
       if(!c.error && c.data){
-        if(c.data.fecha) DRAW.fecha = c.data.fecha;
+        DRAW.fecha = c.data.fecha || '';   // sin fecha = no hay sorteo programado («próximamente»)
         if(c.data.hora) DRAW.hora = String(c.data.hora).slice(0, 5);
         if(c.data.entradas) DRAW.entradas = c.data.entradas;
-        if(c.data.total) DRAW.total = c.data.total;
+        if(c.data.tanda) DRAW.tanda = Number(c.data.tanda) || 1;   // número interno de sorteo (sube con «Preparar un sorteo nuevo»)
         DRAW.acta = c.data.acta || '';
         publicado = !!c.data.publicado;
         catalogo = Array.isArray(c.data.premios) && c.data.premios.length ? c.data.premios : null;
@@ -197,17 +225,23 @@
     finally{ b.disabled = false; b.innerHTML = label; }
   });
 
+  // una sola ruleta a la vez (antes, cada comprobación podía abrir otra encima)
+  let girando = false;
   async function girar(){
-    if(!window.IBRuleta || !revelable()) return;
-    const sb = await ensureClient();
-    await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos, tiradas: tiradas, ganaEn: ganaEn });
-    markSpun(); paint();
-    if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
+    if(girando || !window.IBRuleta || !revelable() || spun() || document.querySelector('.rul')) return;
+    girando = true;
+    try{
+      const sb = await ensureClient();
+      await IBRuleta.show({ premio: premio, catalogo: catalogo, nombre: (user && user.user_metadata && user.user_metadata.nombre) || '', acta: DRAW.acta, restantes: restantes, sonidos: sonidos,
+        tiradas: tiradas, ganaEn: ganaEn, desde: abiertas() + 1, onTirada: i => marcar(i) });
+      paint();
+      if(sb) sb.rpc('sorteo_visto').then(() => {}, () => {});
+    } finally { girando = false; }
   }
   document.addEventListener('click', e => { if(e.target.closest('[data-srt-spin]')){ e.preventDefault(); girar(); } });
 
   /* ---------- aviso a pantalla completa (una vez al día, hasta el sorteo) ---------- */
-  const drawAt = () => DRAW.fecha ? new Date(DRAW.fecha + 'T' + (DRAW.hora || '20:00') + ':00') : null;
+  const drawAt = () => DRAW.fecha ? horaMadrid(DRAW.fecha, DRAW.hora) : null;
   function takeover(){
     const when = drawAt(); if(!when || pagSorteo) return;              // en la página del sorteo ya está la cuenta atrás
     if(revelable() && !spun()) return girar();                  // ya hay resultado: directo a la ruleta
@@ -225,13 +259,9 @@
         <div class="srtk-beams" aria-hidden="true"></div>
         <button type="button" class="srtk-x" aria-label="Cerrar">✕</button>
         <div class="srtk-in">
-          <span class="srtk-live"><i></i>Primer sorteo · ${esc(dia)} a las ${esc(hora)}</span>
-          <h2 class="srtk-h">Sorteamos las <em>${DRAW.entradas} primeras</em> entradas del <em>Ultra Europe</em></h2>
-          <div class="srtk-strip" aria-label="${DRAW.entradas} de ${DRAW.total} entradas en este sorteo">
-            ${Array.from({ length: DRAW.total }, (_, i) => `<i class="${i < DRAW.entradas ? 'is-now' : ''}" style="--d:${i * 70}ms"></i>`).join('')}
-            <b>${DRAW.entradas} de ${DRAW.total}</b>
-          </div>
-          <p class="srtk-p"><b>Ojo:</b> este es el primer sorteo y se reparten <b>${DRAW.entradas} de las ${DRAW.total} entradas</b>. Las otras ${DRAW.total - DRAW.entradas} las sorteamos más adelante, así que si no te toca ahora <b>sigues dentro</b> para las siguientes.</p>
+          <span class="srtk-live"><i></i>Próximo sorteo · ${esc(dia)} a las ${esc(hora)}</span>
+          <h2 class="srtk-h">Sorteamos <em>${DRAW.entradas} ${DRAW.entradas === 1 ? 'entrada' : 'entradas'}</em> para el <em>Ultra Europe</em></h2>
+          <p class="srtk-p">Hacemos sorteos de vez en cuando. Si no te toca en este, <b>sigues dentro</b> para los siguientes sin hacer nada.</p>
           <p class="srtk-p srtk-p--sm">Split, Croacia · 9 — 11 de julio de 2027. Ese día entras en tu cuenta, giras la ruleta y ves tu resultado al momento.</p>
           <div class="srtk-cd" data-srtk-cd role="timer" aria-live="off"></div>
           <div class="srtk-acts" data-srtk-acts></div>
@@ -239,7 +269,7 @@
         </div>
         <div class="srtk-art" aria-hidden="true">
           <div class="srtk-tk"><span class="srtk-tk-k">Admit one · Pase 3 días</span><b class="srtk-tk-t">Ultra Europe</b><span class="srtk-tk-y">2027</span><span class="srtk-tk-l">Split, Croacia · 9 — 11 jul</span></div>
-          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>de ${DRAW.total}</small></span>
+          <span class="srtk-x3"><b>×${DRAW.entradas}</b><small>gratis</small></span>
         </div>
       </div>`;
     const close = () => { o.classList.remove('is-in'); document.body.classList.remove('srt-lock'); clearInterval(t); setTimeout(() => o.remove(), 260); };
@@ -282,7 +312,7 @@
     el.className = 'srtbar';
     el.innerHTML = `<a class="srtbar-a" href="sorteo.html">
         <span class="srtbar-tk" aria-hidden="true">🎟️</span>
-        <span class="srtbar-t"><b>Sorteo:</b><span class="srtbar-l"> ${drawTxt('bar') || 'regalamos 10 entradas para el Ultra Europe 2027'}</span><span class="srtbar-s"> 10 entradas Ultra</span><span class="srtbar-in"> · ¡Estás dentro con <span data-srt-n>1 tirada</span>!</span></span>
+        <span class="srtbar-t"><b>Sorteo:</b><span class="srtbar-l"> ${drawTxt('bar') || 'sorteamos entradas para el Ultra Europe 2027'}</span><span class="srtbar-s"> Entradas Ultra</span><span class="srtbar-in"> · ¡Estás dentro con <span data-srt-n>1 tirada</span>!</span></span>
         <span class="srtbar-go"><span class="srtbar-go-a">Participar gratis</span><span class="srtbar-go-b">Ver sorteo</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </a>
       <button type="button" class="srtbar-x" aria-label="Cerrar anuncio del sorteo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
@@ -332,8 +362,8 @@
     c.fillStyle = '#FFD66B'; c.beginPath(); c.arc(W / 2 - tw / 2 + 40, 396, 8, 0, Math.PI * 2); c.fill();
     c.fillText(tag, W / 2 + 14, 407);
     // titular
-    c.fillStyle = '#FFFFFF'; c.font = `800 150px ${FD}`; c.fillText('10 entradas', W / 2, 610);
-    c.font = `800 92px ${FD}`; c.fillText('para el', W / 2, 720);
+    c.fillStyle = '#FFFFFF'; c.font = `800 150px ${FD}`; c.fillText('Sorteamos', W / 2, 610);
+    c.font = `800 92px ${FD}`; c.fillText('entradas para el', W / 2, 720);
     c.fillStyle = gold(c, 160, 760, 920, 860); c.font = `800 118px ${FD}`; c.fillText('Ultra Europe', W / 2, 840);
     // entradas en abanico
     c.save(); c.translate(W / 2, 1150);
@@ -353,7 +383,7 @@
     c.fillStyle = '#2A1611'; c.globalAlpha = .6; c.font = `500 20px ${FM}`; c.fillText('LUGAR', -360, 112); c.fillText('FECHAS', -80, 112); c.globalAlpha = 1;
     c.font = `700 32px ${FB}`; c.fillText('Split, Croacia', -360, 152); c.fillText('9 — 11 jul', -80, 152);
     c.textAlign = 'center'; c.globalAlpha = .6; c.font = `500 22px ${FM}`; c.fillText('Nº', 300, -70); c.globalAlpha = 1;
-    c.font = `800 64px ${FD}`; c.fillText('×10', 300, 0);
+    c.font = `800 64px ${FD}`; c.fillText('FREE', 300, 0);
     for(let i = 0, x = 240; x < 360; i++){ const w = [3, 6, 2, 4, 8, 3][i % 6]; c.fillRect(x, 40, w, 80); x += w + [4, 3, 6, 3, 4, 5][i % 6]; }
     c.restore();
     // pie
@@ -373,7 +403,7 @@
       const blob = await draw();
       const file = new File([blob], 'iberail-sorteo-ultra.png', { type: 'image/png' });
       if(navigator.canShare && navigator.canShare({ files: [file] })){
-        try{ await navigator.share({ files: [file], text: 'Sorteo de 10 entradas para el Ultra Europe con @iberailspain 🎟️ iberail.com' }); }
+        try{ await navigator.share({ files: [file], text: 'Sorteos de entradas para el Ultra Europe con @iberailspain 🎟️ iberail.com' }); }
         catch(e){ if(e && e.name !== 'AbortError') throw e; }
       } else {
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name;
@@ -385,14 +415,14 @@
 
   /* para la página del sorteo (assets/sorteo-pagina.js) */
   window.IBSrt = {
-    get: () => ({ state, tiradas, premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), sonidos: sonidos || {} }),
+    get: () => ({ state, tiradas, abiertas: abiertas(), premio, ganaEn, publicado, draw: { ...DRAW }, at: drawAt(), revelable: revelable(), spun: spun(), sonidos: sonidos || {} }),
     refresh: () => check(), girar: () => girar(), on: fn => { oyentes.push(fn); fn(); }
   };
 
   paint(); bar(); check(); setTimeout(takeover, 1400);
   if(IB.sb) IB.sb.auth.onAuthStateChange((_ev, session) => {
     const u = session ? session.user : null;
-    if(!u){ user = null; state = 'guest'; paint(); return; }
-    if(!user || user.id !== u.id){ user = u; state = ls.get(inKey(u)) ? 'in' : 'out'; paint(); setTimeout(check, 0); }
+    if(!u){ user = null; state = 'guest'; premio = null; ganaEn = null; paint(); return; }
+    if(!user || user.id !== u.id){ premio = null; ganaEn = null; user = u; state = ls.get(inKey(u)) ? 'in' : 'out'; paint(); setTimeout(check, 0); }
   });
 })();
