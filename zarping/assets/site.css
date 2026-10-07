@@ -3055,6 +3055,10 @@ body.al-lock{overflow:hidden}
 .ct-pre{white-space:pre-line}
 .ct-small li{font-size:.8rem}
 .ct-annex{margin-top:22px!important}
+.ct-box{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--cream);padding:6px 12px;margin:6px 0 10px}
+.ct-seg{border:1px solid var(--line);border-radius:var(--r);padding:10px 14px 4px;margin:0 0 14px}
+.ct-seg legend{font-weight:700;font-size:.92rem;padding:0 6px}
+.ct-seg small{display:block;color:var(--muted);font-size:.8rem;margin:0 0 8px}
 .ct-form h4{font-size:.95rem;margin:4px 0 10px}
 .ct-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin-bottom:14px}
 .ct-f{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);font-weight:600}
@@ -3549,6 +3553,9 @@ body.srt-lock{overflow:hidden}
 .srtc-simsel{max-width:220px}
 .srtp-premio{padding:7px 10px;border:1px solid #E5DAC6;border-radius:999px;background:#fff;font-size:.76rem;font-weight:600;cursor:pointer;max-width:180px}
 .srtp-premio.is-on{background:linear-gradient(135deg,#FFD66B,#E9A53A);border-color:#E9A53A;color:#2A1611}
+.rul-snd{position:absolute;top:12px;right:12px;z-index:4;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:var(--cream);font-size:14px;cursor:pointer;transition:background .18s}
+.rul-snd:hover{background:rgba(255,255,255,.2)}
+.rul-snd.is-off{opacity:.55}
 .srtc-snd{margin-top:14px}
 .srtc-snd-list{display:grid;gap:8px;margin-top:8px}
 .srtc-snd-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 11px;border:1px solid #E5DAC6;border-radius:12px;background:#fff}
@@ -3589,6 +3596,7 @@ body.srt-lock{overflow:hidden}
 .cta-msg{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(1.05rem,2.2vw,1.6rem);color:#FFF3DC}
 .cta-snd{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;border:1px solid rgba(255,214,107,.4);background:rgba(255,214,107,.1);color:#FFD66B;font:600 .95rem var(--body);cursor:pointer;transition:background .2s,transform .2s}
 .cta-snd:hover{background:rgba(255,214,107,.18)}
+.cta-snd.is-on{border-color:rgba(255,243,220,.2);background:transparent;color:rgba(255,243,220,.7);font-size:.85rem}
 .cta-snd.is-pulse{background:#FFD66B;color:#0E0E12;font-size:1.05rem;padding:16px 26px;animation:ctaPulse 1.3s ease-in-out infinite}
 @keyframes ctaPulse{50%{transform:scale(1.05);box-shadow:0 0 0 12px rgba(255,214,107,.15)}}
 .cta-st{display:flex;flex-direction:column;align-items:center;gap:12px;min-height:60px}
@@ -3652,6 +3660,7 @@ body.srt-lock{overflow:hidden}
 .rul-fade{width:16%}
 .rul-go{padding:clamp(16px,2vw,22px) clamp(30px,4vw,52px);font-size:clamp(1.05rem,1.8vw,1.35rem);font-weight:800}
 .rul-wait{font-size:clamp(.75rem,1.2vw,.95rem)}
+.rul-snd{width:46px;height:46px;font-size:19px;top:16px;right:16px}
 .rul-test{top:16px;left:16px;font-size:.66rem}
 .rul-tir{gap:6px}
 .rul-tir i{font-size:clamp(1.3rem,2.4vw,1.8rem)}
@@ -3660,7 +3669,7 @@ body.srt-lock{overflow:hidden}
 .rul-prize[hidden]{display:none}
 /* pantallas bajas (portátil pequeño, móvil en horizontal): todo más compacto para que quepa sin cortar la cinta */
 @media (max-height:760px){
-  .rul-box{min-height:0;gap:12px;padding-top:20px;padding-bottom:20px}
+  .rul-box{min-height:0;gap:12px;padding-top:20px;padding-bottom:20px;justify-content:flex-start}
   .rul-h{font-size:clamp(1.7rem,5vw,3rem);margin-top:4px}
   .rul-p{font-size:.95rem}
   .rul-rail{padding:14px 0}
@@ -3756,6 +3765,12 @@ body.srt-lock{overflow:hidden}
 @keyframes ruPulse{50%{box-shadow:0 0 0 12px rgba(255,214,107,.12),0 18px 40px -14px rgba(212,255,58,.9)}}
 .ru .fx-cv{z-index:3}
 .ru.is-calm .ru-rays,.ru.is-calm .ru-rings{display:none}
+/* rayos, anillos y fuegos fijos a la pantalla: no generan scroll y no se quedan arriba al desplazar */
+.ru .ru-rays,.ru .ru-rings,.ru .fx-cv{position:fixed}
+.ru-in{perspective:1100px}
+.ru-snd{position:fixed;top:14px;right:14px;z-index:9;width:46px;height:46px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#FFF3DC;font-size:19px;cursor:pointer}
+/* pantallas bajas: se empieza arriba para poder llegar con scroll a «¡Vamos!» */
+@media (max-height:760px){.ru{place-items:start center}.ru .ru-in{padding:18px 0 28px}}
 @media (max-width:560px){.ru-tk-stub{flex-basis:62px}.ru-tk-meta{flex-direction:column;gap:6px}}
 /* móviles y tablets: sin desenfoque (es lo que más cuesta a la tarjeta gráfica) para que el giro vaya fluido */
 @media (hover:none),(max-width:820px){.rul.is-fast .rul-track{filter:none}.rul-track{transition:none}.rul{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(10,6,4,.94)}}
@@ -3766,3 +3781,12 @@ body.srt-lock{overflow:hidden}
   .ru *,.ru-l,.ru-tk,.ru-tk-wrap,.ru-holo{animation:none!important}
   .ru-l{opacity:1}
 }
+
+/* panel · correo a un cliente (v9.1) */
+.cor-form small{font-weight:400;color:var(--muted)}
+.cor-row--3{grid-template-columns:.8fr 1.2fr 1fr}
+.cor-pend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:-4px;font-size:.82rem;color:var(--muted)}
+.cor-pend span{width:100%}
+.cor-chip{border:1.5px solid var(--line);background:var(--cream);border-radius:99px;padding:5px 12px;font:inherit;font-size:.82rem;font-weight:600;color:var(--ink);cursor:pointer;transition:border-color .2s}
+.cor-chip:hover{border-color:var(--coral)}
+@media (max-width:900px){.cor-row--3{grid-template-columns:1fr}}

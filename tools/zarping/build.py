@@ -4,7 +4,7 @@
 Uso:  python3 tools/zarping/build.py
 
 · Monta cada página con la misma cabecera, menú y pie (tools/zarping/pages/*.html = solo el <main>).
-· Copia el JS/CSS COMÚN desde assets/ (cuentas, grupos, pagos, contratos, seguro…): la marca sale de
+· Copia el JS/CSS COMÚN desde assets/ (cuentas, grupos, pagos, seguro…): la marca sale de
   zarping/assets/config.js (MARCA: 'zarping'). Si cambias un JS común de Iberail, vuelve a ejecutar esto.
 · Las páginas legales, «Mi cuenta» y «Mis grupos» salen de las de Iberail con los textos cambiados.
 Netlify: sitio aparte con «Base directory» = zarping (sin comando de build: todo está ya generado).
@@ -21,7 +21,7 @@ WA = f'https://wa.me/{WA_NUM}'
 
 # JS y CSS comunes con Iberail (se copian tal cual)
 SHARED = ['app.js', 'site.js', 'site.css', 'notif.js', 'live.js', 'payment.js', 'cuenta.js',
-          'alojamientos.js', 'contratos.js', 'seguro.js']
+          'alojamientos.js', 'seguro.js']
 
 ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 I_WA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg>'
@@ -150,7 +150,7 @@ FOOTER = f'''<footer class="footer zp-foot">
 
 SUPA = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>'
 BASE_JS = ['app.js', 'site.js', 'notif.js']
-ACCT_JS = ['app.js', 'site.js', 'payment.js', 'cuenta.js', 'alojamientos.js', 'contratos.js', 'seguro.js', 'notif.js']
+ACCT_JS = ['app.js', 'site.js', 'payment.js', 'cuenta.js', 'alojamientos.js', 'seguro.js', 'notif.js']
 
 
 def scripts(names, supa=False, extra=''):
@@ -443,7 +443,7 @@ def main():
 
     P = lambda n: (SRC / 'pages' / n).read_text(encoding='utf-8')
     page('index.html', 'Zarping by Iberail — Viajes en grupo desde España',
-         'Nieve, fin de curso, despedidas, festivales y escapadas en grupo. Precio cerrado por persona, pagos por separado, contratos online y WhatsApp 24 h.',
+         'Nieve, fin de curso, despedidas, festivales y escapadas en grupo. Precio cerrado por persona, pagos por separado, contrato por escrito y WhatsApp 24 h.',
          home_main(), BASE_JS)
     page('viajes.html', 'Viajes en grupo · Zarping',
          'Nieve en Andorra y Sierra Nevada, viajes de fin de curso, despedidas, festivales y escapadas: te lo organizamos todo para el grupo.',
