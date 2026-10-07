@@ -56,6 +56,9 @@
   // Iberail y Zarping comparten panel: la solicitud o el grupo dice su marca (columna marca; si aún no existe, ref ZP-…)
   const marcaDe = x => (x && x.marca) || (x && /^ZP-/.test(x.ref || '') ? 'zarping' : 'iberail');
   const zpTag = x => marcaDe(x) === 'zarping' ? '<em class="adm-tag is-zp">Zarping</em>' : '';
+  const marcaGrupo = gid => marcaDe(groups.find(g => String(g.id) === String(gid)));
+  IB.marcaGrupo = marcaGrupo;   // para seguro.js (Iberail Protect / Zarping Protect en la ficha del grupo)
+  const webDe = B => B.site || location.origin;
   let view = 'sol';
   let clients = [], clientsState = 'idle', clientsErr = '';      // idle | loading | ok | error
   let cliFilter = 'all', cliSort = 'new', cliQuery = '';
@@ -73,7 +76,7 @@
   const payDrafts = {};      // borrador del formulario de nuevo pago por persona (uid → {importe,fecha,nota})
   let avisos = [], leidos = [], avisosErr = '';
   let rr = { com: [], refs: [], codes: [], importe: 40, minimo: 5, err: '' };   // «Invita y gana»
-  let meId = null, grT = null, extraChan = null, rrT = null;
+  let meId = null, grT = null, extraChan = null, rrT = null, pgT = null;
   const openReads = new Set();  // avisos con la lista de quién lo ha visto desplegada
   const baseTitle = document.title;
 
@@ -143,7 +146,7 @@
     requestAnimationFrame(() => t.classList.add('is-in'));
     setTimeout(() => { t.classList.remove('is-in'); setTimeout(() => t.remove(), 300); }, 6500);
   }
-  function bumpTitle(){ unseen++; document.title = `(${unseen}) Nueva ruta · ${baseTitle}`; }
+  function bumpTitle(){ if(!document.hidden) return; unseen++; document.title = `(${unseen}) Nueva ruta · ${baseTitle}`; }
   document.addEventListener('visibilitychange', () => { if(!document.hidden){ unseen = 0; document.title = baseTitle; } });
   // botón que pide un segundo toque antes de borrar
   function armed(btn, text){
@@ -255,6 +258,12 @@
         const x = payload.new; if(!x || leidos.some(l => String(l.aviso_id) === String(x.aviso_id) && l.user_id === x.user_id)) return;
         leidos.push(x); counts(); paintOverview(); if(view === 'avi') paintAvisos(); if(drawer && !typing()) paintDrawer();
       });
+      if(!pagosErr) extraChan = extraChan.on('postgres_changes', { event: '*', schema: 'public', table: 'pagos' }, () => {
+        clearTimeout(pgT); pgT = setTimeout(async () => {
+          const { data, error } = await IB.sb.from('pagos').select('*'); if(error) return;
+          pagos = data || []; counts(); paintOverview(); if(view === 'gru') paintGroups(); if(drawer && drawer.kind === 'grupo' && !typing()) paintDrawer();
+        }, 700);
+      });
       if(!rr.err) extraChan = extraChan
         .on('postgres_changes', { event: '*', schema: 'public', table: 'comisiones' }, () => { clearTimeout(rrT); rrT = setTimeout(async () => { const before = rr.com.length; await loadRrpp(); counts(); if(view === 'rrp') paintRrpp(); if(rr.com.length > before) toast(`${I_EUR}Nueva comisión de «Invita y gana»: toca para verla`, false, () => setView('rrp')); }, 500); });
       extraChan.subscribe();
@@ -265,21 +274,23 @@
     if(drawer && !typing()) paintDrawer();
   }
   const pagosOf = (gid, uid) => pagos.filter(p => String(p.grupo_id) === String(gid) && p.user_id === uid);
-  const pagadoOf = (gid, uid) => pagosOf(gid, uid).reduce((a, p) => a + Number(p.importe), 0);
+  const r2 = x => Math.round((Number(x) || 0) * 100) / 100;   // euros con céntimos exactos
+  const pagadoOf = (gid, uid) => r2(pagosOf(gid, uid).reduce((a, p) => a + Number(p.importe), 0));
   const memberRow = (gid, uid) => members.find(x => String(x.grupo_id) === String(gid) && x.user_id === uid);
   // cuentas del grupo: total a cobrar, cobrado y pendiente (solo de quien sigue en el grupo)
   function groupMoney(gid){
     let total = 0, cobrado = 0, falta = 0, alDia = 0, pend = 0, n = 0, extra = 0;
     const deMas = [];
     members.filter(m => String(m.grupo_id) === String(gid)).forEach(m => {
-      const imp = Number(m.importe || 0), pag = pagadoOf(gid, m.user_id), ok = !!m.pagado || (imp > 0 && pag >= imp);
-      total += imp; cobrado += pag; falta += ok ? 0 : Math.max(0, imp - pag); n++;
-      if(imp > 0 && pag > imp){ extra += pag - imp; deMas.push({ uid: m.user_id, x: pag - imp }); }
+      const imp = r2(m.importe), pag = pagadoOf(gid, m.user_id), ok = !!m.pagado || (imp > 0 && pag >= imp);
+      total += imp; cobrado += pag; falta += ok ? 0 : Math.max(0, r2(imp - pag)); n++;
+      if(imp > 0 && pag > imp){ extra += r2(pag - imp); deMas.push({ uid: m.user_id, x: r2(pag - imp) }); }
       if(ok) alDia++;
       if(!ok && imp > 0 && pag < imp) pend++;
     });
+    total = r2(total); cobrado = r2(cobrado); falta = r2(falta); extra = r2(extra);
     // lo que ya está cubierto del total (sin contar lo pagado de más)
-    const cubierto = Math.max(0, total - falta);
+    const cubierto = Math.max(0, r2(total - falta));
     return { total, cobrado, falta, alDia, pend, n, extra, deMas, cubierto };
   }
   // a quién le llega cada aviso (ids de cliente, sin contar al equipo)
@@ -427,7 +438,7 @@
   function rrWa(c){
     const p = who(c.padrino), tel = p && p.telefono;
     if(!tel) return '';
-    const txt = `¡Hola ${whoName(c.padrino).split(' ')[0]}! 🎉 El grupo «${c.grupo_nombre || ''}» ya lo tiene todo pagado y ${c.personas} de sus viajeros vinieron con tu enlace de Iberail, así que has ganado ${eur(c.importe)}. ¿Te lo mando por Bizum a este número?`;
+    const txt = `¡Hola ${whoName(c.padrino).split(' ')[0]}! 🎉 El grupo «${c.grupo_nombre || ''}» ya lo tiene todo pagado y ${c.personas} de sus viajeros vinieron con tu enlace de ${IB.brandOf(marcaGrupo(c.grupo_id)).nombre}, así que has ganado ${eur(c.importe)}. ¿Te lo mando por Bizum a este número?`;
     return `<a class="pl-link" href="${esc(IB.wa(txt, waPhone(tel)))}" target="_blank" rel="noopener">WhatsApp</a>`;
   }
   function rrRow(c){
@@ -868,9 +879,10 @@
     const f = (id, label, type, extra) => `<label class="adm-f-field"><span>${label}</span><input class="pl-input" data-dv="${id}" type="${type || 'text'}" value="${esc(v[id] || '')}" ${extra || ''}></label>`;
     const who = isGroup ? `todos los del grupo (${membersOf(ctx.id).length})` : (ctx.grupo_id ? 'todos los del grupo' : 'el cliente');
     const first = isGroup ? '' : String(ctx.nombre || '').split(' ')[0];
+    const BD = IB.brandOf(isGroup ? marcaDe(ctx) : ctx.grupo_id ? marcaGrupo(ctx.grupo_id) : marcaDe(ctx));
     const notifyText = isGroup
-      ? `¡Hola! Ya tenéis los billetes y documentos del viaje en vuestra cuenta de Iberail ✈️ Entrad aquí para verlos y descargarlos: ${location.origin}/cuenta.html`
-      : `Hola ${first}, ya tienes tus billetes en tu cuenta de Iberail ✈️ Los puedes ver y descargar aquí: ${location.origin}/cuenta.html`;
+      ? `¡Hola! Ya tenéis los billetes y documentos del viaje en vuestra cuenta de ${BD.nombre} ✈️ Entrad aquí para verlos y descargarlos: ${webDe(BD)}/cuenta.html`
+      : `Hola ${first}, ya tienes tus billetes en tu cuenta de ${BD.nombre} ✈️ Los puedes ver y descargar aquí: ${webDe(BD)}/cuenta.html`;
     const tel = !isGroup && waPhone(ctx.telefono);
     return `<div class="adm-docs-head"><h3>${I_PLANE}${isGroup ? 'Documentos del grupo' : 'Billetes y documentos'}</h3><small>${has ? `${list.length} · ` : ''}los ve ${esc(who)} en su cuenta</small></div>
       ${items}
@@ -972,7 +984,7 @@
   }
 
   /* ---------- pagos por persona (dentro de la ficha de grupo) ---------- */
-  const today = () => new Date().toISOString().slice(0, 10);
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
   function moneyHtml(m){
     const pct = m.total ? Math.min(100, Math.floor(m.cubierto / m.total * 100)) : 0;
     const who = m.deMas.map(x => `${clientName(clients.find(c => c.id === x.uid))} (+${eur(x.x)})`).join(', ');
@@ -986,12 +998,13 @@
   }
   function payRow(g, c){
     const m = memberRow(g.id, c.id) || { importe: 0 };
-    const imp = Number(m.importe || 0), pag = pagadoOf(g.id, c.id), full = !!m.pagado || (imp > 0 && pag >= imp), falta = full ? 0 : Math.max(0, imp - pag);
+    const imp = r2(m.importe), pag = pagadoOf(g.id, c.id), full = !!m.pagado || (imp > 0 && pag >= imp), falta = full ? 0 : Math.max(0, r2(imp - pag));
     const list = pagosOf(g.id, c.id).slice().sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)) || b.id - a.id);
     const dr = payDrafts[c.id] || (payDrafts[c.id] = { open: false, importe: '', fecha: today(), nota: '' });
     const tel = waPhone(c.telefono);
-    const nudge = `Hola ${clientName(c).split(' ')[0]}, te escribo de Iberail por el viaje «${g.nombre}». Te ${plural(falta, 'queda', 'quedan')} ${eur(falta)} por pagar (llevas ${eur(pag)} de ${eur(imp)}). Lo tienes todo en tu cuenta: ${location.origin}/cuenta.html#grupos`;
-    const over = imp > 0 && pag > imp ? pag - imp : 0;
+    const BG = IB.brandOf(marcaDe(g));
+    const nudge = `Hola ${clientName(c).split(' ')[0]}, te escribo de ${BG.nombre} por el viaje «${g.nombre}». Te ${plural(falta, 'queda', 'quedan')} ${eur(falta)} por pagar (llevas ${eur(pag)} de ${eur(imp)}). Lo tienes todo en tu cuenta: ${webDe(BG)}/grupos.html`;
+    const over = imp > 0 && pag > imp ? r2(pag - imp) : 0;
     const state = over ? `<em class="adm-pay-st is-over">+${eur(over)} de más</em>` : full ? '<em class="adm-pay-st is-paid">✓ Todo pagado</em>' : !imp ? '<em class="adm-pay-st">Sin importe</em>' : `<em class="adm-pay-st is-due">Faltan ${eur(falta)}</em>`;
     const mark = `<button type="button" class="adm-pay-mark${m.pagado ? ' is-on' : ''}" data-pay-mark="${esc(c.id)}" data-pay-gid="${esc(g.id)}" aria-pressed="${!!m.pagado}">${m.pagado ? '✓ Marcado como pagado · quitar' : 'Marcar todo pagado'}</button>`;
     return `<li class="adm-pay${full ? ' is-paid' : ''}${over ? ' is-over' : ''}">
@@ -1028,11 +1041,11 @@
   }
   async function updateImporte(gid, uid, v, quiet){
     const imp = Math.max(0, Math.round((parseFloat(String(v).replace(',', '.')) || 0) * 100) / 100);
-    if(imp > 100000) return toast('Ese importe es demasiado alto.', true);
+    if(imp > 100000){ if(!quiet) toast('Ese importe es demasiado alto.', true); return 'Ese importe es demasiado alto.'; }
     const m = memberRow(gid, uid); if(!m) return false;
     const prev = m.importe; m.importe = imp;
     const { error } = await IB.sb.from('grupo_miembros').update({ importe: imp }).eq('grupo_id', gid).eq('user_id', uid);
-    if(error){ m.importe = prev; if(!quiet) toast(setupErr(error), true); return false; }
+    if(error){ m.importe = prev; if(!quiet) toast(setupErr(error), true); return setupErr(error); }
     if(!quiet){ paintDrawer(); paintOverview(); toast('Importe guardado'); }
     return true;
   }
@@ -1040,10 +1053,10 @@
     const v = $('#payAll').value; if(v === '' || isNaN(parseFloat(v))) return toast('Pon el precio por persona.', true);
     btn.disabled = true;
     const uids = members.filter(m => String(m.grupo_id) === String(gid)).map(m => m.user_id);
-    let ok = true;
-    for(const u of uids){ if(!(await updateImporte(gid, u, v, true))){ ok = false; break; } }
+    let fallo = '';
+    for(const u of uids){ const r = await updateImporte(gid, u, v, true); if(r !== true){ fallo = typeof r === 'string' ? r : 'No se pudo guardar el importe.'; break; } }
     btn.disabled = false;
-    if(!ok) return toast(setupErr({ message: pagosErr || 'importe does not exist' }), true);
+    if(fallo) return toast(esc(fallo), true);
     paintDrawer(); paintOverview(); paintGroups();
     toast(`${eur(parseFloat(v))} por persona a ${uids.length} ${plural(uids.length, 'persona', 'personas')}`);
   }
@@ -1075,7 +1088,7 @@
     pagos.push(data);
     payDrafts[uid] = { open: false, importe: '', fecha: today(), nota: '' };
     paintDrawer(); paintOverview(); paintGroups();
-    const m = memberRow(gid, uid), falta = m ? Math.max(0, Number(m.importe || 0) - pagadoOf(gid, uid)) : 0;
+    const m = memberRow(gid, uid), falta = m ? Math.max(0, r2(Number(m.importe || 0) - pagadoOf(gid, uid))) : 0;
     toast(m && Number(m.importe) > 0 ? (falta > 0 ? `Pago apuntado. Le faltan ${eur(falta)}.` : 'Pago apuntado. Ya lo tiene todo pagado.') : 'Pago apuntado');
   }
   async function deletePayment(pid){
@@ -1098,14 +1111,16 @@
     const r = rows.find(x => String(x.id) === String(a.ruta_id));
     return r ? `Ruta ${r.ref} · ${r.nombre}` : 'Una ruta';
   }
-  const waCopyOf = a => `*${a.titulo}*${a.cuerpo ? '\n' + a.cuerpo : ''}\n\nLo tienes también en tu cuenta de Iberail: ${location.origin}/cuenta.html#avisos`;
+  // marca de un aviso: la del grupo (o la de la ruta); los avisos a todos, Iberail
+  const marcaAviso = a => a.grupo_id ? marcaGrupo(a.grupo_id) : a.ruta_id ? (r => r ? (r.grupo_id ? marcaGrupo(r.grupo_id) : marcaDe(r)) : 'iberail')(rows.find(x => String(x.id) === String(a.ruta_id))) : 'iberail';
+  const waCopyOf = a => { const B = IB.brandOf(marcaAviso(a)); return `*${a.titulo}*${a.cuerpo ? '\n' + a.cuerpo : ''}\n\nLo tienes también en tu cuenta de ${B.nombre}: ${webDe(B)}/cuenta.html#avisos`; };
   function avisoCard(a, compact){
     const aud = audienceIds(a), reads = readersOf(a), n = aud.length, k = reads.length;
     const pct = n ? Math.round(k / n * 100) : 0, open = openReads.has(String(a.id));
     const readSet = new Map(reads.map(x => [x.user_id, x.leido_at]));
     const who = uid => clients.find(c => c.id === uid) || { id: uid, email: '', nombre: 'Cliente' };
     const list = open ? `<ul class="adm-reads">${aud.map(uid => { const c = who(uid), at = readSet.get(uid), tel = waPhone(c.telefono);
-      return `<li class="${at ? 'is-read' : ''}"><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>${at ? `Visto ${esc(ago(at))}` : 'Aún no lo ha visto'}</small></span>${!at && tel ? `<a class="pl-link" href="${esc(IB.wa(`Hola ${clientName(c).split(' ')[0]}, te hemos dejado un aviso en tu cuenta de Iberail: «${a.titulo}». Échale un ojo aquí: ${location.origin}/cuenta.html#avisos`, tel))}" target="_blank" rel="noopener">Avisar por WhatsApp</a>` : ''}</li>`; }).join('') || '<li class="adm-docs-empty">Nadie lo recibe todavía.</li>'}</ul>` : '';
+      return `<li class="${at ? 'is-read' : ''}"><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>${at ? `Visto ${esc(ago(at))}` : 'Aún no lo ha visto'}</small></span>${!at && tel ? `<a class="pl-link" href="${esc(IB.wa(`Hola ${clientName(c).split(' ')[0]}, te hemos dejado un aviso en tu cuenta de ${IB.brandOf(marcaAviso(a)).nombre}: «${a.titulo}». Échale un ojo aquí: ${webDe(IB.brandOf(marcaAviso(a)))}/cuenta.html#avisos`, tel))}" target="_blank" rel="noopener">Avisar por WhatsApp</a>` : ''}</li>`; }).join('') || '<li class="adm-docs-empty">Nadie lo recibe todavía.</li>'}</ul>` : '';
     return `<article class="adm-aviso${a.importante ? ' is-imp' : ''}">
       <div class="adm-aviso-top">${compact ? '' : `<span class="adm-aviso-to">${I_BELL}${esc(avisoTarget(a))}</span>`}<small>${esc(ago(a.created_at))}</small></div>
       <h4>${a.importante ? '<em>Importante</em>' : ''}${esc(a.titulo)}</h4>
@@ -1273,10 +1288,16 @@
       <p class="adm-hint">${pick.length ? `Entrarán ${pick.length} ${plural(pick.length, 'persona', 'personas')}: ${pick.map(c => esc(clientName(c))).join(', ')}.` : 'Luego podrás añadir a las personas desde la ficha del grupo.'}</p>
       <button type="button" class="btn btn--primary" data-create-group>Crear grupo</button>`;
   }
-  async function createGroup(){
+  let creandoGrupo = false;
+  async function createGroup(btn){
+    if(creandoGrupo || !ng) return;
     const nombre = $('#ngName').value.trim();
     if(nombre.length < 2) return toast('Ponle un nombre al grupo.', true);
-    const marca = ($('#ngMarca') || {}).value || 'iberail';
+    const marca = ng.marca || ($('#ngMarca') || {}).value || 'iberail';
+    creandoGrupo = true; if(btn) btn.disabled = true;
+    try{ await crearGrupo(nombre, marca); } finally { creandoGrupo = false; if(btn && btn.isConnected) btn.disabled = false; }
+  }
+  async function crearGrupo(nombre, marca){
     let { data, error } = await IB.sb.from('grupos').insert({ nombre, marca }).select().single();
     if(error && /marca/.test(error.message || '')){
       if(marca !== 'iberail') return toast('Para crear grupos de Zarping ejecuta antes supabase/sql/marca.sql en Supabase.', true);
@@ -1531,7 +1552,7 @@
     const cols = ['ref', 'created_at', 'estado', 'nombre', 'email', 'telefono', 'salida', 'fecha_salida', 'flexible', 'dias', 'viajeros', 'paradas', 'estilo', 'alojamiento', 'presupuesto', 'acepta_publicidad', 'notas', 'nota_interna'];
     const cell = v => { if(typeof v === 'boolean') v = v ? 'Sí' : 'No'; const s = Array.isArray(v) ? (typeof v[0] === 'object' ? v.map(p => `${p.ciudad} (${p.dias})`).join(' > ') : v.join(', ')) : (v == null ? '' : String(v)); return csvCell(s); };
     const out = '﻿' + cols.join(';') + '\n' + visible().map(r => cols.map(c => cell(c === 'nota_interna' ? noteOf(r) : r[c])).join(';')).join('\n');
-    bajar(out, `iberail-solicitudes-${new Date().toISOString().slice(0, 10)}.csv`);
+    bajar(out, `iberail-solicitudes-${today()}.csv`);
   }
 
   async function setMarca(gid, marca){
@@ -1624,6 +1645,7 @@
     if(t.dataset.importeUid){ updateImporte(t.dataset.importeGid, t.dataset.importeUid, t.value); return; }
     if(t.id === 'payVis' && drawer && drawer.kind === 'grupo'){ setVisible(drawer.id, t.checked, t); return; }
     if(t.id === 'grMarca' && drawer && drawer.kind === 'grupo'){ setMarca(drawer.id, t.value); return; }
+    if(t.id === 'ngMarca' && ng){ ng.marca = t.value; return; }
     if(na && t.id === 'naImportante'){ na.importante = t.checked; return; }
     if(na && t.id === 'naWa'){ na.wa = t.checked; return; }
     if(na && t.id === 'naGroup'){ na.grupoId = t.value; paintDrawer(); return; }
@@ -1688,7 +1710,7 @@
       const cr = t.closest('[data-create]'); if(cr) return createRoute(cr);
       return;
     }
-    if(drawer && drawer.kind === 'nuevo-grupo'){ if(t.closest('[data-create-group]')) createGroup(); return; }
+    if(drawer && drawer.kind === 'nuevo-grupo'){ const cg = t.closest('[data-create-group]'); if(cg) createGroup(cg); return; }
     // ficha de grupo
     if(drawer && drawer.kind === 'grupo'){
       const g = groupById(drawer.id); if(!g) return;

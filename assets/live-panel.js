@@ -35,13 +35,16 @@
       case 'whatsapp': return 'Pulsó el botón de <b>WhatsApp</b>';
       case 'contrato_abierto': return 'Abrió su <b>contrato</b> para leerlo';
       case 'contrato_firmado': return `<b>Firmó el contrato</b>${d.tipo === 'menor' ? ' (firmado por su padre, madre o tutor)' : ''}`;
-      case 'seguro_pedido': return `<b>Añadió Iberail Protect</b> a su viaje${d.precio ? ` (${esc(d.precio)} €)` : ''}`;
+      case 'seguro_pedido': return `<b>Añadió ${/^Zarping/.test(a.pagina || '') ? 'Zarping' : 'Iberail'} Protect</b> a su viaje${d.precio ? ` (${esc(d.precio)} €)` : ''}`;
       case 'contrato_descargado': return 'Abrió o descargó su <b>contrato firmado</b>';
+      case 'seguro_duplicado': return `<b>Pagó el seguro dos veces</b> (${esc(d.importe)} €): devuélvele el segundo pago en Stripe`;
       default: return esc(a.tipo);
     }
   };
 
   function paint(){
+    const m0 = new Date(); m0.setHours(0, 0, 0, 0);
+    hoy = hoy.filter(v => !v.created_at || new Date(v.created_at) >= m0);
     const cuentas = now.filter(p => p.c).length;
     const top = Object.entries(hoy.reduce((m, v) => (m[v.pagina] = (m[v.pagina] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).slice(0, 6);
     const maxTop = top.length ? top[0][1] : 1;
@@ -84,7 +87,7 @@
     const desde = new Date(); desde.setHours(0, 0, 0, 0);
     const [v, h, a, c] = await Promise.all([
       IB.sb.from('visitas').select('pagina, con_cuenta, created_at').order('created_at', { ascending: false }).limit(60),
-      IB.sb.from('visitas').select('pagina').gte('created_at', desde.toISOString()).limit(5000),
+      IB.sb.from('visitas').select('pagina, created_at').gte('created_at', desde.toISOString()).limit(5000),
       IB.sb.from('actividad').select('*').order('created_at', { ascending: false }).limit(400),
       IB.sb.rpc('buscar_clientes', { q: '' })
     ]);

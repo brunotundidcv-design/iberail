@@ -167,7 +167,7 @@
   // Solo se fija la pieza donde para (el resultado); las de alrededor son las que salgan.
   function construir(catalogo, gan, largo, en){
     const pool = [];
-    catalogo.forEach(p => { for(let i = 0; i < Math.max(1, Number(p.n) || 1); i++) pool.push(p); });
+    catalogo.forEach(p => { const n = p.n == null ? 1 : Math.max(0, Number(p.n) || 0); for(let i = 0; i < n; i++) pool.push(p); });   // cantidad 0 = no sale
     const vacios = Math.max(6, Math.round(pool.length * .55));
     for(let i = 0; i < vacios; i++) pool.push(NADA);
     const cinta = [];

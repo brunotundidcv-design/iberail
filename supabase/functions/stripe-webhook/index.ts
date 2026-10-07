@@ -44,7 +44,13 @@ Deno.serve(async (req) => {
     const { data: dup } = await sb.from('seguros').select('id').eq('stripe_session', s.id).maybeSingle();
     if (dup) return new Response('ya apuntado', { status: 200 });
     const datos = { estado: 'pagado', precio: Number(s.amount_total) / 100, plan: s.metadata?.plan || 'completo', cancelacion: s.metadata?.cancelacion !== '0', stripe_session: s.id, pagado_at: new Date().toISOString() };
-    const { data: prev } = await sb.from('seguros').select('id').eq('grupo_id', gid).eq('user_id', uid).neq('estado', 'anulado').maybeSingle();
+    const { data: prev } = await sb.from('seguros').select('id, estado, stripe_session').eq('grupo_id', gid).eq('user_id', uid).neq('estado', 'anulado').maybeSingle();
+    // ya lo tenía pagado con otro pago: NO se pisa el primero (se perdería el rastro de un cobro). Se avisa al equipo para devolverlo.
+    if (prev && ['pagado', 'contratado'].includes(prev.estado) && prev.stripe_session && prev.stripe_session !== s.id) {
+      console.error('seguro pagado dos veces', { grupo: gid, user: uid, primero: prev.stripe_session, segundo: s.id });
+      await sb.from('actividad').insert({ user_id: uid, tipo: 'seguro_duplicado', pagina: 'Stripe', detalle: { grupo_id: gid, sesion: s.id, importe: Number(s.amount_total) / 100 } }).then(() => {}, () => {});
+      return new Response('duplicado: revisar el reembolso', { status: 200 });
+    }
     const { error: e2 } = prev
       ? await sb.from('seguros').update(datos).eq('id', prev.id)
       : await sb.from('seguros').insert({ grupo_id: gid, user_id: uid, ...datos });

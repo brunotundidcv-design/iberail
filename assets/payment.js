@@ -19,7 +19,7 @@
     const wa = (IB.cfg && IB.cfg.WA_PHONE) || '34930491439';
     n.innerHTML = '<b>Pagos en mantenimiento</b><span>Nuestra pasarela de pago está dando problemas y la estamos cambiando por una nueva. '
       + 'Ahora mismo no se puede pagar con tarjeta y no se te ha cobrado nada. Si necesitas pagar ya, '
-      + `<a href="https://wa.me/${wa}?text=${encodeURIComponent('Hola Iberail, quiero hacer un pago de mi viaje')}" target="_blank" rel="noopener">escríbenos por WhatsApp</a>.</span>`;
+      + `<a href="https://wa.me/${wa}?text=${encodeURIComponent(`Hola ${(IB.brand && IB.brand.nombre) || 'Iberail'}, quiero hacer un pago de mi viaje`)}" target="_blank" rel="noopener">escríbenos por WhatsApp</a>.</span>`;
     const close = document.createElement('button');
     close.type = 'button'; close.setAttribute('aria-label', 'Cerrar'); close.textContent = '×';
     close.onclick = () => n.remove();

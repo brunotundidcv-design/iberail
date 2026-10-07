@@ -213,19 +213,23 @@
     const { error } = await IB.sb.auth.resetPasswordForEmail(email);
     busy(fForgot, false);
     if(error) return msg(IB.errMsg(error));
-    setPending(email); show('nueva');
+    recOk = false; setPending(email); show('nueva');
     msg('Si hay una cuenta con ese correo, te llegará un código en un momento.', true);
   });
 
   const otpReset = wireOtp($('#resetOtp'), () => $('#nwPass').focus());
+  let recOk = false;   // el código de recuperación solo vale una vez: si ya se validó, no se vuelve a pedir
   fNew.addEventListener('submit', async e => {
     e.preventDefault();
     const token = otpReset.value(), pass = $('#nwPass').value;
-    if(token.length < 6) return msg('Introduce los 6 dígitos del código.');
+    if(!recOk && token.length < 6) return msg('Introduce los 6 dígitos del código.');
     if(pass.length < 8) return msg('La contraseña necesita al menos 8 caracteres.');
     busy(fNew, true, 'Guardando…');
-    const v = await IB.sb.auth.verifyOtp({ email: pendingEmail, token, type: 'recovery' });
-    if(v.error){ busy(fNew, false); otpReset.error(); otpReset.clear(); return msg(IB.errMsg(v.error)); }
+    if(!recOk){
+      const v = await IB.sb.auth.verifyOtp({ email: pendingEmail, token, type: 'recovery' });
+      if(v.error){ busy(fNew, false); otpReset.error(); otpReset.clear(); return msg(IB.errMsg(v.error)); }
+      recOk = true;
+    }
     const u = await IB.sb.auth.updateUser({ password: pass });
     busy(fNew, false);
     if(u.error) return msg(IB.errMsg(u.error));
@@ -332,6 +336,11 @@
   }
   function limBox(g, prev){
     if(!g.limite_pago) return '';
+    if(!prev && V.v7){
+      const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
+      const pag = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).reduce((a, p) => a + Number(p.importe), 0);
+      if(m.pagado || (imp > 0 && Math.round((imp - pag) * 100) <= 0)) return '';
+    }
     const d = daysTo(g.limite_pago);
     if(!prev) setTimeout(() => limLog(g), 1200);
     const cuando = new Date(g.limite_pago + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -344,9 +353,10 @@
     if(!V.v7) return '';
     const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
     const list = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
-    const pag = list.reduce((a, p) => a + Number(p.importe), 0), marcado = !!m.pagado, falta = marcado ? 0 : Math.max(0, imp - pag);
+    const pag = Math.round(list.reduce((a, p) => a + Number(p.importe), 0) * 100) / 100, marcado = !!m.pagado, falta = marcado ? 0 : Math.max(0, Math.round((imp - pag) * 100) / 100);
     if(marcado && !imp) return `<div class="gx-card gx-pay is-done"><div class="gx-ring gx-ring--ok" role="img" aria-label="Todo pagado"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" class="gx-ring-fg"/></svg><span>${I_CHECK}</span></div><div class="gx-pay-main"><small>Tu parte del viaje</small><b class="gx-pay-big is-ok">Todo pagado</b><p>Lo tienes todo pagado. ¡Ya solo queda disfrutar del viaje!</p></div></div>`;
     if(!imp && !list.length) return `<div class="gx-card gx-pay is-empty"><span class="gx-ic">${I_EURO}</span><div><b>Tu parte del viaje</b><p>Cuando cerremos el precio, aquí verás lo que te toca pagar y lo que llevas pagado.</p></div></div>`;
+    if(!imp && !marcado) return `<div class="gx-card gx-pay is-empty"><span class="gx-ic">${I_EURO}</span><div><b>Tu parte del viaje</b><p>Llevas pagados <b>${eur(pag)}</b>. El precio final está por cerrar: en cuanto lo tengamos, aquí verás lo que te falta.</p>${list.length ? `<details class="gx-log"><summary>${list.length} ${plural(list.length, 'pago', 'pagos')}</summary><ul>${list.map(p => `<li><span>${esc(fshort(p.fecha))}</span><b>${eur(p.importe)}</b>${p.nota ? `<em>${esc(p.nota)}</em>` : ''}</li>`).join('')}</ul></details>` : ''}</div></div>`;
     const done = marcado || (imp > 0 && falta <= 0), pct = done ? 100 : imp ? Math.min(100, Math.round(pag / imp * 100)) : 100;
     const R = 34, C = 2 * Math.PI * R;
     return `<div class="gx-card gx-pay${done ? ' is-done' : ''}">
@@ -401,20 +411,10 @@
       ${preview ? '<span class="aviso-seen">Publicado para el grupo</span>' : seen ? `<span class="aviso-seen">${I_CHECK}Visto</span>` : `<button type="button" class="btn btn--dark btn--sm" data-ok="${esc(a.id)}">${I_CHECK}Entendido</button>`}
     </article>`;
   }
-  function routeLine(r){
-    const st = STATUS[r.estado] || STATUS.nueva;
-    const stops = [{ c: r.salida, d: '' }].concat((r.paradas || []).map(p => ({ c: p.ciudad, d: p.dias })));
-    const tag = MODE === 'grupos' ? 'div' : 'button';
-    return `<${tag}${tag === 'button' ? ` type="button" data-goto-route="${esc(r.id)}"` : ''} class="gx-card gx-route">
-      <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>${RT.vuestra}</b><em class="gx-pill">${esc(st[0])}</em></div>
-      <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
-      <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}</p>
-    </${tag}>`;
-  }
   // la ruta del grupo en un mapa interactivo (gmap.js); si no se puede dibujar, se queda la lista de paradas
   function routeMapCard(r){
     const st = STATUS[r.estado] || STATUS.nueva;
-    const stops = [{ c: cityName(r.salida), d: '' }].concat((r.paradas || []).map(p => ({ c: cityName(p.ciudad), d: p.dias })));
+    const stops = [{ c: cityName(r.salida), d: '' }].concat((r.paradas || []).map(p => ({ c: cityName(p.ciudad), d: Math.max(0, parseInt(p.dias, 10) || 0) })));
     return `<div class="gx-card gx-route gx-map-card">
       <div class="gx-sec-h"><span class="gx-ic">${I_ROUTE}</span><b>${RT.vuestra}</b><em class="gx-pill">${esc(st[0])}</em></div>
       <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
@@ -730,7 +730,7 @@
       const { data, error } = await IB.sb.auth.updateUser({ data: { telefono: tel } });
       b.disabled = false;
       if(error){ er.textContent = IB.errMsg(error); er.hidden = false; return; }
-      f.innerHTML = '<div class="tel-ask-ic" aria-hidden="true">✅</div><div class="tel-ask-main"><b>¡Listo! Ya tenemos tu móvil.</b><p>Ya participas en los sorteos.</p></div>';
+      f.innerHTML = '<div class="tel-ask-ic" aria-hidden="true">✅</div><div class="tel-ask-main"><b>¡Listo! Ya tenemos tu móvil.</b><p>Ya puedes participar en los sorteos.</p></div>';
       f.classList.add('is-ok'); setTimeout(() => f.remove(), 4000);
       const line = $('[data-email-line]', root); if(line) line.textContent = user.email + ' · ' + tel;
       if(data && data.user) user.user_metadata = data.user.user_metadata;

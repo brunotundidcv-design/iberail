@@ -12,7 +12,7 @@
   const NOMBRE = IB.brand.protect;   // «Iberail Protect» / «Zarping Protect» según la web
   const eur = n => { const [i, d] = Math.abs(Number(n) || 0).toFixed(2).split('.'); return i.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + (d === '00' ? '' : ',' + d) + ' €'; };
   const fd = iso => iso ? new Date(String(iso).slice(0, 10) + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : '';
-  const dias = iso => iso ? Math.ceil((new Date(String(iso).slice(0, 10) + 'T23:59:59') - new Date()) / 864e5) : null;
+  const dias = iso => iso ? Math.round((new Date(String(iso).slice(0, 10) + 'T12:00:00') - new Date(new Date().toDateString() + ' 12:00')) / 864e5) : null;
 
   const S = {
     shield: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
@@ -74,6 +74,7 @@
 
   /* ======================= «Mis grupos» ======================= */
   const C = {};   // grupo → { oferta, seguro }
+  let confirmando = 0;   // vuelta de Stripe con ?seguro=ok: hora a la que volvió (hasta que llega el webhook)
   async function loadCli(gid){
     const { data: s } = await IB.sb.auth.getSession(), uid = s && s.session && s.session.user ? s.session.user.id : null;
     if(!uid) return (C[gid] = null);
@@ -93,7 +94,9 @@
     const d = o && o.limite ? dias(o.limite) : null, cerrado = !mine && d != null && d < 0;
     if(cerrado) return '';
     const pagado = s && (s.estado === 'pagado' || s.estado === 'contratado');
-    const estado = !pagado ? '' : s.estado === 'contratado'
+    const esperando = !pagado && confirmando && Date.now() - confirmando < 90000;
+    const estado = esperando ? `<div class="sg-state">${S.ok}<div><b>Confirmando tu pago…</b><span>En unos segundos lo verás aquí. No hace falta que pagues otra vez.</span></div></div>`
+      : !pagado ? '' : s.estado === 'contratado'
       ? `<div class="sg-state is-ok">${S.ok}<div><b>Estás protegido</b><span>${s.poliza ? `Póliza nº ${esc(s.poliza)}. ` : ''}Tu certificado está en los documentos de tu grupo.</span></div></div>`
       : `<div class="sg-state">${S.ok}<div><b>Pagado · lo estamos activando</b><span>Hemos recibido tu pago de ${esc(eur(s.precio))}. En breve te enviamos tu certificado con el teléfono de asistencia 24 h.</span></div></div>`;
     return `<article class="sg-card${mine ? ' is-mine' : ''}">
@@ -133,7 +136,20 @@
     const q = new URLSearchParams(location.search), v = q.get('seguro');
     if(v !== 'ok' && v !== 'cancelado') return;
     const n = document.createElement('div'); n.className = 'pay-note' + (v === 'ok' ? ' is-ok' : ''); n.setAttribute('role', 'status');
-    n.innerHTML = v === 'ok' ? `<b>¡${NOMBRE} contratado!</b><span>Hemos recibido tu pago. En breve te enviamos tu certificado.</span>` : '<b>Pago cancelado</b><span>No se ha cobrado nada. Puedes contratar el seguro cuando quieras.</span>';
+    n.innerHTML = v === 'ok' ? `<b>¡Pago recibido!</b><span>Estamos activando tu ${NOMBRE}. En breve te enviamos tu certificado.</span>` : '<b>Pago cancelado</b><span>No se ha cobrado nada. Puedes contratar el seguro cuando quieras.</span>';
+    if(v === 'ok'){
+      // se vuelve a mirar unas cuantas veces hasta que el webhook de Stripe lo apunte como pagado
+      confirmando = Date.now();
+      let n2 = 0;
+      const mirar = async () => {
+        n2++;
+        const els = [...document.querySelectorAll('[data-seguro]')];
+        for(const el of els){ const gid = el.dataset.seguro; if(!C[gid] || !C[gid].seguro || C[gid].seguro.estado === 'solicitado'){ await loadCli(gid); paintCli(gid); } }
+        const falta = els.some(el => { const c = C[el.dataset.seguro]; return c && c.oferta && c.oferta.activo && !(c.seguro && /pagado|contratado/.test(c.seguro.estado)); });
+        if(falta && n2 < 18) setTimeout(mirar, 5000); else { confirmando = 0; els.forEach(el => paintCli(el.dataset.seguro)); }
+      };
+      setTimeout(mirar, 3000);
+    }
     const x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', 'Cerrar'); x.textContent = '×'; x.onclick = () => n.remove(); n.appendChild(x);
     const go = () => { document.body.appendChild(n); setTimeout(() => n.classList.add('is-in'), 30); setTimeout(() => { n.classList.remove('is-in'); setTimeout(() => n.remove(), 400); }, 9000); };
     if(document.body) go(); else addEventListener('DOMContentLoaded', go);
@@ -142,6 +158,8 @@
 
   /* ======================= panel ======================= */
   const A = {};
+  const borr = {};   // grupo → cambios sin guardar (oferta y nº de póliza): los repintados de la ficha no los borran
+  const nombreDe = gid => (IB.marcaGrupo && IB.brandOf) ? IB.brandOf(IB.marcaGrupo(gid)).protect : NOMBRE;   // Zarping Protect en grupos de Zarping
   async function loadAdm(gid){
     const [o, s, m, cl] = await Promise.all([
       IB.sb.from('seguro_ofertas').select('*').eq('grupo_id', Number(gid)).maybeSingle(),
@@ -150,20 +168,21 @@
       IB.sb.rpc('buscar_clientes', { q: '' })
     ]);
     const nombres = {}; (cl.data || []).forEach(x => nombres[x.id] = x);
-    A[gid] = { ...(A[gid] || {}), oferta: o.data, seguros: s.data || [], miembros: (m.data || []).map(x => x.user_id), nombres, err: (o.error || s.error) ? (o.error || s.error).message : '' };
+    A[gid] = { ...(A[gid] || {}), oferta: o.data, seguros: s.data || [], miembros: (m.data || []).map(x => x.user_id), nombres, err: (o.error || s.error) ? (o.error || s.error).message : '', t: Date.now() };
   }
   function admHtml(gid){
     const a = A[gid]; if(!a) return '';
-    const head = `<div class="adm-docs-head"><h3>${S.shield}${NOMBRE} · seguro de viaje</h3><small>${a.seguros.filter(x => x.estado === 'contratado').length} contratados · ${a.seguros.filter(x => x.estado === 'pagado').length} pagados por contratar</small></div>`;
+    const head = `<div class="adm-docs-head"><h3>${S.shield}${esc(nombreDe(gid))} · seguro de viaje</h3><small>${a.seguros.filter(x => x.estado === 'contratado').length} contratados · ${a.seguros.filter(x => x.estado === 'pagado').length} pagados por contratar</small></div>`;
     if(a.err) return head + '<p class="adm-docs-empty is-err">Falta crear las tablas: ejecuta <b>supabase/sql/seguros.sql</b> en Supabase.</p>';
-    const o = a.oferta || { activo: false, plan: 'completo', cancelacion: true, precio: '', limite: '', aseguradora: '' };
+    const d = borr[gid] || {}, pol = d.pol || {};
+    const o = { ...(a.oferta || { activo: false, plan: 'completo', cancelacion: true, precio: '', limite: '', aseguradora: '' }), ...Object.fromEntries(Object.entries(d).filter(([k]) => k !== 'pol')) };
     const who = uid => { const c = a.nombres[uid]; return c ? (c.nombre || String(c.email || '').split('@')[0]) : 'Viajero'; };
     const rows = a.miembros.map(uid => {
       const s = a.seguros.find(x => x.user_id === uid);
       const acts = !s ? (a.oferta ? `<span class="ct-st sg-st-no">Sin seguro</span><button type="button" class="ct-link" data-sg-give="${esc(gid)}:${esc(uid)}" title="Si te lo ha pagado por Bizum o transferencia">Marcar pagado</button>` : '<span class="ct-st sg-st-no">Sin seguro</span>')
         : s.estado === 'solicitado' ? `<span class="ct-st sg-st-no">Sin pagar</span><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Quitar</button>`
         : s.estado === 'contratado' ? `<span class="ct-st is-ok">${S.ok}Contratado${s.poliza ? ' · ' + esc(s.poliza) : ''}</span><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`
-        : `<span class="ct-st">Pagado · ${esc(eur(s.precio))}</span><input class="sg-pol" data-sg-pol="${esc(s.id)}" placeholder="Nº de póliza"><button type="button" class="btn btn--dark btn--sm" data-sg-done="${esc(gid)}:${esc(s.id)}">Contratado</button><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`;
+        : `<span class="ct-st">Pagado · ${esc(eur(s.precio))}</span><input class="sg-pol" data-sg-pol="${esc(s.id)}" placeholder="Nº de póliza" value="${esc(pol[s.id] || '')}"><button type="button" class="btn btn--dark btn--sm" data-sg-done="${esc(gid)}:${esc(s.id)}">Contratado</button><button type="button" class="ct-link" data-sg-void="${esc(gid)}:${esc(s.id)}">Anular</button>`;
       return `<div class="ct-row"><div><b>${esc(who(uid))}</b><small>${esc((a.nombres[uid] || {}).email || '')}</small></div><div class="ct-acts">${acts}</div></div>`;
     }).join('');
     return head + `
@@ -186,8 +205,16 @@
   async function mountAdm(el){
     const gid = el.dataset.seguroAdmin; el.dataset.sgMounted = '1';
     if(A[gid]) el.innerHTML = admHtml(gid);
-    await loadAdm(gid); if(el.isConnected) el.innerHTML = admHtml(gid);
+    if(A[gid] && Date.now() - (A[gid].t || 0) < 60000) return;
+    await loadAdm(gid); if(el.isConnected && !el.contains(document.activeElement)) el.innerHTML = admHtml(gid);
   }
+  const apunta = e => {
+    const x = e.target, f = x.closest && x.closest('[data-sg-form]');
+    if(f && x.dataset.f){ const g = f.dataset.sgForm; (borr[g] = borr[g] || {})[x.dataset.f] = x.type === 'checkbox' ? x.checked : x.value; return; }
+    const pz = x.closest && x.closest('[data-sg-pol]'), box = pz && pz.closest('[data-seguro-admin]');
+    if(box){ const g = box.dataset.seguroAdmin; const b = (borr[g] = borr[g] || {}); (b.pol = b.pol || {})[pz.dataset.sgPol] = pz.value; }
+  };
+  document.addEventListener('input', apunta); document.addEventListener('change', apunta);
   const msg = (gid, t, bad) => { const m = document.querySelector(`[data-sg-msg="${gid}"]`); if(m){ m.textContent = t; m.classList.toggle('is-err', !!bad); } };
   async function save(gid){
     const f = document.querySelector(`[data-sg-form="${gid}"]`), v = k => f.querySelector(`[data-f="${k}"]`);
@@ -196,11 +223,12 @@
     const row = { grupo_id: Number(gid), activo: v('activo').checked, plan: v('plan').value, cancelacion: v('cancelacion').checked, precio, limite: v('limite').value || null, aseguradora: v('aseguradora').value.trim() || null, updated_at: new Date().toISOString() };
     const { error } = await IB.sb.from('seguro_ofertas').upsert(row);
     if(error) return msg(gid, 'Error: ' + error.message, true);
+    const polG = (borr[gid] || {}).pol; borr[gid] = polG ? { pol: polG } : {};
     await loadAdm(gid); paintAdm(gid); msg(gid, row.activo ? 'Guardado. El grupo ya lo ve en «Mis grupos».' : 'Guardado. La oferta está desactivada.');
   }
   async function give(gid, uid){
     const o = A[gid] && A[gid].oferta; if(!o) return;
-    if(!confirm(`¿Marcar ${NOMBRE} como pagado por este viajero (${eur(o.precio)}, por Bizum o transferencia)? No cambia su presupuesto del viaje.`)) return;
+    if(!confirm(`¿Marcar ${nombreDe(gid)} como pagado por este viajero (${eur(o.precio)}, por Bizum o transferencia)? No cambia su presupuesto del viaje.`)) return;
     const { error } = await IB.sb.from('seguros').insert({ grupo_id: Number(gid), user_id: uid, precio: o.precio, plan: o.plan, cancelacion: o.cancelacion, estado: 'pagado', pagado_at: new Date().toISOString() });
     if(error) return msg(gid, 'Error: ' + error.message, true);
     await loadAdm(gid); paintAdm(gid); msg(gid, 'Marcado como pagado. Ahora contrátalo y márcalo como «Contratado».');
@@ -214,7 +242,7 @@
     const gv = t.closest('[data-sg-give]'); if(gv){ const [gid, uid] = gv.dataset.sgGive.split(':'); return give(gid, uid); }
     const dn = t.closest('[data-sg-done]'); if(dn){ const [gid, id] = dn.dataset.sgDone.split(':'); const pol = (document.querySelector(`[data-sg-pol="${id}"]`) || {}).value || '';
       const { error } = await IB.sb.from('seguros').update({ estado: 'contratado', poliza: pol.trim() || null, contratado_at: new Date().toISOString() }).eq('id', Number(id));
-      if(error) return msg(gid, 'Error: ' + error.message, true); await loadAdm(gid); paintAdm(gid); return; }
+      if(error) return msg(gid, 'Error: ' + error.message, true); if(borr[gid] && borr[gid].pol) delete borr[gid].pol[id]; await loadAdm(gid); paintAdm(gid); return; }
     const vd = t.closest('[data-sg-void]'); if(vd){ const [gid, id] = vd.dataset.sgVoid.split(':');
       if(!confirm('¿Anular este seguro? Si ya estaba pagado, la devolución hazla desde Stripe.')) return;
       const { error } = await IB.sb.rpc('anular_seguro', { p_id: Number(id) });

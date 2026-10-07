@@ -8,7 +8,9 @@
   const esc = IB.esc;
   const BUCKET = 'alojamientos';
   const cache = {};            // grupo → lista de alojamientos
-  const urls = {};             // ruta de la foto → enlace firmado
+  const urls = {};             // ruta de la foto → enlace firmado (dura 1 h)
+  const firmadas = {};         // ruta de la foto → cuándo se firmó
+  const caduca = p => !urls[p] || Date.now() - (firmadas[p] || 0) > 50 * 6e4;
   const loading = {};
   const edit = {};             // grupo → { id|null, v:{…}, fotos:[…], subiendo:n } (panel)
   let missing = false;         // la tabla aún no existe
@@ -55,11 +57,11 @@
     return loading[gid];
   }
   async function sign(paths){
-    const need = paths.filter(p => p && !urls[p]);
+    const need = paths.filter(p => p && caduca(p));
     if(need.length){
       try{
         const { data } = await IB.sb.storage.from(BUCKET).createSignedUrls(need, 3600);
-        (data || []).forEach(x => { if(x && x.signedUrl && !x.error) urls[x.path] = x.signedUrl; });
+        (data || []).forEach(x => { if(x && x.signedUrl && !x.error){ urls[x.path] = x.signedUrl; firmadas[x.path] = Date.now(); } });
       }catch(e){}
     }
     return paths.map(p => urls[p]).filter(Boolean);
@@ -184,7 +186,8 @@
       // reparte un hueco de días entre las paradas sin alojamiento que caben; las que no caben se quitan
       const fill = (ps, gap) => { const out = []; for(const p of ps){ if(gap <= 0) break; const d = Math.min(gap, Math.max(1, parseInt(p.dias, 10) || 1)); out.push({ ...p, dias: d }); gap -= d; } return { out, left: gap }; };
       const first = blocks[0].m._a.entrada;
-      const before = r.fecha_salida && r.fecha_salida < first ? dd(r.fecha_salida, first) : 0;
+      const before = !r.fecha_salida ? lead.reduce((x, p) => x + Math.max(1, parseInt(p.dias, 10) || 1), 0)
+        : r.fecha_salida < first ? dd(r.fecha_salida, first) : 0;
       const L = fill(lead, before);
       const paradas = [...L.out];
       blocks.forEach((bl, i) => {
@@ -209,7 +212,7 @@
     return changed;
   }
   async function syncAndTell(gid){
-    try{ const n = await syncRoute(gid); syncMsg[gid] = n ? { ok: true, t: 'Ruta del grupo actualizada con las fechas de los alojamientos (mapa, días y fecha de salida).' } : null; }
+    try{ const n = await syncRoute(gid); if(n) delete paradas[gid]; syncMsg[gid] = n ? { ok: true, t: 'Ruta del grupo actualizada con las fechas de los alojamientos (mapa, días y fecha de salida).' } : null; }
     catch(err){ syncMsg[gid] = { ok: false, t: 'No se ha podido actualizar la ruta: ' + (err.message || err) }; }
     paintAdmin(gid);
   }
@@ -255,7 +258,7 @@
         ${e.id ? `<button type="button" class="btn btn--ghost btn--sm al-del" data-al-del="${esc(gid)}">Borrar</button>` : ''}
         <span></span>
         <button type="button" class="btn btn--ghost btn--sm" data-al-cancel="${esc(gid)}">Cancelar</button>
-        <button type="button" class="btn btn--dark btn--sm" data-al-save="${esc(gid)}" ${e.subiendo ? 'disabled' : ''}>${e.subiendo ? 'Subiendo fotos…' : e.id ? 'Guardar cambios' : 'Guardar alojamiento'}</button>
+        <button type="button" class="btn btn--dark btn--sm" data-al-save="${esc(gid)}" ${e.subiendo || e.guardando ? 'disabled' : ''}>${e.subiendo ? 'Subiendo fotos…' : e.guardando ? 'Guardando…' : e.id ? 'Guardar cambios' : 'Guardar alojamiento'}</button>
       </div>
     </div>`;
   }
@@ -324,14 +327,16 @@
     }));
   }
   async function save(gid){
-    const e = edit[gid]; if(!e || e.subiendo) return;
+    const e = edit[gid]; if(!e || e.subiendo || e.guardando) return;
     const v = e.v;
     if(!String(v.ciudad || '').trim()){ e.err = 'Pon la ciudad.'; return paintAdmin(gid); }
     if(v.entrada && v.salida && v.salida < v.entrada){ e.err = 'La salida es antes que la entrada.'; return paintAdmin(gid); }
     if(v.enlace && !/^https?:\/\//.test(v.enlace)) v.enlace = 'https://' + v.enlace;
     const row = { grupo_id: Number(gid), ciudad: v.ciudad.trim(), nombre: v.nombre.trim() || null, enlace: v.enlace.trim() || null, direccion: v.direccion.trim() || null, entrada: v.entrada || null, salida: v.salida || null, notas: v.notas.trim() || null, fotos: e.fotos };
+    e.guardando = true; paintAdmin(gid);
     const q = e.id ? IB.sb.from('alojamientos').update(row).eq('id', e.id) : IB.sb.from('alojamientos').insert(row);
     const { error } = await q;
+    e.guardando = false;
     if(error){ e.err = IB.errMsg ? IB.errMsg(error) : error.message; return paintAdmin(gid); }
     // fotos quitadas al editar: se borran del almacenamiento
     const before = e.id ? ((cache[gid] || []).find(a => a.id === e.id) || {}).fotos || [] : [];
@@ -384,10 +389,10 @@
       const go = t.closest('[data-al-go]'); if(go && lb._go) return lb._go(Number(go.dataset.alGo));
     }
     const sy = t.closest('[data-al-sync]'); if(sy){ sy.disabled = true; sy.textContent = 'Actualizando…'; syncAndTell(sy.dataset.alSync); return; }
-    const nw = t.closest('[data-al-new]'); if(nw){ const g = nw.dataset.alNew; edit[g] = blank(); paintAdmin(g); loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); return; }
+    const nw = t.closest('[data-al-new]'); if(nw){ const g = nw.dataset.alNew; edit[g] = blank(); paintAdmin(g); delete paradas[g]; loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); return; }
     const ed = t.closest('[data-al-edit]'); if(ed){
       const [g, id] = ed.dataset.alEdit.split(':'), a = (cache[g] || []).find(x => String(x.id) === id);
-      if(a){ loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); edit[g] = { id: a.id, v: { ciudad: a.ciudad || '', nombre: a.nombre || '', enlace: a.enlace || '', direccion: a.direccion || '', entrada: a.entrada || '', salida: a.salida || '', notas: a.notas || '' }, fotos: (a.fotos || []).slice(), subiendo: 0, open: true, err: '' }; paintAdmin(g); }
+      if(a){ delete paradas[g]; loadStops(g).then(() => { if(edit[g]) paintAdmin(g); }); edit[g] = { id: a.id, v: { ciudad: a.ciudad || '', nombre: a.nombre || '', enlace: a.enlace || '', direccion: a.direccion || '', entrada: a.entrada || '', salida: a.salida || '', notas: a.notas || '' }, fotos: (a.fotos || []).slice(), subiendo: 0, open: true, err: '' }; paintAdmin(g); }
       return;
     }
     const form = t.closest('[data-al-form]'), g = form && form.dataset.alForm;

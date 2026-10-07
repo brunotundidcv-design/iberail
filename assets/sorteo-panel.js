@@ -7,6 +7,8 @@
   if(!IB || !root) return;
   const esc = IB.esc;
   let started = false, loaded = false, rows = [], clientes = {}, err = '', q = '', fresh = new Set(), tick = null, busy = new Set(), armed = null, armT = null;
+  let draft = {};                                       // cambios sin guardar en «Sorteo actual» y el simulador (id → valor)
+  const dv = (k, v) => (k in draft ? draft[k] : v);
   let cfg = null, cfgErr = '', ganadores = new Map();   // user_id → id del premio ('' = sin premio)
   let tirs = new Map(), tirOk = true;                   // user_id → en qué tirada le sale (sin dato = la última) · tirOk: existe la columna (archivo 13)
   const MAX_MB = 50;                                    // límite de subida de mp3 (Supabase gratis: 50 MB por archivo)
@@ -47,6 +49,13 @@
   function paint(){
     badge();
     if(root.hidden) return;
+    // se recuerda dónde estabas escribiendo para devolverte ahí después de repintar
+    const a = document.activeElement, foco = a && root.contains(a) ? (a.id || (a.dataset && a.dataset.cat ? '[data-cat="' + a.dataset.cat + '"]' : '')) : '';
+    let pos = null; try{ pos = foco && a.selectionStart != null ? a.selectionStart : null; }catch(e){}
+    pinta();
+    if(foco){ const el = foco.charAt(0) === '[' ? root.querySelector(foco) : document.getElementById(foco); if(el){ el.focus(); try{ if(pos != null) el.setSelectionRange(pos, pos); }catch(e){} } }
+  }
+  function pinta(){
     if(!loaded){ root.innerHTML = '<div class="auth-spin"></div>'; return; }
     if(err){ root.innerHTML = `<div class="adm-empty"><b>El sorteo aún no está activado.</b><span>${esc(err)} · Ejecuta <b>12-sorteo.sql</b> en Supabase (SQL Editor).</span></div>`; return; }
     const total = rows.reduce((a, r) => a + tir(r), 0), ig = rows.filter(r => Number(r.extra) > 0).length;
@@ -104,7 +113,7 @@
   async function saveCfg(patch, msg){
     const { error } = await IB.sb.from('sorteo_config').update(patch).eq('id', 1);
     if(error) return alert('No se pudo guardar: ' + error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-ruleta.sql?');
-    cfg = { ...cfg, ...patch }; paint(); if(msg) toast(msg);
+    cfg = { ...cfg, ...patch }; Object.keys(draft).filter(k => k !== 'srtSim' && k !== 'srtSimN' && k !== 'srtSimEn' && k !== 'srtSimT').forEach(k => delete draft[k]); paint(); if(msg) toast(msg);
   }
   function cfgHtml(){
     const c = cfg || {}, n = ganadores.size;
@@ -113,10 +122,10 @@
       <p class="srtp-hint">Haces sorteos cuando quieras: pones <b>el día y la hora</b>, <b>cuántas entradas</b> se sortean y <b>qué le ha tocado a cada uno</b>; a esa hora cada persona abre su premio en su cuenta. Nadie ve el premio de los demás y, hasta que no le des a «Publicar», nadie ve nada. Cuando acabe, pulsa <b>«Preparar un sorteo nuevo»</b>: se guarda la lista de ganadores en tu ordenador y empiezas el siguiente de cero (los apuntados siguen dentro con sus tiradas).</p>
       ${cfgErr ? `<p class="lv-empty is-err">${esc(cfgErr)} · Ejecuta <b>supabase/sql/sorteo-ruleta.sql</b> en Supabase.</p>` : ''}
       <div class="srtc-grid">
-        <label>Día del sorteo<input class="pl-input" type="date" id="srtFecha" value="${esc(c.fecha || '')}"></label>
-        <label>Hora<input class="pl-input" type="time" id="srtHora" value="${esc(c.hora || '20:00')}"></label>
-        <label>Entradas que se sortean<input class="pl-input" type="number" min="1" max="50" id="srtN" value="${esc(c.entradas || 1)}"></label>
-        <label class="srtc-wide">Cómo se hizo el sorteo <small>(se lo enseñamos a quien pregunte)</small><input class="pl-input" id="srtActa" maxlength="200" value="${esc(c.acta || '')}" placeholder="Ej.: sorteo celebrado el 1 de octubre de 2026 con random.org entre los 48 apuntados."></label>
+        <label>Día del sorteo<input class="pl-input" type="date" id="srtFecha" value="${esc(dv('srtFecha', c.fecha || ''))}"></label>
+        <label>Hora<input class="pl-input" type="time" id="srtHora" value="${esc(dv('srtHora', c.hora || '20:00'))}"></label>
+        <label>Entradas que se sortean<input class="pl-input" type="number" min="1" max="50" id="srtN" value="${esc(dv('srtN', c.entradas || 1))}"></label>
+        <label class="srtc-wide">Cómo se hizo el sorteo <small>(se lo enseñamos a quien pregunte)</small><input class="pl-input" id="srtActa" maxlength="200" value="${esc(dv('srtActa', c.acta || ''))}" placeholder="Ej.: sorteo celebrado el 1 de octubre de 2026 con random.org entre los 48 apuntados."></label>
       </div>
       <div class="srtc-cat">
         <b>Premios de este sorteo</b>
@@ -124,7 +133,7 @@
         <div class="srtc-cat-list">${cat().map(x => {
           const d = dados(x.id);
           return `<label class="srtc-cat-row${d > (Number(x.n) || 0) ? ' is-over' : ''}"><span>${esc(x.label)}</span>
-            <input class="pl-input" type="number" min="0" max="99" data-cat="${esc(x.id)}" value="${esc(x.n)}">
+            <input class="pl-input" type="number" min="0" max="99" data-cat="${esc(x.id)}" value="${esc(dv('cat:' + x.id, x.n))}">
             <em>${d} ${d === 1 ? 'asignado' : 'asignados'}</em></label>`; }).join('')}
         </div>
       </div>
@@ -151,13 +160,13 @@
       <div class="srtc-sim">
         <b>🎬 Simulador <small>(solo lo ves tú, no cuenta para nada)</small></b>
         <div class="srtc-sim-row">
-          <label>Premio<select class="pl-input srtc-simsel" id="srtSim">${cat().map(x => `<option value="${esc(x.id)}">${esc(x.label)}</option>`).join('')}<option value="">Sin premio</option></select></label>
-          <label>Tiradas<input class="pl-input" type="number" min="1" max="20" id="srtSimN" value="1"></label>
-          <label>Le toca en la tirada<input class="pl-input" type="number" min="1" max="20" id="srtSimEn" value="1"></label>
+          <label>Premio<select class="pl-input srtc-simsel" id="srtSim">${cat().map(x => `<option value="${esc(x.id)}"${dv('srtSim', '') === x.id ? ' selected' : ''}>${esc(x.label)}</option>`).join('')}<option value=""${'srtSim' in draft && !draft.srtSim ? ' selected' : ''}>Sin premio</option></select></label>
+          <label>Tiradas<input class="pl-input" type="number" min="1" max="20" id="srtSimN" value="${esc(dv('srtSimN', 1))}"></label>
+          <label>Le toca en la tirada<input class="pl-input" type="number" min="1" max="20" id="srtSimEn" value="${esc(dv('srtSimEn', 1))}"></label>
           <button type="button" class="btn btn--ghost btn--sm" data-srt-sim>Simular la ruleta</button>
         </div>
         <div class="srtc-sim-row">
-          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="320">5 min 20 s (con la entrada de la música)</option><option value="75">1 min 15 s</option><option value="20">20 segundos (el final)</option></select></label>
+          <label>La cuenta atrás empieza en<select class="pl-input" id="srtSimT"><option value="320"${dv('srtSimT', '320') === '320' ? ' selected' : ''}>5 min 20 s (con la entrada de la música)</option><option value="75"${dv('srtSimT', '320') === '75' ? ' selected' : ''}>1 min 15 s</option><option value="20"${dv('srtSimT', '320') === '20' ? ' selected' : ''}>20 segundos (el final)</option></select></label>
           <button type="button" class="btn btn--dark btn--sm" data-srt-simcd>Simular la cuenta atrás + ruleta</button>
         </div>
       </div>
@@ -230,9 +239,11 @@
     toast(premio ? `<b>${esc(name(uid))} → ${esc(premioLabel(premio))}</b>Lo verá al abrir su premio.` : `<b>${esc(name(uid))} se queda sin premio</b>`);
   });
   root.addEventListener('input', e => {
+    const x = e.target;
+    if(x.id && /^srt(Fecha|Hora|N|Acta|Sim|SimN|SimEn|SimT)$/.test(x.id)){ draft[x.id] = x.value; return; }
+    if(x.dataset && x.dataset.cat){ draft['cat:' + x.dataset.cat] = x.value; return; }
     if(e.target.id !== 'srtQ') return;
-    q = e.target.value; const pos = e.target.selectionStart; paint();
-    const i = document.getElementById('srtQ'); if(i){ i.focus(); try{ i.setSelectionRange(pos, pos); }catch(_){} }
+    q = e.target.value; paint();
   });
   // quitar a alguien del sorteo: primer toque arma el botón, el segundo (en 4 s) lo borra
   let oyendo = null;
@@ -254,7 +265,8 @@
     if(e.target.closest('[data-srt-nuevo]')){
       if(!confirm('¿Preparar un sorteo nuevo?\n\n· Se descarga en tu ordenador la lista de ganadores del sorteo actual (guárdala: la necesitas para Hacienda y por si alguien reclama).\n· Se borran los premios asignados para empezar de cero.\n· Los apuntados siguen dentro con sus tiradas.\n· El nuevo sorteo queda sin publicar hasta que lo publiques.')) return;
       const filas = [['nombre', 'email', 'telefono', 'premio', 'tirada', 'fecha_sorteo']].concat([...ganadores.entries()].map(([uid, p]) => [name(uid), cli(uid).email || '', cli(uid).telefono || '', premioLabel(p) || p, tirs.get(uid) || '', (cfg || {}).fecha || '']));
-      const csv = '﻿' + filas.map(f => f.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+      const celda = v => { let s = String(v == null ? '' : v); if(/^[=@\t\r]/.test(s) || (/^[+\-]/.test(s) && !/^[+\-]?[\d\s().,-]+$/.test(s))) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
+      const csv = '﻿' + filas.map(f => f.map(celda).join(';')).join('\n');
       const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
       a.download = `ganadores-sorteo-${(cfg || {}).fecha || 'sin-fecha'}.csv`; document.body.appendChild(a); a.click(); a.remove();
       const { error } = await IB.sb.from('sorteo_ganadores').delete().not('user_id', 'is', null);
@@ -264,7 +276,8 @@
     }
     if(e.target.closest('[data-srt-cfg]')){
       const g = id => (document.getElementById(id) || {}).value;
-      const premios = cat().map(x => ({ ...x, n: Number((document.querySelector(`[data-cat="${x.id}"]`) || {}).value) || 0 })).filter(x => x.n > 0);
+      const premios = cat().map(x => ({ ...x, n: Math.max(0, Number((document.querySelector(`[data-cat="${x.id}"]`) || {}).value) || 0) }));
+      if(!premios.some(x => x.n > 0)) return alert('Pon al menos un premio con cantidad.');
       return saveCfg({ fecha: g('srtFecha') || null, hora: g('srtHora') || '20:00', entradas: Number(g('srtN')) || 1, acta: (g('srtActa') || '').trim() || null, premios }, 'Configuración guardada');
     }
     const simRuleta = () => {
@@ -293,6 +306,7 @@
     if(armed !== uid){ armed = uid; paint(); clearTimeout(armT); armT = setTimeout(() => { armed = null; paint(); }, 4000); return; }
     armed = null; clearTimeout(armT); busy.add(uid); paint();
     const { error } = await IB.sb.from('sorteo_inscritos').delete().eq('user_id', uid);
+    if(!error && ganadores.has(uid)){ const g = await IB.sb.from('sorteo_ganadores').delete().eq('user_id', uid); if(!g.error){ ganadores.delete(uid); tirs.delete(uid); } }
     busy.delete(uid);
     if(error){ paint(); return alert('No se pudo quitar: ' + error.message + '\n\n¿Has ejecutado supabase/sql/sorteo-baja.sql?'); }
     const n = name(uid); rows = rows.filter(r => r.user_id !== uid); paint();

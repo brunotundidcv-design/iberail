@@ -34,12 +34,16 @@
   const seenKey = () => 'ib-bell-seen-' + (user ? user.id : '');
   const getSeen = () => { try{ return Number(localStorage.getItem(seenKey())) || (Date.now() - 7 * 864e5); }catch(e){ return Date.now() - 7 * 864e5; } };
   const setSeen = t => { try{ localStorage.setItem(seenKey(), String(t)); }catch(e){} };
+  const readKey = () => 'ib-bell-read-' + (user ? user.id : '');
+  const getRead = () => { try{ return new Set(JSON.parse(localStorage.getItem(readKey()) || '[]')); }catch(e){ return new Set(); } };
+  const addRead = id => { try{ const s = [...getRead()].filter(x => x !== id); s.push(id); localStorage.setItem(readKey(), JSON.stringify(s.slice(-200))); }catch(e){} };
 
   /* ---------- conexión: solo se carga la librería si hay sesión guardada ---------- */
   function ensureClient(){
+    if(IB.ensureSb) return IB.ensureSb();   // el mismo cliente que el resto de la página (app.js)
     if(IB.sb) return Promise.resolve(IB.sb);
     return new Promise(res => {
-      const go = () => { try{ IB.sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } }); }catch(e){ IB.sb = null; } res(IB.sb); };
+      const go = () => { try{ IB.sb = IB.sb || window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true } }); }catch(e){ IB.sb = null; } res(IB.sb); };
       if(window.supabase && window.supabase.createClient) return go();
       const s = document.createElement('script'); s.src = SUPA; s.async = true; s.onload = go; s.onerror = () => res(null);
       document.head.appendChild(s);
@@ -111,8 +115,8 @@
   async function load(){
     if(!user || !IB.sb) return;
     const list = admin ? await loadAdmin() : await loadClient();
-    const seen = getSeen();
-    items = list.filter(x => x.t).map(x => ({ ...x, unread: x.k === 'aviso' ? x.unread : new Date(x.t).getTime() > seen }))
+    const seen = getSeen(), leidos = getRead();
+    items = list.filter(x => x.t).map(x => ({ ...x, unread: x.k === 'aviso' ? x.unread : new Date(x.t).getTime() > seen && !leidos.has(x.id) }))
       .sort((a, b) => new Date(b.t) - new Date(a.t)).slice(0, 30);
     ready = true;
     paintBadge(); if(openState) paint();
@@ -163,7 +167,7 @@
       const f = t.closest('[data-bf]'); if(f){ filter = f.dataset.bf; paint(); return; }
       if(t.closest('[data-bell-all]')) return markAll();
       const it = t.closest('[data-bi]');
-      if(it){ const x = items.find(y => y.id === it.dataset.bi); if(x && x.k !== 'aviso'){ x.unread = false; paintBadge(); } }
+      if(it){ const x = items.find(y => y.id === it.dataset.bi); if(x && x.k !== 'aviso'){ x.unread = false; addRead(x.id); paintBadge(); } }
     });
   }
   function paint(){
@@ -196,6 +200,7 @@
   }
   async function markAll(){
     setSeen(Date.now());
+    try{ localStorage.removeItem(readKey()); }catch(e){}
     const pend = items.filter(x => x.k === 'aviso' && x.unread);
     items.forEach(x => x.unread = false);
     paintBadge(); paint();
@@ -218,9 +223,8 @@
   document.addEventListener('ib:aviso-leido', queue);
 
   /* ---------- arranque ---------- */
-  (async function(){
-    btn.hidden = true;
-    if(!IB.storedUser()) return;
+  let escuchando = false;
+  async function arrancar(){
     const sb = await ensureClient(); if(!sb) return;
     try{ const { data } = await sb.auth.getSession(); user = data && data.session ? data.session.user : null; }catch(e){ user = null; }
     if(!user) return;
@@ -228,6 +232,18 @@
     btn.hidden = false;
     try{ const { data } = await sb.rpc('is_admin'); admin = !!data; }catch(e){ admin = false; }
     load();
-    sb.auth.onAuthStateChange((ev, sess) => { if(ev === 'SIGNED_OUT' || !sess){ user = null; items = []; btn.hidden = true; toggle(false); if(chan){ sb.removeChannel(chan); chan = null; } } });
+  }
+  function escuchar(sb){
+    if(escuchando || !sb) return; escuchando = true;
+    sb.auth.onAuthStateChange((ev, sess) => {
+      if(ev === 'SIGNED_OUT' || !sess){ user = null; items = []; btn.hidden = true; toggle(false); if(chan){ sb.removeChannel(chan); chan = null; } return; }
+      if(ev === 'SIGNED_IN' && (!user || user.id !== sess.user.id)){ user = null; items = []; arrancar(); }
+    });
+  }
+  (async function(){
+    btn.hidden = true;
+    if(!IB.storedUser()){ if(IB.sb) escuchar(IB.sb); return; }   // sin sesión: solo se escucha si la página ya tiene Supabase (cuenta, grupos…)
+    await arrancar();
+    escuchar(IB.sb);
   })();
 })();

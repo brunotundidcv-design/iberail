@@ -80,6 +80,8 @@ type Correo = {
   datos?: [string, string][];                           // tabla de datos (importe, pagado…)
   progreso?: { pct: number; texto: string };
   lista?: string[];                                     // checklist
+  cierre?: string[];                                    // párrafos después de la tabla de datos (HTML sencillo, ya escapado)
+  firma?: string;                                       // firma propia (correo a un cliente); si no, «El equipo de …»
   publicidad?: boolean; baja?: string;
   marca?: string;                                       // 'iberail' (por defecto) o 'zarping'
 };
@@ -158,10 +160,10 @@ function plantilla(c: Correo) {
     </td></tr>
     <!-- cuerpo -->
     <tr><td style="padding:32px 36px 8px" class="pad">${c.parrafos.map(P).join('')}</td></tr>
-    ${billete}${datos}${progreso}${lista}${boton}
+    ${billete}${datos}${c.cierre && c.cierre.length ? `<tr><td style="padding:18px 36px 0" class="pad">${c.cierre.map(P).join('')}</td></tr>` : ''}${progreso}${lista}${boton}
     <tr><td style="padding:26px 36px 32px" class="pad">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-top:1px solid #E5DAC6"><tr>
-        <td style="padding-top:18px;font-family:${F_BODY};font-size:14px;line-height:1.5;color:#6E5D50">¿Dudas? Escríbenos por <a href="${WA}" style="color:${B.acc};font-weight:700;text-decoration:none">WhatsApp</a>, estamos 24 h.<br>Un abrazo,<br><b style="color:#1F120E">El equipo de ${B.nombre}</b></td>
+        <td style="padding-top:18px;font-family:${F_BODY};font-size:14px;line-height:1.5;color:#6E5D50">¿Dudas? Escríbenos por <a href="${WA}" style="color:${B.acc};font-weight:700;text-decoration:none">WhatsApp</a>, estamos 24 h.<br>Un abrazo,<br>${c.firma ? `<b style="color:#1F120E">${esc(c.firma).replace(/\n/g, '<br>')}</b>` : `<b style="color:#1F120E">El equipo de ${B.nombre}</b>`}</td>
       </tr></table>
     </td></tr>
     <!-- pie -->
@@ -178,8 +180,8 @@ function plantilla(c: Correo) {
 function texto(c: Correo) {
   const strip = (h: string) => h.replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
   return [c.titulo + (c.acento ? ' ' + c.acento : ''), '', ...c.parrafos.map(strip),
-    ...(c.datos || []).map(([k, v]) => `${k}: ${v}`), ...(c.lista || []).map(l => '- ' + strip(l)),
-    c.boton ? `\n${c.boton.texto}: ${c.boton.url}` : '', '', `— El equipo de ${(BR[c.marca || 'iberail'] || BR.iberail).nombre} · ${(BR[c.marca || 'iberail'] || BR.iberail).web}`,
+    ...(c.datos || []).map(([k, v]) => `${k}: ${v}`), ...(c.cierre || []).map(strip), ...(c.lista || []).map(l => '- ' + strip(l)),
+    c.boton ? `\n${c.boton.texto}: ${c.boton.url}` : '', '', c.firma ? `— ${c.firma}` : `— El equipo de ${(BR[c.marca || 'iberail'] || BR.iberail).nombre} · ${(BR[c.marca || 'iberail'] || BR.iberail).web}`,
     c.publicidad && c.baja ? `Darte de baja: ${c.baja}` : ''].join('\n');
 }
 
@@ -298,6 +300,17 @@ const C = {
     lista: ['<b>DNI o pasaporte</b> en vigor', '<b>Tarjeta Sanitaria Europea</b> (es gratis) y el seguro de viaje', '<b>App Rail Planner</b> con tu pase Interrail activado', 'Billetes y reservas descargados desde <b>tu grupo en iberail.com</b>', 'Batería externa y un candado para las taquillas del hostal'],
     boton: { texto: 'Ver mi grupo y mis billetes', url: `${SITE}/grupos.html#grupo-${x.gid}` }
   }),
+  manual: (x: any): Correo => {
+    const parr = (s: string) => String(s || '').split(/\n\s*\n/).map(p => esc(p.trim()).replace(/\n/g, '<br>').replace(/\*(.+?)\*/g, '<b>$1</b>')).filter(Boolean);
+    const datos = String(x.datos || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => { const i = l.indexOf(':'); return (i > 0 ? [l.slice(0, i).trim(), l.slice(i + 1).trim()] : [l, '']) as [string, string]; });
+    return {
+      marca: x.marca, asunto: String(x.asunto || ''), previa: String(x.texto || '').split('\n')[0].slice(0, 110),
+      etiqueta: String(x.etiqueta || '').trim() || (BR[x.marca || 'iberail'] || BR.iberail).nombre, titulo: String(x.titulo || ''), acento: String(x.acento || '').trim() || undefined,
+      parrafos: parr(x.texto), datos: datos.length ? datos : undefined, cierre: parr(x.cierre),
+      boton: x.boton_texto && x.boton_url ? { texto: String(x.boton_texto), url: String(x.boton_url) } : undefined,
+      firma: String(x.firma || '').trim().slice(0, 300) || undefined
+    };
+  },
   campana: (x: { asunto: string; titulo: string; texto: string; boton_texto?: string; boton_url?: string; nombre?: string; baja?: string; marca?: string }): Correo => ({
     marca: x.marca, asunto: x.asunto, previa: String(x.texto || '').split('\n')[0].slice(0, 110),
     etiqueta: `Novedades ${(BR[x.marca || 'iberail'] || BR.iberail).nombre}`, titulo: x.nombre ? `${pila(x.nombre)},` : '', acento: x.nombre ? x.titulo.charAt(0).toLowerCase() + x.titulo.slice(1) : x.titulo,
@@ -428,6 +441,21 @@ async function audiencia(marca = 'iberail') {
   for (const r of rs || []) { const e = String(r.email || '').trim().toLowerCase(); if (e && /@/.test(e) && !fuera.has(e) && !vistos.has(e)) vistos.set(e, r.nombre || ''); }
   return [...vistos].map(([email, nombre]) => ({ email, nombre }));
 }
+// correo a un cliente escrito desde el panel (o una prueba a quien lo escribe)
+const EMAIL_OK = (e: string) => /^[^\s@<>,;]+@[^\s@<>,;]+\.[a-z]{2,}$/i.test(e);
+async function manual(body: any, yo: any) {
+  const x = { ...body, asunto: String(body.asunto || '').trim().slice(0, 150), titulo: String(body.titulo || '').trim().slice(0, 120), texto: String(body.texto || '').slice(0, 8000),
+    etiqueta: String(body.etiqueta || '').slice(0, 40), acento: String(body.acento || '').slice(0, 80), datos: String(body.datos || '').slice(0, 2000), cierre: String(body.cierre || '').slice(0, 4000),
+    boton_texto: String(body.boton_texto || '').trim().slice(0, 40), boton_url: String(body.boton_url || '').trim(), marca: BR[body.marca] ? body.marca : 'iberail' };
+  if (!x.asunto || !x.titulo || !x.texto.trim()) return { ok: false, error: 'Falta el asunto, el título o el texto.' };
+  if (x.boton_url && !/^https:\/\//.test(x.boton_url)) return { ok: false, error: 'El enlace del botón tiene que empezar por https://' };
+  const para = body.prueba ? String(yo.email || '') : String(body.para || '').trim().toLowerCase();
+  if (!EMAIL_OK(para)) return { ok: false, error: 'El correo de «Para» no es válido.' };
+  const r = await enviar(para, C.manual(x));
+  if (!r.ok) return r;
+  if (!body.prueba) await sb.from('correos_enviados').insert({ clave: `manual:${para}:${Date.now()}:${x.asunto.slice(0, 60)}` }).then(() => {}, () => {});
+  return { ok: true, para };
+}
 async function campana(body: any, yo: any) {
   const x = { asunto: String(body.asunto || '').trim().slice(0, 150), titulo: String(body.titulo || '').trim().slice(0, 120), texto: String(body.texto || '').slice(0, 5000), boton_texto: String(body.boton_texto || '').trim().slice(0, 40), boton_url: String(body.boton_url || '').trim() };
   if (!x.asunto || !x.titulo || !x.texto.trim()) return { ok: false, error: 'Falta el asunto, el título o el texto.' };
@@ -466,7 +494,8 @@ function ejemplo(tipo: string, body: any) {
     recordatorio: () => C.pago_pendiente({ ...m, importe: 1080, pagado: 400, recordatorio: true, salida }),
     pago_recibido: () => C.pago_recibido({ ...m, cantidad: 400, importe: 1080, pagado: 400 }),
     cuenta_atras: () => C.cuenta_atras({ ...m, salida, n: 30 }),
-    campana: () => C.campana({ asunto: body.asunto || 'Asunto', titulo: body.titulo || 'Título de la campaña', texto: body.texto || 'Escribe aquí el texto…', boton_texto: body.boton_texto, boton_url: body.boton_url, nombre: 'Alejandro', baja: '#', marca })
+    campana: () => C.campana({ asunto: body.asunto || 'Asunto', titulo: body.titulo || 'Título de la campaña', texto: body.texto || 'Escribe aquí el texto…', boton_texto: body.boton_texto, boton_url: body.boton_url, nombre: 'Alejandro', baja: '#', marca }),
+    manual: () => C.manual({ ...body, marca, asunto: body.asunto || 'Asunto', titulo: body.titulo || 'Título', texto: body.texto || 'Escribe aquí el texto del correo…' })
   };
   const c = (t[tipo] || t.ruta_recibida)();
   return { asunto: c.asunto, html: plantilla(c) };
@@ -511,6 +540,10 @@ Deno.serve(async (req) => {
     if (body.action === 'ejemplo') return json({ ok: true, ...ejemplo(String(body.tipo || ''), body) });
     if (body.action === 'audiencia') return json({ ok: true, total: (await audiencia(BR[body.marca] ? body.marca : 'iberail')).length });
     if (body.action === 'campana') return json(await campana(body, yo));
+    if (body.action === 'manual') return json(await manual(body, yo));
+    // textos preparados por persona: esta versión no los guarda (el panel lo muestra vacío y se escribe a mano)
+    if (body.action === 'manual_pendientes') return json({ ok: true, pendientes: [] });
+    if (body.action === 'manual_plantilla') return json({ ok: true, plantilla: null });
     return json({ ok: false, error: 'Acción desconocida.' }, 400);
   } catch (e) {
     console.error('correos', e);
