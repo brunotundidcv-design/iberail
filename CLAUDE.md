@@ -164,8 +164,7 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   que marca lo leído. Cabeceras negras y la portada empiezan por detrás (`margin-top:-74px`).
 - **Portada en láminas** a todo el ancho que se montan unas sobre otras (`.sheet--amber/--light/--dark/--red`): Cómo funciona →
   **test** (ámbar) → Destinos (mosaico) → Split + sorteo (negra) → Salidas → Temporada (roja, cuenta atrás LED) → contacto (negra, unida al pie).
-- **Buscador «¿A dónde quieres ir?»** en la cabecera: solo ciudades de `IB_DATA.cities` (sugiere parecidas si no la encuentra),
-  pone tu destino arriba del panel de salidas y abre el planificador con `?add=`. La portada carga `data.js`.
+- ~~Buscador «¿A dónde quieres ir?»~~ (sustituido en la v12.4 por «Toca las ciudades que te apetecen»). La portada carga `data.js`.
 - **Test «¿Qué Interrail va contigo?»** (4 preguntas, `[data-quiz]` en `tema.js`): el resultado es una de las rutas hechas del
   planificador (`IB_DATA.presets`: fiesta, ultra, clásica), con «Abrir esta ruta» → `rutas.html?preset=<id>` (nuevo en `planner.js`)
   y «Compartir» (menú del móvil o copia el enlace).
@@ -186,6 +185,19 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 - **Pie**: la firma de Bruno es una línea discreta (avatar pequeño · «Bruno Tundidor» · «Founder»), sin tarjeta. Se pidió quitar
   «CEO»: pone solo **Founder** (también en el `aria-label` y en el `jobTitle` de los datos estructurados). El bot de WhatsApp
   (`CONOCIMIENTO`) todavía dice «Fundador y CEO».
+
+## v12.4 (10/10/2026): «Toca las ciudades que te apetecen»
+
+- El buscador «¿A dónde quieres ir?» confundía (campo vacío). Ahora, en la cabecera de la portada (`[data-hx-pick]` en `tema.js`):
+  **8 ciudades para tocar** (Ámsterdam, Berlín, Praga, Budapest, Viena, Split, París, Roma) + «+ Otra ciudad» (todas las de
+  `IB_DATA.cities`). El orden en que las tocas es el de la ruta (número en cada una; máx. 8).
+- Debajo se dibuja **tu ruta** con las **horas de tren** entre paradas: mismos datos que el planificador (`IB_DATA.rail`; si no hay
+  tramo conocido, estimación por distancia marcada con «≈»; el primer tramo desde España, en avión). Total de horas y aviso del
+  Ultra si va Split. Las 3 primeras paradas salen arriba del **panel de salidas** como «Tu ruta».
+- **Sorpréndeme**: carga una de las rutas hechas del planificador (`IB_DATA.presets`) parada a parada.
+- **Sales desde** (las 8 ciudades de salida; se recuerda en `ib-hx-desde`, recogido en la política de cookies).
+- «Diseñar esta ruta» → `rutas.html?desde=<ciudad>&ruta=A,B,C` (nuevo en `planner.js`: solo ciudades conocidas, 3 días por
+  parada si son ≤4, si no 2; Split con los días del Ultra).
 
 ## Sorteo discreto (v9.2) y panel de demo
 

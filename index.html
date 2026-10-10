@@ -75,14 +75,28 @@
     <div class="hx-grid">
       <div class="hx-copy">
         <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
-        <form class="hx-search" action="rutas.html" method="get" data-hx-search role="search" autocomplete="off">
-          <label class="sr-only" for="hxQ">¿A dónde quieres ir?</label>
-          <svg class="hx-search-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-          <input id="hxQ" name="add" list="hxCities" maxlength="40" placeholder="¿A dónde quieres ir?" enterkeyhint="go">
-          <datalist id="hxCities"></datalist>
-          <button class="btn btn--primary" type="submit">Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-        </form>
-        <p class="hx-hint" data-hx-hint>Prueba con <button type="button" data-hx-try>Praga</button>, <button type="button" data-hx-try>Split</button> o <button type="button" data-hx-try>Ámsterdam</button>: la añadimos a tu ruta.</p>
+        <div class="hx-pick" data-hx-pick>
+          <div class="hx-pick-top">
+            <p class="hx-pick-k">Toca las ciudades que te apetecen</p>
+            <button type="button" class="hx-dice" data-hx-dice><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="15.5" cy="8.5" r="1.2"/><circle cx="8.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg>Sorpréndeme</button>
+          </div>
+          <div class="hx-chips" data-hx-chips role="group" aria-label="Ciudades para tu ruta">
+            <button type="button" class="hx-chip" data-c="Ámsterdam" aria-pressed="false">Ámsterdam</button>
+            <button type="button" class="hx-chip" data-c="Berlín" aria-pressed="false">Berlín</button>
+            <button type="button" class="hx-chip" data-c="Praga" aria-pressed="false">Praga</button>
+            <button type="button" class="hx-chip" data-c="Budapest" aria-pressed="false">Budapest</button>
+            <button type="button" class="hx-chip" data-c="Viena" aria-pressed="false">Viena</button>
+            <button type="button" class="hx-chip" data-c="Split" aria-pressed="false">Split</button>
+            <button type="button" class="hx-chip" data-c="París" aria-pressed="false">París</button>
+            <button type="button" class="hx-chip" data-c="Roma" aria-pressed="false">Roma</button>
+            <label class="hx-more"><span class="sr-only">Añadir otra ciudad</span><select data-hx-more><option value="">+ Otra ciudad</option></select></label>
+          </div>
+          <div class="hx-route" data-hx-route aria-live="polite"></div>
+          <div class="hx-pick-go">
+            <label class="hx-from"><span>Sales desde</span><select data-hx-from><option>Madrid</option></select></label>
+            <a class="btn btn--primary" href="rutas.html" data-hx-go>Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
         <a class="hx-link" href="#test">¿No sabes a dónde ir? <b>Haz el test en 1 minuto</b> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
       <div class="board" data-board aria-label="Panel de salidas de ejemplo con destinos de Interrail">

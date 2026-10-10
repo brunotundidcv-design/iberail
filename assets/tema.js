@@ -170,60 +170,115 @@
       }, 3800);
     }
     return {
-      // tu destino, fijo arriba del todo
-      fija: function(ciudad){
-        if(!ciudad){ if(mia){ mia.remove(); mia = null; lista.appendChild(fila(0)); } return; }
-        var nueva = !mia;
-        if(nueva){
-          mia = document.createElement('li'); mia.className = 'is-mine';
-          lista.insertBefore(mia, lista.firstChild);
+      // tus paradas, fijas arriba del todo (como mucho 3; el resto del panel sigue moviéndose debajo)
+      fija: function(paradas){
+        paradas = (paradas || []).slice(0, 3);
+        var mias = [].slice.call(lista.querySelectorAll('li.is-mine'));
+        while(mias.length > paradas.length){ mias.pop().remove(); lista.appendChild(fila(0)); }
+        while(mias.length < paradas.length){
+          var li = document.createElement('li'); li.className = 'is-mine';
+          var ult = mias[mias.length - 1];
+          lista.insertBefore(li, ult ? ult.nextSibling : lista.firstChild);
           var sobra = lista.querySelector('li:not(.is-mine):last-child'); if(sobra) sobra.remove();
+          mias.push(li);
         }
-        if(mia.dataset.c === ciudad) return;
-        mia.dataset.c = ciudad;
-        rellena(mia, hhmm(5), ciudad, 'Interrail', '1', 'Tu ruta', 0);
+        mias.forEach(function(li, n){
+          var c = paradas[n];
+          if(li.dataset.c === c) return;
+          li.dataset.c = c;
+          rellena(li, hhmm(5 + n * 2), c, 'Interrail', String(n + 1), 'Tu ruta', n * 90);
+        });
       }
     };
   }
 
-  /* ---------- «¿A dónde quieres ir?» ---------- */
+  /* ---------- «Toca las ciudades que te apetecen»: tu ruta en la portada ---------- */
   var D = window.IB_DATA || null;
-  var buscador = document.querySelector('[data-hx-search]');
-  if(buscador && D && D.cities){
-    var campo = buscador.querySelector('input'), dl = buscador.querySelector('datalist'), pista = document.querySelector('[data-hx-hint]');
-    var ciudades = D.cities.map(function(c){ return c.n; });
-    dl.innerHTML = ciudades.map(function(n){ return '<option value="' + esc(n) + '">'; }).join('');
-    var busca = function(v){ var q = norm(v); if(!q) return null; for(var j = 0; j < ciudades.length; j++) if(norm(ciudades[j]) === q) return ciudades[j]; return null; };
-    var pistaBase = pista ? pista.innerHTML : '';
-    campo.addEventListener('input', function(){
-      var c = busca(campo.value);
-      if(panel) panel.fija(c);
-      buscador.classList.toggle('is-ok', !!c);
-      if(pista && pista.classList.contains('is-err')){ pista.classList.remove('is-err'); pista.innerHTML = pistaBase; enganchaPruebas(); }
-    });
-    buscador.addEventListener('submit', function(e){
-      var v = campo.value.trim();
-      if(!v){ e.preventDefault(); location.href = 'rutas.html'; return; }
-      var c = busca(v);
-      if(c){ campo.value = c; return; }
-      e.preventDefault();
-      // empieza igual (p. ej. «pra» → Praga)
-      var q = norm(v), parecidas = ciudades.filter(function(n){ return norm(n).indexOf(q) === 0 || norm(n).indexOf(q) > 0; }).slice(0, 3);
-      if(pista){
-        pista.classList.add('is-err');
-        pista.innerHTML = parecidas.length
-          ? '¿Querías decir ' + parecidas.map(function(n){ return '<button type="button" data-hx-try>' + esc(n) + '</button>'; }).join(', ') + '?'
-          : 'Esa no la tenemos en la lista, pero escríbenos por WhatsApp y la vemos. O prueba con <button type="button" data-hx-try>Praga</button> o <button type="button" data-hx-try>Split</button>.';
-        enganchaPruebas();
-      }
-    });
-    var enganchaPruebas = function(){
-      if(!pista) return;
-      [].forEach.call(pista.querySelectorAll('[data-hx-try]'), function(b){
-        b.onclick = function(){ campo.value = b.textContent; campo.dispatchEvent(new Event('input')); campo.focus(); };
-      });
+  var pick = document.querySelector('[data-hx-pick]');
+  if(pick && D && D.cities){
+    var chipsBox = pick.querySelector('[data-hx-chips]'), mas = pick.querySelector('[data-hx-more]'), desde = pick.querySelector('[data-hx-from]');
+    var rutaBox = pick.querySelector('[data-hx-route]'), ir = pick.querySelector('[data-hx-go]'), dado = pick.querySelector('[data-hx-dice]');
+    var porNombre = {}; D.cities.forEach(function(c){ porNombre[c.n] = c; });
+    var MAX = 8, sel = [];
+    // tramos: los mismos datos que el planificador (horas conocidas; si no, estimación por distancia, con «≈»)
+    var VEL = { oeste: 120, med: 100, centro: 90, norte: 90, balticos: 55, balcanes: 50 }, LENTO = { 'atenas': 50, 'salonica': 50, 'estambul': 45, 'dublin': 50 };
+    var SIN_TREN = {}; (D.noRail || []).forEach(function(n){ SIN_TREN[norm(n)] = 1; });
+    var TREN = {}; (D.rail || []).forEach(function(r){ TREN[norm(r[0]) + '|' + norm(r[1])] = TREN[norm(r[1]) + '|' + norm(r[0])] = { h: r[2], noche: !!r[4], ok: true }; });
+    var kmEntre = function(a, b){ var R = 6371, g = Math.PI / 180, dLa = (b.lat - a.lat) * g, dLo = (b.lon - a.lon) * g;
+      var h = Math.pow(Math.sin(dLa / 2), 2) + Math.cos(a.lat * g) * Math.cos(b.lat * g) * Math.pow(Math.sin(dLo / 2), 2); return 2 * R * Math.asin(Math.sqrt(h)); };
+    var tramo = function(x, y){
+      var k = TREN[norm(x) + '|' + norm(y)]; if(k) return k;
+      var a = porNombre[x], b = porNombre[y]; if(!a || !b) return null;
+      var bus = SIN_TREN[norm(x)] || SIN_TREN[norm(y)];
+      var va = LENTO[norm(a.n)] || VEL[a.r] || 80, vb = LENTO[norm(b.n)] || VEL[b.r] || 80;
+      return { h: kmEntre(a, b) * 1.2 / (bus ? 60 : (va + vb) / 2) + 1, bus: !!bus, ok: false };
     };
-    enganchaPruebas();
+    var horas = function(t){ var h = t.h; var s = h < 1 ? Math.round(h * 60) + ' min' : (Math.round(h * 2) / 2 + ' h').replace('.5', ',5'); return (t.ok ? '' : '≈') + s; };
+    var ICON_AVION = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 21l1.5-6.5L5 12l-2 1-1-1 4-3 7.5.5L17 4a1.5 1.5 0 012 2l-5.5 3.5.5 7.5-3 4-1-1 1-2-2.5-7z"/></svg>';
+
+    // ciudades de salida y «+ Otra ciudad»
+    desde.innerHTML = (D.origins || []).map(function(o){ return '<option>' + esc(o.n) + '</option>'; }).join('');
+    var desdeGuardado = lee('ib-hx-desde'); if(desdeGuardado && (D.origins || []).some(function(o){ return o.n === desdeGuardado; })) desde.value = desdeGuardado;
+    var enChips = function(){ return [].map.call(chipsBox.querySelectorAll('.hx-chip'), function(b){ return b.dataset.c; }); };
+    var pintaMas = function(){
+      var ya = enChips();
+      mas.innerHTML = '<option value="">+ Otra ciudad</option>' + D.cities.filter(function(c){ return ya.indexOf(c.n) < 0; })
+        .map(function(c){ return '<option>' + esc(c.n) + '</option>'; }).join('');
+    };
+    var chipDe = function(n){
+      var b = chipsBox.querySelector('.hx-chip[data-c="' + n.replace(/"/g, '') + '"]');
+      if(b) return b;
+      b = document.createElement('button'); b.type = 'button'; b.className = 'hx-chip is-extra'; b.dataset.c = n; b.textContent = n; b.setAttribute('aria-pressed', 'false');
+      chipsBox.insertBefore(b, mas.parentNode);
+      return b;
+    };
+    function pinta(){
+      [].forEach.call(chipsBox.querySelectorAll('.hx-chip'), function(b){
+        var i = sel.indexOf(b.dataset.c);
+        b.setAttribute('aria-pressed', String(i >= 0));
+        b.dataset.n = i >= 0 ? i + 1 : '';
+      });
+      var origen = desde.value;
+      if(!sel.length){
+        rutaBox.innerHTML = '<div class="hx-rt is-empty"><span class="hx-st is-o"><i></i>' + esc(origen) + '</span><span class="hx-lg"></span><span class="hx-st is-ghost"><i></i>¿…?</span></div>' +
+          '<p class="hx-sum">Elige una o varias: el orden en que las tocas es el de tu ruta.</p>';
+      } else {
+        var total = 0, aprox = false, html = '<div class="hx-rt"><span class="hx-st is-o"><i></i>' + esc(origen) + '</span><span class="hx-lg is-air" title="El primer tramo, desde España, suele ser en avión">' + ICON_AVION + '</span>';
+        sel.forEach(function(n, k){
+          if(k){ var t = tramo(sel[k - 1], n); if(t){ total += t.h; if(!t.ok) aprox = true; } html += '<span class="hx-lg">' + (t ? '<b>' + horas(t) + (t.bus ? ' bus' : '') + '</b>' : '') + '</span>'; }
+          html += '<span class="hx-st' + (norm(n) === 'split' ? ' is-split' : '') + '"><i></i>' + esc(n) + '</span>';
+        });
+        html += '</div>';
+        var resumen = sel.length + (sel.length === 1 ? ' parada' : ' paradas');
+        if(sel.length > 1) resumen += ' · ' + (aprox ? 'unas ' : '') + horas({ h: total, ok: true }) + ' de tren en total';
+        if(sel.indexOf('Split') >= 0) resumen += ' · Ultra Europe: 9–11 jul';
+        rutaBox.innerHTML = html + '<p class="hx-sum">' + esc(resumen) + '</p>';
+      }
+      var q = 'desde=' + encodeURIComponent(origen) + (sel.length ? '&ruta=' + encodeURIComponent(sel.join(',')) : '');
+      ir.href = 'rutas.html?' + q;
+      ir.firstChild.nodeValue = sel.length ? 'Diseñar esta ruta ' : 'Diseñar mi ruta ';
+      pick.classList.toggle('has-sel', sel.length > 0);
+      if(panel) panel.fija(sel);
+    }
+    var alterna = function(n){
+      var i = sel.indexOf(n);
+      if(i >= 0) sel.splice(i, 1);
+      else if(sel.length < MAX){ sel.push(n); chipDe(n); }
+      pinta();
+    };
+    chipsBox.addEventListener('click', function(e){ var b = e.target.closest('.hx-chip'); if(b) alterna(b.dataset.c); });
+    mas.addEventListener('change', function(){ if(mas.value){ alterna(mas.value); pintaMas(); mas.value = ''; } });
+    desde.addEventListener('change', function(){ guarda('ib-hx-desde', desde.value); pinta(); });
+    // «Sorpréndeme»: una de las rutas hechas del planificador, parada a parada
+    var ultimo = -1;
+    dado.addEventListener('click', function(){
+      var P = (D.presets || []).filter(function(p){ return p.stops && p.stops.length; }); if(!P.length) return;
+      var k; do{ k = Math.floor(Math.random() * P.length); }while(P.length > 1 && k === ultimo); ultimo = k;
+      var paradas = P[k].stops.map(function(s){ return s.n; }).filter(function(n){ return porNombre[n]; }).slice(0, MAX);
+      sel = []; pinta(); dado.disabled = true; dado.classList.add('is-rolling');
+      paradas.forEach(function(n, j){ setTimeout(function(){ sel.push(n); chipDe(n); pinta(); if(j === paradas.length - 1){ dado.disabled = false; dado.classList.remove('is-rolling'); pintaMas(); } }, quieto ? 0 : 160 * (j + 1)); });
+    });
+    pintaMas(); pinta();
   }
 
   /* ---------- test «¿Qué Interrail va contigo?» ---------- */

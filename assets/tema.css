@@ -533,16 +533,6 @@ html.tx-hdr-off .filters{top:8px}
 .sheet--red .btn--ghost-light:hover{background:#fff;color:var(--coral-d)}
 
 /* ---------- buscador de la cabecera ---------- */
-.hx-search{position:relative;display:flex;align-items:center;gap:8px;margin-top:28px;padding:7px;max-width:560px;border-radius:20px;background:#fff;box-shadow:0 20px 50px -24px rgba(255,184,28,.45),0 0 0 1px rgba(255,255,255,.1)}
-.hx-search-ic{flex-shrink:0;width:22px;height:22px;margin-left:12px;fill:none;stroke:var(--coral);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
-.hx-search.is-ok .hx-search-ic{transform:translateY(-3px) scale(1.12);stroke:#1F9D57}
-.hx-search input{flex:1;min-width:0;height:48px;border:0!important;background:transparent;padding:0 6px;font-family:var(--body);font-size:1.08rem;font-weight:600;color:var(--ink);outline:none}
-.hx-search input::placeholder{color:#6A6964;font-weight:500}
-.hx-search .btn{flex-shrink:0;min-height:48px}
-.hx-search:focus-within{box-shadow:0 0 0 3px var(--amber),0 20px 50px -24px rgba(255,184,28,.6)}
-.hx-hint{margin-top:12px;font-size:.92rem;color:#A9A8A2}
-.hx-hint button{border:0;padding:0;background:none;font:inherit;font-weight:700;color:var(--amber);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.hx-hint.is-err{color:#FFB4A9}
 .hx .hero-actions{margin-top:22px}
 .hx .hero-actions .btn{min-height:44px;font-size:.9rem}
 .board-rows li.is-mine{background:rgba(255,184,28,.1);box-shadow:inset 3px 0 0 var(--amber)}
@@ -633,9 +623,6 @@ html.tx-hdr-off .filters{top:8px}
   .page-head{padding-top:calc(70px + 36px)}
   .mobile-menu{top:78px;height:calc(100dvh - 88px)}
   .filters{top:78px}
-  .hx-search{flex-wrap:wrap;padding:6px;border-radius:18px}
-  .hx-search input{flex:1 1 60%}
-  .hx-search .btn{flex:1 1 100%}
   .sheet{margin-top:-32px;padding-block:calc(32px + 52px) 64px;border-radius:30px 30px 0 0}
   .quiz-card{min-height:0;border-radius:22px}
   .dest-grid.is-board .ticket-body{grid-template-columns:36px minmax(0,1fr);grid-template-areas:"flag name" "flag city";padding:12px}
@@ -751,3 +738,64 @@ html,body{overflow-x:clip}
 .footer-ceo-t em{display:none}
 .footer-ceo:hover .footer-ceo-t b{color:var(--amber)}
 @media (max-width:420px){.footer-ceo{width:auto;padding:0}.footer-ceo-t b{font-size:.92rem}}
+
+
+/* =========================================================
+   v12.4 — «Toca las ciudades que te apetecen» (sustituye al buscador)
+   ========================================================= */
+.hx-pick{margin-top:26px;max-width:620px;padding:18px;border-radius:24px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1)}
+.hx-pick-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.hx-pick-k{margin:0;font-weight:700;font-size:1.02rem;color:var(--on-dark)}
+.hx-dice{flex-shrink:0;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,184,28,.4);background:rgba(255,184,28,.1);color:var(--amber);font:700 .86rem var(--body);cursor:pointer;transition:background-color .2s}
+.hx-dice:hover{background:rgba(255,184,28,.2)}
+.hx-dice svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.hx-dice svg circle{fill:currentColor;stroke:none}
+.hx-dice.is-rolling svg{animation:txDado .45s linear infinite}
+@keyframes txDado{to{transform:rotate(360deg)}}
+.hx-chips{display:flex;flex-wrap:wrap;gap:8px}
+.hx-chip{position:relative;min-height:40px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.04);color:var(--on-dark);font:600 .95rem var(--body);cursor:pointer;transition:background-color .2s,border-color .2s,color .2s,padding .2s var(--ease),transform .15s}
+.hx-chip:hover{border-color:var(--amber)}
+.hx-chip:active{transform:scale(.96)}
+.hx-chip[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--ink);padding-left:36px}
+.hx-chip[aria-pressed="true"]::before{content:attr(data-n);position:absolute;left:6px;top:50%;width:24px;height:24px;margin-top:-12px;display:grid;place-items:center;border-radius:50%;background:var(--ink);color:var(--amber);font-size:.74rem;font-weight:800}
+.hx-more select,.hx-from select{appearance:none;-webkit-appearance:none;min-height:40px;font:600 .95rem var(--body);cursor:pointer}
+.hx-more select{padding:0 32px 0 15px;border-radius:999px!important;border:1px dashed rgba(255,255,255,.3);background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFB81C' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;color:#C9C8C2}
+.hx-more select:hover{border-color:var(--amber);color:var(--on-dark)}
+.hx-more option,.hx-from option{color:#0E0E0E;background:#fff}
+.hx-route{margin-top:16px;padding:14px 16px 12px;border-radius:16px;background:#050505;border:1px solid #1f1f1f;background-image:radial-gradient(rgba(255,255,255,.04) .8px,transparent 1.1px);background-size:5px 5px}
+.hx-rt{display:flex;flex-wrap:wrap;align-items:center;row-gap:12px}
+.hx-st{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:#FFF3D6;white-space:nowrap;animation:txIn .35s var(--ease) both}
+.hx-st i{width:11px;height:11px;flex-shrink:0;border-radius:50%;border:2px solid var(--amber);background:#050505}
+.hx-st.is-o{color:#C9C8C2}
+.hx-st.is-o i{background:var(--coral);border-color:var(--coral)}
+.hx-st.is-split i{background:var(--amber)}
+.hx-st.is-ghost{color:#6f6e69;animation:none}
+.hx-st.is-ghost i{border-style:dashed;border-color:#555}
+.hx-lg{position:relative;flex:1 0 36px;min-width:36px;max-width:120px;height:20px;margin:0 8px;display:flex;align-items:center;justify-content:center}
+.hx-lg::before{content:"";position:absolute;left:0;right:0;top:50%;height:7px;margin-top:-3.5px;opacity:.6;
+  background:linear-gradient(var(--amber),var(--amber)) 0 0/100% 1.5px no-repeat,linear-gradient(var(--amber),var(--amber)) 0 100%/100% 1.5px no-repeat,repeating-linear-gradient(90deg,rgba(255,184,28,.8) 0 2px,transparent 2px 7px)}
+.hx-lg b{position:relative;padding:1px 6px;border-radius:6px;background:#050505;color:var(--amber);font-size:.74rem;font-weight:800;white-space:nowrap}
+.hx-lg.is-air::before{height:0;margin-top:0;opacity:1;background:none;border-top:1.5px dashed rgba(255,255,255,.3)}
+.hx-lg.is-air svg{position:relative;width:18px;height:18px;padding:0 4px;box-sizing:content-box;fill:#C9C8C2;background:#050505}
+.rt-empty,.hx-rt.is-empty .hx-lg::before{opacity:.25}
+.hx-sum{margin:10px 0 0;font-size:.86rem;color:#A9A8A2}
+.hx-pick-go{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:14px}
+.hx-from{display:inline-flex;align-items:center;gap:8px;color:#A9A8A2;font-size:.9rem;font-weight:600}
+.hx-from select{padding:0 32px 0 12px;border-radius:12px!important;border:1px solid rgba(255,255,255,.2);background:#141414 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFB81C' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 10px center/14px no-repeat;color:var(--on-dark);font-weight:700}
+.hx-pick.has-sel .hx-pick-go .btn--primary{box-shadow:0 0 0 4px rgba(255,184,28,.22),0 16px 30px -14px rgba(255,184,28,.95)}
+.hx-link{margin-top:18px}
+@media (max-width:560px){
+  .hx-pick{margin-top:22px;padding:14px;border-radius:20px}
+  .hx-pick-top{flex-wrap:wrap}
+  .hx-chip,.hx-more select{min-height:38px;font-size:.9rem}
+  .hx-chip{padding:0 13px}
+  .hx-chip[aria-pressed="true"]{padding-left:34px}
+  .hx-route{padding:12px}
+  .hx-lg{margin:0 5px;max-width:84px}
+  .hx-pick-go .btn{flex:1 1 100%}
+  .hx-from{flex:1 1 100%;justify-content:space-between}
+  .hx-from select{flex:1;max-width:60%}
+}
+.hx-lg::before{height:0;margin-top:-1px;opacity:1;background:none;border-top:2px dotted rgba(255,184,28,.55)}
+.hx-rt.is-empty .hx-lg::before{border-top-color:rgba(255,255,255,.2)}
+.hx-st.is-ghost{color:#9A9993}

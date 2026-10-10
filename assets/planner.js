@@ -1161,13 +1161,27 @@
   const IB_ICON_CHAT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg>';
 
   const hadDraft = loadDraft();
-  let add = '', presetId = '';
-  try{ const qs = new URLSearchParams(location.search); add = (qs.get('add') || '').slice(0, 50); presetId = (qs.get('preset') || '').slice(0, 20); }catch(e){}
+  let add = '', presetId = '', rutaQ = [], desdeQ = '';
+  try{
+    const qs = new URLSearchParams(location.search);
+    add = (qs.get('add') || '').slice(0, 50); presetId = (qs.get('preset') || '').slice(0, 20);
+    rutaQ = (qs.get('ruta') || '').split(',').map(s => s.trim()).filter(Boolean).slice(0, 12);
+    desdeQ = (qs.get('desde') || '').slice(0, 40);
+  }catch(e){}
   // ?preset=id abre una de las rutas hechas (la usa el test de la portada)
   const fromUrl = presetId ? D.presets.find(p => p.id === presetId) : null;
   if(fromUrl) loadPreset(fromUrl);
+  // ?ruta=Praga,Split&desde=Barcelona: la ruta que se monta en la portada tocando ciudades (solo ciudades conocidas)
+  const fromRuta = rutaQ.map(n => byName[norm(n)]).filter(Boolean).filter((c, i, a) => a.findIndex(x => x.n === c.n) === i);
+  if(!fromUrl && fromRuta.length){
+    const dflt = fromRuta.length <= 4 ? 3 : 2;
+    S.stops = fromRuta.map(c => mkStop(c.n, norm(c.n) === 'split' ? ULTRA.rec : dflt));
+    S.days = Math.max(3, Math.min(60, assigned()));
+  }
+  const desdeOk = desdeQ ? D.origins.find(o => norm(o.n) === norm(desdeQ)) : null;
+  if(desdeOk) S.origin = desdeOk.n;
   const fiesta = D.presets.find(p => p.hot);
-  if(!hadDraft && !add && !fromUrl && fiesta) loadPreset(fiesta);
+  if(!hadDraft && !add && !fromUrl && !fromRuta.length && fiesta) loadPreset(fiesta);
   if(add && !S.stops.some(s => norm(s.n) === norm(add))) S.stops.push(mkStop(add, defaultDaysForNew()));
   if(!D.origins.some(o => o.n === S.origin) && S.origin !== '__otra') S.origin = 'Madrid';
 
@@ -1179,6 +1193,7 @@
   S.step = 1; goRaw(1, { silent: true });
   if(startStep > 1) go(startStep, { silent: !wantSend });
   if(fromUrl) flash(`Te hemos cargado «${fromUrl.t}». Cámbiala como quieras.`);
+  else if(fromRuta.length) flash(`Tu ruta: ${fromRuta.map(c => c.n).join(' → ')}. Ajusta los días como quieras.`);
   else if(add) flash(`${add} añadida a tu ruta.`);
   else if(hadDraft && S.stops.length && !wantSend) flash('Hemos recuperado la ruta que estabas diseñando.');
   else if(!hadDraft && fiesta) flash(`Te hemos cargado «${fiesta.t}», la ruta más pedida. Cámbiala como quieras.`);
