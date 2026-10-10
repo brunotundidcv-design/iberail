@@ -52,7 +52,8 @@
   function pintar(){
     if(document.getElementById('ib-mant')) return;
     var cfg = window.IBERAIL_CONFIG || {};
-    var wa = cfg.WA_LINK || (cfg.WA_PHONE ? 'https://wa.me/' + cfg.WA_PHONE : '');
+    // el mismo enlace que el resto de la web (wa.me con el número); el enlace corto solo si no hay número
+    var wa = cfg.WA_PHONE ? 'https://wa.me/' + cfg.WA_PHONE + '?text=' + encodeURIComponent('Hola Iberail, tengo una duda') : (cfg.WA_LINK || '');
     var d = document.createElement('div');
     d.id = 'ib-mant';
     d.setAttribute('role', 'alert');
