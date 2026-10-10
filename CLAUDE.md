@@ -134,6 +134,22 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
+## Diseño v10 «panel de salidas» (10/10/2026)
+
+- Rediseño completo de la web pública de Iberail (mismo logo). Pedido: «estilo totalmente diferente, futurista, que no parezca
+  hecho con IA». Señalética ferroviaria + paneles LED: fondo hormigón claro `#ECEBE6` con rejilla, bloques negros `#0A0A0A`,
+  ámbar de señal `#FFB81C`, rojo `#E63B2E` (el logo sigue con sus colores), esquinas rectas, sin degradados ni sombras difusas.
+  Letras: **Archivo** ancha (125 %) en mayúsculas para títulos, **Doto** (LED de puntos) para números y detalles, **Martian Mono**
+  para etiquetas; Poppins 800 solo para el logotipo.
+- Va como capa aparte: `assets/tema.css` (después de `site.css`) y `assets/tema.js`, en todas las páginas públicas de Iberail.
+  **El panel y Zarping no lo cargan** (siguen con `site.css`), así que no hace falta regenerar Zarping por esto.
+  Para volver al diseño anterior: quitar las dos líneas de `tema.*` y la fuente nueva del `<head>` (y la portada de git).
+- Portada nueva: reloj de Madrid, título gigante + «a tu manera.» en LED, **panel de salidas de ejemplo** (`[data-board]`,
+  destinos y trenes reales, horas de ejemplo, letras que giran), cintas cruzadas ámbar/negra con ciudades y «VÍA 01…05» en las secciones (`data-via`).
+  Interiores: cabecera negra con franja ámbar/negra. `tema.js` también pinta la barra de progreso de la cabecera.
+- `.cta` lo usan dos cosas (bloque rojo de la portada y la cuenta atrás de `sorteo.html`): en `tema.css` el de la portada va
+  como `.container > .cta`.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana

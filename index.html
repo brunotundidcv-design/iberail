@@ -6,7 +6,7 @@
 <title>Iberail — Interrail a tu medida desde España</title>
 <meta name="description" content="Agencia de Interrail desde España: diseñamos tu ruta en tren por Europa a tu medida, con alojamiento y asistencia 24 h por WhatsApp. Split y Ultra Europe incluidos.">
 <link rel="canonical" href="https://iberail.com/">
-<meta name="theme-color" content="#F7F2E8">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="color-scheme" content="light">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Iberail">
@@ -23,8 +23,10 @@
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Poppins:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Doto:wght@600..900&family=Martian+Mono:wdth,wght@87.5,400..600&family=Poppins:wght@800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/tema.css">
+<script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
 <script>try{if(sessionStorage.getItem('ib-nav')){sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}catch(e){}</script>
@@ -57,54 +59,41 @@
   </div>
 </div>
 <main id="main">
-<section class="hero">
+<section class="hero hx">
+  <div class="hx-map" aria-hidden="true"><svg class="route-map" viewBox="22 36 492 306" role="img" aria-label="Ejemplo de ruta en tren: Madrid, Barcelona, París, Ámsterdam, Berlín, Praga, Viena, Budapest y Split">
+  <g><path class="track" d="M12.9,345.6 L94.5,312.0"/><path class="track" d="M182.6,292.2 L222.6,204.8"/><path class="track" d="M222.6,204.8 L185.2,142.8"/><path class="track" d="M222.6,204.8 L287.8,210.8"/><path class="track" d="M287.8,210.8 L334.8,211.2"/><path class="track" d="M334.8,211.2 L337.5,282.0"/><path class="track" d="M278.1,172.6 L287.8,210.8"/><path class="track" d="M185.2,142.8 L278.1,172.6"/><path class="track" d="M278.1,172.6 L323.7,157.2"/><path class="track" d="M323.7,157.2 L395.6,155.8"/><path class="track" d="M323.7,157.2 L351.0,69.6"/><path class="track" d="M351.0,69.6 L338.6,6.4"/><path class="track" d="M351.0,69.6 L465.0,75.4"/><path class="track" d="M465.0,75.4 L366.3,118.4"/><path class="track" d="M435.6,170.0 L456.9,224.0"/><path class="track" d="M389.7,203.8 L396.6,249.8"/><path class="track" d="M395.6,155.8 L389.7,203.8"/><path class="track" d="M334.8,211.2 L389.7,203.8"/><path class="track" d="M185.2,142.8 L215.2,103.0"/><path class="track" d="M215.2,103.0 L223.5,72.6"/><path class="track" d="M94.5,312.0 C109.2,308.7 167.4,320.4 182.6,292.2 C197.7,264.0 178.4,179.4 185.2,142.8 C192.1,106.2 195.9,84.8 223.5,72.6 C251.1,60.4 327.2,62.0 351.0,69.6 C374.8,77.2 358.9,104.0 366.3,118.4 C373.7,132.8 384.0,147.2 395.6,155.8 C407.1,164.4 435.4,154.3 435.6,170.0 C435.8,185.7 403.1,236.5 396.6,249.8"/><circle cx="12.9" cy="345.6" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="222.6" cy="204.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="287.8" cy="210.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="278.1" cy="172.6" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="323.7" cy="157.2" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="334.8" cy="211.2" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="337.5" cy="282.0" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="338.6" cy="6.4" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="465.0" cy="75.4" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="456.9" cy="224.0" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="389.7" cy="203.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="215.2" cy="103.0" r="2.6" fill="rgba(247,242,232,.28)"/></g>
+  <path id="heroRoute" class="route" d="M94.5,312.0 C109.2,308.7 167.4,320.4 182.6,292.2 C197.7,264.0 178.4,179.4 185.2,142.8 C192.1,106.2 195.9,84.8 223.5,72.6 C251.1,60.4 327.2,62.0 351.0,69.6 C374.8,77.2 358.9,104.0 366.3,118.4 C373.7,132.8 384.0,147.2 395.6,155.8 C407.1,164.4 435.4,154.3 435.6,170.0 C435.8,185.7 403.1,236.5 396.6,249.8" style="--len:701"/>
+  <g class="city is-start" style="--d:0.40s"><circle class="ring" cx="94.5" cy="312.0" r="6"/><circle class="dot" cx="94.5" cy="312.0" r="6"/><text x="84.5" y="316.0" text-anchor="end">MADRID</text></g><g class="city" style="--d:0.80s"><circle class="ring" cx="182.6" cy="292.2" r="6"/><circle class="dot" cx="182.6" cy="292.2" r="4.5"/><text x="192.6" y="296.2" text-anchor="start">BARCELONA</text></g><g class="city" style="--d:1.20s"><circle class="ring" cx="185.2" cy="142.8" r="6"/><circle class="dot" cx="185.2" cy="142.8" r="4.5"/><text x="175.2" y="146.8" text-anchor="end">PARÍS</text></g><g class="city" style="--d:1.60s"><circle class="ring" cx="223.5" cy="72.6" r="6"/><circle class="dot" cx="223.5" cy="72.6" r="4.5"/><text x="213.5" y="76.6" text-anchor="end">ÁMSTERDAM</text></g><g class="city" style="--d:2.00s"><circle class="ring" cx="351.0" cy="69.6" r="6"/><circle class="dot" cx="351.0" cy="69.6" r="4.5"/><text x="361.0" y="73.6" text-anchor="start">BERLÍN</text></g><g class="city" style="--d:2.40s"><circle class="ring" cx="366.3" cy="118.4" r="6"/><circle class="dot" cx="366.3" cy="118.4" r="4.5"/><text x="376.3" y="122.4" text-anchor="start">PRAGA</text></g><g class="city" style="--d:2.80s"><circle class="ring" cx="395.6" cy="155.8" r="6"/><circle class="dot" cx="395.6" cy="155.8" r="4.5"/><text x="385.6" y="159.8" text-anchor="end">VIENA</text></g><g class="city" style="--d:3.20s"><circle class="ring" cx="435.6" cy="170.0" r="6"/><circle class="dot" cx="435.6" cy="170.0" r="4.5"/><text x="445.6" y="174.0" text-anchor="start">BUDAPEST</text></g><g class="city is-end" style="--d:3.60s"><circle class="ring" cx="396.6" cy="249.8" r="6"/><circle class="dot" cx="396.6" cy="249.8" r="6"/><text x="406.6" y="253.8" text-anchor="start">SPLIT</text></g>
+  <circle class="train" r="5"><animateMotion dur="9s" begin="3.6s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#heroRoute"/></animateMotion></circle>
+</svg></div>
   <div class="container">
-    <div class="hero-grid">
-      <div>
-        <a class="hero-srt" href="sorteo.html"><span class="hero-srt-new">Gratis</span><span class="hero-srt-l">Sorteos de entradas para el Ultra</span><span class="hero-srt-s">Sorteo: entradas Ultra</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <span class="eyebrow eyebrow--light">Interrail desde España</span>
-        <h1>Europa en tren, <span class="accent">a tu manera.<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 14 C 70 4, 150 4, 296 12"/></svg></span></h1>
+    <div class="hx-meta" aria-hidden="true"><span class="hx-dot"></span><span>IBR · Salidas desde España</span><span class="hx-sep"></span><span data-clock>--:--:--</span><span class="hx-tz">Madrid</span></div>
+    <a class="hero-srt" href="sorteo.html"><span class="hero-srt-new">Gratis</span><span class="hero-srt-l">Sorteos de entradas para el Ultra</span><span class="hero-srt-s">Sorteo: entradas Ultra</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <h1 class="hx-title"><span class="hx-l1">Europa</span> <span class="hx-l2">en tren,</span> <span class="hx-led">a tu manera.</span></h1>
+    <div class="hx-grid">
+      <div class="hx-copy">
         <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
         <div class="hero-actions">
           <a class="btn btn--primary" href="rutas.html">Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn--ghost-light" href="paises.html">Ver destinos</a>
         </div>
         <div class="trust"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.4l1.3-6.5L2.5 9.3l6.6-.8z"/></svg><span>Mejor precio garantizado</span></div>
-        <div class="demand" data-demand>
-          <div class="demand-top">
-            <span class="demand-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22c4 0 7-2.7 7-6.8 0-4.3-3.4-6.6-4.4-10.2-.3 2.4-1.5 3.8-2.8 4.6.3-2.9-.8-5.7-3.3-7.6.2 3.8-4.5 6.5-4.5 13.2C4 19.3 8 22 12 22z"/></svg></span>
-            <div><b>Verano <span data-season-year>2027</span>: demanda muy alta</b><span>Julio y agosto son las primeras semanas en llenarse</span></div>
-          </div>
-          <div class="demand-bars" aria-hidden="true">
-            <div><span>Jun</span><i style="--v:.62"></i></div>
-            <div class="is-hot"><span>Jul</span><i style="--v:1"></i></div>
-            <div class="is-hot"><span>Ago</span><i style="--v:.9"></i></div>
-            <div><span>Sep</span><i style="--v:.48"></i></div>
-          </div>
-          <div class="demand-rot" aria-live="off">
-            <p class="is-on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>Split, Praga, Budapest y Ámsterdam: las paradas que más nos piden.</p>
-            <p><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Ultra Europe 2027 (9–11 jul): el alojamiento en Split es lo primero que se llena.</p>
-            <p><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Cada ruta se diseña a mano: cerramos un número limitado por semana.</p>
-            <p><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Reservando ahora eliges alojamiento con todo disponible.</p>
-          </div>
-        </div>
       </div>
-      <div class="hero-visual">
-        <svg class="route-map" viewBox="22 36 492 306" role="img" aria-label="Ejemplo de ruta en tren: Madrid, Barcelona, París, Ámsterdam, Berlín, Praga, Viena, Budapest y Split">
-  <g><path class="track" d="M12.9,345.6 L94.5,312.0"/><path class="track" d="M182.6,292.2 L222.6,204.8"/><path class="track" d="M222.6,204.8 L185.2,142.8"/><path class="track" d="M222.6,204.8 L287.8,210.8"/><path class="track" d="M287.8,210.8 L334.8,211.2"/><path class="track" d="M334.8,211.2 L337.5,282.0"/><path class="track" d="M278.1,172.6 L287.8,210.8"/><path class="track" d="M185.2,142.8 L278.1,172.6"/><path class="track" d="M278.1,172.6 L323.7,157.2"/><path class="track" d="M323.7,157.2 L395.6,155.8"/><path class="track" d="M323.7,157.2 L351.0,69.6"/><path class="track" d="M351.0,69.6 L338.6,6.4"/><path class="track" d="M351.0,69.6 L465.0,75.4"/><path class="track" d="M465.0,75.4 L366.3,118.4"/><path class="track" d="M435.6,170.0 L456.9,224.0"/><path class="track" d="M389.7,203.8 L396.6,249.8"/><path class="track" d="M395.6,155.8 L389.7,203.8"/><path class="track" d="M334.8,211.2 L389.7,203.8"/><path class="track" d="M185.2,142.8 L215.2,103.0"/><path class="track" d="M215.2,103.0 L223.5,72.6"/><path class="track" d="M94.5,312.0 C109.2,308.7 167.4,320.4 182.6,292.2 C197.7,264.0 178.4,179.4 185.2,142.8 C192.1,106.2 195.9,84.8 223.5,72.6 C251.1,60.4 327.2,62.0 351.0,69.6 C374.8,77.2 358.9,104.0 366.3,118.4 C373.7,132.8 384.0,147.2 395.6,155.8 C407.1,164.4 435.4,154.3 435.6,170.0 C435.8,185.7 403.1,236.5 396.6,249.8"/><circle cx="12.9" cy="345.6" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="222.6" cy="204.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="287.8" cy="210.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="278.1" cy="172.6" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="323.7" cy="157.2" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="334.8" cy="211.2" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="337.5" cy="282.0" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="338.6" cy="6.4" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="465.0" cy="75.4" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="456.9" cy="224.0" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="389.7" cy="203.8" r="2.6" fill="rgba(247,242,232,.28)"/><circle cx="215.2" cy="103.0" r="2.6" fill="rgba(247,242,232,.28)"/></g>
-  <path id="heroRoute" class="route" d="M94.5,312.0 C109.2,308.7 167.4,320.4 182.6,292.2 C197.7,264.0 178.4,179.4 185.2,142.8 C192.1,106.2 195.9,84.8 223.5,72.6 C251.1,60.4 327.2,62.0 351.0,69.6 C374.8,77.2 358.9,104.0 366.3,118.4 C373.7,132.8 384.0,147.2 395.6,155.8 C407.1,164.4 435.4,154.3 435.6,170.0 C435.8,185.7 403.1,236.5 396.6,249.8" style="--len:701"/>
-  <g class="city is-start" style="--d:0.40s"><circle class="ring" cx="94.5" cy="312.0" r="6"/><circle class="dot" cx="94.5" cy="312.0" r="6"/><text x="84.5" y="316.0" text-anchor="end">MADRID</text></g><g class="city" style="--d:0.80s"><circle class="ring" cx="182.6" cy="292.2" r="6"/><circle class="dot" cx="182.6" cy="292.2" r="4.5"/><text x="192.6" y="296.2" text-anchor="start">BARCELONA</text></g><g class="city" style="--d:1.20s"><circle class="ring" cx="185.2" cy="142.8" r="6"/><circle class="dot" cx="185.2" cy="142.8" r="4.5"/><text x="175.2" y="146.8" text-anchor="end">PARÍS</text></g><g class="city" style="--d:1.60s"><circle class="ring" cx="223.5" cy="72.6" r="6"/><circle class="dot" cx="223.5" cy="72.6" r="4.5"/><text x="213.5" y="76.6" text-anchor="end">ÁMSTERDAM</text></g><g class="city" style="--d:2.00s"><circle class="ring" cx="351.0" cy="69.6" r="6"/><circle class="dot" cx="351.0" cy="69.6" r="4.5"/><text x="361.0" y="73.6" text-anchor="start">BERLÍN</text></g><g class="city" style="--d:2.40s"><circle class="ring" cx="366.3" cy="118.4" r="6"/><circle class="dot" cx="366.3" cy="118.4" r="4.5"/><text x="376.3" y="122.4" text-anchor="start">PRAGA</text></g><g class="city" style="--d:2.80s"><circle class="ring" cx="395.6" cy="155.8" r="6"/><circle class="dot" cx="395.6" cy="155.8" r="4.5"/><text x="385.6" y="159.8" text-anchor="end">VIENA</text></g><g class="city" style="--d:3.20s"><circle class="ring" cx="435.6" cy="170.0" r="6"/><circle class="dot" cx="435.6" cy="170.0" r="4.5"/><text x="445.6" y="174.0" text-anchor="start">BUDAPEST</text></g><g class="city is-end" style="--d:3.60s"><circle class="ring" cx="396.6" cy="249.8" r="6"/><circle class="dot" cx="396.6" cy="249.8" r="6"/><text x="406.6" y="253.8" text-anchor="start">SPLIT</text></g>
-  <circle class="train" r="5"><animateMotion dur="9s" begin="3.6s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#heroRoute"/></animateMotion></circle>
-</svg>
-        <div class="hero-ticket" aria-hidden="true">
-          <div class="ht-top"><span>BILLETE · EJEMPLO</span><b>INTERRAIL</b></div>
-          <div class="ht-route"><strong>MAD</strong><span></span><strong>SPL</strong></div>
-          <div class="ht-meta"><div><b>21</b>días</div><div><b>8</b>paradas</div><div><b>8</b>países</div></div>
+      <div class="board" data-board aria-label="Panel de salidas de ejemplo con destinos de Interrail">
+        <div class="board-top"><span><b>Salidas</b> · Departures</span><span class="board-clock" data-clock>--:--</span></div>
+        <div class="board-head" aria-hidden="true"><span>Hora</span><span>Destino</span><span>Tren</span><span>Vía</span><span>Estado</span></div>
+        <ol class="board-rows" data-board-rows></ol>
+        <div class="board-foot demand" data-demand>
+          <span class="board-foot-k">Verano <span data-season-year>2027</span></span>
+          <div class="demand-rot" aria-live="off">
+            <p class="is-on">Split, Praga, Budapest y Ámsterdam: las paradas que más nos piden.</p>
+            <p>Ultra Europe 2027 (9–11 jul): el alojamiento en Split es lo primero que se llena.</p>
+            <p>Cada ruta se diseña a mano: cerramos un número limitado por semana.</p>
+            <p>Reservando ahora eliges alojamiento con todo disponible.</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="container">
     <div class="hero-stats">
       <div><b>24/7</b><span>atención por WhatsApp</span></div>
       <div><b>30 min</b><span>de respuesta máxima</span></div>
@@ -114,7 +103,10 @@
   </div>
 </section>
 
-<div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span></div></div>
+<div class="tapes" aria-hidden="true">
+  <div class="tape tape--a"><div class="marquee-track"><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span></div></div>
+  <div class="tape tape--b"><div class="marquee-track"><span>Un solo pase</span><span>+30 países</span><span>Tu ruta, a medida</span><span>WhatsApp 24 h</span><span>Split · Ultra Europe</span><span>Desde tu ciudad</span><span>Un solo pase</span><span>+30 países</span><span>Tu ruta, a medida</span><span>WhatsApp 24 h</span><span>Split · Ultra Europe</span><span>Desde tu ciudad</span></div></div>
+</div>
 
 <section class="section section--tight" id="sorteo">
   <div class="container">
@@ -162,7 +154,7 @@
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
-        <span class="eyebrow">Destinos</span>
+        <span class="eyebrow" data-via="01">Destinos</span>
         <h2>Las paradas que más se repiten</h2>
       </div>
       <div style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
@@ -263,7 +255,7 @@
     <div class="band" data-reveal>
       <img src="assets/img/madrid.jpg" alt="Gran Vía de Madrid al atardecer" loading="lazy" style="object-position:30% center">
       <div class="band-inner">
-        <span class="eyebrow eyebrow--light">Salidas</span>
+        <span class="eyebrow eyebrow--light" data-via="02">Salidas</span>
         <h2>Sales desde tu ciudad.</h2>
         <p>Da igual dónde vivas: montamos el primer trayecto desde tu estación y enlazamos con la red europea sin rodeos.</p>
         <div class="band-cities"><span>Madrid</span><span>Barcelona</span><span>Valencia</span><span>Sevilla</span><span>Bilbao</span><span>Zaragoza</span><span>Málaga</span><span>San Sebastián</span><span>y más</span></div>
@@ -280,7 +272,7 @@
         <span class="tag">PARADA ESTRELLA · JULIO</span>
       </div>
       <div class="feature-copy">
-        <span class="eyebrow">Split · Croacia</span>
+        <span class="eyebrow" data-via="03">Split · Croacia</span>
         <h2>Split y el Ultra Europe, bien hechos.</h2>
         <p>Casco romano, calas a diez minutos y el festival más grande de los Balcanes. Nosotros nos encargamos de que llegues con calma y duermas cerca.</p>
         <ul class="feature-list">
@@ -298,7 +290,7 @@
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
-        <span class="eyebrow">Cómo funciona</span>
+        <span class="eyebrow" data-via="04">Cómo funciona</span>
         <h2>De la idea al andén en tres pasos</h2>
       </div>
       <p>Sin paquetes cerrados ni letra pequeña: tú decides, nosotros resolvemos.</p>
@@ -327,7 +319,7 @@
     <div class="season" data-season data-reveal>
       <div class="season-top">
         <div>
-          <span class="eyebrow eyebrow--light">Temporada <span data-season-year>2027</span></span>
+          <span class="eyebrow eyebrow--light" data-via="05">Temporada <span data-season-year>2027</span></span>
           <h2>El verano se reserva en invierno.</h2>
           <p class="season-lead">Julio y agosto son los meses con más demanda del año. Los hostales céntricos de Split, Praga o Ámsterdam son los primeros en llenarse, y los precios suben a medida que se llenan. Quien reserva antes, elige.</p>
         </div>
