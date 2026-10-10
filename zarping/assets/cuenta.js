@@ -420,7 +420,40 @@
       <ol class="gx-line">${stops.map((s, i) => `<li class="${i === 0 ? 'is-start' : ''}"><i></i><b>${esc(s.c)}</b><small>${i === 0 ? 'Salida' : `${s.d} ${plural(+s.d, 'noche', 'noches')}`}</small></li>`).join('')}</ol>
       ${window.IBGroupMap ? IBGroupMap.button(r) : ''}
       <p class="gx-route-meta">${esc(r.dias)} días${r.fecha_salida ? ` · salida el ${esc(fday(r.fecha_salida))}` : ''}${MODE === 'grupos' || r.grupo_id ? '' : ` · <button type="button" class="pl-link" data-goto-route="${esc(r.id)}">Ver la ficha</button>`}</p>
+      ${r.fecha_salida && (r.paradas || []).length ? `<button type="button" class="btn btn--ghost btn--sm gx-ics" data-route-ics="${esc(r.id)}">${I_CAL}Añadir el viaje a mi calendario</button>` : ''}
     </div>`;
+  }
+  // «Añadir el viaje a mi calendario»: un .ics con una entrada por parada (llegada → salida) y un aviso el día antes de salir
+  const I_CAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+  function routeIcs(r){
+    const ymd = d => d.toISOString().slice(0, 10).replace(/-/g, '');
+    const day = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d; };
+    const icsTxt = s => String(s).replace(/\\/g, '\\\\').replace(/[,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+    const B = r.marca && IB.brandOf ? IB.brandOf(r.marca) : IB.brand;   // un grupo de Zarping lleva su marca aunque se mire desde iberail.com
+    const marca = B.nombre, web = (B.site || 'https://iberail.com').replace(/\/$/, '');
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const ev = [];
+    let off = 0;
+    (r.paradas || []).forEach((p, i) => {
+      const n = Math.max(0, parseInt(p.dias, 10) || 0); if(!n) return;
+      const c = cityName(p.ciudad);
+      ev.push('BEGIN:VEVENT', `UID:${r.id}-${i}-${r.fecha_salida}@${web.replace(/^https?:\/\//, '')}`, `DTSTAMP:${stamp}`,
+        `DTSTART;VALUE=DATE:${ymd(day(r.fecha_salida, off))}`, `DTEND;VALUE=DATE:${ymd(day(r.fecha_salida, off + n))}`,
+        `SUMMARY:${icsTxt(`${c} · ${n} ${plural(n, 'noche', 'noches')} (${marca})`)}`,
+        `DESCRIPTION:${icsTxt(`Parada ${i + 1} de tu viaje con ${marca}. Los billetes y el alojamiento están en «Mis grupos»: ${web}/grupos.html`)}`,
+        `URL:${web}/grupos.html`, `LOCATION:${icsTxt(c)}`,
+        ...(i === 0 ? ['BEGIN:VALARM', 'TRIGGER:-PT12H', 'ACTION:DISPLAY', `DESCRIPTION:${icsTxt(`Mañana empieza tu viaje con ${marca}`)}`, 'END:VALARM'] : []),
+        'END:VEVENT');
+      off += n;
+    });
+    if(!ev.length) return;
+    // líneas de 74 caracteres como mucho (las largas se doblan con un espacio, como pide el formato)
+    const fold = l => l.length <= 74 ? l : l.match(/.{1,73}/g).join('\r\n ');
+    const txt = ['BEGIN:VCALENDAR', 'VERSION:2.0', `PRODID:-//${marca}//Viaje//ES`, 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH'].concat(ev, ['END:VCALENDAR']).map(fold).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([txt], { type: 'text/calendar;charset=utf-8' }));
+    a.download = `viaje-${String(marca).toLowerCase()}.ics`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
   // «Austria, Viena» → «Viena» (las paradas escritas a mano se muestran con el nombre de la ciudad)
   const cityName = n => { const c = window.IBMap && IBMap.city ? IBMap.city(n) : null; return c ? c.n : n; };
@@ -689,6 +722,7 @@
   root.addEventListener('click', async e => {
     const ok = e.target.closest('[data-ok]'); if(ok) return markRead(ok.dataset.ok, ok);
     const tb = e.target.closest('#dashTabs [data-t], [data-tab]'); if(tb) return setTab(tb.dataset.t || tb.dataset.tab);
+    const icsB = e.target.closest('[data-route-ics]'); if(icsB){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === icsB.dataset.routeIcs); if(r) routeIcs(r); return; }
     const gr = e.target.closest('[data-goto-route]'); if(gr){ setTab('rutas'); const c = $(`.rcard[data-id="${gr.dataset.gotoRoute}"]`); if(c){ c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('is-flash'); void c.offsetWidth; c.classList.add('is-flash'); } return; }
     const gmo = e.target.closest('[data-gm-open]');
     if(gmo && window.IBGroupMap){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === gmo.dataset.gmOpen); if(r){ const g = r.grupo_id ? V.groups.find(x => String(x.id) === String(r.grupo_id)) : null; IBGroupMap.open(r, g ? `${RT.de} «${g.nombre}»` : `${RT.tu} ${r.ref || ''}`); } return; }

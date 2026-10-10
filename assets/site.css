@@ -3705,3 +3705,7 @@ body.srt-lock{overflow:hidden}
 .cta-cal{border:0;background:none;padding:6px 10px;color:rgba(255,243,220,.72);font:600 .85rem var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .cta-cal:hover{color:#FFF3DC}
 
+
+/* «Añadir el viaje a mi calendario» (cuenta.js · routeIcs) */
+.gx-ics{margin-top:12px;gap:8px}
+.gx-ics svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}

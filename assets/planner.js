@@ -812,7 +812,43 @@
     const pk = $('#plPeekN'); if(pk) pk.textContent = S.stops.length;
     $('#pvList').innerHTML = (o ? `<li class="is-origin"><span>${esc(o.n)}</span><em>salida</em></li>` : '') +
       S.stops.map(s => `<li><span>${esc(s.n)}</span><em>${s.d} ${plural(s.d, 'día', 'días')}</em></li>`).join('');
+    paintPase();
     return placed;
+  }
+
+  /* ---------------- ¿Qué pase te conviene? (assets/pases.js) ----------------
+     Días de tren = trayectos entre paradas que no son en bus o ferri (el vuelo desde España no cuenta).
+     Flexible si cabe en sus días y en su periodo; continuo si viajas casi a diario o el viaje es largo.
+     Con precios en pases.js elige el más barato; sin precios no enseña ninguno. Orientativo: el pase se confirma en el presupuesto. */
+  function paintPase(){
+    const box = $('#pvPase'), PS = window.IB_PASES; if(!box) return;
+    const n = S.stops.length;
+    if(!PS || n < 2){ box.hidden = true; return; }
+    let tren = 0;
+    for(let k = 1; k < n; k++){ const l = legInfo(S.stops[k - 1], S.stops[k]); if(!l || l.mode !== 'bus') tren++; }
+    const T = Math.max(S.days, assigned());
+    if(!tren){ box.hidden = true; return; }
+    const precio = p => p && (p.joven != null ? p.joven : p.adulto != null ? p.adulto : null);
+    const flex = (PS.flexibles || []).filter(p => p.dias >= tren && T <= p.maxDias).sort((a, b) => a.dias - b.dias)[0] || null;
+    const cont = (PS.continuos || []).filter(p => T <= p.maxDias).sort((a, b) => a.maxDias - b.maxDias)[0] || null;
+    let pick = null;
+    if(flex && cont && precio(flex) != null && precio(cont) != null) pick = precio(flex) <= precio(cont) ? 'f' : 'c';
+    else if(flex && tren <= T * 0.6) pick = 'f';
+    else if(cont) pick = 'c';
+    else if(flex) pick = 'f';
+    if(!pick){ box.hidden = true; return; }
+    const P = pick === 'f' ? flex : cont;
+    const nombre = pick === 'f' ? `${P.dias} días de tren en ${P.periodo}` : P.nombre;
+    const sobra = pick === 'f' ? P.dias - tren : 0;
+    let por = `Tu ruta tiene ${tren} ${plural(tren, 'trayecto', 'trayectos')} en tren${n - 1 > tren ? ' (los de bus o ferri van aparte)' : ''}; el vuelo desde España no cuenta.`;
+    const sig = pick === 'f' ? (PS.flexibles || []).filter(p => p.dias > P.dias && T <= p.maxDias).sort((a, b) => a.dias - b.dias)[0] : null;
+    if(pick === 'f') por += sobra ? ` Te ${sobra === 1 ? 'sobra 1 día' : `sobran ${sobra} días`} de tren para alguna excursión.` : sig ? ` Justo los que necesitas; si quieres margen para excursiones, el de ${sig.dias} días.` : ' Justo los que necesitas.';
+    else por += ` Viajas ${T} días y coges el tren a menudo: te compensa uno de días seguidos.`;
+    const pr = precio(P);
+    const eur = v => `${Math.round(v).toLocaleString('es-ES')} €`;
+    const linea = pr != null ? `<span class="pl-pase-p">${P.joven != null ? `${eur(P.joven)} <small>menores de 28</small>` : ''}${P.joven != null && P.adulto != null ? ' · ' : ''}${P.adulto != null ? `${eur(P.adulto)} <small>adultos</small>` : ''}</span>` : '<span class="pl-pase-p is-none">El precio exacto va en tu presupuesto</span>';
+    box.innerHTML = `<span class="pl-pase-k">Pase que encaja con tu ruta</span><b>Interrail Global · ${esc(nombre)}</b><p>${esc(por)}</p>${linea}<small class="pl-pase-n">Orientativo: te confirmamos el pase en el presupuesto.</small>`;
+    box.hidden = false;
   }
 
   /* ---------------- dopamina: contadores, nivel de fiesta, confeti ---------------- */

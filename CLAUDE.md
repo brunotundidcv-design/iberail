@@ -199,6 +199,24 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 - «Diseñar esta ruta» → `rutas.html?desde=<ciudad>&ruta=A,B,C` (nuevo en `planner.js`: solo ciudades conocidas, 3 días por
   parada si son ≤4, si no 2; Split con los días del Ultra).
 
+## v13 (10/10/2026): fondo de red de trenes, calendario del viaje y pase recomendado
+
+- **Fondo «Europa en directo»** (`montaRed` en `tema.js`, canvas `.tx-red`): en la cabecera de la portada y en las cabeceras negras
+  de las páginas interiores (no en la de Split, que lleva foto). Ciudades y tramos de `IB_DATA` (los del planificador) + las líneas
+  principales de España; trenes de luz que van de ciudad en ciudad y un aro al llegar; con ratón, al acercarte a una ciudad sale
+  su nombre y sus conexiones. En la portada, la ruta que montas tocando ciudades se dibuja encima (`IBRed.ruta`). Se para si no se
+  ve; con «reducir movimiento», imagen quieta. Las páginas que no cargan `data.js` lo piden solas. Fuera el mapa SVG antiguo de la
+  cabecera y la cuadrícula: en las zonas claras, puntos suaves.
+- **«Añadir el viaje a mi calendario»** en la ruta del grupo («Mis grupos», `cuenta.js` · `routeIcs`): un `.ics` con una entrada
+  por parada (de la llegada a la salida, según `fecha_salida` y las noches de cada parada) y aviso a mediodía del día antes de
+  salir. Usa la marca del grupo (Zarping si `marca = 'zarping'`). Común con Zarping (regenerado).
+- **«Pase que encaja con tu ruta»** en el billete del planificador (`planner.js` · `paintPase`): cuenta los trayectos en tren
+  (sin bus/ferri ni el vuelo desde España) y recomienda un Interrail Global flexible (4/5/7 días en 1 mes, 10/15 en 2 meses) o
+  continuo (15 o 22 días, 1/2/3 meses). **Precios en `assets/pases.js`, vacíos (null) hasta que el equipo los dé**: sin precio
+  dice «El precio exacto va en tu presupuesto»; con precios elige el más barato. Los tipos de pase hay que confirmarlos con la
+  oferta vigente de Interrail.
+- Pendiente (pedido «más tarde»): actualizar el bot de WhatsApp con lo nuevo de la web.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana

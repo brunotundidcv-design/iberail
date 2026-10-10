@@ -37,6 +37,135 @@
     top.addEventListener('focusin', function(){ html.classList.remove('tx-hdr-off'); });
   }
 
+  /* ---------- fondo: la red de trenes de Europa, en directo ----------
+     Ciudades y tramos de IB_DATA (los del planificador) + las líneas principales de España. Trenes de luz que van de ciudad
+     en ciudad; al pasar el ratón se ve el nombre de la ciudad. En la portada, la ruta que montas se dibuja encima (IBRed.ruta).
+     Se para cuando no se ve; con «reducir movimiento», imagen quieta. */
+  var hosts = [].slice.call(document.querySelectorAll('.hero, .page-head:not(.page-head--photo)'));
+  window.IBRed = { ruta: function(){} };
+  if(hosts.length && window.HTMLCanvasElement){
+    var conDatos = function(cb){
+      if(window.IB_DATA) return cb(window.IB_DATA);
+      var s = document.createElement('script'); s.src = 'assets/data.js'; s.async = true;
+      s.onload = function(){ if(window.IB_DATA) cb(window.IB_DATA); }; document.head.appendChild(s);
+    };
+    conDatos(function(DD){ hosts.forEach(function(h, n){ montaRed(h, DD, n === 0 && h.classList.contains('hero')); }); });
+  }
+  function montaRed(host, DD, principal){
+    var ESP = [['Madrid','Barcelona'],['Madrid','Zaragoza'],['Zaragoza','Barcelona'],['Madrid','Valencia'],['Valencia','Barcelona'],['Madrid','Sevilla'],
+      ['Madrid','Málaga'],['Sevilla','Málaga'],['Madrid','Bilbao'],['Bilbao','San Sebastián'],['San Sebastián','Burdeos'],['Barcelona','Marsella'],['Lisboa','Oporto']];
+    var C = {}; (DD.origins || []).concat(DD.cities || []).forEach(function(c){ if(c.lon != null) C[c.n] = c; });
+    var aristas = [], vecinos = {}, visto = {};
+    (DD.rail || []).map(function(r){ return [r[0], r[1]]; }).concat(ESP).forEach(function(e){
+      var a = C[e[0]], b = C[e[1]]; if(!a || !b) return;
+      var k = [a.n, b.n].sort().join('|'); if(visto[k]) return; visto[k] = 1;
+      aristas.push([a.n, b.n]); (vecinos[a.n] = vecinos[a.n] || []).push(b.n); (vecinos[b.n] = vecinos[b.n] || []).push(a.n);
+    });
+    var nombres = Object.keys(vecinos);
+    if(!nombres.length) return;
+    var ROTULOS = ['Lisboa','Madrid','Barcelona','París','Londres','Ámsterdam','Berlín','Praga','Viena','Budapest','Roma','Split','Copenhague','Estambul','Múnich','Venecia','Cracovia','Sevilla'];
+    var cv = document.createElement('canvas'); cv.className = 'tx-red'; cv.setAttribute('aria-hidden', 'true');
+    host.insertBefore(cv, host.firstChild); host.classList.add('has-red');
+    var cx = cv.getContext('2d'), base = document.createElement('canvas'), bx = base.getContext('2d');
+    var W = 0, H = 0, R = 1, P = {}, trenes = [], pulsos = [], mia = null, raton = null, vivo = true, ultimo = 0;
+    var AMB = '255,184,28', ROJO = '215,48,30';
+    var lat0 = 48 * Math.PI / 180, k0 = Math.cos(lat0);
+    function proyecta(){
+      var r = host.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
+      R = Math.min(window.devicePixelRatio || 1, 2);
+      [cv, base].forEach(function(c){ c.width = Math.round(W * R); c.height = Math.round(H * R); });
+      cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      var xs = nombres.map(function(n){ return C[n].lon * k0; }), ys = nombres.map(function(n){ return -C[n].lat; });
+      var minX = Math.min.apply(0, xs), maxX = Math.max.apply(0, xs), minY = Math.min.apply(0, ys), maxY = Math.max.apply(0, ys);
+      var sw = (maxX - minX) * 1.08, sh = (maxY - minY) * 1.12;
+      var movil = W < 700;
+      // cubre todo el fondo; en la portada España queda a la izquierda, en móvil se centra en el centro de Europa
+      var s = Math.max(W / sw, H / sh) * (movil ? 1.05 : (principal ? 1 : 1.15));
+      var cxm = movil ? 9 * k0 : (minX + maxX) / 2 + (principal ? 0 : 2 * k0), cym = principal ? (movil ? -47 : -47.5) : -48.5;
+      nombres.forEach(function(n){ var c = C[n]; P[n] = { x: W / 2 + (c.lon * k0 - cxm) * s, y: H / 2 + (-c.lat - cym) * s }; });
+      dibujaBase();
+    }
+    function dibujaBase(){
+      bx.setTransform(R, 0, 0, R, 0, 0); bx.clearRect(0, 0, W, H);
+      bx.lineWidth = 1; bx.strokeStyle = 'rgba(255,255,255,.075)'; bx.beginPath();
+      aristas.forEach(function(e){ var a = P[e[0]], b = P[e[1]]; bx.moveTo(a.x, a.y); bx.lineTo(b.x, b.y); });
+      bx.stroke();
+      nombres.forEach(function(n){ var p = P[n]; bx.fillStyle = 'rgba(255,255,255,.26)'; bx.beginPath(); bx.arc(p.x, p.y, ROTULOS.indexOf(n) >= 0 ? 2.2 : 1.5, 0, 6.3); bx.fill(); });
+      bx.font = '600 10px "Funnel Sans", system-ui, sans-serif'; bx.fillStyle = 'rgba(255,255,255,.16)';
+      if(W > 700) ROTULOS.forEach(function(n){ var p = P[n]; if(p) bx.fillText(n.toUpperCase(), p.x + 6, p.y - 6); });
+    }
+    function nuevoTren(desde){
+      var a = desde || nombres[Math.floor(Math.random() * nombres.length)], vs = vecinos[a];
+      var b = vs[Math.floor(Math.random() * vs.length)];
+      var r = Math.random();
+      return { a: a, b: b, t: 0, v: 55 + Math.random() * 60, col: r < .72 ? AMB : r < .9 ? ROJO : '255,255,255' };
+    }
+    var N = W < 700 ? 9 : 22;
+    function siembra(){ trenes = []; N = W < 700 ? 9 : (principal ? 22 : 14); for(var i = 0; i < N; i++){ var tr = nuevoTren(); tr.t = Math.random(); trenes.push(tr); } }
+    function pos(tr, t){ var a = P[tr.a], b = P[tr.b]; return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+    function largo(tr){ var a = P[tr.a], b = P[tr.b]; return Math.max(1, Math.hypot(b.x - a.x, b.y - a.y)); }
+    function frame(ts){
+      if(!vivo) return;
+      var dt = ultimo ? Math.min(.05, (ts - ultimo) / 1000) : 0; ultimo = ts;
+      cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); cx.drawImage(base, 0, 0);
+      cx.setTransform(R, 0, 0, R, 0, 0);
+      // tu ruta (portada)
+      if(mia && mia.length > 1){
+        cx.save(); cx.lineCap = 'round';
+        for(var j = 1; j < mia.length; j++){
+          var a = P[mia[j - 1]], b = P[mia[j]]; if(!a || !b) continue;
+          var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - Math.hypot(b.x - a.x, b.y - a.y) * .18;
+          cx.setLineDash(j === 1 ? [3, 6] : [10, 8]); cx.lineDashOffset = -(ts / 40) % 36;
+          cx.strokeStyle = j === 1 ? 'rgba(255,255,255,.55)' : 'rgba(' + AMB + ',.9)'; cx.lineWidth = j === 1 ? 1.5 : 2.5;
+          cx.beginPath(); cx.moveTo(a.x, a.y); cx.quadraticCurveTo(mx, my, b.x, b.y); cx.stroke();
+        }
+        cx.setLineDash([]);
+        mia.forEach(function(n, j){ var p = P[n]; if(!p) return;
+          cx.fillStyle = j === 0 ? 'rgb(' + ROJO + ')' : 'rgb(' + AMB + ')'; cx.beginPath(); cx.arc(p.x, p.y, j === 0 ? 4.5 : 5, 0, 6.3); cx.fill();
+          cx.strokeStyle = 'rgba(' + AMB + ',.35)'; cx.lineWidth = 6; cx.beginPath(); cx.arc(p.x, p.y, 10 + Math.sin(ts / 300 + j) * 2, 0, 6.3); cx.stroke();
+          cx.font = '700 12px "Funnel Sans", system-ui, sans-serif'; cx.fillStyle = 'rgba(255,243,214,.95)'; cx.fillText(n, p.x + 10, p.y - 10);
+        });
+        cx.restore();
+      }
+      // trenes
+      trenes.forEach(function(tr, i){
+        tr.t += dt * tr.v / largo(tr);
+        if(tr.t >= 1){ pulsos.push({ p: P[tr.b], r: 2, a: .7, col: tr.col }); trenes[i] = tr = nuevoTren(tr.b); }
+        var cola = Math.max(0, tr.t - 38 / largo(tr)), p0 = pos(tr, cola), p1 = pos(tr, tr.t);
+        var g = cx.createLinearGradient(p0.x, p0.y, p1.x, p1.y); g.addColorStop(0, 'rgba(' + tr.col + ',0)'); g.addColorStop(1, 'rgba(' + tr.col + ',.85)');
+        cx.strokeStyle = g; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(p0.x, p0.y); cx.lineTo(p1.x, p1.y); cx.stroke();
+        cx.fillStyle = 'rgba(' + tr.col + ',.18)'; cx.beginPath(); cx.arc(p1.x, p1.y, 5, 0, 6.3); cx.fill();
+        cx.fillStyle = 'rgb(' + tr.col + ')'; cx.beginPath(); cx.arc(p1.x, p1.y, 1.8, 0, 6.3); cx.fill();
+      });
+      // llegadas
+      pulsos = pulsos.filter(function(q){ q.r += dt * 26; q.a -= dt * .9; if(q.a <= 0) return false;
+        cx.strokeStyle = 'rgba(' + q.col + ',' + q.a.toFixed(3) + ')'; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(q.p.x, q.p.y, q.r, 0, 6.3); cx.stroke(); return true; });
+      // ciudad bajo el ratón
+      if(raton){
+        var best = null, bd = 46;
+        nombres.forEach(function(n){ var p = P[n], d = Math.hypot(p.x - raton.x, p.y - raton.y); if(d < bd){ bd = d; best = n; } });
+        if(best){ var p = P[best]; cx.strokeStyle = 'rgba(' + AMB + ',.8)'; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(p.x, p.y, 7, 0, 6.3); cx.stroke();
+          cx.font = '700 12px "Funnel Sans", system-ui, sans-serif'; cx.fillStyle = 'rgba(' + AMB + ',.95)'; cx.fillText(best, p.x + 11, p.y + 4);
+          (vecinos[best] || []).forEach(function(v){ var q = P[v]; cx.strokeStyle = 'rgba(' + AMB + ',.28)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(q.x, q.y); cx.stroke(); });
+        }
+      }
+      if(!quieto) requestAnimationFrame(frame);
+    }
+    var arranca = function(){ if(vivo) return; vivo = true; ultimo = 0; requestAnimationFrame(frame); };
+    proyecta(); siembra();
+    if(quieto){ vivo = true; frame(0); } else requestAnimationFrame(frame);
+    var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(function(){ proyecta(); if(quieto) frame(0); }, 150); });
+    if('IntersectionObserver' in window && !quieto){
+      new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting && !document.hidden) arranca(); else vivo = false; }); }).observe(host);
+      document.addEventListener('visibilitychange', function(){ if(document.hidden) vivo = false; else arranca(); });
+    }
+    if(raton !== undefined && window.matchMedia && matchMedia('(pointer: fine)').matches){
+      host.addEventListener('mousemove', function(e){ var r = cv.getBoundingClientRect(); raton = { x: e.clientX - r.left, y: e.clientY - r.top }; if(quieto) frame(0); });
+      host.addEventListener('mouseleave', function(){ raton = null; if(quieto) frame(0); });
+    }
+    if(principal) window.IBRed.ruta = function(lista){ mia = (lista || []).filter(function(n){ return P[n]; }); if(quieto) frame(0); };
+  }
+
   /* ---------- reloj ---------- */
   var relojes = [].slice.call(document.querySelectorAll('[data-clock]'));
   function hora(seg){
@@ -259,6 +388,7 @@
       ir.firstChild.nodeValue = sel.length ? 'Diseñar esta ruta ' : 'Diseñar mi ruta ';
       pick.classList.toggle('has-sel', sel.length > 0);
       if(panel) panel.fija(sel);
+      window.IBRed.ruta(sel.length ? [origen].concat(sel) : []);
     }
     var alterna = function(n){
       var i = sel.indexOf(n);
