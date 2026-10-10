@@ -172,6 +172,18 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 - **Destinos**: botón «Tarjetas / Tablero» (vista de panel de salidas; se recuerda en `ib-vista-destinos`).
 - **Split**: la foto del Ultra ocupa toda la cabecera. Títulos que aparecen desde abajo; botones principales que siguen un poco al ratón.
 
+## v12.2 (10/10/2026): móvil y portada más unida
+
+- **iPhone**: con sesión (campana + cuenta + menú) la cabecera no cabía y Safari alejaba la vista: la página «bailaba» de
+  lado a lado con una franja blanca. Ahora `html,body{overflow-x:clip}`, cabecera compacta en móvil y el logo de Zarping se
+  oculta por debajo de 400 px si sale la campana. Comprobado sin desbordes de 320 a 414 px, con y sin sesión (`anchos.mjs` en
+  las pruebas). Menú del móvil más compacto (se ve entero).
+- **Portada menos «partida»** (pedido de marketing: «faltan cosas y sobran cosas»): fuera el «Mejor precio garantizado», el
+  botón «Ver destinos» de la cabecera, la segunda cinta, el bloque «Sales desde tu ciudad», el bloque de Split repetido y el
+  «¿Hablamos de tu ruta?» (la temporada ya lleva los botones). Nuevo: **preguntas frecuentes** en la portada (las mismas de
+  Contacto). Orden: cabecera → cifras → cinta → Cómo funciona → test (ámbar) → Destinos (con Split en grande y su vídeo) →
+  sorteo (tarjeta, sin lámina propia) → Dudas → Temporada (roja) → pie montado encima.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana

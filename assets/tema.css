@@ -667,3 +667,74 @@ html.tx-hdr-off .filters{top:8px}
 .srt-page{margin-top:-74px;padding-top:74px}
 @media (max-width:560px){.srt-page{margin-top:-70px;padding-top:70px}}
 @media (min-width:1021px){.pl-side .pl-help{order:-1}}   /* el billete es «sticky» y tapaba el enlace de ayuda cuando iba debajo */
+
+/* =========================================================
+   v12.2 — móvil sin bailes laterales y portada más unida
+   ========================================================= */
+/* nada puede ensanchar la página (en iPhone, si algo se sale, Safari aleja la vista y la página baila de lado a lado) */
+html,body{overflow-x:clip}
+@supports not (overflow-x:clip){html,body{overflow-x:hidden}}
+
+/* cabecera: que todo quepa también con sesión (campana + cuenta + menú) */
+.topbar .container{min-width:0;gap:10px}
+.brand,.topbar-cta{flex-shrink:0}
+.topbar-cta{gap:8px}
+.brand-zp{min-width:0;overflow:hidden}
+@media (max-width:560px){
+  .topbar .container{padding-inline:12px;gap:8px}
+  .brand-zp{margin-left:8px;padding:4px 0 4px 8px}
+  .brand-zp svg{display:none}
+  .brand-zp img{height:12px}
+  .bell,.burger{width:40px;height:40px}
+  .acct{min-height:40px;padding:0 4px}
+  .acct-av{width:30px;height:30px}
+}
+@media (max-width:400px){
+  .topbar:has(.bell:not([hidden])) .brand-zp{display:none}
+}
+@media (max-width:340px){
+  .brand-zp{display:none}
+}
+
+/* menú del móvil: más compacto para que se vea entero sin tener que bajar */
+@media (max-width:880px){
+  .mm-links a{font-size:1.45rem;padding:12px 2px}
+  .mm-foot{gap:8px}
+  .mm-foot .btn{min-height:46px}
+  .mobile-menu{gap:14px}
+}
+
+/* cabecera de la portada: menos cosas */
+.hx-link{display:inline-flex;align-items:center;gap:8px;margin-top:22px;color:#C9C8C2;font-weight:500}
+.hx-link b{color:var(--amber);font-weight:700}
+.hx-link svg{width:16px;height:16px;fill:none;stroke:var(--amber);stroke-width:2.2;transition:transform .2s var(--ease)}
+.hx-link:hover svg{transform:translateX(4px)}
+
+/* una sola cinta */
+.tapes{height:clamp(110px,11vw,150px)}
+.tape--a{transform:translateY(-50%) rotate(-2deg)}
+
+/* preguntas frecuentes en la portada */
+.home-faq{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,5vw,72px);align-items:start}
+.home-faq-head h2{margin-top:16px;font-size:clamp(2.3rem,5vw,4rem);letter-spacing:-.05em;line-height:.94}
+.home-faq-head p{margin:16px 0 24px;color:var(--muted);font-size:1.04rem;max-width:34ch}
+.home-faq .faq{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:4px 24px}
+.home-faq .faq-item:first-of-type{border-top:0}
+.home-faq .faq-item:last-child{border-bottom:0}
+#sorteo{padding-bottom:0}
+
+/* el pie monta sobre la lámina roja */
+.sheet--end{padding-bottom:calc(48px + clamp(56px,7vw,96px))}
+.footer--over{position:relative;margin-top:-48px}
+
+@media (max-width:880px){
+  .home-faq{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .tapes{height:96px}
+  .home-faq .faq{padding:2px 16px}
+  .footer--over{margin-top:-32px}
+  .sheet--end{padding-bottom:calc(32px + 64px)}
+}
+.hx-link{display:block;line-height:1.5}
+.hx-link svg{display:inline-block;vertical-align:-3px;margin-left:4px}
