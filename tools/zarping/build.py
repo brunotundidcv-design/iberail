@@ -397,6 +397,8 @@ def rebrand(s):
         ('Hasta que envías la ruta, o 30 días como máximo', 'Hasta que envías el viaje, o 30 días como máximo'),
         ('tu cuenta y tu panel de rutas', 'tu cuenta y tus viajes'),
         ('el borrador de ruta solo si usas el planificador', 'el borrador del viaje solo si usas «Monta tu viaje»'),
+        # la vista «tablero» de Destinos solo existe en Iberail
+        ('      <tr>\n        <td>ib-vista-destinos</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar si prefieres ver los destinos en tarjetas o en tablero.</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
         # Iberail sirve sus tipografías desde su alojamiento; Zarping las sigue cargando de Google Fonts
         ('<p>Las tipografías se sirven desde nuestro propio alojamiento, sin pasar por terceros. Para mostrar la web, tu navegador descarga algunas librerías y el mapa del planificador desde jsDelivr. Este servicio recibe tu dirección IP para poder enviarte los archivos, pero no instala cookies.</p>',
          '<p>Para mostrar la web, tu navegador descarga las tipografías desde Google Fonts y algunas librerías y el mapa del planificador desde jsDelivr. Estos servicios reciben tu dirección IP para poder enviarte los archivos, pero no instalan cookies.</p>'),

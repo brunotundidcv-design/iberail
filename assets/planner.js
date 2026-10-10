@@ -1161,10 +1161,13 @@
   const IB_ICON_CHAT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg>';
 
   const hadDraft = loadDraft();
-  let add = '';
-  try{ add = (new URLSearchParams(location.search).get('add') || '').slice(0, 50); }catch(e){}
+  let add = '', presetId = '';
+  try{ const qs = new URLSearchParams(location.search); add = (qs.get('add') || '').slice(0, 50); presetId = (qs.get('preset') || '').slice(0, 20); }catch(e){}
+  // ?preset=id abre una de las rutas hechas (la usa el test de la portada)
+  const fromUrl = presetId ? D.presets.find(p => p.id === presetId) : null;
+  if(fromUrl) loadPreset(fromUrl);
   const fiesta = D.presets.find(p => p.hot);
-  if(!hadDraft && !add && fiesta) loadPreset(fiesta);
+  if(!hadDraft && !add && !fromUrl && fiesta) loadPreset(fiesta);
   if(add && !S.stops.some(s => norm(s.n) === norm(add))) S.stops.push(mkStop(add, defaultDaysForNew()));
   if(!D.origins.some(o => o.n === S.origin) && S.origin !== '__otra') S.origin = 'Madrid';
 
@@ -1175,7 +1178,8 @@
   const startStep = wantSend ? 4 : (hadDraft && S.step > 1 && S.stops.length ? S.step : 1);
   S.step = 1; goRaw(1, { silent: true });
   if(startStep > 1) go(startStep, { silent: !wantSend });
-  if(add) flash(`${add} añadida a tu ruta.`);
+  if(fromUrl) flash(`Te hemos cargado «${fromUrl.t}». Cámbiala como quieras.`);
+  else if(add) flash(`${add} añadida a tu ruta.`);
   else if(hadDraft && S.stops.length && !wantSend) flash('Hemos recuperado la ruta que estabas diseñando.');
   else if(!hadDraft && fiesta) flash(`Te hemos cargado «${fiesta.t}», la ruta más pedida. Cámbiala como quieras.`);
 

@@ -25,6 +25,7 @@
 <link rel="preload" href="assets/fonts/funnel-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
+<script src="assets/data.js" defer></script>
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
@@ -74,8 +75,16 @@
     <div class="hx-grid">
       <div class="hx-copy">
         <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
+        <form class="hx-search" action="rutas.html" method="get" data-hx-search role="search" autocomplete="off">
+          <label class="sr-only" for="hxQ">¿A dónde quieres ir?</label>
+          <svg class="hx-search-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+          <input id="hxQ" name="add" list="hxCities" maxlength="40" placeholder="¿A dónde quieres ir?" enterkeyhint="go">
+          <datalist id="hxCities"></datalist>
+          <button class="btn btn--primary" type="submit">Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </form>
+        <p class="hx-hint" data-hx-hint>Escribe una ciudad y la añadimos a tu ruta. Prueba con <button type="button" data-hx-try>Praga</button>, <button type="button" data-hx-try>Split</button> o <button type="button" data-hx-try>Ámsterdam</button>.</p>
         <div class="hero-actions">
-          <a class="btn btn--primary" href="rutas.html">Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn--ghost-light" href="#test">Haz el test · 1 min</a>
           <a class="btn btn--ghost-light" href="paises.html">Ver destinos</a>
         </div>
         <div class="trust"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.4l1.3-6.5L2.5 9.3l6.6-.8z"/></svg><span>Mejor precio garantizado</span></div>
@@ -141,11 +150,26 @@
     </div>
   </div>
 </section>
-<section class="section">
+
+<section class="sheet sheet--amber" id="test">
+  <div class="container">
+    <div class="quiz" data-quiz>
+      <div class="quiz-head" data-reveal>
+        <span class="eyebrow" data-via="02">Test · 1 minuto</span>
+        <h2>¿Qué Interrail va contigo?</h2>
+        <p>Cuatro preguntas rápidas y te enseñamos la ruta que más encaja contigo. Después la cambias como quieras en el planificador.</p>
+      </div>
+      <div class="quiz-card" data-quiz-card aria-live="polite">
+        <noscript><a class="btn btn--dark" href="rutas.html">Abrir el planificador <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></noscript>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="sheet sheet--light">
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
-        <span class="eyebrow" data-via="02">Destinos</span>
+        <span class="eyebrow" data-via="03">Destinos</span>
         <h2>Las paradas que más se repiten</h2>
       </div>
       <div style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
@@ -243,7 +267,7 @@
   </div>
 </section>
 
-<section class="section">
+<section class="sheet sheet--dark" id="sorteo">
   <div class="container">
     <article class="feature feature--flip" data-reveal>
       <div class="feature-media">
@@ -251,7 +275,7 @@
         <span class="tag">PARADA ESTRELLA · JULIO</span>
       </div>
       <div class="feature-copy">
-        <span class="eyebrow" data-via="03">Split · Croacia</span>
+        <span class="eyebrow" data-via="04">Split · Croacia</span>
         <h2>Split y el Ultra Europe, bien hechos.</h2>
         <p>Casco romano, calas a diez minutos y el festival más grande de los Balcanes. Nosotros nos encargamos de que llegues con calma y duermas cerca.</p>
         <ul class="feature-list">
@@ -262,11 +286,7 @@
         <div><a class="btn btn--dark" href="split.html">Ver Split y Ultra <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </div>
     </article>
-  </div>
-</section>
-
-<section class="section section--tight" id="sorteo">
-  <div class="container">
+    <div class="sheet-gap"></div>
     <div class="srt" data-reveal>
       <div class="srt-copy">
         <span class="srt-tag"><i></i><span data-srt-tag>Próximamente · Sorteo Iberail</span></span>
@@ -306,13 +326,12 @@
   </div>
 </section>
 
-
-<section class="section section--tight">
+<section class="sheet sheet--light">
   <div class="container">
     <div class="band" data-reveal>
       <img src="assets/img/madrid.jpg" alt="Gran Vía de Madrid al atardecer" loading="lazy" style="object-position:30% center">
       <div class="band-inner">
-        <span class="eyebrow eyebrow--light" data-via="04">Salidas</span>
+        <span class="eyebrow eyebrow--light" data-via="05">Salidas</span>
         <h2>Sales desde tu ciudad.</h2>
         <p>Da igual dónde vivas: montamos el primer trayecto desde tu estación y enlazamos con la red europea sin rodeos.</p>
         <div class="band-cities"><span>Madrid</span><span>Barcelona</span><span>Valencia</span><span>Sevilla</span><span>Bilbao</span><span>Zaragoza</span><span>Málaga</span><span>San Sebastián</span><span>y más</span></div>
@@ -321,12 +340,12 @@
   </div>
 </section>
 
-<section class="section section--tight" id="temporada">
+<section class="sheet sheet--red" id="temporada">
   <div class="container">
     <div class="season" data-season data-reveal>
       <div class="season-top">
         <div>
-          <span class="eyebrow eyebrow--light" data-via="05">Temporada <span data-season-year>2027</span></span>
+          <span class="eyebrow eyebrow--light" data-via="06">Temporada <span data-season-year>2027</span></span>
           <h2>El verano se reserva en invierno.</h2>
           <p class="season-lead">Julio y agosto son los meses con más demanda del año. Los hostales céntricos de Split, Praga o Ámsterdam son los primeros en llenarse, y los precios suben a medida que se llenan. Quien reserva antes, elige.</p>
         </div>
@@ -354,7 +373,7 @@
     </div>
   </div>
 </section>
-<section class="section section--tight">
+<section class="sheet sheet--dark sheet--last">
   <div class="container">
     <div class="cta" data-reveal>
       <div>
@@ -373,7 +392,7 @@
 <a class="fab" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20tengo%20una%20duda%20sobre%20mi%20ruta%20Interrail" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
   <span class="fab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg></span><span class="fab-label">¿Dudas? Escríbenos</span>
 </a>
-<footer class="footer">
+<footer class="footer footer--join">
   <div class="container">
     <div class="footer-top">
       <div>

@@ -154,6 +154,24 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 - `.cta` lo usan dos cosas (bloque rojo de la portada y la cuenta atrás de `sorteo.html`): en `tema.css` el de la portada va
   como `.container > .cta`.
 
+## v12 (10/10/2026): contraste, láminas de color y funciones nuevas
+
+- Pedido: «hay letras que no se leen», «funciones guays» y «que no parezca la misma web». Contraste revisado con un análisis
+  automático (Playwright, todas las páginas, móvil y ordenador, con y sin sesión): todo ≥ 4,5:1 (≥ 3:1 en letra grande).
+  Rojo pasa a `#D7301E` (texto blanco 4,85:1) y el rojo de texto a `#B42818`. En el panel de salidas solo las horas y la vía
+  van en LED (Doto); destinos, trenes y estados en Funnel Sans, que se lee mejor.
+- **Cabecera flotante** (cápsula con margen): se esconde al bajar y vuelve al subir (`html.tx-hdr-off`), con un **trenecito**
+  que marca lo leído. Cabeceras negras y la portada empiezan por detrás (`margin-top:-74px`).
+- **Portada en láminas** a todo el ancho que se montan unas sobre otras (`.sheet--amber/--light/--dark/--red`): Cómo funciona →
+  **test** (ámbar) → Destinos (mosaico) → Split + sorteo (negra) → Salidas → Temporada (roja, cuenta atrás LED) → contacto (negra, unida al pie).
+- **Buscador «¿A dónde quieres ir?»** en la cabecera: solo ciudades de `IB_DATA.cities` (sugiere parecidas si no la encuentra),
+  pone tu destino arriba del panel de salidas y abre el planificador con `?add=`. La portada carga `data.js`.
+- **Test «¿Qué Interrail va contigo?»** (4 preguntas, `[data-quiz]` en `tema.js`): el resultado es una de las rutas hechas del
+  planificador (`IB_DATA.presets`: fiesta, ultra, clásica), con «Abrir esta ruta» → `rutas.html?preset=<id>` (nuevo en `planner.js`)
+  y «Compartir» (menú del móvil o copia el enlace).
+- **Destinos**: botón «Tarjetas / Tablero» (vista de panel de salidas; se recuerda en `ib-vista-destinos`).
+- **Split**: la foto del Ultra ocupa toda la cabecera. Títulos que aparecen desde abajo; botones principales que siguen un poco al ratón.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana
