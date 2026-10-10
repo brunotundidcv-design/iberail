@@ -21,9 +21,8 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Doto:wght@600..900&family=Martian+Mono:wdth,wght@87.5,400..600&family=Poppins:wght@800&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/funnel-display-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/funnel-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
 <script src="assets/tema.js" defer></script>
@@ -67,9 +66,11 @@
   <circle class="train" r="5"><animateMotion dur="9s" begin="3.6s" repeatCount="indefinite" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="linear"><mpath href="#heroRoute"/></animateMotion></circle>
 </svg></div>
   <div class="container">
+    <div class="hx-top">
     <div class="hx-meta" aria-hidden="true"><span class="hx-dot"></span><span>IBR · Salidas desde España</span><span class="hx-sep"></span><span data-clock>--:--:--</span><span class="hx-tz">Madrid</span></div>
     <a class="hero-srt" href="sorteo.html"><span class="hero-srt-new">Gratis</span><span class="hero-srt-l">Sorteos de entradas para el Ultra</span><span class="hero-srt-s">Sorteo: entradas Ultra</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <h1 class="hx-title"><span class="hx-l1">Europa</span> <span class="hx-l2">en tren,</span> <span class="hx-led">a tu manera.</span></h1>
+    </div>
+    <h1 class="hx-title">Europa en tren, <span class="hx-acc">a tu manera.</span></h1>
     <div class="hx-grid">
       <div class="hx-copy">
         <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
@@ -94,6 +95,10 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
+<div class="dock">
+  <div class="container">
     <div class="hero-stats">
       <div><b>24/7</b><span>atención por WhatsApp</span></div>
       <div><b>30 min</b><span>de respuesta máxima</span></div>
@@ -101,60 +106,46 @@
       <div><b>100%</b><span>rutas hechas a medida</span></div>
     </div>
   </div>
-</section>
+</div>
 
 <div class="tapes" aria-hidden="true">
   <div class="tape tape--a"><div class="marquee-track"><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span></div></div>
   <div class="tape tape--b"><div class="marquee-track"><span>Un solo pase</span><span>+30 países</span><span>Tu ruta, a medida</span><span>WhatsApp 24 h</span><span>Split · Ultra Europe</span><span>Desde tu ciudad</span><span>Un solo pase</span><span>+30 países</span><span>Tu ruta, a medida</span><span>WhatsApp 24 h</span><span>Split · Ultra Europe</span><span>Desde tu ciudad</span></div></div>
 </div>
 
-<section class="section section--tight" id="sorteo">
+<section class="section" id="como">
   <div class="container">
-    <div class="srt" data-reveal>
-      <div class="srt-copy">
-        <span class="srt-tag"><i></i><span data-srt-tag>Próximamente · Sorteo Iberail</span></span>
-        <h2>Sorteamos entradas para el <em>Ultra Europe</em>.</h2>
-        <p>Apúntate gratis con tu cuenta de Iberail y entras en todos nuestros sorteos. El día de cada sorteo entras en tu cuenta y ves al momento si te ha tocado. <b data-srt-when hidden></b></p>
-        <ol class="srt-steps">
-          <li><b>01</b><span>Entra o crea tu cuenta</span></li>
-          <li><b>02</b><span>Pulsa «Participar gratis»</span></li>
-          <li><b>03</b><span>El día del sorteo, miras tu resultado</span></li>
-        </ol>
-        <div class="srt-cta">
-          <button type="button" class="btn srt-btn srt-join" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-          <span class="srt-in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Estás dentro · <b data-srt-n>1 participación</b></span>
-          <small class="srt-note"><span class="srt-note-g">Sin cuenta: la creas en un minuto y quedas apuntado. <a href="bases-sorteo.html">Bases legales</a>.</span> <b data-srt-when hidden></b></small>
-        </div>
-        <div class="srt-ig">
-          <span class="srt-ig-x2">×2</span>
-          <div class="srt-ig-t"><b>Participación extra</b><span>Sube nuestro cartel a tu story mencionando a <a href="https://instagram.com/iberailspain" target="_blank" rel="noopener">@iberailspain</a> y entras dos veces.</span></div>
-          <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>
-        </div>
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="eyebrow" data-via="01">Cómo funciona</span>
+        <h2>De la idea al andén en tres pasos</h2>
       </div>
-      <div class="srt-art" aria-hidden="true">
-        <div class="srt-tk srt-tk--3"></div>
-        <div class="srt-tk srt-tk--2"></div>
-        <div class="srt-tk srt-tk--1">
-          <div class="srt-tk-main">
-            <span class="srt-tk-k">Admit one · Pase 3 días</span>
-            <b class="srt-tk-t">Ultra Europe</b>
-            <span class="srt-tk-y">2027</span>
-            <div class="srt-tk-meta"><span><small>Lugar</small>Split, Croacia</span><span><small>Fechas</small>9 — 11 jul</span></div>
-          </div>
-          <div class="srt-tk-stub"><small>Nº</small><b>FREE</b><i class="srt-tk-bar"></i></div>
-        </div>
-        <span class="srt-x10">Gratis</span>
+      <p>Sin paquetes cerrados ni letra pequeña: tú decides, nosotros resolvemos.</p>
+    </div>
+    <div class="steps" data-reveal-group>
+      <div class="step" data-reveal>
+        <div class="step-num"><b>PASO 01</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></span></div>
+        <h3>Nos cuentas tu idea</h3>
+        <p>Países, días, presupuesto y con quién viajas. Con el planificador o directamente por WhatsApp.</p>
+      </div>
+      <div class="step" data-reveal>
+        <div class="step-num"><b>PASO 02</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span></div>
+        <h3>Te diseñamos la ruta</h3>
+        <p>Orden de paradas, trenes, pase que te conviene y alojamiento cerca de cada estación.</p>
+      </div>
+      <div class="step" data-reveal>
+        <div class="step-num"><b>PASO 03</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg></span></div>
+        <h3>Viajas acompañado</h3>
+        <p>Si algo cambia a mitad de viaje, nos escribes a cualquier hora y lo arreglamos.</p>
       </div>
     </div>
   </div>
 </section>
-
-
 <section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
-        <span class="eyebrow" data-via="01">Destinos</span>
+        <span class="eyebrow" data-via="02">Destinos</span>
         <h2>Las paradas que más se repiten</h2>
       </div>
       <div style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
@@ -165,6 +156,18 @@
         </div>
       </div>
     </div>
+    <div class="dest-bento">
+    <a class="dest-feat" href="split.html">
+      <img src="assets/img/ultra.jpg" alt="" loading="lazy">
+      <video muted loop playsinline preload="none" aria-hidden="true" data-src="assets/img/ultra.mp4"></video>
+      <span class="dest-feat-tag">Parada estrella</span>
+      <span class="dest-feat-b">
+        <span class="dest-feat-k">Croacia · Split · Dubrovnik</span>
+        <b>Split y el Ultra Europe</b>
+        <span class="dest-feat-p">Las islas, el casco romano y el festival más grande de los Balcanes en julio.</span>
+        <span class="dest-feat-go">Ver Split y Ultra <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </span>
+    </a>
     <p class="swipe-hint" aria-hidden="true">Desliza para ver más <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
     <div class="dest-scroll" id="topDest">
       <article class="ticket" data-region="oeste" data-search="Países Bajos Ámsterdam Fiesta Ciudad">
@@ -233,40 +236,16 @@
     <div class="ticket-tags"><span>Cultura</span><span>Comida</span></div>
   </div>
   <a class="ticket-stub" href="rutas.html?add=Roma" aria-label="Añadir a mi ruta"><span class="stub-label">Añadir a mi ruta</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-</article><article class="ticket" data-region="med" data-search="Croacia Split · Dubrovnik Playa Festival">
-  <div class="ticket-body">
-    <span class="ticket-code" aria-hidden="true">HR</span>
-    <div class="ticket-head"><span class="flag" style="--flag:linear-gradient(180deg,#FF0000 0.0% 33.3%,#FFFFFF 33.3% 66.7%,#171796 66.7% 100.0%)" role="img" aria-label="Bandera de Croacia"></span><span class="ticket-badge">Estrella</span></div>
-    <h3>Croacia</h3>
-    <p class="ticket-city">Split · Dubrovnik</p>
-    <p class="ticket-text">Split, las islas y el Ultra Europe en julio. Nuestra parada estrella.</p>
-    <span class="ticket-more" aria-hidden="true"></span>
-    <div class="ticket-tags"><span>Playa</span><span>Festival</span></div>
-  </div>
-  <a class="ticket-stub" href="split.html" aria-label="Ver Split y Ultra Europe"><span class="stub-label">Ver Split y Ultra Europe</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </article>
     </div>
-    <div style="margin-top:18px"><a class="link-arrow" href="paises.html">Ver los más de 30 destinos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
-  </div>
-</section>
-
-<section class="section section--tight">
-  <div class="container">
-    <div class="band" data-reveal>
-      <img src="assets/img/madrid.jpg" alt="Gran Vía de Madrid al atardecer" loading="lazy" style="object-position:30% center">
-      <div class="band-inner">
-        <span class="eyebrow eyebrow--light" data-via="02">Salidas</span>
-        <h2>Sales desde tu ciudad.</h2>
-        <p>Da igual dónde vivas: montamos el primer trayecto desde tu estación y enlazamos con la red europea sin rodeos.</p>
-        <div class="band-cities"><span>Madrid</span><span>Barcelona</span><span>Valencia</span><span>Sevilla</span><span>Bilbao</span><span>Zaragoza</span><span>Málaga</span><span>San Sebastián</span><span>y más</span></div>
-      </div>
     </div>
+    <div class="dest-more"><a class="link-arrow" href="paises.html">Ver los más de 30 destinos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <article class="feature" data-reveal>
+    <article class="feature feature--flip" data-reveal>
       <div class="feature-media">
         <img src="assets/img/ultra.jpg" alt="Escenario principal de Ultra Europe en Split con fuegos artificiales" loading="lazy">
         <span class="tag">PARADA ESTRELLA · JULIO</span>
@@ -286,34 +265,62 @@
   </div>
 </section>
 
-<section class="section" id="como">
+<section class="section section--tight" id="sorteo">
   <div class="container">
-    <div class="section-head" data-reveal>
-      <div>
-        <span class="eyebrow" data-via="04">Cómo funciona</span>
-        <h2>De la idea al andén en tres pasos</h2>
+    <div class="srt" data-reveal>
+      <div class="srt-copy">
+        <span class="srt-tag"><i></i><span data-srt-tag>Próximamente · Sorteo Iberail</span></span>
+        <h2>Sorteamos entradas para el <em>Ultra Europe</em>.</h2>
+        <p>Apúntate gratis con tu cuenta de Iberail y entras en todos nuestros sorteos. El día de cada sorteo entras en tu cuenta y ves al momento si te ha tocado. <b data-srt-when hidden></b></p>
+        <ol class="srt-steps">
+          <li><b>01</b><span>Entra o crea tu cuenta</span></li>
+          <li><b>02</b><span>Pulsa «Participar gratis»</span></li>
+          <li><b>03</b><span>El día del sorteo, miras tu resultado</span></li>
+        </ol>
+        <div class="srt-cta">
+          <button type="button" class="btn srt-btn srt-join" data-srt-join>Participar gratis<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+          <span class="srt-in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Estás dentro · <b data-srt-n>1 participación</b></span>
+          <small class="srt-note"><span class="srt-note-g">Sin cuenta: la creas en un minuto y quedas apuntado. <a href="bases-sorteo.html">Bases legales</a>.</span> <b data-srt-when hidden></b></small>
+        </div>
+        <div class="srt-ig">
+          <span class="srt-ig-x2">×2</span>
+          <div class="srt-ig-t"><b>Participación extra</b><span>Sube nuestro cartel a tu story mencionando a <a href="https://instagram.com/iberailspain" target="_blank" rel="noopener">@iberailspain</a> y entras dos veces.</span></div>
+          <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>
+        </div>
       </div>
-      <p>Sin paquetes cerrados ni letra pequeña: tú decides, nosotros resolvemos.</p>
-    </div>
-    <div class="steps" data-reveal-group>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 01</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></span></div>
-        <h3>Nos cuentas tu idea</h3>
-        <p>Países, días, presupuesto y con quién viajas. Con el planificador o directamente por WhatsApp.</p>
-      </div>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 02</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span></div>
-        <h3>Te diseñamos la ruta</h3>
-        <p>Orden de paradas, trenes, pase que te conviene y alojamiento cerca de cada estación.</p>
-      </div>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 03</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg></span></div>
-        <h3>Viajas acompañado</h3>
-        <p>Si algo cambia a mitad de viaje, nos escribes a cualquier hora y lo arreglamos.</p>
+      <div class="srt-art" aria-hidden="true">
+        <div class="srt-tk srt-tk--3"></div>
+        <div class="srt-tk srt-tk--2"></div>
+        <div class="srt-tk srt-tk--1">
+          <div class="srt-tk-main">
+            <span class="srt-tk-k">Admit one · Pase 3 días</span>
+            <b class="srt-tk-t">Ultra Europe</b>
+            <span class="srt-tk-y">2027</span>
+            <div class="srt-tk-meta"><span><small>Lugar</small>Split, Croacia</span><span><small>Fechas</small>9 — 11 jul</span></div>
+          </div>
+          <div class="srt-tk-stub"><small>Nº</small><b>FREE</b><i class="srt-tk-bar"></i></div>
+        </div>
+        <span class="srt-x10">Gratis</span>
       </div>
     </div>
   </div>
 </section>
+
+
+<section class="section section--tight">
+  <div class="container">
+    <div class="band" data-reveal>
+      <img src="assets/img/madrid.jpg" alt="Gran Vía de Madrid al atardecer" loading="lazy" style="object-position:30% center">
+      <div class="band-inner">
+        <span class="eyebrow eyebrow--light" data-via="04">Salidas</span>
+        <h2>Sales desde tu ciudad.</h2>
+        <p>Da igual dónde vivas: montamos el primer trayecto desde tu estación y enlazamos con la red europea sin rodeos.</p>
+        <div class="band-cities"><span>Madrid</span><span>Barcelona</span><span>Valencia</span><span>Sevilla</span><span>Bilbao</span><span>Zaragoza</span><span>Málaga</span><span>San Sebastián</span><span>y más</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section section--tight" id="temporada">
   <div class="container">
     <div class="season" data-season data-reveal>

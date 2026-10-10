@@ -18,25 +18,25 @@
     'html.ib-mant,html.ib-mant body{overflow:hidden!important;background:#0A0A0A!important}' +
     'html.ib-mant body>*:not(#ib-mant){display:none!important}' +
     '#ib-mant{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px 16px;' +
-      'background:#0A0A0A;color:#F1F0EB;font:400 1rem/1.55 Archivo,system-ui,sans-serif;text-align:center}' +
+      'background:#0A0A0A;color:#F1F0EB;font:400 1rem/1.55 "Funnel Sans",system-ui,sans-serif;text-align:center}' +
     '#ib-mant .mt-in{max-width:460px;width:100%}' +
     '#ib-mant .mt-logo{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;text-decoration:none;color:inherit}' +
     '#ib-mant .mt-logo img{width:40px;height:40px}' +
     '#ib-mant .mt-word{font:800 1.9rem/1 Poppins,sans-serif;letter-spacing:-.02em;color:#F1F0EB}' +
     '#ib-mant .mt-word b{color:#FFB81C;font-weight:800}' +
-    '#ib-mant h1{font:800 clamp(1.7rem,6vw,2.4rem)/1 Archivo,sans-serif;font-stretch:125%;text-transform:uppercase;margin:0 0 12px;letter-spacing:-.02em}' +
+    '#ib-mant h1{font:800 clamp(2rem,7vw,2.8rem)/1 "Funnel Display",sans-serif;margin:0 0 12px;letter-spacing:-.04em}' +
     '#ib-mant p{margin:0 0 10px;color:#C9C8C2}' +
-    '#ib-mant .mt-hora{display:inline-block;margin:14px 0 22px;padding:8px 16px;border-radius:0;background:#050505;border:1px solid #262626;color:#F1F0EB;' +
-      'font:500 .8rem "Martian Mono",ui-monospace,monospace}' +
+    '#ib-mant .mt-hora{display:inline-block;margin:14px 0 22px;padding:8px 16px;border-radius:999px;background:#050505;border:1px solid #262626;color:#F1F0EB;' +
+      'font:600 .85rem "Funnel Sans",system-ui,sans-serif}' +
     '#ib-mant .mt-hora b{color:#FFB81C;font-weight:500}' +
     '#ib-mant .mt-q{white-space:nowrap}' +
     '@media (max-width:420px){#ib-mant .mt-hora{font-size:.8rem;padding:8px 14px}}' +
     '#ib-mant .mt-rail{position:relative;height:4px;border-radius:4px;background:#222;overflow:hidden;margin:0 auto 26px;max-width:280px}' +
-    '#ib-mant .mt-rail i{position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:0;background:#FFB81C;animation:mtRail 1.8s ease-in-out infinite}' +
+    '#ib-mant .mt-rail i{position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:4px;background:#FFB81C;animation:mtRail 1.8s ease-in-out infinite}' +
     '@keyframes mtRail{to{left:100%}}' +
     '@media (prefers-reduced-motion:reduce){#ib-mant .mt-rail i{animation:none;left:0;width:100%}}' +
-    '#ib-mant .mt-wa{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:0;' +
-      'background:#FFB81C;color:#0C0C0C;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:.82rem;text-decoration:none}' +
+    '#ib-mant .mt-wa{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 22px;border-radius:14px;' +
+      'background:#FFB81C;color:#0C0C0C;font-weight:700;text-decoration:none}' +
     '#ib-mant .mt-wa:hover{background:#fff}' +
     '#ib-mant .mt-mail{display:block;margin-top:14px;font-size:.9rem;color:#A3A29C}' +
     '#ib-mant .mt-mail a{color:inherit}';

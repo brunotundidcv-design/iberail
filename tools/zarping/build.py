@@ -397,6 +397,11 @@ def rebrand(s):
         ('Hasta que envías la ruta, o 30 días como máximo', 'Hasta que envías el viaje, o 30 días como máximo'),
         ('tu cuenta y tu panel de rutas', 'tu cuenta y tus viajes'),
         ('el borrador de ruta solo si usas el planificador', 'el borrador del viaje solo si usas «Monta tu viaje»'),
+        # Iberail sirve sus tipografías desde su alojamiento; Zarping las sigue cargando de Google Fonts
+        ('<p>Las tipografías se sirven desde nuestro propio alojamiento, sin pasar por terceros. Para mostrar la web, tu navegador descarga algunas librerías y el mapa del planificador desde jsDelivr. Este servicio recibe tu dirección IP para poder enviarte los archivos, pero no instala cookies.</p>',
+         '<p>Para mostrar la web, tu navegador descarga las tipografías desde Google Fonts y algunas librerías y el mapa del planificador desde jsDelivr. Estos servicios reciben tu dirección IP para poder enviarte los archivos, pero no instalan cookies.</p>'),
+        ('<p>Además, para mostrar la web, tu navegador descarga algunas librerías y el mapa del planificador desde jsDelivr. Este servicio recibe tu dirección IP para poder enviarte los archivos. No instala cookies ni recibe los datos de tus formularios. Las tipografías se sirven desde nuestro propio alojamiento, sin pasar por terceros.</p>',
+         '<p>Además, para mostrar la web, tu navegador descarga las tipografías desde Google Fonts (Google) y algunas librerías y el mapa del planificador desde jsDelivr. Estos servicios reciben tu dirección IP para poder enviarte los archivos. No instalan cookies ni reciben los datos de tus formularios.</p>'),
         ('algunas librerías y el mapa del planificador desde jsDelivr', 'algunas librerías desde jsDelivr'),
         ('consultar el mapa de la ruta o un documento', 'consultar un documento'),
         ('ven tu nombre, la ruta y los documentos del grupo', 'ven tu nombre, el plan y los documentos del grupo'),

@@ -134,19 +134,23 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   aseguradora); por viajero: Marcar pagado (Bizum) / nº póliza → Contratado / Anular. Coberturas en `PLANES`
   (Totaltravel / mini de InterMundial; aseguradora Sompo). SQL: `supabase/sql/seguros.sql`. `live.js`: `seguro_pedido`.
 
-## Diseño v10 «panel de salidas» (10/10/2026)
+## Diseño v11 «andén» (10/10/2026)
 
-- Rediseño completo de la web pública de Iberail (mismo logo). Pedido: «estilo totalmente diferente, futurista, que no parezca
-  hecho con IA». Señalética ferroviaria + paneles LED: fondo hormigón claro `#ECEBE6` con rejilla, bloques negros `#0A0A0A`,
-  ámbar de señal `#FFB81C`, rojo `#E63B2E` (el logo sigue con sus colores), esquinas rectas, sin degradados ni sombras difusas.
-  Letras: **Archivo** ancha (125 %) en mayúsculas para títulos, **Doto** (LED de puntos) para números y detalles, **Martian Mono**
-  para etiquetas; Poppins 800 solo para el logotipo.
-- Va como capa aparte: `assets/tema.css` (después de `site.css`) y `assets/tema.js`, en todas las páginas públicas de Iberail.
-  **El panel y Zarping no lo cargan** (siguen con `site.css`), así que no hace falta regenerar Zarping por esto.
-  Para volver al diseño anterior: quitar las dos líneas de `tema.*` y la fuente nueva del `<head>` (y la portada de git).
-- Portada nueva: reloj de Madrid, título gigante + «a tu manera.» en LED, **panel de salidas de ejemplo** (`[data-board]`,
-  destinos y trenes reales, horas de ejemplo, letras que giran), cintas cruzadas ámbar/negra con ciudades y «VÍA 01…05» en las secciones (`data-via`).
-  Interiores: cabecera negra con franja ámbar/negra. `tema.js` también pinta la barra de progreso de la cabecera.
+- Rediseño de la web pública de Iberail (mismo logo). Pedido: «distinto, futurista, que no parezca hecho con IA». La v10 (todo
+  cuadrado, letras anchas en mayúsculas) no gustó por **demasiado cuadrada**: la v11 mantiene los colores y la idea de estación
+  (hormigón claro con rejilla, bloques negros, ámbar `#FFB81C`, rojo `#EF4130`) pero **redondeada** (tarjetas 22 px, bloques 30 px,
+  botones 14 px, cabecera y pie con esquinas grandes) y con títulos en minúscula.
+- **Letras alojadas en la web** (`assets/fonts/`, OFL, sacadas de Fontsource en npm): **Funnel Display** (títulos), **Funnel Sans**
+  (texto y etiquetas), **Doto** (solo paneles LED: salidas, reloj, cuentas atrás) y Poppins 800 (logotipo). Las páginas públicas
+  ya **no cargan Google Fonts** (el panel sí); privacidad y cookies lo dicen (en Zarping, `rebrand()` deja el texto de Google Fonts).
+- Capa aparte: `assets/tema.css` (después de `site.css`) + `assets/tema.js`, en todas las páginas públicas de Iberail.
+  **El panel y Zarping no lo cargan.** Volver atrás = quitar `tema.*`, las precargas de fuentes y restaurar la portada desde git.
+- Portada (orden nuevo): cabecera negra con reloj de Madrid, «Europa en tren, *a tu manera.*» (subrayado en forma de vía) y
+  **panel de salidas de ejemplo** (`[data-board]`, destinos y trenes reales, horas de ejemplo, letras que giran, se inclina con el
+  ratón) → cifras en una barra blanca que monta sobre la cabecera (`.dock`) → cintas cruzadas → Cómo funciona (paradas unidas por
+  una vía) → Destinos en **mosaico** (Split grande con el vídeo del Ultra, que solo se carga al verse: `video[data-src]`) →
+  Split (foto a la derecha) → sorteo → «Sales desde tu ciudad» → temporada → contacto. Secciones con «Vía 01…05» (`data-via`).
+- Interiores: cabecera negra con esquinas redondeadas abajo y una curva de vía en la esquina.
 - `.cta` lo usan dos cosas (bloque rojo de la portada y la cuenta atrás de `sorteo.html`): en `tema.css` el de la portada va
   como `.container > .cta`.
 
