@@ -183,6 +183,9 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   «¿Hablamos de tu ruta?» (la temporada ya lleva los botones). Nuevo: **preguntas frecuentes** en la portada (las mismas de
   Contacto). Orden: cabecera → cifras → cinta → Cómo funciona → test (ámbar) → Destinos (con Split en grande y su vídeo) →
   sorteo (tarjeta, sin lámina propia) → Dudas → Temporada (roja) → pie montado encima.
+- **Pie**: la firma de Bruno es una línea discreta (avatar pequeño · «Bruno Tundidor» · «Founder»), sin tarjeta. Se pidió quitar
+  «CEO»: pone solo **Founder** (también en el `aria-label` y en el `jobTitle` de los datos estructurados). El bot de WhatsApp
+  (`CONOCIMIENTO`) todavía dice «Fundador y CEO».
 
 ## Sorteo discreto (v9.2) y panel de demo
 

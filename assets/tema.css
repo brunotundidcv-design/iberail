@@ -738,3 +738,16 @@ html,body{overflow-x:clip}
 }
 .hx-link{display:block;line-height:1.5}
 .hx-link svg{display:inline-block;vertical-align:-3px;margin-left:4px}
+
+/* ---------- pie: firma de Bruno discreta (una línea: avatar pequeño · nombre · Founder) ---------- */
+.footer-ceo{gap:10px;margin-top:22px;padding:0;border:0!important;border-radius:0!important;background:none!important;width:auto}
+.footer-ceo:hover{transform:none}
+.footer-ceo-av{width:30px;height:30px;padding:1.5px;background:#2a2a2a!important}
+.footer-ceo-av::after{display:none}
+.footer-ceo-av i{border-width:1.5px;font-size:.62rem}
+.footer-ceo-t{flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.footer-ceo-t b{order:0;font-family:var(--body);font-size:.92rem;font-weight:600;letter-spacing:0;color:#C9C8C2;transition:color .2s}
+.footer-ceo-t small{order:1;font-family:var(--body);font-size:.66rem;font-weight:600;letter-spacing:.12em;color:#9A9993}
+.footer-ceo-t em{display:none}
+.footer-ceo:hover .footer-ceo-t b{color:var(--amber)}
+@media (max-width:420px){.footer-ceo{width:auto;padding:0}.footer-ceo-t b{font-size:.92rem}}
