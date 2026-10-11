@@ -8,6 +8,7 @@
    - video[data-src]: se carga y reproduce solo cuando se ve. */
 (function(){
   'use strict';
+  var TEMA0 = window.IB_TEMA || {};
   var quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var raton = window.matchMedia && matchMedia('(pointer: fine)').matches;
   var html = document.documentElement;
@@ -68,7 +69,10 @@
     host.insertBefore(cv, host.firstChild); host.classList.add('has-red');
     var cx = cv.getContext('2d'), base = document.createElement('canvas'), bx = base.getContext('2d');
     var W = 0, H = 0, R = 1, P = {}, trenes = [], pulsos = [], mia = null, raton = null, vivo = true, ultimo = 0;
-    var AMB = '255,184,28', ROJO = '215,48,30';
+    // colores y ajustes de la temática del día (hispanidad.js define window.IB_TEMA)
+    var TEMA = window.IB_TEMA || {};
+    var AMB = TEMA.amb || '255,184,28', ROJO = TEMA.rojo || '215,48,30';
+    var ESPANA = {}; if(TEMA.espana) (DD.origins || []).forEach(function(o){ if(vecinos[o.n]) ESPANA[o.n] = 1; });
     var lat0 = 48 * Math.PI / 180, k0 = Math.cos(lat0);
     function proyecta(){
       var r = host.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height);
@@ -90,15 +94,24 @@
       bx.lineWidth = 1; bx.strokeStyle = 'rgba(255,255,255,.075)'; bx.beginPath();
       aristas.forEach(function(e){ var a = P[e[0]], b = P[e[1]]; bx.moveTo(a.x, a.y); bx.lineTo(b.x, b.y); });
       bx.stroke();
-      nombres.forEach(function(n){ var p = P[n]; bx.fillStyle = 'rgba(255,255,255,.26)'; bx.beginPath(); bx.arc(p.x, p.y, ROTULOS.indexOf(n) >= 0 ? 2.2 : 1.5, 0, 6.3); bx.fill(); });
+      if(TEMA.espana){
+        // las líneas de España, resaltadas en los colores de la bandera
+        bx.lineWidth = 1.6; bx.strokeStyle = 'rgba(' + AMB + ',.42)'; bx.beginPath();
+        aristas.forEach(function(e){ if(ESPANA[e[0]] && ESPANA[e[1]]){ var a = P[e[0]], b = P[e[1]]; bx.moveTo(a.x, a.y); bx.lineTo(b.x, b.y); } });
+        bx.stroke();
+      }
+      nombres.forEach(function(n){ var p = P[n], es = ESPANA[n]; bx.fillStyle = es ? 'rgba(' + (n === 'Madrid' ? ROJO : AMB) + ',.95)' : 'rgba(255,255,255,.26)'; bx.beginPath(); bx.arc(p.x, p.y, es ? 3 : ROTULOS.indexOf(n) >= 0 ? 2.2 : 1.5, 0, 6.3); bx.fill(); });
       bx.font = '600 10px "Funnel Sans", system-ui, sans-serif'; bx.fillStyle = 'rgba(255,255,255,.16)';
       if(W > 700) ROTULOS.forEach(function(n){ var p = P[n]; if(p) bx.fillText(n.toUpperCase(), p.x + 6, p.y - 6); });
     }
     function nuevoTren(desde){
-      var a = desde || nombres[Math.floor(Math.random() * nombres.length)], vs = vecinos[a];
+      var esp = Object.keys(ESPANA);
+      // en la temática del día, muchos trenes salen de España
+      var a = desde || (esp.length && Math.random() < .4 ? esp[Math.floor(Math.random() * esp.length)] : nombres[Math.floor(Math.random() * nombres.length)]), vs = vecinos[a];
       var b = vs[Math.floor(Math.random() * vs.length)];
       var r = Math.random();
-      return { a: a, b: b, t: 0, v: 55 + Math.random() * 60, col: r < .72 ? AMB : r < .9 ? ROJO : '255,255,255' };
+      var pRojo = TEMA.espana ? .45 : .72;
+      return { a: a, b: b, t: 0, v: 55 + Math.random() * 60, col: r < pRojo ? AMB : r < .92 ? ROJO : '255,255,255' };
     }
     var N = W < 700 ? 9 : 22;
     function siembra(){ trenes = []; N = W < 700 ? 9 : (principal ? 22 : 14); for(var i = 0; i < N; i++){ var tr = nuevoTren(); tr.t = Math.random(); trenes.push(tr); } }
@@ -285,6 +298,8 @@
       rellena(li, hhmm(min), s[0], s[1], String(1 + Math.floor(Math.random() * 14)), estado, retraso);
       return li;
     }
+    // fila fija de la temática del día (IB_TEMA.fila = [hora, destino, tren, vía, estado])
+    if(TEMA0.fila){ var fx = document.createElement('li'); fx.className = 'is-pin'; rellena(fx, TEMA0.fila[0], TEMA0.fila[1], TEMA0.fila[2], TEMA0.fila[3], TEMA0.fila[4], 120); lista.appendChild(fx); FILAS--; }
     for(var k = 0; k < FILAS; k++) lista.appendChild(fila(250 + k * 140));
     if(!quieto){
       // cada pocos segundos sale un tren y entra otro por abajo (tu fila se queda arriba)
@@ -292,7 +307,7 @@
       document.addEventListener('visibilitychange', function(){ corre = !document.hidden; });
       setInterval(function(){
         if(!corre) return;
-        var primero = lista.querySelector('li:not(.is-mine):not(.is-out)');
+        var primero = lista.querySelector('li:not(.is-mine):not(.is-out):not(.is-pin)');
         if(!primero) return;
         primero.classList.add('is-out');
         setTimeout(function(){ if(primero.parentNode) primero.remove(); lista.appendChild(fila(0)); }, 420);
@@ -308,7 +323,7 @@
           var li = document.createElement('li'); li.className = 'is-mine';
           var ult = mias[mias.length - 1];
           lista.insertBefore(li, ult ? ult.nextSibling : lista.firstChild);
-          var sobra = lista.querySelector('li:not(.is-mine):last-child'); if(sobra) sobra.remove();
+          var sobra = lista.querySelector('li:not(.is-mine):not(.is-pin):last-child'); if(sobra) sobra.remove();
           mias.push(li);
         }
         mias.forEach(function(li, n){

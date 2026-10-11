@@ -225,6 +225,25 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   en la tarjeta de Split de la portada («Casi lleno»), en el panel de salidas y en «tu ruta» de la portada si eliges Split.
   **Quitarlo cuando ya no sea verdad** (buscar «Queda muy poco alojamiento» / «Casi lleno»).
 
+## Temática del Día de la Hispanidad (v14, 11/10/2026) — se apaga sola el 13/10 a las 00:00
+
+- `assets/hispanidad.js` (en el `<head>`, antes de `tema.js`) + `assets/hispanidad.css` (todo bajo `html.tema-hispanidad`), en las
+  14 páginas públicas. Activa **hasta `HASTA` = 13/10/2026 00:00 (Madrid)**; después la web vuelve sola a su aspecto normal.
+  `?tema=normal` la quita en esa página; `?tema=hispanidad` la fuerza; `?intro=1` repite la bienvenida.
+- Colores oficiales de la bandera: rojo `#AA151B`, gualda `#F1BF00` (redefine `--coral`, `--amber`). Titular de la portada
+  «Desde España, *a toda Europa.*» (`.hisp-only` / `.no-hisp` en `index.html`), etiqueta «12 de octubre · Feliz Día de la
+  Hispanidad», sello que gira, franja que ondea en las cabeceras, cinta de ciudades de España, fila fija «Toda Europa · Desde
+  España · Fiesta» en el panel de salidas y líneas de España resaltadas en el fondo de trenes (`window.IB_TEMA`, que leen
+  `tema.js` y `fiesta.js`), «rail» del pie con la bandera.
+- **Bienvenida a pantalla completa** la primera vez que se entra cada día: bandera que se forma, «¡Feliz Día de la Hispanidad,
+  <nombre>!» (con sesión, el nombre de `IB.storedUser()` / `IB.getUser()`; sin sesión, solo el mensaje) y confeti; se cierra
+  sola a los ~5 s o tocando. `localStorage` `ib-hisp-<fecha>` (en la política de cookies; en Zarping, `rebrand()` lo quita).
+  No sale con la web en mantenimiento ni a robots (`navigator.webdriver`: por eso no molesta en las pruebas con Playwright).
+- **Sorteo**: fuegos artificiales en rojo y gualda de fondo, cifras de la cuenta atrás que giran al cambiar (MutationObserver),
+  título con brillo y confeti del resultado en los colores de la bandera.
+- Para otro año: cambiar `HASTA` en `hispanidad.js` (y revisar la fecha del texto). Para quitarla del todo: borrar los dos
+  archivos y sus dos líneas en el `<head>` de cada página.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana
