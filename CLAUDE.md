@@ -47,7 +47,7 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 ## JavaScript (`assets/`)
 
 - `cola.js` (sala de espera simulada) **quitada el 08/10/2026** a petición del equipo (archivo y `<script>` borrados).
-- `mantenimiento.js` — **web cerrada por mantenimiento** hasta `HASTA` (10/10/2026 13:30, hora de Madrid); después se abre sola
+- `mantenimiento.js` — **web cerrada por mantenimiento** hasta `HASTA` (última vez: 11/10/2026 15:00, hora de Madrid); después se abre sola
   (y recarga a quien la tenga abierta). En el `<head>` de todas las páginas públicas tras `config.js`; el panel no lo lleva.
   El equipo entra con `?equipo=1`. Para otra vez: cambiar `HASTA` (la hora del texto sale de ahí). Zarping no lo lleva.
 - `app.js` — capa común `window.IB`: cliente Supabase, enlaces WhatsApp, sesión, utilidades.

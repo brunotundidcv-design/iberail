@@ -3,7 +3,7 @@
    Para quitarlo antes de tiempo: HASTA = '' (o borrar el archivo y las líneas <script src="assets/mantenimiento.js">).
    El equipo puede entrar igualmente con ?equipo=1 (se recuerda en esa pestaña). */
 (function(){
-  var HASTA = '2026-10-10T13:30:00+02:00';   // hora de Madrid
+  var HASTA = '2026-10-11T15:00:00+02:00';   // hora de Madrid
   var fin = Date.parse(HASTA);
   if(!fin || Date.now() >= fin) return;
   try{
