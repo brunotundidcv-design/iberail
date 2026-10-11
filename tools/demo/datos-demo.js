@@ -296,13 +296,25 @@
   inscritos.sort((a, b) => a.created_at < b.created_at ? 1 : -1);
   const proximo = new Date(AHORA + 6 * DIA);
   const sorteoCfg = { id: 1, fecha: dia(proximo.getTime()), hora: '20:00', entradas: 3, total: 10, tanda: 2, publicado: false, acta: '', sonidos: {}, premios: null };
+  // sorteo nº 1 (hace 9 días): ya está en el historial de premios, con casi todo entregado
+  const PREMIOS1 = [['entrada', 'Entrada Ultra Europe', 3], ['d300', '300 € de descuento', 1], ['d100', '100 € de descuento', 2], ['d50', '50 € de descuento', 3], ['copas', 'Bono de copas en Split', 5], ['d25', '25 € de descuento', 5], ['d5', '5 € de descuento', 10]];
+  const NOTAS1 = { entrada: ['Entrada enviada a su correo', 'Pulsera nominativa enviada por correo'], copas: ['Se lo damos en Split al llegar', 'Bono en su carpeta del grupo'], d: ['Descontado en su grupo', 'Aplicado al pago de su parte', 'Descontado del segundo pago'] };
+  const fecha1 = AHORA - 9 * DIA, gan1 = mezcla(inscritos).slice(0, 29), historial = [];
+  let hi = 0;
+  PREMIOS1.forEach(([id, label, n]) => { for(let k = 0; k < n; k++){
+    const ins = gan1[hi++], c = clientes.find(x => x.id === ins.user_id), ok = rnd() < (id === 'entrada' ? .67 : .72), at = fecha1 + ent(1, 7) * DIA + ent(9, 20) * H;
+    historial.push({ id: hi, user_id: c.id, tanda: 1, fecha: dia(fecha1), premio: id, premio_label: label, tirada: null,
+      visto: rnd() < .88 ? iso(fecha1 + 20 * H + rnd() * 30 * H) : null, nombre: c.nombre, email: c.email, telefono: c.telefono,
+      entregado_at: ok ? iso(Math.min(at, AHORA - H)) : null, entregado_por: ok ? uno(['Bruno', 'Equipo Iberail']) : null,
+      nota: ok && rnd() < .8 ? uno(NOTAS1[id] || NOTAS1.d) : null, created_at: iso(fecha1) });
+  } });
 
   /* ---------- todo junto ---------- */
   D.db = {
     rutas, rutas_notas: notasRuta, grupos, grupo_miembros: miembros, pagos, documentos, avisos, avisos_leidos: leidos,
     comisiones, referidos, rrpp_codigos: codigos, wa_config: [{ id: 1, bot_activo: true, horas_pausa: 12 }], wa_chats: chats, wa_mensajes: mensajes,
     visitas, actividad, alojamientos, seguros, seguro_ofertas: ofertas,
-    sorteo_inscritos: inscritos, sorteo_config: [sorteoCfg], sorteo_ganadores: [], admins: [{ user_id: EQUIPO.id }]
+    sorteo_inscritos: inscritos, sorteo_config: [sorteoCfg], sorteo_ganadores: [], sorteo_historial: historial, admins: [{ user_id: EQUIPO.id }]
   };
   D.rpc = {
     is_admin: () => true,

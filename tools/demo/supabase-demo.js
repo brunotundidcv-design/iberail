@@ -136,7 +136,7 @@
         const res = this.filas.map(f => {
           const ex = T.find(x => keys.every(k => String(x[k]) === String(f[k])));
           if(ex){ const old = copia(ex); Object.assign(ex, copia(f)); D.emitir(this.t, 'UPDATE', ex, old); return ex; }
-          const r = { ...copia(f) }; if(r.id == null && keys[0] === 'id') r.id = nextId(this.t); if(r.created_at == null) r.created_at = new Date().toISOString();
+          const r = { ...copia(f) }; if(r.id == null && (keys[0] === 'id' || !PK[this.t])) r.id = nextId(this.t); if(r.created_at == null) r.created_at = new Date().toISOString();
           T.push(r); D.emitir(this.t, 'INSERT', r); return r;
         });
         return this._fin(this.ret ? res.map(r => columnas(this.sel, r)) : null);

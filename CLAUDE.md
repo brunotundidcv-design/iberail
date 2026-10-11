@@ -126,6 +126,16 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   Rellena `[data-srt-when]` y `[data-srt-tag]` de la portada, la barra de arriba y la tarjeta de la cuenta
   («Sorteamos mañana las 3 primeras entradas»). Pasada la fecha deja de salir solo.
   SQL `12-sorteo.sql` no está en el repo.
+- `premios-panel.js` (v14.2, 11/10/2026) — pestaña **«🎁 Premios»** del panel (`#preView`, `IBPremios.show()`, contador `#admCPre`
+  = premios por entregar): lo que le ha tocado a cada persona en **todos los sorteos**, agrupado por persona, con «Marcar entregado»
+  (guarda fecha y quién del equipo), «Deshacer», nota de cómo se entregó, WhatsApp con el premio en el mensaje, filtros (por entregar /
+  entregados / todos, sorteo, tipo de premio), buscador y «Exportar CSV». Tabla `sorteo_historial` (una fila por persona y sorteo,
+  único `(user_id, tanda)`, copia nombre/correo/teléfono por si borran la cuenta; solo `is_admin`). SQL: `supabase/sql/sorteo-historial.sql`
+  (también mete lo que ya haya asignado). Se rellena desde el panel: al **publicar** y antes de **«Preparar un sorteo nuevo»**
+  (`IBPremios.archivar()` desde `sorteo-panel.js`) y al marcar entregado. El sorteo actual sale en directo de `sorteo_ganadores`
+  (manda sobre el historial: si se le quita el premio y no estaba entregado, deja de salir). Los sorteos anteriores a esto solo están
+  en los CSV que se descargaban: botón **«Importar un sorteo anterior (CSV)»** (cruza por correo con las cuentas, salta repetidos,
+  pide la fecha si el CSV no la trae; entran sin nº de sorteo y como «por entregar»). Demo: sorteo nº 1 con 29 premios.
 - `seguro.js` — «Iberail Protect» (seguro de viaje con marca propia; la aseguradora solo en letra pequeña si se
   rellena). **Se paga aparte del viaje**: no toca `grupo_miembros.importe` ni `pagos`. «Mis grupos» (`[data-seguro]`):
   tarjeta con coberturas y «Contratar y pagar» → `IBPay.start(btn, gid, null, { seguro: true })` → stripe-checkout
@@ -284,7 +294,7 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
 Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
-Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `anular_seguro`); columna `pagos.stripe_session`; bucket `alojamientos`.
+Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `anular_seguro`), `sorteo_historial`; columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
 ### Pagos con Stripe (Checkout alojado por Stripe)

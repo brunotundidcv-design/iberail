@@ -161,7 +161,7 @@
     view = v;
     $$('#admViews [data-v]').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v));
     $$('.adm-view').forEach(el => el.hidden = el.dataset.view !== v);
-    $('#admH').textContent = { sol: 'Solicitudes', cli: 'Clientes', gru: 'Grupos', avi: 'Avisos', rrp: 'Invita y gana', wha: 'WhatsApp', con: 'Contratos', cor: 'Correos', liv: 'En directo', srt: 'Sorteo' }[v];
+    $('#admH').textContent = { sol: 'Solicitudes', cli: 'Clientes', gru: 'Grupos', avi: 'Avisos', rrp: 'Invita y gana', wha: 'WhatsApp', con: 'Contratos', cor: 'Correos', liv: 'En directo', srt: 'Sorteo', pre: 'Premios de los sorteos' }[v];
     $('#admCsv').hidden = v !== 'sol';
     if(v === 'cli'){ loadClients(); paintClients(); }
     if(v === 'gru'){ loadClients(); paintGroups(); }
@@ -171,6 +171,7 @@
     if(v === 'cor' && window.IBCorreos) IBCorreos.show();
     if(v === 'liv' && window.IBLive) IBLive.show();
     if(v === 'srt' && window.IBSorteo) IBSorteo.show();
+    if(v === 'pre' && window.IBPremios) IBPremios.show();
   }
 
   /* ---------- solicitudes ---------- */

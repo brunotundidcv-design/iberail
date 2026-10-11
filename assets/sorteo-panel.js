@@ -119,7 +119,7 @@
     const c = cfg || {}, n = ganadores.size;
     return `<section class="lv-card srtc">
       <div class="srtp-h"><h3>⚙️ Sorteo actual</h3><button type="button" class="btn btn--ghost btn--sm" data-srt-nuevo>🆕 Preparar un sorteo nuevo</button></div>
-      <p class="srtp-hint">Haces sorteos cuando quieras: pones <b>el día y la hora</b>, <b>cuántas entradas</b> se sortean y <b>qué le ha tocado a cada uno</b>; a esa hora cada persona abre su premio en su cuenta. Nadie ve el premio de los demás y, hasta que no le des a «Publicar», nadie ve nada. Cuando acabe, pulsa <b>«Preparar un sorteo nuevo»</b>: se guarda la lista de ganadores en tu ordenador y empiezas el siguiente de cero (los apuntados siguen dentro con sus tiradas).</p>
+      <p class="srtp-hint">Haces sorteos cuando quieras: pones <b>el día y la hora</b>, <b>cuántas entradas</b> se sortean y <b>qué le ha tocado a cada uno</b>; a esa hora cada persona abre su premio en su cuenta. Nadie ve el premio de los demás y, hasta que no le des a «Publicar», nadie ve nada. Cuando acabe, pulsa <b>«Preparar un sorteo nuevo»</b>: los premios quedan guardados en la pestaña <b>«Premios»</b> (donde marcas lo que vas entregando), se descarga la lista en tu ordenador y empiezas el siguiente de cero (los apuntados siguen dentro con sus tiradas).</p>
       ${cfgErr ? `<p class="lv-empty is-err">${esc(cfgErr)} · Ejecuta <b>supabase/sql/sorteo-ruleta.sql</b> en Supabase.</p>` : ''}
       <div class="srtc-grid">
         <label>Día del sorteo<input class="pl-input" type="date" id="srtFecha" value="${esc(dv('srtFecha', c.fecha || ''))}"></label>
@@ -263,7 +263,9 @@
     }
     // nuevo sorteo: guarda la lista de ganadores del actual (CSV), los borra y deja el siguiente sin publicar
     if(e.target.closest('[data-srt-nuevo]')){
-      if(!confirm('¿Preparar un sorteo nuevo?\n\n· Se descarga en tu ordenador la lista de ganadores del sorteo actual (guárdala: la necesitas para Hacienda y por si alguien reclama).\n· Se borran los premios asignados para empezar de cero.\n· Los apuntados siguen dentro con sus tiradas.\n· El nuevo sorteo queda sin publicar hasta que lo publiques.')) return;
+      if(!confirm('¿Preparar un sorteo nuevo?\n\n· Los premios de este sorteo quedan guardados en la pestaña «Premios» (para marcar lo que vayas entregando).\n· Además se descarga en tu ordenador la lista de ganadores (guárdala: la necesitas para Hacienda y por si alguien reclama).\n· Se borran los premios asignados aquí para empezar de cero.\n· Los apuntados siguen dentro con sus tiradas.\n· El nuevo sorteo queda sin publicar hasta que lo publiques.')) return;
+      const ae = ganadores.size && window.IBPremios ? await IBPremios.archivar() : null;
+      if(ae && !confirm('No se han podido guardar los premios en la pestaña «Premios»: ' + ae.message + '\n\n(¿Has ejecutado supabase/sql/sorteo-historial.sql?)\n\nSi sigues, solo quedará la lista que se descarga en tu ordenador. ¿Seguir igualmente?')) return;
       const filas = [['nombre', 'email', 'telefono', 'premio', 'tirada', 'fecha_sorteo']].concat([...ganadores.entries()].map(([uid, p]) => [name(uid), cli(uid).email || '', cli(uid).telefono || '', premioLabel(p) || p, tirs.get(uid) || '', (cfg || {}).fecha || '']));
       const celda = v => { let s = String(v == null ? '' : v); if(/^[=@\t\r]/.test(s) || (/^[+\-]/.test(s) && !/^[+\-]?[\d\s().,-]+$/.test(s))) s = "'" + s; return `"${s.replace(/"/g, '""')}"`; };
       const csv = '﻿' + filas.map(f => f.map(celda).join(';')).join('\n');
@@ -299,7 +301,10 @@
       const ent = dados('entrada');
       if(on && ent !== (Number(cfg.entradas) || 0) && !confirm(`Has asignado ${ent} entrada(s) y en este sorteo se sortean ${cfg.entradas}. ¿Publicar igualmente?`)) return;
       if(on && !confirm('Al publicar, cada persona podrá abrir su premio a partir de la hora que has puesto. ¿Seguimos?')) return;
-      return saveCfg({ publicado: on }, on ? 'Publicado: ya pueden girar la ruleta' : 'Despublicado');
+      await saveCfg({ publicado: on }, on ? 'Publicado: ya pueden girar la ruleta' : 'Despublicado');
+      // al publicar, los premios pasan también al historial (pestaña «Premios»)
+      if(on && window.IBPremios){ const ae = await IBPremios.archivar(); if(ae) toast(`<b>No se han guardado en «Premios»</b>${esc(ae.message)} · ejecuta supabase/sql/sorteo-historial.sql`); }
+      return;
     }
     const b = e.target.closest('[data-srt-del]'); if(!b) return;
     const uid = b.dataset.srtDel;
