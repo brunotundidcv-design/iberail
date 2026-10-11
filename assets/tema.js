@@ -381,7 +381,8 @@
         var resumen = sel.length + (sel.length === 1 ? ' parada' : ' paradas');
         if(sel.length > 1) resumen += ' · ' + (aprox ? 'unas ' : '') + horas({ h: total, ok: true }) + ' de tren en total';
         if(sel.indexOf('Split') >= 0) resumen += ' · Ultra Europe: 9–11 jul';
-        rutaBox.innerHTML = html + '<p class="hx-sum">' + esc(resumen) + '</p>';
+        rutaBox.innerHTML = html + '<p class="hx-sum">' + esc(resumen) + '</p>' +
+          (sel.indexOf('Split') >= 0 ? '<p class="hx-warn">Split: queda muy poco alojamiento para el Ultra y los precios suben rapidísimo.</p>' : '');
       }
       var q = 'desde=' + encodeURIComponent(origen) + (sel.length ? '&ruta=' + encodeURIComponent(sel.join(',')) : '');
       ir.href = 'rutas.html?' + q;

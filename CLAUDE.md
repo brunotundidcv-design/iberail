@@ -216,6 +216,11 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   dice «El precio exacto va en tu presupuesto»; con precios elige el más barato. Los tipos de pase hay que confirmarlos con la
   oferta vigente de Interrail.
 - Pendiente (pedido «más tarde»): actualizar el bot de WhatsApp con lo nuevo de la web.
+- **Aviso de escasez en Split** (11/10/2026, lo pidió el equipo: «no queda casi nada en Split»): «Queda muy poco alojamiento en
+  Split para el Ultra y los precios suben rapidísimo». Sale en el planificador (fijo bajo la pastilla del Ultra, `.tx-escasez`, y
+  dentro del aviso del Ultra cuando Split está en la ruta, `.pl-ultra-warn`), en la cabecera y el aviso de fechas de `split.html`,
+  en la tarjeta de Split de la portada («Casi lleno»), en el panel de salidas y en «tu ruta» de la portada si eliges Split.
+  **Quitarlo cuando ya no sea verdad** (buscar «Queda muy poco alojamiento» / «Casi lleno»).
 
 ## Sorteo discreto (v9.2) y panel de demo
 

@@ -833,3 +833,15 @@ body::before{background-image:radial-gradient(rgba(14,14,14,.11) 1px,transparent
 .pl-pase-p small{font-weight:600;font-size:.72rem;color:var(--muted)}
 .pl-pase-p.is-none{font-weight:600;font-size:.84rem;color:var(--ink-soft)}
 .pl-pase-n{display:block;margin-top:6px;font-size:.7rem;color:var(--muted)}
+
+/* aviso de escasez en Split (planificador, página de Split, portada) */
+.tx-escasez{display:flex;align-items:flex-start;gap:10px;max-width:760px;margin:0 auto 18px;padding:12px 16px;border-radius:16px;background:#FFF1EE;border:1px solid rgba(215,48,30,.4);color:#5A1209;font-size:.92rem;line-height:1.45}
+.tx-escasez svg{flex-shrink:0;width:20px;height:20px;margin-top:1px;fill:var(--coral);stroke:none}
+.tx-escasez b{color:#8E1D10}
+.tx-escasez--dark{margin:22px 0 0;max-width:560px;background:rgba(215,48,30,.2);border-color:rgba(255,120,100,.55);color:#FFE3DD}
+.tx-escasez--dark b{color:#fff}
+.tx-escasez--dark svg{fill:#FF7A6B}
+.pl-ultra-warn{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(14,14,14,.18);font-style:normal;font-weight:700;font-size:.82rem;color:#8E1D10}
+.dest-feat-tags{display:flex;flex-wrap:wrap;gap:6px}
+.dest-feat-tag--hot{background:var(--coral);color:#fff}
+.hx-warn{margin:8px 0 0;font-size:.84rem;font-weight:700;color:#FF9A8C}

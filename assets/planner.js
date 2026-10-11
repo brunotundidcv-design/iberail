@@ -580,6 +580,8 @@
     } else {
       html = `<b>Split, parada de tu ruta</b><span>Llegas el ${esc(shortDate(u.arrive))}: calas, casco romano y noches largas.</span>`;
     }
+    // aviso de escasez (lo pidió el equipo, octubre de 2026)
+    html += '<em class="pl-ultra-warn">Queda muy poco alojamiento en Split para el Ultra y los precios suben rapidísimo. Cuanto antes lo cerremos, mejor.</em>';
     box.dataset.state = state;
     box.innerHTML = html;
   }
