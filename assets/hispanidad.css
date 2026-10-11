@@ -25,7 +25,7 @@ html.tema-hispanidad .hisp-pill{display:inline-flex;align-items:center;gap:12px;
   background:rgba(255,255,255,.06);border:1px solid rgba(241,191,0,.45);color:#E9E8E3;font-weight:600;font-size:.95rem;line-height:1.2;
   backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:hispIn .7s .2s cubic-bezier(.2,.8,.2,1) both}
 html.tema-hispanidad .hisp-pill b{color:#fff;font-weight:800}
-html.tema-hispanidad .hisp-pill .hisp-flag{width:34px;height:22px;border-radius:999px}
+html.tema-hispanidad .hisp-pill .hisp-flag{width:30px;height:20px;border-radius:4px}
 html.tema-hispanidad .hisp-pill--sm{margin:0 0 18px;font-size:.84rem;padding:6px 14px 6px 6px}
 html.tema-hispanidad .hisp-pill--sm .hisp-flag{width:28px;height:18px}
 @keyframes hispIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -132,7 +132,7 @@ html.tema-hispanidad .hx-title .hisp-only .hx-acc{background:linear-gradient(90d
 @keyframes hispOro{to{background-position:-200% 0}}
 /* banderitas que ondean */
 html.tema-hispanidad .hisp-pill .hisp-flag,html.tema-hispanidad .hisp-sello .hs-c .hisp-flag{animation:hispFlag 2.4s ease-in-out infinite;transform-origin:left center}
-@keyframes hispFlag{0%,100%{transform:perspective(80px) rotateY(0)}50%{transform:perspective(80px) rotateY(-18deg) skewY(-3deg)}}
+@keyframes hispFlag{0%,100%{transform:none}50%{transform:perspective(120px) rotateY(-12deg)}}
 /* pie */
 html.tema-hispanidad .footer-big{background:none}
 
@@ -142,7 +142,6 @@ html.tema-hispanidad .footer-big{background:none}
 html.tema-hispanidad .srt-page .cta{background-color:transparent}
 html.tema-hispanidad .hisp-fw{position:absolute;inset:0;z-index:0;pointer-events:none}
 html.tema-hispanidad .srt-page > section{position:relative;z-index:1}
-html.tema-hispanidad .hisp-pill--srt{position:absolute;z-index:3;top:calc(74px + 18px);left:50%;transform:translateX(-50%);margin:0;white-space:nowrap;animation:none}
 html.tema-hispanidad .cta-h em{background:linear-gradient(90deg,#F1BF00 0%,#FFE27A 20%,#F1BF00 40%,#AA151B 50%,#F1BF00 60%,#FFE27A 80%,#F1BF00 100%) 0 0/250% 100%;
   -webkit-background-clip:text;background-clip:text;color:transparent;animation:hispOro 6s linear infinite}
 html.tema-hispanidad .cta-u{box-shadow:inset 0 4px 0 #AA151B,inset 0 10px 0 #F1BF00,inset 0 14px 0 #AA151B!important;padding-top:calc(clamp(10px,2vw,22px) + 10px)!important}
@@ -187,7 +186,6 @@ html.hisp-intro-on,html.hisp-intro-on body{overflow:hidden}
 
 @media (max-width:560px){
   html.tema-hispanidad .hisp-band{height:18px;background-size:120px 18px}
-  html.tema-hispanidad .hisp-pill--srt{font-size:.74rem;top:calc(70px + 12px)}
   .hisp-intro .hi-t{max-width:11ch}
 }
 @media (prefers-reduced-motion:reduce){
@@ -196,3 +194,8 @@ html.hisp-intro-on,html.hisp-intro-on body{overflow:hidden}
   html.tema-hispanidad .hx-acc,html.tema-hispanidad .cta-h em,html.tema-hispanidad .cta-sep,html.tema-hispanidad .cta-u b.hisp-tick{animation:none!important}
   .hisp-intro .hi-b,.hisp-intro .hi-t > span,.hisp-intro .hi-logo,.hisp-intro .hi-k,.hisp-intro .hi-s,.hisp-intro .hi-go,.hisp-intro .hi-name.is-on{animation:none!important;opacity:1!important;transform:none!important}
 }
+
+/* sorteo: la fecha del sorteo lleva la bandera (sustituye a la etiqueta del 12 de octubre, que se pegaba a ella) */
+html.tema-hispanidad .cta-k{border-color:rgba(241,191,0,.5);background:rgba(170,21,27,.18)}
+html.tema-hispanidad .cta-k i{width:22px!important;height:14px!important;border-radius:3px!important;animation:none!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)!important;
+  background:linear-gradient(180deg,#AA151B 0 25%,#F1BF00 25% 75%,#AA151B 75%)!important}

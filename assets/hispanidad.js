@@ -178,9 +178,10 @@
     });
     // cuenta y grupos: etiqueta del día en la tarjeta oscura
     [].forEach.call(document.querySelectorAll('.auth-art'), function(a){ a.insertBefore(pill(true), a.firstChild); });
-    // sorteo: etiqueta arriba y franja abajo
+    // sorteo: franja abajo
     var srt = document.querySelector('.srt-page');
-    if(srt){ var pp = pill(false); pp.classList.add('hisp-pill--srt'); srt.insertBefore(pp, srt.firstChild); srt.appendChild(franja()); }
+    // (sin etiqueta del 12 de octubre: la página ya tiene la fecha del sorteo arriba y juntas confundían; esa fecha lleva la bandera por CSS)
+    if(srt) srt.appendChild(franja());
     // pie: felicitación junto al copyright
     var pie = document.querySelector('.footer-bottom');
     if(pie){ var s = document.createElement('span'); s.className = 'hisp-foot'; s.innerHTML = '<i class="hisp-flag" aria-hidden="true"></i>Feliz Día de la Hispanidad'; pie.insertBefore(s, pie.firstChild); }
