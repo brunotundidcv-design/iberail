@@ -139,7 +139,7 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{b
 .hx-meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px 12px;font-size:.74rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--on-dark-soft)}
 .hx-dot{width:8px;height:8px;border-radius:50%;background:#3FD07A;box-shadow:0 0 0 4px rgba(63,208,122,.15);animation:txBlink 1.8s ease-in-out infinite}
 .hx-sep{width:26px;height:1px;background:#3a3a3a}
-.hx-meta [data-clock]{font-family:var(--led);font-size:1.05rem;font-weight:800;letter-spacing:.04em;color:var(--amber);text-shadow:var(--led-glow)}
+.hx-meta [data-tx-clock]{font-family:var(--led);font-size:1.05rem;font-weight:800;letter-spacing:.04em;color:var(--amber);text-shadow:var(--led-glow)}
 .hx-tz{opacity:.6}
 @keyframes txBlink{50%{opacity:.35}}
 .hx-title{margin-top:clamp(30px,5vw,64px);font-size:clamp(3rem,8.2vw,7.8rem);line-height:.9;letter-spacing:-.055em;max-width:none;color:var(--on-dark);font-weight:800}

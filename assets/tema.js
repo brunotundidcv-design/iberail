@@ -1,6 +1,6 @@
 /* Iberail — funciones del diseño «andén» (solo Iberail; Zarping no lo carga).
    - Cabecera flotante: se esconde al bajar y vuelve al subir (html.tx-hdr-off). Trenecito de progreso abajo.
-   - [data-clock]: reloj de Madrid (HH:MM:SS, o HH:MM si el texto inicial es «--:--»).
+   - [data-tx-clock]: reloj de Madrid (HH:MM:SS, o HH:MM si el texto inicial es «--:--»).
    - [data-board]: panel de salidas de ejemplo (destinos y trenes reales de la red; horas de ejemplo) con letras que giran.
    - [data-hx-search]: «¿A dónde quieres ir?» → pone tu destino en el panel y lo abre en el planificador (?add=).
    - [data-quiz]: test «¿Qué Interrail va contigo?» → una de las rutas hechas del planificador (IB_DATA.presets, ?preset=).
@@ -167,7 +167,7 @@
   }
 
   /* ---------- reloj ---------- */
-  var relojes = [].slice.call(document.querySelectorAll('[data-clock]'));
+  var relojes = [].slice.call(document.querySelectorAll('[data-tx-clock]'));
   function hora(seg){
     try{ return new Date().toLocaleTimeString('es-ES', { timeZone: 'Europe/Madrid', hour: '2-digit', minute: '2-digit', second: seg ? '2-digit' : undefined, hour12: false }); }
     catch(e){ var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
