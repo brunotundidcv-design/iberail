@@ -399,6 +399,7 @@ def rebrand(s):
         ('el borrador de ruta solo si usas el planificador', 'el borrador del viaje solo si usas «Monta tu viaje»'),
         # la bienvenida del 12 de octubre (hispanidad.js) solo existe en Iberail
         ('      <tr>\n        <td>ib-hisp-…</td>\n        <td>Zarping (propia)</td>\n        <td>No volver a enseñarte el mismo día la animación de bienvenida de una fecha especial (por ejemplo, el 12 de octubre).</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
+        ('      <tr>\n        <td>ib-cola-…</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar que hoy ya has pasado la sala de espera de la entrada, para no volver a ponerte en la cola ese día.</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
         # la vista «tablero» de Destinos solo existe en Iberail
         ('      <tr>\n        <td>ib-vista-destinos · ib-hx-desde</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar si prefieres ver los destinos en tarjetas o en tablero y la ciudad desde la que sales en la portada.</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
         # Iberail sirve sus tipografías desde su alojamiento; Zarping las sigue cargando de Google Fonts

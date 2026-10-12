@@ -46,7 +46,14 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 
 ## JavaScript (`assets/`)
 
-- `cola.js` (sala de espera simulada) **quitada el 08/10/2026** a petición del equipo (archivo y `<script>` borrados).
+- `cola.js` — **sala de espera simulada al entrar** (quitada el 08/10/2026 a petición del equipo; **vuelta a poner el 12/10/2026** con la
+  temática de la Hispanidad, a petición de marketing): entre **600 y 1.200 personas** delante y **2 a 6 minutos**. Una vez al día por
+  navegador (`localStorage` `ib-cola-<fecha>`, en la política de cookies; en Zarping, `rebrand()` quita la fila). **Se apaga sola en
+  `HASTA` = 13/10/2026 00:00** (como la temática); para más días, cambiar `HASTA`; para quitarla, `COLA_ON = false`. En el `<head>` tras
+  `mantenimiento.js` de portada, destinos, Split, planificador, contacto, cuenta y grupos; **no** en `sorteo.html` (para no tapar el
+  resultado), ni en legales, panel o Zarping. Pasan directos: `?equipo=1`, buscadores/robots (incluido `navigator.webdriver` y
+  HeadlessChrome, por eso no molesta en las pruebas) y la web en mantenimiento. `?cola=1` la enseña siempre. La bienvenida de la
+  Hispanidad espera al evento `ib-cola-fin`. Atributos propios `data-cola-*`.
 - `mantenimiento.js` — **web cerrada por mantenimiento** hasta `HASTA` (última vez: 11/10/2026 15:00, hora de Madrid); después se abre sola
   (y recarga a quien la tenga abierta). En el `<head>` de todas las páginas públicas tras `config.js`; el panel no lo lleva.
   El equipo entra con `?equipo=1`. Para otra vez: cambiar `HASTA` (la hora del texto sale de ahí). Zarping no lo lleva.

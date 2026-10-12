@@ -186,7 +186,8 @@
     var pie = document.querySelector('.footer-bottom');
     if(pie){ var s = document.createElement('span'); s.className = 'hisp-foot'; s.innerHTML = '<i class="hisp-flag" aria-hidden="true"></i>Feliz Día de la Hispanidad'; pie.insertBefore(s, pie.firstChild); }
     sorteo();
-    bienvenida();
+    // con la sala de espera delante (cola.js), la bienvenida sale al acabar la cola
+    if(html.classList.contains('ib-cola')) window.addEventListener('ib-cola-fin', bienvenida, { once: true }); else bienvenida();
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', monta); else monta();
 })();
