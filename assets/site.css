@@ -3096,6 +3096,8 @@ body.al-lock{overflow:hidden}
 .ct-tipo{font:inherit;font-size:.84rem;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper)}
 .ct-st{display:inline-flex;align-items:center;gap:4px;font-size:.8rem;font-weight:600;color:#9A6B00;background:#FFF4D6;padding:4px 10px;border-radius:99px}
 .ct-st.is-ok{color:#1F8A4C;background:#E3F4E8}
+.ct-st.is-off{color:var(--muted);background:var(--cream-2);text-decoration:line-through}
+.ct-hint{margin:0 0 14px}
 .ct-st svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.4}
 .ct-link{border:0;background:none;color:var(--muted);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer}
 .ct-msg{font-size:.84rem;font-weight:600;color:#1F8A4C;margin:8px 0 0}

@@ -172,6 +172,7 @@
     if(v === 'liv' && window.IBLive) IBLive.show();
     if(v === 'srt' && window.IBSorteo) IBSorteo.show();
     if(v === 'pre' && window.IBPremios) IBPremios.show();
+    if(v === 'con' && window.IBContratos) IBContratos.show();
   }
 
   /* ---------- solicitudes ---------- */

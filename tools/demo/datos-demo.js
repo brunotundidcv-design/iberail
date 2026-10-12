@@ -309,12 +309,40 @@
       nota: ok && rnd() < .8 ? uno(NOTAS1[id] || NOTAS1.d) : null, created_at: iso(fecha1) });
   } });
 
+  /* ---------- contratos firmados en la web (hasta la v9.1, 07/10) ---------- */
+  const contratos = [], FIRMA_HASTA = new Date('2026-10-07T12:00:00+02:00').getTime();
+  const letraDni = n => 'TRWAGMYFPDXBNJZSQVHLCKE'[n % 23];
+  const dni = () => { const n = ent(10000000, 79999999); return n + letraDni(n); };
+  const firma = () => { let x = 18, y = 50, d = `M${x} ${y}`; for(let i = 0; i < 9; i++){ x += ent(14, 30); y = ent(18, 78); d += ` Q${x - ent(4, 14)} ${ent(5, 95)} ${x} ${y}`; }
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100"><path d="${d}" fill="none" stroke="#1A1614" stroke-width="2.6" stroke-linecap="round"/></svg>`); };
+  const CALLES = ['Calle Mayor 12, 28013 Madrid', 'Avenida de Europa 4, 28224 Pozuelo de Alarcón', 'Calle Real 33, 28231 Las Rozas', 'Calle del Pez 8, 28004 Madrid', 'Paseo de la Habana 51, 28036 Madrid', 'Calle Sevilla 2, 28220 Majadahonda'];
+  grupos.filter(g => g.marca === 'iberail').slice(0, 6).forEach((g, gi) => {
+    const ruta = rutas.filter(r => r.grupo_id === g.id).pop() || {}, menores = gi % 3 === 1;
+    let cur = ruta.fecha_salida;
+    const paradas = (ruta.paradas || []).map(pp => { const e = cur; if(cur) cur = isoAdd(cur, pp.dias); return { ciudad: pp.ciudad, entrada: e || '', salida: e ? cur : '', noches: pp.dias }; });
+    miembros.filter(m => m.grupo_id === g.id).forEach(m => {
+      if(rnd() < .15) return;
+      const c = clientes.find(x => x.id === m.user_id) || {}, tipo = menores && rnd() < .8 ? 'menor' : 'adulto';
+      const enviado = Math.min(FIRMA_HASTA - 3 * DIA, new Date(g.created_at).getTime() + ent(2, 9) * DIA), firmado = rnd() < .78;
+      const fAt = firmado ? Math.min(FIRMA_HASTA, enviado + rnd() * 4 * DIA) : null;
+      const ape = String(c.nombre || '').split(' ').slice(1).join(' ');
+      const datos = firmado ? { viajero: { nombre: c.nombre, dni: dni(), nacimiento: tipo === 'menor' ? isoAdd('2009-03-01', ent(0, 600)) : isoAdd('1999-01-01', ent(0, 2400)), domicilio: uno(CALLES), ...(tipo === 'menor' ? {} : { telefono: c.telefono || '', email: c.email }) },
+        ...(tipo === 'menor' ? { tutor: { ...(rel => ({ relacion: rel, nombre: uno(rel === 'padre' ? ['Javier', 'Antonio', 'Luis', 'Fernando'] : ['María', 'Carmen', 'Pilar', 'Isabel']) + ' ' + ape }))(uno(['madre', 'padre', 'madre', 'padre', 'tutor/a legal'])), dni: dni(), telefono: '6' + ent(10000000, 99999999), email: 'familia.' + String(ape.split(' ')[0] || 'garcia').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') + '@gmail.com' } } : {}) } : null;
+      const contenido = firmado ? { version: '2026-10', grupo: g.nombre, ref: ruta.ref || '', salida: ruta.salida || '', inicio: ruta.fecha_salida || '', fin: cur || '', dias: ruta.dias || '', viajeros: ruta.viajeros || '', precio: m.importe || 0, paradas, tipo, marca: 'iberail',
+        cond: { inc_ida: true, inc_vuelta: true, inc_maleta: gi % 2 === 0, inc_pase: true, inc_aloj: true, inc_otros: true, gastos: '50', vuelos: '', pase: 'Pase Interrail Global en 2.ª clase, válido en los trenes incluidos en el pase', otros: 'Trayectos en autobús o ferri indicados en la ruta', calendario: '30 % al reservar\nResto antes del 1 de junio de 2027', seguro: '', seguro_precio: '' } } : null;
+      contratos.push({ id: contratos.length + 1, grupo_id: g.id, user_id: m.user_id, tipo, estado: firmado ? 'firmado' : 'pendiente', condiciones: {}, contenido, datos, firma: firmado ? firma() : null,
+        firma_menor: firmado && tipo === 'menor' && rnd() < .6 ? firma() : null, enviado_at: iso(enviado), firmado_at: fAt ? iso(fAt) : null, firmado_ua: firmado ? uno(['iPhone · Safari', 'Android · Chrome', 'Windows · Chrome']) : null });
+    });
+  });
+  // uno repetido: el primero se anuló y se volvió a enviar
+  if(contratos[2]) contratos.push({ ...contratos[2], id: contratos.length + 1, estado: 'anulado', enviado_at: iso(new Date(contratos[2].enviado_at).getTime() - 2 * DIA), firmado_at: null, firma: null, datos: null, contenido: null });
+
   /* ---------- todo junto ---------- */
   D.db = {
     rutas, rutas_notas: notasRuta, grupos, grupo_miembros: miembros, pagos, documentos, avisos, avisos_leidos: leidos,
     comisiones, referidos, rrpp_codigos: codigos, wa_config: [{ id: 1, bot_activo: true, horas_pausa: 12 }], wa_chats: chats, wa_mensajes: mensajes,
     visitas, actividad, alojamientos, seguros, seguro_ofertas: ofertas,
-    sorteo_inscritos: inscritos, sorteo_config: [sorteoCfg], sorteo_ganadores: [], sorteo_historial: historial, admins: [{ user_id: EQUIPO.id }]
+    sorteo_inscritos: inscritos, sorteo_config: [sorteoCfg], sorteo_ganadores: [], sorteo_historial: historial, contratos, admins: [{ user_id: EQUIPO.id }]
   };
   D.rpc = {
     is_admin: () => true,

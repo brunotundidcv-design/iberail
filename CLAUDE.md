@@ -88,7 +88,13 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   y `dias` de las rutas del grupo. Paradas sin alojamiento: solo se quedan si caben en un hueco de fechas.
   Se ejecuta al abrir el panel (todos los grupos), al abrir un grupo y al guardar/borrar un alojamiento.
 
-- `contratos.js` — contratos de viaje firmados en la web. En el panel (`[data-contratos-admin]`, en cada grupo):
+- **`contratos-archivo.js` (v14.5, 12/10/2026) — pestaña «Contratos» del panel, solo consulta.** Desde la v9.1 los contratos van por
+  correo y `contratos.js` ya no está, pero los que se firmaron en la web siguen en la tabla `contratos`. Esta pestaña (`#conView`,
+  `IBContratos.show()`, contador `#admCCon` = firmados) los enseña por grupo: filtros (firmados / sin firmar / anulados, grupo),
+  buscador (viajero, DNI, tutor, grupo), teléfonos de padres/tutores con WhatsApp, **«PDF»** (el contrato firmado con la firma, la
+  fecha y el sello, con el texto y `printDoc` copiados del `contratos.js` de antes de la v9.1 y los datos del viaje de `contenido`)
+  y «Exportar CSV». No envía ni cambia nada. Demo: contratos en 6 grupos.
+- (Histórico, quitado en la v9.1) `contratos.js` — contratos de viaje firmados en la web. En el panel (`[data-contratos-admin]`, en cada grupo):
   «¿Qué incluye este grupo?» (casillas: vuelo ida / vuelta, maleta, pase, alojamientos, buses/ferris → cambia servicios
   incluidos y «No incluido»; al enviar pide confirmación con la lista) + «Más condiciones» (gastos de cancelación, pase, calendario de pagos, seguro de viaje opcional + precio; se guardan en el
   navegador). Partes: «IBERAIL» (sin registro de agencia ni garantía de insolvencia, por decisión de Bruno) y, por viajero, elegir **Mayor / Menor de edad** → Enviar (crea fila en `contratos` + aviso al viajero).
