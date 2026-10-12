@@ -351,6 +351,7 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea{b
 .cta-btn{border-radius:16px;background:var(--amber);box-shadow:0 12px 30px -14px rgba(255,184,28,.9);font-family:var(--body);font-weight:800}
 .cta-btn:hover{background:#FFC640}
 .cta-btn--ghost{background:transparent;color:var(--amber)}
+.cta-btn--ghost:hover{background:rgba(255,184,28,.12)}   /* sin esto, al tocarlo en el móvil se quedaba amarillo con letras amarillas */
 .cta.is-final .cta-u{border-color:var(--coral)!important}
 
 /* ---------- Split, contacto, FAQ ---------- */

@@ -72,7 +72,7 @@ html.tema-hispanidad .tx-progress i{background:linear-gradient(90deg,#AA151B,#F1
 html.tema-hispanidad .tx-progress b{background:#F1BF00}
 
 /* botones y detalles */
-html.tema-hispanidad .btn--primary:hover,html.tema-hispanidad .srt-btn:hover,html.tema-hispanidad .cta-btn:hover{background:#FFD21A}
+html.tema-hispanidad .btn--primary:hover,html.tema-hispanidad .srt-btn:hover,html.tema-hispanidad .cta-btn:not(.cta-btn--ghost):hover{background:#FFD21A}
 html.tema-hispanidad .btn--primary{box-shadow:0 10px 24px -14px rgba(241,191,0,.9)}
 html.tema-hispanidad .dock .hero-stats{border-top:0;box-shadow:0 30px 60px -36px rgba(14,14,14,.5),inset 0 4px 0 #F1BF00}
 html.tema-hispanidad .sheet--amber{background:#F1BF00}
@@ -122,8 +122,8 @@ html.tema-hispanidad .step-icon svg{stroke:#F1BF00}
 html.tema-hispanidad .dock .hero-stats div:nth-child(2) b{color:#AA151B}
 html.tema-hispanidad .dock .hero-stats div:nth-child(3) b{color:#C79A00}
 /* botón principal con un brillo que pasa */
-html.tema-hispanidad .btn--primary,html.tema-hispanidad .srt-btn,html.tema-hispanidad .cta-btn{position:relative;overflow:hidden;isolation:isolate}
-html.tema-hispanidad .btn--primary::after,html.tema-hispanidad .srt-btn::after,html.tema-hispanidad .cta-btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;
+html.tema-hispanidad .btn--primary,html.tema-hispanidad .srt-btn,html.tema-hispanidad .cta-btn:not(.cta-btn--ghost){position:relative;overflow:hidden;isolation:isolate}
+html.tema-hispanidad .btn--primary::after,html.tema-hispanidad .srt-btn::after,html.tema-hispanidad .cta-btn:not(.cta-btn--ghost)::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;
   background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:hispBrillo 3.6s ease-in-out infinite}
 @keyframes hispBrillo{0%,55%{left:-60%}100%{left:130%}}
 /* titular de la portada: las letras del acento con la bandera que se mueve */
