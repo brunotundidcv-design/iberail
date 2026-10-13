@@ -1,6 +1,6 @@
 /* Iberail — «Iberail Protect», el seguro de viaje que se ofrece en cada grupo
    · «Mis grupos» (cuenta.js pinta <div data-seguro="ID">): tarjeta con todo lo que cubre y «Contratar y pagar»:
-     pago APARTE del viaje en Stripe (stripe-checkout con seguro:true); el webhook lo apunta en `seguros` como pagado.
+     pago APARTE del viaje en Mollie (mollie-checkout con seguro:true); el webhook lo apunta en `seguros` como pagado.
      No toca el presupuesto del viaje (grupo_miembros.importe) ni la tabla pagos.
    · Panel (panel.js pinta <section data-seguro-admin="ID">): activar la oferta, precio, plan, fecha límite
      y seguir quién lo ha pedido / contratado (nº de póliza).
@@ -74,7 +74,7 @@
 
   /* ======================= «Mis grupos» ======================= */
   const C = {};   // grupo → { oferta, seguro }
-  let confirmando = 0;   // vuelta de Stripe con ?seguro=ok: hora a la que volvió (hasta que llega el webhook)
+  let confirmando = 0;   // vuelta de Mollie con ?seguro=ok: hora a la que volvió (hasta que llega el webhook)
   async function loadCli(gid){
     const { data: s } = await IB.sb.auth.getSession(), uid = s && s.session && s.session.user ? s.session.user.id : null;
     if(!uid) return (C[gid] = null);
@@ -131,14 +131,14 @@
     dispatchEvent(new CustomEvent('ib:seguro', { detail: { precio: o.precio } }));
     IBPay.start(btn, gid, null, { seguro: true });
   }
-  // vuelta desde Stripe: grupos.html?seguro=ok | ?seguro=cancelado
+  // vuelta desde Mollie: grupos.html?seguro=ok | ?seguro=cancelado
   (function(){
     const q = new URLSearchParams(location.search), v = q.get('seguro');
     if(v !== 'ok' && v !== 'cancelado') return;
     const n = document.createElement('div'); n.className = 'pay-note' + (v === 'ok' ? ' is-ok' : ''); n.setAttribute('role', 'status');
     n.innerHTML = v === 'ok' ? `<b>¡Pago recibido!</b><span>Estamos activando tu ${NOMBRE}. En breve te enviamos tu certificado.</span>` : '<b>Pago cancelado</b><span>No se ha cobrado nada. Puedes contratar el seguro cuando quieras.</span>';
     if(v === 'ok'){
-      // se vuelve a mirar unas cuantas veces hasta que el webhook de Stripe lo apunte como pagado
+      // se vuelve a mirar unas cuantas veces hasta que el webhook de Mollie lo apunte como pagado
       confirmando = Date.now();
       let n2 = 0;
       const mirar = async () => {
@@ -244,7 +244,7 @@
       const { error } = await IB.sb.from('seguros').update({ estado: 'contratado', poliza: pol.trim() || null, contratado_at: new Date().toISOString() }).eq('id', Number(id));
       if(error) return msg(gid, 'Error: ' + error.message, true); if(borr[gid] && borr[gid].pol) delete borr[gid].pol[id]; await loadAdm(gid); paintAdm(gid); return; }
     const vd = t.closest('[data-sg-void]'); if(vd){ const [gid, id] = vd.dataset.sgVoid.split(':');
-      if(!confirm('¿Anular este seguro? Si ya estaba pagado, la devolución hazla desde Stripe.')) return;
+      if(!confirm('¿Anular este seguro? Si ya estaba pagado, la devolución hazla desde Mollie.')) return;
       const { error } = await IB.sb.rpc('anular_seguro', { p_id: Number(id) });
       if(error) return msg(gid, 'Error: ' + error.message, true); await loadAdm(gid); paintAdm(gid); }
   });

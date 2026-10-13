@@ -11,7 +11,7 @@
     ['grupo', 'Bienvenida al grupo', 'Cuando metes a alguien en un grupo.'],
     ['pago_pendiente', 'Tu viaje ya tiene precio', 'Cuando le pones (o cambias) el importe a alguien. Con botón de pago.'],
     ['recordatorio', 'Recordatorio de pago', 'Los lunes, a quien le falte algo por pagar.'],
-    ['pago_recibido', 'Pago recibido', 'Cuando entra un pago, por Stripe o apuntado a mano.'],
+    ['pago_recibido', 'Pago recibido', 'Cuando entra un pago, con Mollie o apuntado a mano.'],
     ['cuenta_atras', 'Cuenta atrás', '30, 7 y 1 día antes de salir, con checklist.']
   ];
   const FIRMA_DEF = 'Joan – Atención al Cliente, Iberail\ninfo@iberail.com';

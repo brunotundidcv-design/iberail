@@ -306,11 +306,26 @@ Tablas: `rutas`, `rutas_notas`, `grupos`, `grupo_miembros`, `documentos`, `aviso
 `pagos`, `comisiones`, `referidos`, `rrpp_codigos`, `wa_config`, `wa_chats`, `wa_mensajes`.
 RPC: `is_admin`, `buscar_clientes`, `pagos_grupo`, `companeros_grupo`, `mi_invita`,
 `registrar_referido`, `rrpp_reglas`, `delete_my_account`.
-Storage: bucket `documentos`. Edge functions: `whatsapp`, `stripe-checkout`, `stripe-webhook`, `correos`.
+Storage: bucket `documentos`. Edge functions: `whatsapp`, `mollie-checkout`, `mollie-webhook` (antes `stripe-checkout`, `stripe-webhook`), `correos`.
 Tablas nuevas: `correos_enviados`, `bajas_publicidad`, `alojamientos`, `visitas`, `actividad`, `contratos` (RPC `firmar_contrato`), `seguro_ofertas`, `seguros` (RPC `anular_seguro`), `sorteo_historial`; columna `pagos.stripe_session`; bucket `alojamientos`.
 El esquema SQL / políticas RLS **no están en el repo**.
 
-### Pagos con Stripe (Checkout alojado por Stripe)
+### Pagos con Mollie (desde el 13/10/2026; sustituye a Stripe)
+
+- La titular (Andrea) tiene la cuenta de Mollie aprobada (13/10/2026). `payment.js` llama a **`mollie-checkout`**: comprueba la
+  sesión, **recalcula lo que falta** (igual que antes), pago completo o a cuenta (mín. 20 €), seguro aparte (`seguro: true`), marca
+  Iberail/Zarping, y crea el pago en la API de Mollie (`/v2/payments`, `locale es_ES`, `redirectUrl` `?pago=ok` / `cancelUrl`
+  `?pago=cancelado`, `webhookUrl` = `mollie-webhook`). Los métodos (tarjeta, Apple Pay, Bizum si Mollie lo ofrece…) se activan en el
+  Dashboard de Mollie, no en el código.
+- **`mollie-webhook`**: Mollie solo manda `id=tr_…`; la función **pregunta a Mollie** el estado con la clave (así no se puede falsear)
+  y, si está `paid`, apunta en `pagos` (nota «Pago con <método> (Mollie)») o en `seguros`. Una sola vez por pago: el `tr_…` se guarda
+  en la columna única **`stripe_session`** (nombre heredado; no hace falta SQL nuevo). Avisos `pago_de_mas` / `seguro_duplicado` igual.
+- Secreto: **`MOLLIE_API_KEY`** (`test_…` para probar, `live_…` en real). Desplegar las dos con `--no-verify-jwt`.
+- `PAGOS_PAUSA` en `payment.js` está en false, pero si `mollie-checkout` no está desplegada (404) o le falta la clave, sale solo el
+  aviso «Pagos en mantenimiento» (no un error). La vuelta `?pago=ok` dice «si has completado el pago…» (Mollie vuelve igual si falla).
+- Las funciones `stripe-*` siguen en el repo pero la web ya no las llama. `IB.cfg.STRIPE_ON` sigue siendo el interruptor del botón.
+
+### (Antes) Pagos con Stripe (Checkout alojado por Stripe)
 
 - `supabase/functions/stripe-checkout`: comprueba la sesión, **recalcula lo que falta** (`grupo_miembros.importe`
   − suma de `pagos`) y crea la sesión de Checkout. Nunca se fía del importe del navegador.

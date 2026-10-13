@@ -1,5 +1,6 @@
-/* Iberail — pago con tarjeta (Stripe Checkout) desde «Mis grupos»
-   El importe lo calcula el servidor (función stripe-checkout): aquí solo se dice de qué grupo es el pago. */
+/* Iberail — pago con Mollie (tarjeta y los métodos activados en Mollie) desde «Mis grupos»
+   El importe lo calcula el servidor (función mollie-checkout): aquí solo se dice de qué grupo es el pago.
+   (Antes era Stripe: las funciones stripe-* siguen en el repo pero la web ya no las llama.) */
 (function(){
   const IB = window.IB;
   if(!IB) return;
@@ -7,9 +8,10 @@
   const eur = n => Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const PART_MIN = 20;
 
-  /* PAUSA: estamos cambiando de pasarela de pago. Mientras PAGOS_PAUSA sea true no se abre Stripe:
-     al pulsar «Pagar» sale un aviso. Para reactivar, ponlo a false. */
-  const PAGOS_PAUSA = true;
+  /* PAUSA: con PAGOS_PAUSA = true no se abre el pago: al pulsar «Pagar» sale un aviso.
+     Además, si la función mollie-checkout aún no está desplegada (o le falta la clave), sale el mismo aviso. */
+  const PAGOS_PAUSA = false;
+  const FUNCION = 'mollie-checkout';
 
   function avisoPausa(){
     if(document.querySelector('.pay-note.is-pausa')) return;
@@ -40,20 +42,22 @@
     btn.disabled = true;
     btn.textContent = 'Abriendo el pago…';
     try{
-      const res = await fetch(`${String(IB.cfg.SUPABASE_URL).replace(/\/$/, '')}/functions/v1/stripe-checkout`, {
+      const res = await fetch(`${String(IB.cfg.SUPABASE_URL).replace(/\/$/, '')}/functions/v1/${FUNCION}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: IB.cfg.SUPABASE_ANON_KEY },
         body: JSON.stringify({ grupo_id: Number(groupId), ...(amount ? { importe: amount } : {}), ...(extra || {}) })
       });
       const j = await res.json().catch(() => ({}));
+      // función sin desplegar o sin clave de Mollie: aviso de mantenimiento en vez de un error
+      if(res.status === 404 || (res.status >= 500 && /api.?key|unauthori[sz]ed|authenticat/i.test(j.error || ''))){ btn.disabled = false; btn.innerHTML = label; return avisoPausa(); }
       if(!res.ok || !j.url) throw new Error(j.error || (res.status === 404 ? 'El pago con tarjeta aún no está activado.' : `Error ${res.status}`));
-      location.href = j.url;   // página de pago de Stripe
+      location.href = j.url;   // página de pago de Mollie
     }catch(e){
       btn.disabled = false;
       btn.innerHTML = label;
       const red = /NetworkError|Failed to fetch|Load failed/i.test(e.message || '');
       alert('No hemos podido abrir el pago: ' + (red ? 'no hay conexión con el servidor de pagos. Prueba en un momento y, si sigue, escríbenos por WhatsApp.' : (e.message || 'error desconocido')));
-      console.error('Pago Stripe:', e);
+      console.error('Pago Mollie:', e);
     }
   }
 
@@ -117,7 +121,7 @@
     }
   }
 
-  /* vuelta desde Stripe: grupos.html?pago=ok | ?pago=cancelado */
+  /* vuelta desde Mollie: grupos.html?pago=ok | ?pago=cancelado */
   const estado = new URLSearchParams(location.search).get('pago');
   window.__ibPago = estado;   // live.js lo lee (esta URL se limpia enseguida)
   if(estado === 'ok' || estado === 'cancelado'){
@@ -126,7 +130,7 @@
     n.className = 'pay-note' + (ok ? ' is-ok' : '');
     n.setAttribute('role', 'status');
     n.innerHTML = ok
-      ? '<b>¡Pago recibido!</b><span>En unos segundos lo verás apuntado en tu parte del viaje. Te llegará el recibo por correo.</span>'
+      ? '<b>¡Gracias!</b><span>Si has completado el pago, en unos segundos lo verás apuntado en tu parte del viaje y te llegará el correo de confirmación.</span>'
       : '<b>Pago cancelado</b><span>No se ha cobrado nada. Puedes intentarlo otra vez cuando quieras.</span>';
     const close = document.createElement('button');
     close.type = 'button'; close.setAttribute('aria-label', 'Cerrar'); close.textContent = '×';

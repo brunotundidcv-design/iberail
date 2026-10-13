@@ -348,7 +348,7 @@
     const cola = d < 0 ? 'La fecha ya ha pasado.' : d === 0 ? 'Es hoy.' : `${d === 1 ? 'Queda 1 día' : `Quedan ${d} días`}.`;
     return `<p class="gx-lim${est}" data-lim="${esc(g.id)}">${I_CLOCK}<span><b>Fecha límite de pago: ${esc(cuando)}.</b> ${esc(cola)} ${esc(g.nota_pago || 'Si se pasa esta fecha, el precio del viaje puede subir.')}</span></p>`;
   }
-  const PART_MIN = 20;   // pago a cuenta mínimo (Stripe cobra 0,25 € fijos por pago)
+  const PART_MIN = 20;   // pago a cuenta mínimo (cada pago tiene una comisión fija de la pasarela)
   function payBox(g){
     if(!V.v7) return '';
     const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);

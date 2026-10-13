@@ -5,5 +5,5 @@ window.IBERAIL_CONFIG = {
   WA_PHONE: "34930491439",
   WA_LINK: "https://wa.me/34930491439",
   MARCA: "zarping",   // Iberail / Zarping: textos, contratos y pagos (ver IB.BRANDS en app.js)
-  STRIPE_ON: true   // pago con tarjeta en «Mis grupos» (funciones stripe-checkout y stripe-webhook)
+  STRIPE_ON: true   // pago con tarjeta en «Mis grupos» (ahora con Mollie: funciones mollie-checkout y mollie-webhook; el nombre se queda por compatibilidad)
 };

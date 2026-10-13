@@ -28,7 +28,7 @@
       case 'pago_iniciado': return `Pulsó <b>«${esc(d.boton || 'Pagar')}»</b>`;
       case 'pago_parte': return 'Abrió <b>«Pagar una parte»</b>';
       case 'pago_ok': return '<b>Completó un pago con tarjeta</b>';
-      case 'pago_cancelado': return 'Canceló el pago en Stripe';
+      case 'pago_cancelado': return 'Canceló el pago';
       case 'aviso_leido': return `Marcó como leído <b>«${esc(d.titulo || 'un aviso')}»</b>`;
       case 'mapa': return 'Abrió el <b>mapa de la ruta</b>';
       case 'documento': return `Abrió <b>${esc(d.titulo || 'un documento')}</b>`;
@@ -37,8 +37,8 @@
       case 'contrato_firmado': return `<b>Firmó el contrato</b>${d.tipo === 'menor' ? ' (firmado por su padre, madre o tutor)' : ''}`;
       case 'seguro_pedido': return `<b>Añadió ${/^Zarping/.test(a.pagina || '') ? 'Zarping' : 'Iberail'} Protect</b> a su viaje${d.precio ? ` (${esc(d.precio)} €)` : ''}`;
       case 'contrato_descargado': return 'Abrió o descargó su <b>contrato firmado</b>';
-      case 'pago_de_mas': return `<b>Ha pagado ${esc(d.de_mas)} € de más</b> con tarjeta: revisa sus pagos y devuélvele la diferencia en Stripe`;
-      case 'seguro_duplicado': return `<b>Pagó el seguro dos veces</b> (${esc(d.importe)} €): devuélvele el segundo pago en Stripe`;
+      case 'pago_de_mas': return `<b>Ha pagado ${esc(d.de_mas)} € de más</b> con tarjeta: revisa sus pagos y devuélvele la diferencia desde Mollie`;
+      case 'seguro_duplicado': return `<b>Pagó el seguro dos veces</b> (${esc(d.importe)} €): devuélvele el segundo pago desde Mollie`;
       default: return esc(a.tipo);
     }
   };
