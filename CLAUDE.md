@@ -287,6 +287,25 @@ parezca hecha por un profesional (ver «v17» más abajo).
   campo «Otra ciudad» del planificador sin etiqueta; firma del pie con caja.
 - Comprobado: humo (con y sin sesión), contraste AA en todas las páginas (móvil, ordenador, con sesión), sin desbordes de 360 a 1440 px.
 
+## v17.1 (25/10/2026): movimiento («transiciones guays, como de desarrolladores top»)
+
+- Capa propia: `assets/movimiento.css` (después de `v16.css`) + `assets/movimiento.js` (en el `<head>`, justo después del CSS:
+  tiene que estar antes de que se pinte la página para marcar la transición hacia atrás). En las 14 páginas públicas; no en el panel
+  ni en Zarping. Curvas comunes `--mv-sale`, `--mv-entra`, `--mv-cruza`. Todo dentro de `prefers-reduced-motion: no-preference`.
+- **Entre páginas** (View Transitions entre documentos; Chrome/Edge/Safari 18.2+, el resto navega normal): la página nueva sube como
+  una hoja con las esquinas redondeadas y la anterior se hunde; la cabecera (`ib-cabecera`) no se mueve y la pastilla del menú
+  (`ib-nav-activo`) viaja hasta la sección nueva. Hacia atrás (`pagereveal` + `navigation.activation`, tipo `atras`), al revés.
+  El aviso de temporada no lleva nombre propio: lo pone `v16.js` cuando la página ya se ha pintado y saldría duplicado.
+- **Portada**: el titular sube línea a línea desde una máscara (`.mv-l` en `index.html`), luego texto, buscador y mapa 3D; en ordenador
+  la cabecera se aleja al bajar (`animation-timeline: scroll()`; en el móvil no, porque el buscador se usa bajando).
+- **Al llegar a cada parte**: títulos con máscara (`.mv-titulo`; se vigila el contenedor, porque el título recortado no «se ve»),
+  piezas en cascada (`.mv-grupo > .mv-pieza`: pasos, cifras, dudas, cuenta atrás, calendario de temporada, pie, carrusel, sorteo,
+  Split), panel de salidas fila a fila y el vídeo de Split que se destapa (`.mv-foto`).
+- **Detalles**: flechas que salen y vuelven a entrar, botones que se hunden al pulsar, tarjetas que se levantan, subrayados que crecen,
+  pantallas del móvil de «Cómo funciona» con barrido, cifras de la cuenta atrás que ruedan, cintas de ciudades que aceleran con el
+  scroll y cambian de sentido al subir, carrusel de destinos que se arrastra con el ratón (con inercia y sin seleccionar texto).
+- Se quitaron las reglas antiguas de títulos con `clip-path` de `tema.css`/`v16.css` (pisaban `.mv-titulo`).
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana

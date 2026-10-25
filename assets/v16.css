@@ -186,7 +186,6 @@ html.v16 .nav a:hover{background:transparent}
 
 /* ---------- piezas comunes ---------- */
 .v16-glass{background:var(--s1);border:1px solid rgba(255,255,255,.09)}
-.js .section-head[data-reveal] h2,.js .quiz-head[data-reveal] h2{clip-path:none;transform:none;transition:none}
 
 /* =========================================================
    PORTADA

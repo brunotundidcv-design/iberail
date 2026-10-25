@@ -608,8 +608,6 @@ html.tx-hdr-off .filters{top:8px}
 @keyframes txZoom{from{transform:scale(1.14)}to{transform:scale(1.04)}}
 
 /* ---------- títulos que aparecen desde abajo ---------- */
-.js .section-head[data-reveal] h2,.js .quiz-head[data-reveal] h2{clip-path:inset(0 0 100% 0);transform:translateY(.3em);transition:clip-path .9s var(--ease) .1s,transform .9s var(--ease) .1s}
-.js .section-head[data-reveal].is-in h2,.js .quiz-head[data-reveal].is-in h2{clip-path:inset(-10% -5% -20% -5%);transform:none}
 
 @media (max-width:1020px){
   .quiz{grid-template-columns:1fr}
@@ -634,7 +632,6 @@ html.tx-hdr-off .filters{top:8px}
   .page-head--photo .photo-hero figcaption{display:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .js .section-head[data-reveal] h2,.js .quiz-head[data-reveal] h2{clip-path:none;transform:none}
   .page-head--photo .photo-hero img{animation:none}
 }
 .hx-map{top:14%;opacity:.3}
