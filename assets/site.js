@@ -54,41 +54,6 @@ const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-mo
   els.forEach(el => io.observe(el));
 })();
 
-/* ---------- page transition: curtain with the Iberail mark ----------
-   Navegadores con transiciones nativas entre páginas (v15.css · @view-transition): sin cortinilla ni espera al pulsar. */
-(function(){
-  const html = document.documentElement;
-  if(reduceMotion || 'onpagereveal' in window){ html.classList.remove('is-arriving'); return; }
-
-  // arriving from another page of the site: lift the curtain
-  if(html.classList.contains('is-arriving')){
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      html.classList.add('is-arrived');
-      html.classList.remove('is-arriving');
-    }));
-  }
-  // coming back via the back/forward cache: make sure nothing is covering the page
-  window.addEventListener('pageshow', e => {
-    if(e.persisted){ html.classList.remove('is-leaving','is-arriving'); }
-  });
-
-  document.addEventListener('click', e => {
-    if(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    const a = e.target.closest('a[href]');
-    if(!a || a.target === '_blank' || a.hasAttribute('download')) return;
-    const href = a.getAttribute('href');
-    if(!href || href.startsWith('#') || /^[a-z]+:/i.test(href)) return;
-    // same page with only a hash change: let the browser scroll
-    const url = new URL(href, location.href);
-    if(url.pathname === location.pathname && url.hash) return;
-    e.preventDefault();
-    try{ sessionStorage.setItem('ib-nav', '1'); }catch(err){}
-    html.classList.remove('is-arrived');
-    html.classList.add('is-leaving');
-    setTimeout(() => { location.href = href; }, 520);
-  });
-})();
-
 /* ---------- SVG (SMIL) animations respect reduced motion too ---------- */
 if(reduceMotion){
   document.querySelectorAll('svg').forEach(s => { if(s.pauseAnimations) s.pauseAnimations(); });

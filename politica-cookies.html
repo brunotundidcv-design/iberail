@@ -21,7 +21,6 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
@@ -30,11 +29,9 @@
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
-<script>try{if(sessionStorage.getItem('ib-nav')){sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}catch(e){}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Iberail","alternateName":"Iberail Interrail","url":"https://iberail.com","logo":"https://iberail.com/assets/img/logo.png","image":"https://iberail.com/assets/img/og.jpg","description":"Agencia española especializada en rutas Interrail a medida por Europa.","areaServed":"ES","address":{"@type":"PostalAddress","addressCountry":"ES"},"sameAs":["https://www.instagram.com/iberailspain/"],"founder":{"@type":"Person","name":"Bruno Tundidor","jobTitle":"Founder","sameAs":["https://www.instagram.com/bruno.tm_/"]}}</script>
 </head>
 <body>
-<div class="curtain" aria-hidden="true"><img src="assets/img/icon.svg" alt=""><span class="rail"></span></div>
 <a class="sr-only" href="#main">Saltar al contenido</a>
 <header class="topbar">
   <div class="container">
@@ -103,12 +100,6 @@
         <td>Hasta que envías la ruta, o 30 días como máximo</td>
       </tr>
       <tr>
-        <td>ib-nav</td>
-        <td>Iberail (propia)</td>
-        <td>Mostrar la animación de transición al pasar de una página a otra. Se guarda en el almacenamiento de sesión.</td>
-        <td>Se borra al cargar la página siguiente</td>
-      </tr>
-      <tr>
         <td>ib-pending-email</td>
         <td>Iberail (propia)</td>
         <td>Recordar a qué correo te hemos enviado el código de verificación mientras lo escribes. Se guarda en el almacenamiento de sesión.</td>
@@ -155,12 +146,6 @@
         <td>Iberail (propia)</td>
         <td>Recordar que has cerrado el aviso de temporada de arriba, para no volver a enseñártelo en unos días.</td>
         <td>3 días</td>
-      </tr>
-      <tr>
-        <td>ib-hisp-…</td>
-        <td>Iberail (propia)</td>
-        <td>No volver a enseñarte el mismo día la animación de bienvenida de una fecha especial (por ejemplo, el 12 de octubre).</td>
-        <td>Hasta que borras los datos del navegador</td>
       </tr>
     </tbody>
   </table>
@@ -233,7 +218,6 @@
         </ul>
       </div>
     </div>
-    <div class="footer-big" aria-hidden="true">ibe<b>rail</b></div>
     <div class="footer-bottom">
       <span>© <span id="year">2026</span> Iberail. Todos los derechos reservados.</span>
       <span class="footer-legal"><a href="aviso-legal.html">Aviso legal</a> · <a href="condiciones-generales.html">Condiciones</a> · <a href="politica-privacidad.html">Privacidad</a> · <a href="politica-cookies.html">Cookies</a> · <a href="bases-sorteo.html">Bases del sorteo</a></span>

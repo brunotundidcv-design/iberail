@@ -78,7 +78,6 @@ def head(title, desc, path, noindex=False, extra=''):
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/zarping.css">
 <script src="assets/config.js"></script>
-<script>try{{if(sessionStorage.getItem('ib-nav')){{sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}}}catch(e){{}}</script>
 <script type="application/ld+json">{LD}</script>{extra}
 </head>'''
 
@@ -91,7 +90,6 @@ def header(active):
     items += f'<li data-acct-only hidden><a class="nav-groups" href="grupos.html"{CUR if active == "grupos.html" else ""}>{I_USERS}Mis grupos</a></li>'
     mm = ''.join(f'<a href="{h}"{CUR if h == active else ""}><span class="mm-n">0{i + 1}</span>{t}{ARROW}</a>' for i, (h, t) in enumerate(NAV))
     return f'''<body class="zp">
-<div class="curtain" aria-hidden="true"><img src="assets/img/icon.svg" alt=""><span class="rail"></span></div>
 <a class="sr-only" href="#main">Saltar al contenido</a>
 <header class="topbar zp-top">
   <div class="container">
@@ -397,9 +395,8 @@ def rebrand(s):
         ('Hasta que envías la ruta, o 30 días como máximo', 'Hasta que envías el viaje, o 30 días como máximo'),
         ('tu cuenta y tu panel de rutas', 'tu cuenta y tus viajes'),
         ('el borrador de ruta solo si usas el planificador', 'el borrador del viaje solo si usas «Monta tu viaje»'),
-        # la bienvenida del 12 de octubre (hispanidad.js) solo existe en Iberail
-        ('      <tr>\n        <td>ib-hisp-…</td>\n        <td>Zarping (propia)</td>\n        <td>No volver a enseñarte el mismo día la animación de bienvenida de una fecha especial (por ejemplo, el 12 de octubre).</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
-        ('      <tr>\n        <td>ib-cola-…</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar que hoy ya has pasado la sala de espera de la entrada, para no volver a ponerte en la cola ese día.</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
+        # el aviso de temporada de arriba (v16.js) solo existe en Iberail
+        ('      <tr>\n        <td>ib-aviso-temp</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar que has cerrado el aviso de temporada de arriba, para no volver a enseñártelo en unos días.</td>\n        <td>3 días</td>\n      </tr>\n', ''),
         # la vista «tablero» de Destinos solo existe en Iberail
         ('      <tr>\n        <td>ib-vista-destinos · ib-hx-desde</td>\n        <td>Zarping (propia)</td>\n        <td>Recordar si prefieres ver los destinos en tarjetas o en tablero y la ciudad desde la que sales en la portada.</td>\n        <td>Hasta que borras los datos del navegador</td>\n      </tr>\n', ''),
         # Iberail sirve sus tipografías desde su alojamiento; Zarping las sigue cargando de Google Fonts

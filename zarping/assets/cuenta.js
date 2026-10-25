@@ -457,50 +457,369 @@
   }
   // «Austria, Viena» → «Viena» (las paradas escritas a mano se muestran con el nombre de la ciudad)
   const cityName = n => { const c = window.IBMap && IBMap.city ? IBMap.city(n) : null; return c ? c.n : n; };
+
+  /* ---------- «Mis grupos» v16: cabina del viaje + pestañas (abajo del todo en el móvil) ---------- */
+  const I_JUNTOS = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>';
+  const I_HOME = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>';
+  const I_GO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  const ghTab = {};        // la pestaña abierta de cada grupo (se mantiene al repintar en directo)
+  const addDays = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const fd2 = iso => new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+  const nightsBetween = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5);
+  // la ruta, parada a parada, con su llegada y su salida (si hay fecha de salida)
+  function plan(r){
+    if(!r) return [];
+    let off = 0;
+    return (r.paradas || []).map(p => {
+      const n = Math.max(0, parseInt(p.dias, 10) || 0), c = cityName(p.ciudad);
+      const s = { c, k: normS(c), n, from: r.fecha_salida ? addDays(r.fecha_salida, off) : null, to: r.fecha_salida ? addDays(r.fecha_salida, off + n) : null };
+      off += n; return s;
+    });
+  }
+  // dónde coinciden dos rutas: misma ciudad y, si hay fechas, las noches que se solapan
+  function overlaps(a, b){
+    const out = [];
+    a.forEach(m => b.filter(o => o.k === m.k).forEach(o => {
+      if(m.from && o.from){
+        const from = m.from > o.from ? m.from : o.from, to = m.to < o.to ? m.to : o.to;
+        out.push({ c: m.c, k: m.k, from, to, n: to > from ? nightsBetween(from, to) : 0 });
+      } else out.push({ c: m.c, k: m.k, n: null });
+    }));
+    return out.sort((x, y) => (y.n || 0) - (x.n || 0));
+  }
+  const groupRoute = gid => { const rs = (V.allRoutes || V.routes).filter(r => String(r.grupo_id) === String(gid) && r.estado !== 'descartada'); return rs.find(r => r.fecha_salida) || rs[0] || null; };
+
+  // el mapa de los dos viajes: países de fondo, vuestra ruta en cálido y la suya en frío, en curvas paralelas
+  // (así se ven las dos aunque hagáis el mismo recorrido). Los nombres van en HTML para que tengan siempre el mismo tamaño.
+  function duoMap(mine, theirs, shared){
+    if(!window.IBMap || !IBMap.city) return '';
+    const pts = r => r ? [r.salida].concat((r.paradas || []).map(p => p.ciudad)).map(n => IBMap.city(n)).filter(c => c && c.lon != null).map(c => ({ n: c.n, k: normS(c.n), cc: c.cc || '', p: IBMap.proj(c.lon, c.lat) })) : [];
+    const A = pts(mine), B = pts(theirs);
+    if(A.length + B.length < 2) return '';
+    const all = A.concat(B), xs = all.map(c => c.p[0]), ys = all.map(c => c.p[1]);
+    let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const R = 1.35, padX = Math.max(30, (x1 - x0) * .16), padY = Math.max(30, (y1 - y0) * .14);
+    x0 -= padX; x1 += padX; y0 -= padY; y1 += padY * 1.7;   // abajo, más margen: ahí va la leyenda
+    { const w = x1 - x0, h = y1 - y0; if(w / h < R){ const nw = h * R; x0 -= (nw - w) / 2; x1 = x0 + nw; } else { const nh = w / R; y0 -= (nh - h) / 2; y1 = y0 + nh; } }
+    const W = x1 - x0, H = y1 - y0, f = v => v.toFixed(1);
+    // cada tramo es una curva suave; la de ellos se dobla hacia el otro lado
+    const curve = (L, side) => L.map((c, i) => {
+      if(!i) return `M${f(c.p[0])} ${f(c.p[1])}`;
+      const a = L[i - 1].p, b = c.p, dx = b[0] - a[0], dy = b[1] - a[1], d = Math.hypot(dx, dy) || 1, o = Math.min(d * .2, W * .06) * side;
+      return `Q${f((a[0] + b[0]) / 2 - dy / d * o)} ${f((a[1] + b[1]) / 2 + dx / d * o)} ${f(b[0])} ${f(b[1])}`;
+    }).join(' ');
+    const shK = new Set(shared.map(s => s.k)), inA = new Set(A.map(c => c.k)), inB = new Set(B.map(c => c.k));
+    const ccs = [...new Set(all.map(c => c.cc).filter(Boolean))].join(',');
+    // un pin por ciudad; si dos quedan muy cerca, el nombre del segundo va debajo
+    const seen = new Set(), pins = all.filter(c => !seen.has(c.k) && seen.add(c.k)).map(c => ({ ...c, x: (c.p[0] - x0) / W * 100, y: (c.p[1] - y0) / H * 100 }));
+    pins.sort((a, b) => a.y - b.y).forEach((c, i) => { c.dn = pins.slice(0, i).some(o => Math.abs(o.x - c.x) < 18 && c.y - o.y < 9 && !o.dn); });
+    const pin = c => {
+      const cls = shK.has(c.k) ? 'is-hit' : inA.has(c.k) && inB.has(c.k) ? 'is-both' : inA.has(c.k) ? 'is-a' : 'is-b';
+      const o = (A[0] && A[0].k === c.k) || (B[0] && B[0].k === c.k);
+      return `<span class="ghd-pin ${cls}${o ? ' is-o' : ''}${c.x > 72 ? ' is-l' : ''}${c.dn ? ' is-dn' : ''}" style="left:${c.x.toFixed(2)}%;top:${c.y.toFixed(2)}%"><i></i><b>${esc(c.n)}</b></span>`;
+    };
+    return `<figure class="ghd-map" style="aspect-ratio:${R}" aria-label="Mapa con las dos rutas">
+      <svg viewBox="${f(x0)} ${f(y0)} ${f(W)} ${f(H)}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect x="${f(x0 - W)}" y="${f(y0 - H)}" width="${f(W * 3)}" height="${f(H * 3)}" class="ghd-sea"/>
+        <g class="ghd-geo" data-cc="${esc(ccs)}"></g>
+        ${B.length > 1 ? `<path class="ghd-glow ghd-glow--b" d="${curve(B, -1)}"/><path class="ghd-l ghd-l--b" d="${curve(B, -1)}"/>` : ''}
+        ${A.length > 1 ? `<path class="ghd-glow ghd-glow--a" d="${curve(A, 1)}"/><path class="ghd-l ghd-l--a" pathLength="1" d="${curve(A, 1)}"/>` : ''}
+      </svg>
+      <div class="ghd-pins">${pins.map(pin).join('')}</div>
+      <figcaption><span class="is-a"><i></i>Vosotros</span><span class="is-b"><i></i>Ellos</span>${shared.length ? '<span class="is-hit"><i></i>Juntos</span>' : ''}</figcaption>
+    </figure>`;
+  }
+  // los países del mapa se cargan una sola vez y se pintan en todos los mapas de «Viajáis juntos»
+  function ghGeo(){
+    const gs = $$('.ghd-geo:not([data-ok])');
+    if(!gs.length || !window.IBMap || !IBMap.geo) return;
+    IBMap.geo().then(feats => {
+      if(!feats) return;
+      gs.forEach(g => {
+        if(g.dataset.ok || !g.isConnected) return;
+        const on = new Set((g.dataset.cc || '').split(','));
+        g.innerHTML = feats.map(x => `<path d="${x.d}"${x.cc && on.has(x.cc) ? ' class="is-on"' : ''}/>`).join('');
+        g.dataset.ok = '1';
+      });
+    });
+  }
+  // las dos rutas en una línea de tiempo común (se desliza de lado en el móvil); si es el mismo viaje, una sola fila
+  function duoLanes(pa, pb, shared, nameB, same){
+    const dated = pa.concat(pb).filter(s => s.from);
+    if(!dated.length || !pa.some(s => s.from) || !pb.some(s => s.from)) return '';
+    const t0 = dated.map(s => s.from).sort()[0], t1 = dated.map(s => s.to).sort().slice(-1)[0], span = Math.max(1, nightsBetween(t0, t1));
+    const shK = new Set(shared.filter(s => s.n).map(s => s.k));
+    const lane = (L, cls, who) => `<div class="ghl-row ${cls}"><span class="ghl-who">${esc(who)}</span><div class="ghl-track">${L.filter(s => s.from && s.n).map(s => {
+      const l = nightsBetween(t0, s.from) / span * 100, w = s.n / span * 100;
+      return `<span class="ghl-seg${!same && shK.has(s.k) ? ' is-hit' : ''}" style="left:${l.toFixed(2)}%;width:${w.toFixed(2)}%" title="${esc(`${s.c} · ${fd2(s.from)} → ${fd2(s.to)}`)}"><b>${esc(s.c)}</b><small>${esc(fd2(s.from))} · ${s.n} ${plural(s.n, 'noche', 'noches')}</small></span>`; }).join('')}</div></div>`;
+    const ticks = []; for(let i = 0; i <= span; i += Math.max(1, Math.round(span / 6))) ticks.push(`<i style="left:${(i / span * 100).toFixed(2)}%">${esc(fd2(addDays(t0, i)))}</i>`);
+    return `<div class="ghl" data-noswipe><h4 class="ghl-h">${same ? 'Vuestro itinerario juntos' : 'Las dos rutas, día a día'}</h4><div class="ghl-in" style="--d:${span}">${same ? lane(pa, 'is-both', 'Los dos grupos') : lane(pa, 'is-a', 'Vosotros') + lane(pb, 'is-b', nameB)}<div class="ghl-ticks">${ticks.join('')}</div></div></div>`;
+  }
+  // un grupo con el que viajáis: lo que veis de ellos (nunca sus pagos ni sus billetes)
+  function juntosBlock(g, j){
+    const mine = groupRoute(g.id), theirs = j.ruta ? { salida: j.ruta.salida, paradas: j.ruta.paradas || [], fecha_salida: j.ruta.fecha_salida, dias: j.ruta.dias } : null;
+    const pa = plan(mine), pb = plan(theirs), shared = overlaps(pa, pb);
+    // mismo viaje: mismas ciudades, mismas noches y mismas fechas
+    const same = pa.length > 0 && pa.length === pb.length && pa.every((s, i) => s.k === pb[i].k && s.n === pb[i].n && s.from === pb[i].from);
+    const best = shared.find(s => s.n) || shared[0];
+    const together = shared.reduce((a, s) => a + (s.n || 0), 0);
+    const names = (j.nombres || []).filter(Boolean);
+    const alo = (j.alojamientos || []).slice().sort((a, b) => String(a.entrada || '9').localeCompare(String(b.entrada || '9')));
+    const shK = new Set(shared.map(s => s.k));
+    const head = same ? `Hacéis <b>el mismo viaje</b>: ${pa.length} ${plural(pa.length, 'ciudad', 'ciudades')} y ${together} ${plural(together, 'noche', 'noches')} juntos${pa[0].from ? `, del ${esc(fd2(pa[0].from))} al ${esc(fd2(pa[pa.length - 1].to))}` : ''}.`
+      : best ? (best.n ? `Coincidís en ${shared.filter(s => s.n).length > 1 ? `<b>${shared.filter(s => s.n).length} ciudades</b> · ${together} noches juntos` : `<b>${esc(best.c)}</b> · ${esc(fd2(best.from))} → ${esc(fd2(best.to))} · ${best.n} ${plural(best.n, 'noche', 'noches')} juntos`}` : `Pasáis los dos por <b>${esc(best.c)}</b>, en fechas distintas`)
+      : (theirs ? 'Hacéis rutas distintas: aquí veis por dónde va cada grupo.' : 'Su ruta aparecerá aquí en cuanto esté lista.');
+    return `<article class="ghj">
+      <header class="ghj-h">
+        <span class="ghj-logo" aria-hidden="true"><i></i><i></i></span>
+        <div><small>${esc(j.viaje || 'Viajáis juntos')}</small><h3>${esc(g.nombre)} <em>+</em> ${esc(j.otro_nombre)}</h3><p>${head}</p></div>
+      </header>
+      ${j.nota ? `<p class="ghj-nota">${I_BELL}<span>${esc(j.nota)}</span></p>` : ''}
+      ${duoMap(mine, theirs, shared)}
+      ${duoLanes(pa, pb, shared, j.otro_nombre, same)}
+      ${!same && shared.length > 1 ? `<ul class="ghj-hits">${shared.map(s => `<li><b>${esc(s.c)}</b><span>${s.n ? `${esc(fd2(s.from))} → ${esc(fd2(s.to))} · ${s.n} ${plural(s.n, 'noche', 'noches')}` : s.n === 0 ? 'en fechas distintas' : 'fechas por cerrar'}</span></li>`).join('')}</ul>` : ''}
+      <div class="ghj-grid">
+        <section class="ghj-box${same ? ' ghj-box--w' : ''}"><h4>${I_USERS}Quién va con ellos <small>${j.personas || names.length}</small></h4>
+          ${names.length ? `<ul class="ghj-ppl">${names.map(n => `<li><i style="--c:${avColor(n + j.otro_grupo)}">${esc(initials(n))}</i>${esc(n)}</li>`).join('')}</ul>` : '<p class="ghj-empty">Aún no hay nadie apuntado.</p>'}
+        </section>
+        ${same ? '' : `<section class="ghj-box"><h4>${I_ROUTE}Su ruta${theirs && theirs.fecha_salida ? ` <small>sale el ${esc(fd2(theirs.fecha_salida))}</small>` : ''}</h4>
+          ${theirs ? `<ol class="ghj-stops"><li><b>${esc(cityName(theirs.salida))}</b><small>Salida</small></li>${pb.map(s => `<li class="${shK.has(s.k) ? 'is-hit' : ''}"><b>${esc(s.c)}</b><small>${s.from ? `${esc(fd2(s.from))} · ` : ''}${s.n} ${plural(s.n, 'noche', 'noches')}${shK.has(s.k) ? ' · juntos' : ''}</small></li>`).join('')}</ol>` : '<p class="ghj-empty">Estamos preparando su ruta.</p>'}
+        </section>`}
+        ${alo.length ? `<section class="ghj-box ghj-box--w"><h4>${I_HOME}Dónde duermen</h4><ul class="ghj-alo">${alo.map(a => `<li class="${shK.has(normS(cityName(a.ciudad))) ? 'is-hit' : ''}"><b>${esc(cityName(a.ciudad))}</b><span>${esc(a.nombre || 'Alojamiento')}</span>${a.entrada ? `<small>${esc(fd2(a.entrada))}${a.salida ? ' → ' + esc(fd2(a.salida)) : ''}</small>` : ''}</li>`).join('')}</ul></section>` : ''}
+      </div>
+      <p class="ghj-priv">Cada grupo ve la ruta, las fechas, el alojamiento y los nombres del otro. Los pagos y los billetes siguen siendo privados de cada grupo.</p>
+      <a class="ghj-cta" href="${esc(IB.wa(`Hola ${IB.brand.nombre}, somos «${g.nombre}» y viajamos con «${j.otro_nombre}». Queremos coordinar algo juntos.`))}" target="_blank" rel="noopener">Coordinar algo juntos ${I_GO}</a>
+    </article>`;
+  }
+  /* ---------- el «Resumen» del grupo: cuenta atrás en directo, cifras, lista y novedades ---------- */
+  const fLarga = iso => new Date(iso + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hoyIso = () => new Date().toLocaleDateString('sv-SE');
+  const fmtN = n => Math.round(n).toLocaleString('es-ES');
+  const I_TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
+  function hypeBox(g, main, pm, left, start, total, day){
+    if(!start) return '';
+    const first = pm[0] ? pm[0].c : '', salida = main ? cityName(main.salida) : '';
+    if(left > 0){
+      // cuánto de la espera lleváis: desde que se creó el grupo hasta el día de salida
+      const created = String(g.created_at || '').slice(0, 10), all = created && created < start ? nightsBetween(created, start) : 0;
+      const done = all ? Math.min(99, Math.max(1, Math.round((all - left) / all * 100))) : 0;
+      return `<div class="gh-hype" data-gh-cd="${esc(start)}">
+        <div class="gh-hype-top"><small>Cuenta atrás</small><span class="gh-hype-live"><i></i>En directo</span></div>
+        <h3>Rumbo a <em>${esc(first || 'Europa')}</em></h3>
+        <div class="gh-cd" role="timer" aria-label="Tiempo que falta para salir">${[['d', 'días'], ['h', 'horas'], ['m', 'min'], ['s', 'seg']].map(([u, l]) => `<div><b data-u="${u}">--</b><small>${l}</small></div>`).join('')}</div>
+        <p>Salís${salida ? ` de ${esc(salida)}` : ''} el ${esc(fLarga(start))}.${total ? ` Por delante: ${total} noches y ${pm.length} ${plural(pm.length, 'ciudad', 'ciudades')}.` : ''}</p>
+        ${done ? `<div class="gh-wait"><span><i style="width:${done}%"></i></span><small>Lleváis el ${done}% de la espera</small></div>` : ''}
+      </div>`;
+    }
+    if(total && day < total){
+      const t = hoyIso(), now = pm.find(s => s.from && s.from <= t && t < s.to), nx = now ? pm[pm.indexOf(now) + 1] : pm[0];
+      return `<div class="gh-hype is-on">
+        <div class="gh-hype-top"><small>Viaje en marcha · día ${day + 1} de ${total}</small><span class="gh-hype-live"><i></i>En directo</span></div>
+        <h3>${now ? `Hoy estáis en <em>${esc(now.c)}</em>` : `¡Hoy salís${salida ? ` de ${esc(salida)}` : ''}!`}</h3>
+        <p>${nx && nx.from ? `Siguiente parada: <b>${esc(nx.c)}</b>, el ${esc(fLarga(nx.from))}.` : 'Última parada: disfrutadla.'} Cualquier cosa, estamos en WhatsApp 24 h.</p>
+      </div>`;
+    }
+    return '';
+  }
+  // el viaje en cifras (distancia aproximada en línea recta entre ciudades)
+  const hav = (a, b) => { const r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lon - a.lon) * r; const h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) ** 2; return 12742 * Math.asin(Math.sqrt(h)); };
+  function statsBox(main, pm){
+    if(!main || !pm.length || !window.IBMap) return '';
+    const pts = [main.salida].concat(pm.map(s => s.c)).map(n => IBMap.city(n));
+    let km = 0; for(let i = 1; i < pts.length; i++){ const a = pts[i - 1], b = pts[i]; if(a && b && a.lon != null && b.lon != null) km += hav(a, b); }
+    const cc = new Set(pm.map(s => (IBMap.city(s.c) || {}).cc).filter(Boolean)).size;
+    const nights = pm.reduce((a, s) => a + s.n, 0);
+    const t = [km > 50 ? [Math.round(km / 10) * 10, 'km de Europa', '≈'] : null, cc ? [cc, plural(cc, 'país', 'países')] : null, [pm.length, plural(pm.length, 'ciudad', 'ciudades')], [nights, plural(nights, 'noche', 'noches')]].filter(Boolean);
+    return `<div class="gh-stats"><small class="gh-k">Vuestro viaje en cifras</small><dl>${t.map(([v, l, pre], i) => `<div style="--i:${i}"><dt>${l}</dt><dd>${pre ? `<i>${pre}</i>` : ''}<b data-gh-up="${v}" data-k="${esc(main.id)}-${i}">${fmtN(v)}</b></dd></div>`).join('')}</dl></div>`;
+  }
+  // «Antes de salir»: lo nuestro se marca solo; lo vuestro lo marcáis vosotros (se guarda en este móvil)
+  const LISTA = [['dni', 'DNI o pasaporte en vigor'], ['tse', 'Tarjeta Sanitaria Europea (se pide gratis)'], ['app', 'App Rail Planner en el móvil'], ['bat', 'Batería externa y cargador'], ['cap', 'Captura de los billetes, por si no hay cobertura']];
+  const listaGet = gid => { try{ return JSON.parse(localStorage.getItem('ib-lista-' + gid) || '[]'); }catch(e){ return []; } };
+  const iPaid = g => { const m = V.mine[g.id] || {}, imp = Number(m.importe || 0); if(m.pagado) return true; const pag = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).reduce((a, p) => a + Number(p.importe), 0); return imp > 0 && pag >= imp - .005; };
+  function checkBox(g, main, docs, prev){
+    if(prev) return '';
+    const mine = listaGet(g.id);
+    const auto = [[!!main && main.estado === 'cerrada', `${RT.Ruta} reservada`], [V.v7 && iPaid(g), 'Tu parte pagada'], [docs.length > 0, 'Billetes subidos a la web']];
+    const n = auto.filter(a => a[0]).length + LISTA.filter(([k]) => mine.includes(k)).length, all = auto.length + LISTA.length;
+    return `<div class="gh-list" data-gh-list="${esc(g.id)}">
+      <div class="gh-list-h"><div><small class="gh-k">Antes de salir</small><b><span data-gh-ln>${n}</span> de ${all} listo</b></div><span class="gh-list-bar"><i style="width:${Math.round(n / all * 100)}%"></i></span></div>
+      <ul>${auto.map(([ok, l]) => `<li class="is-auto${ok ? ' is-ok' : ''}"><span class="gh-chk">${I_TICK}</span><span>${esc(l)}<small>${ok ? 'Hecho' : 'Lo marcamos nosotros'}</small></span></li>`).join('')}${LISTA.map(([k, l]) => `<li><button type="button" class="${mine.includes(k) ? 'is-ok' : ''}" data-gh-chk="${k}" aria-pressed="${mine.includes(k)}"><span class="gh-chk">${I_TICK}</span><span>${esc(l)}</span></button></li>`).join('')}</ul>
+    </div>`;
+  }
+  // novedades de la agencia, en carrusel (todo real: festival, sorteo, Invita y gana y el planificador)
+  function promoBox(g, pm, prev){
+    const sp = pm.find(s => s.k === 'split'), enUltra = sp && sp.from && sp.from <= '2027-07-11' && sp.to > '2027-07-09';
+    const ads = [];
+    if(IB.brand.key === 'iberail') ads.push(['ultra', enUltra ? '¡Estaréis en Split en pleno Ultra!' : 'Ultra Europe 2027', '9, 10 y 11 de julio en Split. Tres días de festival junto al Adriático.', 'Ver Split · Ultra', 'split.html']);
+    if(IB.brand.key === 'iberail') ads.push(['sorteo', 'Sorteamos entradas para el Ultra', 'Participar es gratis desde tu cuenta. Si subes nuestro cartel a tu story y nos mandas la captura por WhatsApp, te sumamos otra participación.', 'Ir al sorteo', 'sorteo.html']);
+    if(V.inv && !prev) ads.push(['invita', `Invita y gana ${eurR(V.inv.importe)}`, `Por cada grupo de ${V.inv.minimo} o más amigos que traigas con tu enlace.`, 'Ver mi enlace', 'cuenta.html#invita']);
+    // Zarping, la otra agencia (solo en Iberail): viajes de grupo que no son en tren
+    if(IB.brand.key === 'iberail') ads.push(['zarping', '¿Y si la próxima no es en tren?', 'Viajes de grupo con transporte, alojamiento y planes incluidos, organizados por Zarping, nuestra otra agencia.', 'Conocer Zarping', 'https://zarping.com']);
+    ads.push(['plan', '¿Ya pensando en la siguiente?', 'Diseña otra ruta en el planificador en un par de minutos y te la presupuestamos gratis.', 'Abrir el planificador', IB.brand.planner || 'rutas.html']);
+    return `<div class="gh-ads" data-gh-ads>
+      <div class="gh-ads-track" data-noswipe>${ads.map(([k, t, p, c, h]) => `<a class="gh-ad gh-ad--${k}" href="${esc(h)}"${/^https?:/.test(h) ? ' target="_blank" rel="noopener"' : ''}><small>${k === 'zarping' ? '<img src="assets/img/zarping-blanco.svg" alt="Zarping" width="74" height="20">' : k === 'invita' ? 'Para ti' : k === 'plan' ? IB.brand.nombre : 'Novedades'}</small><b>${esc(t)}</b><p>${esc(p)}</p><span>${esc(c)} ${I_GO}</span><i aria-hidden="true"></i></a>`).join('')}</div>
+      ${ads.length > 1 ? `<div class="gh-ads-dots" aria-hidden="true">${ads.map((_, i) => `<i class="${i ? '' : 'is-on'}"></i>`).join('')}</div>` : ''}
+    </div>`;
+  }
+  // la cuenta atrás corre sola (una vez por segundo y solo con la pestaña a la vista)
+  function tickCd(){
+    if(document.hidden) return;
+    $$('[data-gh-cd]').forEach(el => {
+      const ms = Math.max(0, new Date(el.dataset.ghCd + 'T00:00:00') - Date.now());
+      const v = { d: Math.floor(ms / 864e5), h: Math.floor(ms / 36e5) % 24, m: Math.floor(ms / 6e4) % 60, s: Math.floor(ms / 1e3) % 60 };
+      $$('[data-u]', el).forEach(b => { const t = b.dataset.u === 'd' ? String(v.d) : String(v[b.dataset.u]).padStart(2, '0'); if(b.textContent !== t){ b.textContent = t; b.classList.remove('is-tick'); void b.offsetWidth; b.classList.add('is-tick'); } });
+    });
+  }
+  setInterval(tickCd, 1000);
+  // las cifras suben desde cero la primera vez que se ven
+  const upDone = new Set();
+  function countUp(root){
+    const quiet = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    $$('[data-gh-up]', root).forEach(el => {
+      if(!el.offsetParent || upDone.has(el.dataset.k)) return;
+      upDone.add(el.dataset.k);
+      if(quiet) return;
+      const to = Number(el.dataset.ghUp), t0 = performance.now();
+      const step = now => { const k = Math.min(1, (now - t0) / 1300), e = 1 - Math.pow(1 - k, 3); el.textContent = fmtN(to * e); if(k < 1) requestAnimationFrame(step); };
+      el.textContent = '0'; requestAnimationFrame(step);
+    });
+  }
+  // el carrusel de novedades pasa solo cada 6 s (se para si lo estás tocando)
+  setInterval(() => {
+    if(document.hidden) return;
+    $$('[data-gh-ads]').forEach(box => {
+      const tr = $('.gh-ads-track', box); if(!tr || !box.offsetParent || box.matches(':hover') || box._hold > Date.now()) return;
+      const w = tr.clientWidth, n = tr.children.length, i = Math.round(tr.scrollLeft / w);
+      tr.scrollTo({ left: ((i + 1) % n) * w, behavior: 'smooth' });
+    });
+  }, 6000);
   function groupCard(g){
     const prev = !!g._preview;
     const routes = (V.allRoutes || V.routes).filter(r => r.grupo_id === g.id), rids = new Set(routes.map(r => r.id));
     const docs = V.docs.filter(d => d.grupo_id === g.id || rids.has(d.ruta_id)), mates = V.mates[g.id] || [];
     // en el grupo solo se ven los avisos sin leer; los ya vistos siguen en Mi cuenta → Avisos
     const allAvs = (V.allAvisos && V.allAvisos.length ? V.allAvisos : V.avisos).filter(a => String(a.grupo_id) === String(g.id));
-    const avs = (prev ? allAvs : allAvs.filter(a => !V.read.has(String(a.id)))).slice(0, 3);
-    const oldAvs = prev ? 0 : allAvs.length - allAvs.filter(a => !V.read.has(String(a.id))).length;
+    const unreadAvs = prev ? allAvs : allAvs.filter(a => !V.read.has(String(a.id)));
+    const avs = unreadAvs.slice(0, 4), oldAvs = allAvs.length - unreadAvs.length;
+    const jun = (V.juntos || []).filter(j => String(j.mi_grupo) === String(g.id));
     // cuándo empieza el viaje: la salida de la ruta o, si no, el primer billete con fecha
-    const start = (routes.find(r => r.fecha_salida) || {}).fecha_salida || (docs.map(d => d.fecha).filter(Boolean).sort()[0]);
-    const left = start ? daysTo(start) : null;
+    const main = groupRoute(g.id);
+    const start = (main || {}).fecha_salida || (docs.map(d => d.fecha).filter(Boolean).sort()[0]);
+    const left = start ? daysTo(start) : null, total = main ? (main.paradas || []).reduce((a, p) => a + (parseInt(p.dias, 10) || 0), 0) : 0;
     const me = mates.find(m => m.soy_yo), others = mates.filter(m => !m.soy_yo);
     const names = others.map(m => String(m.nombre).split(' ')[0]);
     const who = names.length ? (me ? `${names.join(', ')} y tú` : names.slice(0, -1).join(', ') + (names.length > 1 ? ' y ' : '') + names.slice(-1)) : '';
-    const stack = mates.length ? `<div class="gx-mates"><span class="gx-stack">${mates.slice(0, 8).map(m => `<i class="${m.soy_yo ? 'is-me' : ''}" style="--c:${avColor(m.user_id || m.nombre)}" title="${esc(m.nombre)}">${esc(initials(m.nombre))}</i>`).join('')}${mates.length > 8 ? `<i class="is-more">+${mates.length - 8}</i>` : ''}</span><span class="gx-who">${esc(who)}</span></div>` : '';
-    const stats = [
-      left != null ? (left > 0 ? `<div class="is-hl"><dt>Faltan</dt><dd>${left}<small> ${plural(left, 'día', 'días')}</small></dd></div>` : left === 0 ? '<div class="is-hl"><dt>Salís</dt><dd>¡Hoy!</dd></div>' : '<div><dt>Viaje</dt><dd>En marcha</dd></div>') : '',
-      start ? `<div><dt>Salida</dt><dd>${esc(new Date(start + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', ''))}</dd></div>` : '',
-      `<div><dt>Personas</dt><dd>${mates.length || '—'}</dd></div>`,
-      `<div><dt>Billetes</dt><dd>${docs.length}</dd></div>`
-    ].join('');
-    const edit = V.admin ? `<a class="gx-edit" href="panel.html#grupo-${esc(g.id)}">Editar en el panel<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>` : '';
     const vip = !!g.vip;
-    const vipBar = vip ? `<div class="gx-card gx-vipbar"><span class="gx-vipbar-ic">${I_STAR}</span><div><b>${prev ? 'Grupo VIP' : 'Sois grupo VIP'}</b><p>Gracias por confiar en ${IB.brand.nombre}. Escribidnos cuando queráis y os atendemos con prioridad.</p></div><a class="gx-vipbar-cta" href="${esc(IB.wa(`Hola ${IB.brand.nombre}, somos el grupo VIP «${g.nombre}».`))}" target="_blank" rel="noopener">Línea VIP</a></div>` : '';
-    return `<section class="gx${prev ? ' is-preview' : ''}${vip ? ' is-vip' : ''}">
-      <header class="gx-hero">
-        <div class="gx-top"><span class="gx-top-left"><span class="gx-kicker"><i></i>${prev ? 'Vista del equipo · así lo ven ellos' : 'Tu grupo de viaje'}</span>${vip ? `<span class="gx-vip" title="Grupo VIP">${I_STAR}VIP</span>` : ''}</span>${edit}</div>
-        <h2>${esc(g.nombre)}</h2>
-        ${stack}
-        <dl class="gx-stats">${stats}</dl>
+    // la cuenta atrás: días que faltan, el día de salida o el día del viaje en el que vais
+    const count = left == null ? `<div class="gh-count is-soon"><b>—</b><span>Fecha de salida<br>por cerrar</span></div>`
+      : left > 0 ? `<div class="gh-count"><b data-gh-n="${left}">${left}</b><span>${plural(left, 'día', 'días')}<br>para salir</span></div>`
+      : left === 0 ? '<div class="gh-count is-hoy"><b>HOY</b><span>¡Salís<br>hoy!</span></div>'
+      : total && -left < total ? `<div class="gh-count is-on"><b>${1 - left}</b><span>día de ${total}<br>de viaje</span></div>`
+      : '<div class="gh-count is-fin"><b>✓</b><span>Viaje<br>terminado</span></div>';
+    // la tira de embarque: las paradas con su código y un tren que avanza con los días
+    const stops = main ? [{ c: cityName(main.salida), n: null }].concat((main.paradas || []).map(p => ({ c: cityName(p.ciudad), n: Math.max(0, parseInt(p.dias, 10) || 0) }))) : [];
+    // día del viaje (−1 = aún no habéis salido) y en qué parada estáis
+    const day = left == null || left > 0 ? -1 : -left;
+    let acc = 0; const arr = stops.map((s, i) => { const a = i === 0 ? 0 : acc; if(i) acc += s.n; return a; });
+    const now = day < 0 ? -1 : arr.reduce((m, a, i) => (a <= day ? i : m), 0);
+    const strip = stops.length > 1 ? `<div class="gh-strip" data-noswipe><ol>${stops.map((s, i) => `<li class="${i === 0 ? 'is-o' : ''}${now >= 0 && i < now ? ' is-past' : ''}${i === now ? ' is-now' : ''}" title="${esc(s.c)}"><i></i><b>${esc(code(s.c))}</b><small>${i === 0 ? 'Salida' : `${s.n} ${plural(s.n, 'noche', 'noches')}`}</small></li>`).join('')}</ol></div>` : '';
+    const stack = mates.length ? `<span class="gh-stack">${mates.slice(0, 7).map(m => `<i class="${m.soy_yo ? 'is-me' : ''}" style="--c:${avColor(m.user_id || m.nombre)}" title="${esc(m.nombre)}">${esc(initials(m.nombre))}</i>`).join('')}${mates.length > 7 ? `<i class="is-more">+${mates.length - 7}</i>` : ''}</span>` : '';
+    const gid = esc(g.id), pm = plan(main);
+    // lo que va en cada apartado
+    const crew = mates.length ? `<ul class="gh-crew">${mates.map(m => `<li class="${m.soy_yo ? 'is-me' : ''}"><i style="--c:${avColor(m.user_id || m.nombre)}">${esc(initials(m.nombre))}</i><b>${esc(String(m.nombre).split(' ')[0])}${m.soy_yo ? ' <small>(tú)</small>' : ''}</b></li>`).join('')}</ul>` : '';
+    const soon = (ic, b, p) => `<div class="gx-card gx-soon"><span class="gx-ic">${ic}</span><div><b>${b}</b><p>${p}</p></div></div>`;
+    const pay = prev ? null : payState(g);
+    const lista = prev ? null : listState(g, main, docs);
+    const last = main ? cityName(((main.paradas || []).slice(-1)[0] || {}).ciudad || '') : '';
+    const A = [
+      { t: 'inicio', i: I_HOME, l: 'Inicio', s: left > 0 ? `Faltan ${left} ${plural(left, 'día', 'días')} · cifras y novedades` : 'Vuestro viaje de un vistazo', d: 'La cuenta atrás, vuestro viaje en cifras y lo nuevo de la agencia.',
+        h: `${hypeBox(g, main, pm, left, start, total, day)}${statsBox(main, pm)}${promoBox(g, pm, prev)}` },
+      { t: 'pagos', i: I_EURO, l: 'Pagos', s: prev ? 'Cómo va el grupo' : pay.s, hot: !prev && pay.hot, ok: !prev && pay.ok, d: 'Lo que te queda por pagar, la fecha límite, el seguro y cómo va el grupo.',
+        h: `${prev ? '' : payBox(g)}${limBox(g, prev)}${prev ? '' : `<div class="sg-slot" data-seguro="${gid}"></div>`}${teamBox(g)}` },
+      { t: 'ruta', i: I_ROUTE, l: RT.Ruta, s: main ? `${cityName(main.salida)} → ${last} · ${pm.length} ${plural(pm.length, 'parada', 'paradas')}` : 'La estamos preparando', d: 'El recorrido parada a parada, el mapa y dónde dormís.',
+        h: (routes.length ? routes.map(routeMapCard).join('') : soon(I_ROUTE, RT.prep, 'En cuanto esté lista, os aparece aquí a todos.')) + `<div class="al-slot" data-aloj="${gid}"></div>` },
+      jun.length ? { t: 'juntos', i: I_JUNTOS, l: 'Viajáis juntos', s: `Con «${jun[0].otro_nombre}»${jun.length > 1 ? ` y ${jun.length - 1} más` : ''}`, cool: true, d: 'El otro grupo con el que hacéis el viaje: su ruta, sus fechas y dónde coincidís.',
+        h: jun.map(j => juntosBlock(g, j)).join('') } : null,
+      { t: 'grupo', i: I_USERS, l: 'Quién va', s: mates.length ? `${mates.length} ${plural(mates.length, 'persona', 'personas')}` : 'Aún solo tú', d: 'Todas las personas del grupo.',
+        h: crew || soon(I_USERS, 'Aún no hay nadie más', 'Cuando metamos al resto del grupo, os veréis todos aquí.') },
+      { t: 'billetes', i: I_PLANE, l: 'Billetes', s: docs.length ? `${docs.length} ${plural(docs.length, 'listo', 'listos')} para abrir` : 'Aún no hay nada subido', ok: docs.length > 0, d: 'Vuelos y documentos del viaje. Toca el localizador para copiarlo.',
+        h: docs.length ? `<div class="gx-docs">${docsBlock(docs, V.urls, true)}</div>` : soon(I_PLANE, 'Billetes y documentos', 'Aún no hay nada subido. Os avisamos en cuanto estén.') },
+      allAvs.length ? { t: 'avisos', i: I_BELL, l: 'Avisos', s: prev ? `${allAvs.length} publicados` : unreadAvs.length ? `${unreadAvs.length} sin leer` : 'Todo leído', hot: !prev && unreadAvs.length > 0, d: 'Lo que os contamos del viaje: horarios, cambios y recordatorios.',
+        h: (avs.length ? `<div class="gx-avisos">${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : soon(I_BELL, 'Lo tenéis todo leído', 'Cuando haya algo nuevo del viaje, os sale aquí.')) + (oldAvs && !prev ? `<a class="gx-avisos-old" href="cuenta.html#avisos">${I_BELL}Ver avisos anteriores (${oldAvs})</a>` : '') } : null,
+      prev ? null : { t: 'lista', i: I_TICK, l: 'Antes de salir', s: `${lista.n} de ${lista.all} listo`, ok: lista.n === lista.all, d: 'Lo que tenéis que llevar resuelto. Lo nuestro se marca solo; lo vuestro lo marcáis vosotros.',
+        h: checkBox(g, main, docs, prev) }
+    ].filter(Boolean);
+    let cur = ghTab[g.id]; if(!A.some(x => x.t === cur)) cur = 'inicio';
+    const open = !!ghOpen[g.id] && cur !== 'inicio';
+    const edit = V.admin ? `<a class="gx-edit" href="panel.html#grupo-${gid}">Editar en el panel${I_GO}</a>` : '';
+    return `<section class="gh${prev ? ' is-preview' : ''}${vip ? ' is-vip' : ''}${open ? ' is-open' : ''}" data-gh="${gid}" data-cur="${cur}" style="--gc:${avColor(g.nombre)}">
+      <header class="gh-top">
+        <div class="gh-bar"><span class="gh-kick"><i></i>${prev ? 'Vista del equipo · así lo ven ellos' : 'Tu grupo de viaje'}</span>${vip ? `<span class="gx-vip" title="Grupo VIP">${I_STAR}VIP</span>` : ''}${edit}</div>
+        <div class="gh-main">
+          <div class="gh-id">
+            <h2>${esc(g.nombre)}</h2>
+            <p class="gh-who">${stack}<span>${esc(who || (mates.length ? `${mates.length} ${plural(mates.length, 'persona', 'personas')}` : ''))}</span></p>
+            ${jun.length ? `<p class="gh-with">${jun.map(j => `<button type="button" data-gh-t="juntos">${I_JUNTOS}<span>Viajáis con <b>${esc(j.otro_nombre)}</b></span></button>`).join('')}</p>` : ''}
+          </div>
+          ${count}
+        </div>
+        ${strip}
       </header>
-      <div class="gx-body">
-        ${vipBar}
-        ${prev ? '' : `<div class="sg-slot" data-seguro="${esc(g.id)}"></div>`}
-        ${prev ? '' : payBox(g)}
-        ${limBox(g, prev)}
-        ${teamBox(g)}
-        ${routes.length ? routes.map(routeMapCard).join('') : `<div class="gx-card gx-soon"><span class="gx-ic">${I_ROUTE}</span><div><b>${RT.prep}</b><p>En cuanto esté lista, os aparece aquí a todos.</p></div><span class="gx-dots" aria-hidden="true"><i></i><i></i><i></i></span></div>`}
-        <div class="al-slot" data-aloj="${esc(g.id)}"></div>
-        ${avs.length ? `<div class="gx-avisos"><div class="gx-sec-h"><span class="gx-ic">${I_BELL}</span><b>Avisos del grupo</b></div>${avs.map(a => avisoItem(a, true, prev)).join('')}</div>` : ''}${!avs.length && oldAvs ? `<a class="gx-avisos-old" href="cuenta.html#avisos">${I_BELL}Ver avisos anteriores (${oldAvs})</a>` : ''}
-        ${docs.length ? `<div class="gx-docs">${docsBlock(docs, V.urls, true)}</div>` : `<div class="gx-card gx-soon"><span class="gx-ic">${I_PLANE}</span><div><b>Billetes y documentos</b><p>Aún no hay nada subido. Os avisamos en cuanto estén.</p></div></div>`}
+      <div class="gh-body">
+        <nav class="gh-menu" aria-label="Apartados del grupo">
+          <small class="gh-menu-k">Apartados</small>
+          ${A.map(x => `<button type="button" class="gh-mi${x.hot ? ' is-hot' : ''}${x.ok ? ' is-ok' : ''}${x.cool ? ' is-cool' : ''}" data-gh-t="${x.t}"${x.t === cur ? ' aria-current="true"' : ''}><span class="gh-mi-ic">${x.i}</span><span class="gh-mi-t"><b>${esc(x.l)}</b><small>${esc(x.s)}</small></span>${I_GO}</button>`).join('')}
+        </nav>
+        <div class="gh-view">
+          <div class="gh-back"><button type="button" data-gh-back>${I_GO}<span>Volver</span></button><b>${esc((A.find(x => x.t === cur) || A[0]).l)}</b></div>
+          ${A.map(x => `<section class="gh-p" data-p="${x.t}"${x.t === cur ? '' : ' hidden'} aria-label="${esc(x.l)}">
+            <header class="gh-ph"><span class="gh-mi-ic">${x.i}</span><div><h3>${esc(x.l)}</h3><p>${esc(x.d)}</p></div></header>
+            ${x.h}
+          </section>`).join('')}
+        </div>
       </div>
     </section>`;
   }
+  // estado de cada apartado para el menú
+  function payState(g){
+    if(!V.v7) return { s: 'Aún sin pagos', hot: false, ok: false };
+    const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
+    const pag = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).reduce((a, p) => a + Number(p.importe), 0);
+    if(m.pagado || (imp > 0 && pag >= imp - .005)) return { s: 'Todo pagado', hot: false, ok: true };
+    if(!imp) return { s: pag ? `${eur(pag)} pagados · precio por cerrar` : 'Precio por cerrar', hot: false, ok: false };
+    return { s: `Te ${plural(imp - pag, 'queda', 'quedan')} ${eur(imp - pag)}`, hot: true, ok: false };
+  }
+  function listState(g, main, docs){
+    const mine = listaGet(g.id);
+    const n = [!!main && main.estado === 'cerrada', V.v7 && iPaid(g), docs.length > 0].filter(Boolean).length + LISTA.filter(([k]) => mine.includes(k)).length;
+    return { n, all: 3 + LISTA.length };
+  }
+  // abrir un apartado: en el ordenador cambia el contenido de la derecha; en el móvil se abre a pantalla completa
+  const ghOpen = {};
+  const movil = () => matchMedia('(max-width:899px)').matches;
+  function ghSet(sec, t, user){
+    const p = $(`.gh-p[data-p="${t}"]`, sec); if(!p) return;
+    const id = sec.dataset.gh, abre = movil() && t !== 'inicio';
+    ghTab[id] = t; ghOpen[id] = abre;
+    sec.dataset.cur = t; sec.classList.toggle('is-open', abre);
+    $$('.gh-mi', sec).forEach(b => b.dataset.ghT === t ? b.setAttribute('aria-current', 'true') : b.removeAttribute('aria-current'));
+    $$('.gh-p', sec).forEach(x => { x.hidden = x !== p; });
+    const name = $(`.gh-mi[data-gh-t="${t}"] b`, sec); $('.gh-back b', sec).textContent = name ? name.textContent : '';
+    countUp(p);
+    if(!user) return;
+    p.classList.remove('is-in'); void p.offsetWidth; p.classList.add('is-in');
+    // en el móvil, el botón «atrás» del teléfono vuelve a la lista de apartados
+    if(abre){ try{ history.pushState({ gh: id }, ''); }catch(e){} }
+    const top = (abre ? $('.gh-view', sec) : movil() ? sec : $('.gh-view', sec)).getBoundingClientRect().top;
+    if(top < 70 || abre) window.scrollTo({ top: Math.max(0, scrollY + top - 84), behavior: 'auto' });
+  }
+  function ghClose(sec, fromPop){
+    const id = sec.dataset.gh;
+    ghOpen[id] = false; ghSet(sec, 'inicio', false);
+    const mi = $('.gh-menu', sec); if(mi) window.scrollTo({ top: Math.max(0, scrollY + sec.getBoundingClientRect().top - 84), behavior: 'auto' });
+    if(!fromPop){ try{ if(history.state && history.state.gh) history.back(); }catch(e){} }
+  }
+  window.addEventListener('popstate', () => { $$('.gh.is-open').forEach(s => ghClose(s, true)); });
   function paintDash(){
     const { routes, groups, docs, urls } = V;
     const unread = V.avisos.filter(a => !V.read.has(String(a.id)));
@@ -529,11 +848,10 @@
         <div class="dash-alert-act"><button type="button" class="btn btn--dark btn--sm" data-ok="${esc(top.id)}">${I_CHECK}Entendido</button>${unread.length > 1 ? (MODE === 'grupos' ? '<a class="pl-link" href="cuenta.html#avisos">Ver todos</a>' : '<button type="button" class="pl-link" data-tab="avisos">Ver todos</button>') : ''}</div>
       </div>` : '';
     paintInvita();
-    if(MODE === 'grupos' && V.inv && V.groups.length - V.previews > 0){
-      const d = V.inv;
-      $('#myGroups').insertAdjacentHTML('beforeend', `<a class="inv-promo" href="cuenta.html#invita"><span class="gx-ic">${I_GIFT}</span><span><b>Invita y gana ${eurR(d.importe)}</b><small>Por cada grupo de ${d.minimo} o más amigos que traigas con tu enlace.</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`);
-    }
+    // «Invita y gana» ya sale en las novedades de cada grupo
     if(!tab) setTab(pickTab(), true); else setTab(tab, true);
+    // lo que necesita el grupo ya pintado: cuenta atrás, cifras que suben y países del mapa
+    tickCd(); $$('.gh').forEach(s => countUp(s)); ghGeo();
   }
   /* ---------- «Invita y gana» ---------- */
   const I_GIFT = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7M7.5 8a2.5 2.5 0 010-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 010 5"/></svg>';
@@ -643,7 +961,7 @@
     if(!quiet){ box.innerHTML = '<div class="auth-spin"></div>'; $('#myGroups').innerHTML = '<div class="auth-spin"></div>'; }
     const mem = await safe(IB.sb.from('grupo_miembros').select('*').eq('user_id', user.id));
     const gids = (mem.data || []).map(m => m.grupo_id);
-    const [own, grp, gr, mt, pg, av, rd, iv] = await Promise.all([
+    const [own, grp, gr, mt, pg, av, rd, iv, jt] = await Promise.all([
       IB.sb.from('rutas').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
       gids.length ? safe(IB.sb.from('rutas').select('*').in('grupo_id', gids).order('created_at', { ascending: false })) : { data: [] },
       gids.length ? safe(IB.sb.from('grupos').select('*').in('id', gids)) : { data: [] },
@@ -651,7 +969,9 @@
       gids.length ? safe(IB.sb.from('pagos').select('*').eq('user_id', user.id)) : { data: [] },
       safe(IB.sb.from('avisos').select('*').order('created_at', { ascending: false }).limit(100)),
       safe(IB.sb.from('avisos_leidos').select('aviso_id').eq('user_id', user.id)),
-      safe(IB.sb.rpc('mi_invita'))
+      safe(IB.sb.rpc('mi_invita')),
+      // grupos que viajan juntos (archivo 16; si aún no está, simplemente no sale)
+      gids.length ? safe(IB.sb.rpc('grupos_juntos')) : { data: [], error: true }
     ]);
     if(own.error){ box.innerHTML = `<p class="dash-empty">${esc(IB.errMsg(own.error))}</p>`; return; }
     const routes = (grp.data || []).filter(r => !own.data.some(o => o.id === r.id)).concat(own.data)
@@ -700,7 +1020,7 @@
     const allAvisos = av.data || [];
     const avisos = isAdmin ? allAvisos.filter(a => a.para_todos || gids.includes(a.grupo_id) || (a.ruta_id && myRids.has(a.ruta_id)) || a.user_id === user.id) : allAvisos;
     V = { routes, allRoutes: routes.concat(proutes), groups, docs, urls, mates, mine: myRows, team, pagos: pg.data || [], avisos, allAvisos, admin: isAdmin, previews: pgids.length, read: new Set((rd.data || []).map(x => String(x.aviso_id))), v7: !av.error,
-      inv: !iv.error && iv.data && iv.data.codigo ? iv.data : null };
+      inv: !iv.error && iv.data && iv.data.codigo ? iv.data : null, juntos: !jt.error && Array.isArray(jt.data) ? jt.data : [], juntosOn: !jt.error };
     paintDash();
     // los enlaces a los archivos caducan en 1 h: se renuevan solos
     clearTimeout(refreshT); if(paths.length) refreshT = setTimeout(() => loadRoutes(user, true), 50 * 60 * 1000);
@@ -715,12 +1035,28 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pagos', filter: `user_id=eq.${user.id}` }, again)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'avisos' }, again);
       // «Invita y gana» (archivo 9): cuando ganas o cobras una comisión
+      if(V.juntosOn) chan = chan.on('postgres_changes', { event: '*', schema: 'public', table: 'grupo_enlaces' }, again);
       if(V.inv) chan = chan.on('postgres_changes', { event: '*', schema: 'public', table: 'comisiones', filter: `padrino=eq.${user.id}` }, again);
       chan.subscribe();
     }
   }
   root.addEventListener('click', async e => {
     const ok = e.target.closest('[data-ok]'); if(ok) return markRead(ok.dataset.ok, ok);
+    const ght = e.target.closest('[data-gh-t]');
+    if(ght){ const sec = ght.closest('.gh'); if(sec) ghSet(sec, ght.dataset.ghT, true); return; }
+    const bk = e.target.closest('[data-gh-back]'); if(bk){ const sec = bk.closest('.gh'); if(sec) ghClose(sec); return; }
+    // «Antes de salir»: marcar y desmarcar (se guarda en este dispositivo)
+    const ck = e.target.closest('[data-gh-chk]');
+    if(ck){
+      const box = ck.closest('[data-gh-list]'), gid = box.dataset.ghList, k = ck.dataset.ghChk;
+      const l = listaGet(gid), on = !l.includes(k), nl = on ? l.concat(k) : l.filter(x => x !== k);
+      try{ localStorage.setItem('ib-lista-' + gid, JSON.stringify(nl)); }catch(_){}
+      ck.classList.toggle('is-ok', on); ck.setAttribute('aria-pressed', on);
+      const n = $$('.is-ok', box).length, all = $$('li', box).length;
+      $('[data-gh-ln]', box).textContent = n; $('.gh-list-bar i', box).style.width = Math.round(n / all * 100) + '%';
+      const mi = $(`.gh-mi[data-gh-t="lista"] small`, box.closest('.gh')); if(mi) mi.textContent = `${n} de ${all} listo`;
+      return;
+    }
     const tb = e.target.closest('#dashTabs [data-t], [data-tab]'); if(tb) return setTab(tb.dataset.t || tb.dataset.tab);
     const icsB = e.target.closest('[data-route-ics]'); if(icsB){ const r = (V.allRoutes || V.routes).find(x => String(x.id) === icsB.dataset.routeIcs); if(r) routeIcs(r); return; }
     const gr = e.target.closest('[data-goto-route]'); if(gr){ setTab('rutas'); const c = $(`.rcard[data-id="${gr.dataset.gotoRoute}"]`); if(c){ c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('is-flash'); void c.offsetWidth; c.classList.add('is-flash'); } return; }
@@ -735,6 +1071,13 @@
     b.classList.add('is-copied'); b.textContent = okc ? 'Copiado' : b.dataset.copyLoc;
     setTimeout(() => { b.classList.remove('is-copied'); b.textContent = b.dataset.copyLoc; }, 1600);
   });
+  // carrusel de novedades: los puntos siguen al deslizar y se para un rato si lo tocas
+  root.addEventListener('scroll', e => {
+    const tr = e.target; if(!tr.classList || !tr.classList.contains('gh-ads-track')) return;
+    const i = Math.round(tr.scrollLeft / tr.clientWidth);
+    $$('.gh-ads-dots i', tr.parentNode).forEach((d, j) => d.classList.toggle('is-on', j === i));
+  }, true);
+  root.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('[data-gh-ads]'); if(b) b._hold = Date.now() + 12000; });
   // si se marca todo como leído desde la campana, se actualiza la cuenta
   document.addEventListener('ib:avisos-leidos', () => { if(me) loadRoutes(me, true); });
   $('#dashTabs').addEventListener('keydown', e => {

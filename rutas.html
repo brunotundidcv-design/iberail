@@ -21,7 +21,6 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin><link rel="preconnect" href="https://yyuydlaiiaynqutasxaz.supabase.co" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
@@ -31,11 +30,9 @@
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
-<script>try{if(sessionStorage.getItem('ib-nav')){sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}catch(e){}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Iberail","alternateName":"Iberail Interrail","url":"https://iberail.com","logo":"https://iberail.com/assets/img/logo.png","image":"https://iberail.com/assets/img/og.jpg","description":"Agencia española especializada en rutas Interrail a medida por Europa.","areaServed":"ES","address":{"@type":"PostalAddress","addressCountry":"ES"},"sameAs":["https://www.instagram.com/iberailspain/"],"founder":{"@type":"Person","name":"Bruno Tundidor","jobTitle":"Founder","sameAs":["https://www.instagram.com/bruno.tm_/"]}}</script>
 </head>
 <body>
-<div class="curtain" aria-hidden="true"><img src="assets/img/icon.svg" alt=""><span class="rail"></span></div>
 <a class="sr-only" href="#main">Saltar al contenido</a>
 <header class="topbar">
   <div class="container">
@@ -92,7 +89,7 @@
             <div class="field">
               <div class="field-label">Ciudad de salida <small>tu estación en España</small></div>
               <div class="pills pills--scroll" id="plOrigin" role="radiogroup" aria-label="Ciudad de salida"><button class="pill on" type="button" role="radio" aria-checked="true" data-v="Madrid">Madrid</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Barcelona">Barcelona</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Valencia">Valencia</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Sevilla">Sevilla</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Bilbao">Bilbao</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Zaragoza">Zaragoza</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="Málaga">Málaga</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="San Sebastián">San Sebastián</button><button class="pill" type="button" role="radio" aria-checked="false" data-v="__otra">Otra</button></div>
-              <input class="pl-input" id="plOriginOther" type="text" placeholder="¿Desde qué ciudad sales?" maxlength="60" hidden>
+              <input class="pl-input" id="plOriginOther" type="text" placeholder="¿Desde qué ciudad sales?" aria-label="Ciudad de salida" maxlength="60" hidden>
             </div>
             <div class="pl-grid2">
               <div class="field">
@@ -282,7 +279,6 @@
         </ul>
       </div>
     </div>
-    <div class="footer-big" aria-hidden="true">ibe<b>rail</b></div>
     <div class="footer-bottom">
       <span>© <span id="year">2026</span> Iberail. Todos los derechos reservados.</span>
       <span class="footer-legal"><a href="aviso-legal.html">Aviso legal</a> · <a href="condiciones-generales.html">Condiciones</a> · <a href="politica-privacidad.html">Privacidad</a> · <a href="politica-cookies.html">Cookies</a> · <a href="bases-sorteo.html">Bases del sorteo</a></span>

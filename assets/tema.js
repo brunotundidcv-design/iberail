@@ -10,7 +10,6 @@
   'use strict';
   var TEMA0 = window.IB_TEMA || {};
   var quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var raton = window.matchMedia && matchMedia('(pointer: fine)').matches;
   var html = document.documentElement;
   var guarda = function(k, v){ try{ localStorage.setItem(k, v); }catch(e){} };
   var lee = function(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } };
@@ -70,7 +69,7 @@
     host.insertBefore(cv, host.firstChild); host.classList.add('has-red');
     var cx = cv.getContext('2d'), base = document.createElement('canvas'), bx = base.getContext('2d');
     var W = 0, H = 0, R = 1, P = {}, trenes = [], pulsos = [], mia = null, raton = null, vivo = true, ultimo = 0;
-    // colores y ajustes de la temática del día (hispanidad.js define window.IB_TEMA)
+    // colores de la red (v16.js define window.IB_TEMA con los de la marca)
     var TEMA = window.IB_TEMA || {};
     var AMB = TEMA.amb || '255,184,28', ROJO = TEMA.rojo || '215,48,30';
     var ESPANA = {}; if(TEMA.espana) (DD.origins || []).forEach(function(o){ if(vecinos[o.n]) ESPANA[o.n] = 1; });
@@ -192,17 +191,6 @@
     tic(); setInterval(tic, 1000);
   }
 
-  /* ---------- botones principales que se acercan un poco al ratón ---------- */
-  if(raton && !quieto){
-    [].forEach.call(document.querySelectorAll('.btn--primary, .srt-btn'), function(b){
-      b.addEventListener('mousemove', function(e){
-        var r = b.getBoundingClientRect();
-        b.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * .12).toFixed(1) + 'px,' + ((e.clientY - r.top - r.height / 2) * .2 - 2).toFixed(1) + 'px)';
-      });
-      b.addEventListener('mouseleave', function(){ b.style.transform = ''; });
-    });
-  }
-
   /* ---------- vídeos que solo se cargan y reproducen cuando se ven ([data-src]) ---------- */
   var ahorro = navigator.connection && navigator.connection.saveData;
   if(!quieto && !ahorro && 'IntersectionObserver' in window){
@@ -239,16 +227,6 @@
   /* ---------- panel de salidas ---------- */
   var board = document.querySelector('[data-board]');
   var panel = null;
-  if(board && !quieto && raton){
-    // se inclina un poco hacia el ratón
-    var zona = board.closest('.hero') || board;
-    zona.addEventListener('mousemove', function(e){
-      var r = board.getBoundingClientRect();
-      var x = (e.clientX - (r.left + r.width / 2)) / innerWidth, y = (e.clientY - (r.top + r.height / 2)) / innerHeight;
-      board.style.transform = 'perspective(1200px) rotateY(' + (x * 7).toFixed(2) + 'deg) rotateX(' + (-y * 6).toFixed(2) + 'deg)';
-    });
-    zona.addEventListener('mouseleave', function(){ board.style.transform = ''; });
-  }
   var lista = board && board.querySelector('[data-board-rows]');
   if(lista) panel = montaPanel(lista);
 

@@ -7,6 +7,9 @@ alta 25/09/2026): Andrea Tundidor San Juan, NIF 54214649S (aviso legal, privacid
 Versión importada: `iberail-web-v6.4` (zip subido el 2026-09-26). **Fusionada con `iberail-web-v7.16`** (30/09/2026, hecha en otra
 sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla con git (base = el commit del que partió), no pisar.
 **Importada `iberail-web-v9.1`** (07/10/2026, partía de 4803f14 = v8.8: sorteos sueltos, contratos por correo — fuera `contratos.js` y la firma en la web, también en Zarping —, «correo a un cliente» en el panel). **v9.2** (07/10/2026): sorteo discreto (ver `sorteo.js`), y `tools/demo/` para la versión de demo del panel. **v9.3** (07/10/2026): revisión de bugs de toda la web, panel y funciones (ver «v9.3» más abajo).
+**Importada la web publicada v16 «Órbita»** (`zipweb12.zip`, hecha en otra sesión partiendo de la v14.6: tema oscuro, Europa en 3D,
+`v16.css`/`v16.js`/`orbita.js`/`sorteo-v2.css`; quitó `cola.js` y la temática de la Hispanidad). **v17** (25/10/2026): pulido para que
+parezca hecha por un profesional (ver «v17» más abajo).
 **Importada `iberail-web-v8.8`** (02/10/2026, partía de b01e727: página `sorteo.html` con cuenta atrás, `bases-sorteo.html`,
 `condiciones-generales.html`, `fiesta.js`, `musica.js`, `cuenta-atras.js`, `sorteo-pagina.js`, pagos en pausa `PAGOS_PAUSA` en `payment.js`).
 
@@ -46,14 +49,8 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
 
 ## JavaScript (`assets/`)
 
-- `cola.js` — **sala de espera simulada al entrar** (quitada el 08/10/2026 a petición del equipo; **vuelta a poner el 12/10/2026** con la
-  temática de la Hispanidad, a petición de marketing): entre **600 y 1.200 personas** delante y **2 a 6 minutos**. Una vez al día por
-  navegador (`localStorage` `ib-cola-<fecha>`, en la política de cookies; en Zarping, `rebrand()` quita la fila). **Se apaga sola en
-  `HASTA` = 13/10/2026 00:00** (como la temática); para más días, cambiar `HASTA`; para quitarla, `COLA_ON = false`. En el `<head>` tras
-  `mantenimiento.js` de portada, destinos, Split, planificador, contacto, cuenta y grupos; **no** en `sorteo.html` (para no tapar el
-  resultado), ni en legales, panel o Zarping. Pasan directos: `?equipo=1`, buscadores/robots (incluido `navigator.webdriver` y
-  HeadlessChrome, por eso no molesta en las pruebas) y la web en mantenimiento. `?cola=1` la enseña siempre. La bienvenida de la
-  Hispanidad espera al evento `ib-cola-fin`. Atributos propios `data-cola-*`.
+- (Quitado en la v16) `cola.js` — sala de espera simulada al entrar (600-1.200 personas, 2-6 min, temática de la Hispanidad).
+  El archivo y su fila de la política de cookies ya no están; si se quiere otra vez, sacarlo de git (commit anterior a la v16).
 - `mantenimiento.js` — **web cerrada por mantenimiento** hasta `HASTA` (última vez: 11/10/2026 15:00, hora de Madrid); después se abre sola
   (y recarga a quien la tenga abierta). En el `<head>` de todas las páginas públicas tras `config.js`; el panel no lo lleva.
   El equipo entra con `?equipo=1`. Para otra vez: cambiar `HASTA` (la hora del texto sale de ahí). Zarping no lo lleva.
@@ -248,7 +245,7 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   en la tarjeta de Split de la portada («Casi lleno»), en el panel de salidas y en «tu ruta» de la portada si eliges Split.
   **Quitarlo cuando ya no sea verdad** (buscar «Queda muy poco alojamiento» / «Casi lleno»).
 
-## Temática del Día de la Hispanidad (v14, 11/10/2026) — se apaga sola el 13/10 a las 00:00
+## Temática del Día de la Hispanidad (v14, 11/10/2026) — quitada en la v16 (`hispanidad.js`/`.css` ya no están; recuperarlos de git)
 
 - `assets/hispanidad.js` (en el `<head>`, antes de `tema.js`) + `assets/hispanidad.css` (todo bajo `html.tema-hispanidad`), en las
   14 páginas públicas. Activa **hasta `HASTA` = 13/10/2026 00:00 (Madrid)**; después la web vuelve sola a su aspecto normal.
@@ -266,6 +263,29 @@ sesión: sorteo del Ultra). Si Bruno trae otra versión hecha fuera, fusionarla 
   título con brillo y confeti del resultado en los colores de la bandera.
 - Para otro año: cambiar `HASTA` en `hispanidad.js` (y revisar la fecha del texto). Para quitarla del todo: borrar los dos
   archivos y sus dos líneas en el `<head>` de cada página.
+
+## v17 (25/10/2026): pulido «que no parezca hecha con IA»
+
+- Pedido: «que parezca hecha por un desarrollador profesional», sin quitar secciones (solo pulir). Base: la v16 publicada.
+- **Sistema visual**: fondo oscuro liso (`--bg #0B0C10`, superficies `--s1/--s2/--s3`), **un solo acento: el ámbar** `--sol #FFB81C`
+  (coral `#FF5A36` solo para avisos y lo urgente). Nada de degradados en textos, brillos, neón, cristal ni sombras de colores.
+  `--spectrum` / `--warm` / `--cool` siguen existiendo pero ya son colores lisos (para no tocar cada regla). Botones de 12 px de radio,
+  titulares en **Geist 650** (fuera **Unbounded**: archivos borrados), etiquetas (`.eyebrow`) en texto normal ámbar, sin «[01]».
+- **Quitado** (CSS y JS): grano, luz que sigue al ratón, foco en tarjetas, letras que se «descifran», títulos con desenfoque, billetes
+  holográficos que se inclinan, cintas que se tuercen, láseres del sorteo, aurora de la temporada, órbitas y número gigante de «Cómo funciona»,
+  suelo de rejilla del test, marco de visor de la portada, panel de salidas inclinado (CSS y ratón en `tema.js`), botones magnéticos
+  (`tema.js`), números que cuentan, logotipo gigante del pie, transiciones entre páginas (`@view-transition` y la **cortinilla** de
+  `site.js`, que retrasaba cada clic 0,5 s; también su `ib-nav` en la política de cookies), dudas con forma de chat.
+- **Scroll normal**: «Cómo funciona» y el carrusel de destinos ya no se quedan fijos al bajar. «Cómo funciona» pasa sola de paso cada
+  6,5 s mientras se ve (`PASO_MS` en `v16.js`, barra fina en el paso activo); el carrusel se pasa con dedo/rueda o con las flechas.
+- **Europa en 3D** (`orbita.js`): colores de la marca, sin estrellas, sin columnas de luz ni radar desde Madrid.
+- **Sorteo** (`sorteo-v2.css`, `sorteo-pagina.js`): fuera la pantalla de carga falsa («Conectando con el sorteo», 1,3 s), la luz del ratón,
+  la entrada que se inclina, halos y brillos; tarjetas lisas.
+- **Cuenta / Mis grupos**: cabeceras y tarjetas con fondos lisos (sin degradados ni rejilla).
+- **Bugs arreglados**: llaves sobrantes en `v16.css` que anulaban reglas del móvil; título «Ultra Europe» invisible en `split.html`
+  (`style="color:var(--cream)"`); comentario con caracteres rotos en `v16-oscuro.css`; fila `ib-hisp-…` en cookies sin uso;
+  campo «Otra ciudad» del planificador sin etiqueta; firma del pie con caja.
+- Comprobado: humo (con y sin sesión), contraste AA en todas las páginas (móvil, ordenador, con sesión), sin desbordes de 360 a 1440 px.
 
 ## Sorteo discreto (v9.2) y panel de demo
 

@@ -1,5 +1,5 @@
-/* Iberail v16 â€” capa oscura generada a partir de site.css y tema.css (scripts/genera-oscuro.ps1). No editar a mano:
-   los ajustes van en v16.css, que se carga despuÃ©s. */
+/* Iberail v16 — capa oscura generada a partir de site.css y tema.css (scripts/genera-oscuro.ps1). No editar a mano:
+   los ajustes van en v16.css, que se carga después. */
 /* ===== site.css ===== */
 ::selection{color:var(--v-on-accent)}
 .btn--dark{background:var(--v-raise);color:var(--v-on-raise)}

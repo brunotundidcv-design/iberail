@@ -8,7 +8,7 @@
   const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const S = () => window.IBSonido || null;
   const vibrar = p => { try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} };
-  // la temática del día (hispanidad.js) puede cambiar los colores del confeti
+  // los colores del confeti pueden venir de window.IB_TEMA (v16.js)
   const COLS = (window.IB_TEMA && window.IB_TEMA.confeti) || ['#FFD66B', '#F0B02A', '#FFF3DC', '#F0532F', '#FF8A5B', '#FFE39A', '#FFFFFF'];
   const ORO = ['#FFF0C2', '#FFD66B', '#F0B02A', '#FFE39A', '#FFFFFF'];
   const al = (a, b) => a + Math.random() * (b - a);

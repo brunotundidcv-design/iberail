@@ -1,7 +1,7 @@
 /* Iberail — «Órbita»: Europa en 3D en la portada (WebGL, sin librerías).
-   La red de trenes del planificador (IB_DATA: ciudades y tramos) como un holograma inclinado: España delante,
-   el norte al fondo. Trenes de luz de ciudad en ciudad, un pulso de radar que sale de Madrid y, cuando tocas ciudades
-   en «Toca las ciudades», tu ruta en arcos de luz (tema.js llama a window.IBRed.ruta([origen, paradas…])).
+   La red de trenes del planificador (IB_DATA: ciudades y tramos) en un plano inclinado: España delante,
+   el norte al fondo. Trenes que van de ciudad en ciudad y, cuando tocas ciudades en «Toca las ciudades»,
+   tu ruta en arcos (tema.js llama a window.IBRed.ruta([origen, paradas…])).
    Va con defer en el <head>, después de data.js y antes de tema.js. Si el navegador no tiene WebGL, quita
    data-orbita de la cabecera y tema.js pinta la red plana de siempre.
    Se para cuando no se ve; con «reducir movimiento» se queda quieto. */
@@ -81,45 +81,35 @@
     return o; }
 
   /* ---------- escena fija ---------- */
-  var COL = { sol: [1, .72, .11], lava: [1, .35, .21], neon: [1, .18, .53], plasma: [.55, .36, 1], ion: [.2, .88, 1], blanco: [.86, .9, 1] };
-  var TRENES = [COL.sol, COL.lava, COL.neon, COL.plasma, COL.ion, COL.ion, COL.sol];
+  // colores de la marca: ámbar (España y tu ruta), coral (Split y la salida) y grises claros para el resto
+  var COL = { sol: [1, .72, .11], lava: [1, .35, .21], gris: [.62, .66, .75], blanco: [.9, .92, .95] };
+  var TRENES = [COL.sol, COL.sol, COL.blanco, COL.blanco, COL.lava];
   var fijasL = [], fijasP = [];
   function L(arr, a, b, ca, cb){ arr.push(a[0], a[1], a[2], ca[0], ca[1], ca[2], ca[3], b[0], b[1], b[2], cb[0], cb[1], cb[2], cb[3]); }
   function Pt(arr, p, c, s, k){ arr.push(p[0], p[1], p[2], c[0], c[1], c[2], c[3], s, k); }
   // rejilla (meridianos y paralelos)
-  for(var lon = -12; lon <= 32; lon += 4){ var x = (lon - LON0) * K0 * ESC; L(fijasL, [x, -.001, (LAT0 - 34) * ESC], [x, -.001, (LAT0 - 64) * ESC], [.55, .36, 1, .07], [.55, .36, 1, .02]); }
-  for(var lat = 34; lat <= 64; lat += 3){ var z = (LAT0 - lat) * ESC; L(fijasL, [(-12 - LON0) * K0 * ESC, -.001, z], [(32 - LON0) * K0 * ESC, -.001, z], [.55, .36, 1, .02], [.55, .36, 1, .06]); }
-  // suelo holográfico: rejilla de puntos
+  for(var lon = -12; lon <= 32; lon += 4){ var x = (lon - LON0) * K0 * ESC; L(fijasL, [x, -.001, (LAT0 - 34) * ESC], [x, -.001, (LAT0 - 64) * ESC], [.62, .66, .75, .05], [.62, .66, .75, .015]); }
+  for(var lat = 34; lat <= 64; lat += 3){ var z = (LAT0 - lat) * ESC; L(fijasL, [(-12 - LON0) * K0 * ESC, -.001, z], [(32 - LON0) * K0 * ESC, -.001, z], [.62, .66, .75, .015], [.62, .66, .75, .05]); }
+  // suelo: rejilla de puntos muy suave
   for(var gx = -12; gx <= 33; gx += 1.15) for(var gz = 34; gz <= 64; gz += .82){
-    Pt(fijasP, [(gx - LON0) * K0 * ESC, -.002, (LAT0 - gz) * ESC], [.55, .4, 1, .16], 1.7, 1);
+    Pt(fijasP, [(gx - LON0) * K0 * ESC, -.002, (LAT0 - gz) * ESC], [.62, .66, .75, .07], 1.6, 1);
   }
   // vías
   aristas.forEach(function(e){
     var a = P[e[0]], b = P[e[1]], esp = esEsp[e[0]] && esEsp[e[1]];
-    var c = esp ? [1, .72, .11, .75] : e[2] ? [.62, .45, 1, .62] : [.45, .8, 1, .5];
+    var c = esp ? [1, .72, .11, .7] : e[2] ? [.62, .66, .75, .4] : [.62, .66, .75, .3];
     L(fijasL, a, b, c, c);
   });
-  // columnas de luz sobre las ciudades principales
-  ROTULOS.forEach(function(n){ var p = P[n]; if(!p) return; var h = n === 'Madrid' ? .34 : POP[n] ? .2 : .12;
-    var c = esEsp[n] ? COL.sol : n === 'Split' ? COL.neon : COL.plasma;
-    L(fijasL, p, [p[0], h, p[2]], [c[0], c[1], c[2], .55], [c[0], c[1], c[2], 0]); });
   // ciudades
   nombres.forEach(function(n){
     var p = P[n], c, s;
     if(n === 'Madrid'){ c = [1, .42, .24, 1]; s = 9; }
     else if(esEsp[n]){ c = [1, .74, .2, 1]; s = 6; }
-    else if(n === 'Split'){ c = [1, .3, .6, 1]; s = 8; }
-    else if(POP[n]){ c = [.78, .92, 1, 1]; s = 6; }
-    else { c = [.7, .8, 1, .85]; s = 4; }
+    else if(n === 'Split'){ c = [1, .35, .21, 1]; s = 8; }
+    else if(POP[n]){ c = [.92, .94, .97, 1]; s = 6; }
+    else { c = [.7, .74, .82, .8]; s = 4; }
     Pt(fijasP, p, c, s, 0);
   });
-  // estrellas al fondo
-  var semilla = 7; var rnd = function(){ semilla = (semilla * 16807) % 2147483647; return semilla / 2147483647; };
-  for(var i = 0; i < 260; i++){
-    var ang = rnd() * Math.PI * 2, rad = 6 + rnd() * 5, alt = .4 + rnd() * 4.2;
-    Pt(fijasP, [Math.cos(ang) * rad * .9, alt, -Math.abs(Math.sin(ang)) * rad - 2], [1, 1, 1, .15 + rnd() * .45], 1 + rnd() * 1.4, 1);
-  }
-
   /* ---------- trenes de luz ---------- */
   var conVias = Object.keys(vecinos);
   function nuevo(desde){
@@ -238,7 +228,7 @@
 
   /* ---------- dibujo ---------- */
   var ahora = function(){ return (window.performance && performance.now()) || Date.now(); };
-  var ultimo = 0, sonar = 0, vivo = true;
+  var ultimo = 0, vivo = true;
   function sube(buf, datos){ gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(datos), gl.DYNAMIC_DRAW); }
   function lineas(datos){
     if(!datos.length) return;
@@ -266,15 +256,6 @@
     gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     var dl = fijasL.slice(), dp = fijasP.slice();
-    // radar desde Madrid
-    if(P.Madrid){
-      sonar = (sonar + dt * .22) % 1; var M = P.Madrid;
-      [sonar, (sonar + .5) % 1].forEach(function(s){
-        var r = .05 + s * 2.6, al = (1 - s) * .32, prev = null;
-        for(var k = 0; k <= 72; k++){ var an = k / 72 * Math.PI * 2, q = [M[0] + Math.cos(an) * r, 0, M[2] + Math.sin(an) * r * .98];
-          if(prev) L(dl, prev, q, [.2, .88, 1, al], [.2, .88, 1, al]); prev = q; }
-      });
-    }
     // trenes
     trenes.forEach(function(tr, i){
       if(!quieto) tr.t += dt * tr.v;
