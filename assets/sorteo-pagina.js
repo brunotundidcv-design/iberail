@@ -1,7 +1,8 @@
 /* Iberail — página sorteo.html (v16.6): un panel de tarjetas como el «Inicio» de la cuenta.
+   · Entrada: las tarjetas entran en cascada.
    · Cuenta atrás (cuenta-atras.js) con los botones de cada momento (participar, calendario, ver resultado).
    · «Tu participación» y «Tu checklist del sorteo» se pintan según el estado (sorteo.js expone IBSrt).
-   · Las tarjetas de más abajo aparecen al llegar a ellas. */
+   · Las tarjetas se iluminan donde está el ratón; la entrada del premio se inclina y el holograma sigue la luz. */
 (function(){
   const box = document.getElementById('srtPage');
   if(!box || !window.IBCuenta || !window.IBSrt) return;
@@ -26,6 +27,9 @@
   };
   // participación extra: no se suma sola. Story mencionando a @iberailspain + captura con el nombre completo por WhatsApp (+300 seguidores)
   const WA_EXTRA = 'https://wa.me/34930491439?text=' + encodeURIComponent('Hola Iberail, he subido el cartel del sorteo a mi story mencionando a @iberailspain. Os mando la captura. Mi nombre completo es: ');
+
+  /* ---------- entrada: las tarjetas en cascada (sin pantalla de carga: no hay nada que esperar) ---------- */
+  function intro(){ root.classList.remove('sx-pre'); root.classList.add('sx-go'); }
 
   /* ---------- «Añadir al calendario» ---------- */
   const CAL = `<button type="button" class="sx-btn sx-btn--line" data-srt-ics>${CALI}Añadir al calendario</button>`;
@@ -152,9 +156,49 @@
   }
   setInterval(() => { if(!document.hidden) pintarBarra(); }, 1000);
 
+  intro();
   // la ruta de la cabecera (SVG animado): quieta si la persona prefiere menos movimiento
   if(quieto) document.querySelectorAll('[data-sx-route]').forEach(s => { try{ s.pauseAnimations(); }catch(e){} });
 
+  /* ---------- luz que sigue al ratón en las tarjetas ---------- */
+  if(!quieto && matchMedia('(hover: hover)').matches){
+    document.addEventListener('pointermove', e => {
+      const c = e.target.closest && e.target.closest('.sx-card,.sx'); if(!c) return;
+      const r = c.getBoundingClientRect();
+      c.style.setProperty('--px', (e.clientX - r.left) + 'px'); c.style.setProperty('--py', (e.clientY - r.top) + 'px');
+    }, { passive: true });
+  }
+  // la entrada del premio se inclina con el ratón y el holograma sigue la luz.
+  // En el móvil: al tocarla da una vuelta y, si el móvil lo permite (en iPhone pide permiso), se inclina con el giroscopio.
+  const tactil = matchMedia('(hover: none)').matches;
+  const MOVIL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>';
+  document.querySelectorAll('[data-sx-tilt]').forEach(w => {
+    if(quieto) return;
+    const tk = w.firstElementChild; let raf = 0;
+    const set = (x, y) => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
+      tk.style.setProperty('--rx', (-y * 18).toFixed(2) + 'deg'); tk.style.setProperty('--ry', (x * 24).toFixed(2) + 'deg');
+      tk.style.setProperty('--gx', (50 + x * 90).toFixed(1) + '%'); tk.style.setProperty('--gy', (50 + y * 90).toFixed(1) + '%');
+    }); };
+    w.addEventListener('pointermove', e => { if(e.pointerType !== 'mouse') return; const r = w.getBoundingClientRect(); w.classList.add('is-on'); set((e.clientX - r.left) / r.width - .5, (e.clientY - r.top) / r.height - .5); });
+    w.addEventListener('pointerleave', e => { if(e.pointerType !== 'mouse') return; w.classList.remove('is-on'); set(0, 0); });
+    if(!tactil) return;
+    const pista = document.createElement('span'); pista.className = 'sx-tk-hint'; pista.innerHTML = MOVIL + 'Toca la entrada e inclina el móvil';
+    w.appendChild(pista);
+    let giro = false;
+    const mover = e => {
+      if(e.beta == null) return;
+      const lim = v => Math.max(-1, Math.min(1, v));
+      set(lim((e.gamma || 0) / 28) * .5, lim(((e.beta || 0) - 45) / 28) * .5);
+    };
+    const activar = () => { if(giro) return; giro = true; w.classList.add('is-on', 'is-giro'); addEventListener('deviceorientation', mover); };
+    w.addEventListener('click', () => {
+      tk.classList.remove('is-spin'); void tk.offsetWidth; tk.classList.add('is-spin');
+      const D = window.DeviceOrientationEvent;
+      if(giro || !D) return;
+      if(typeof D.requestPermission === 'function') D.requestPermission().then(r => { if(r === 'granted') activar(); else pista.lastChild.textContent = 'Toca la entrada'; }).catch(() => {});
+      else activar();
+    });
+  });
   // las tarjetas de más abajo aparecen al llegar a ellas
   const rev = document.querySelectorAll('[data-sx-reveal]');
   if(window.IntersectionObserver && !quieto){

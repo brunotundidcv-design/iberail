@@ -21,6 +21,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
@@ -32,6 +33,7 @@
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
+<script>/* tarjetas ocultas hasta que acaba la intro (sorteo-pagina.js); si algo falla, se enseñan solas a los 4 s */(function(r){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;r.classList.add('sx-pre');setTimeout(function(){if(r.classList.contains('sx-pre')){r.classList.remove('sx-pre');r.classList.add('sx-go')}},4000)})(document.documentElement)</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Iberail","alternateName":"Iberail Interrail","url":"https://iberail.com","logo":"https://iberail.com/assets/img/logo.png","image":"https://iberail.com/assets/img/og.jpg","description":"Agencia española especializada en rutas Interrail a medida por Europa.","areaServed":"ES","address":{"@type":"PostalAddress","addressCountry":"ES"},"sameAs":["https://www.instagram.com/iberailspain/"],"founder":{"@type":"Person","name":"Bruno Tundidor","jobTitle":"Founder","sameAs":["https://www.instagram.com/bruno.tm_/"]}}</script>
 </head>
 <body>
@@ -62,10 +64,10 @@
 <main id="main" class="srt-page sx-page">
 <div class="sx-stage" aria-hidden="true"><i class="sx-stage-a"></i><i class="sx-stage-b"></i><i class="sx-stage-floor"></i></div>
 <div class="container sx-wrap">
-  <header class="sx-head">
+  <header class="sx-head sx-in" style="--i:0">
     <!-- la ruta en tren hasta Split (la misma del cartel): la línea fluye y un tren la recorre -->
     <svg class="sx-route" viewBox="0 0 360 112" aria-hidden="true" data-sx-route>
-      <defs><linearGradient id="sxRuta" x1="0" x2="1"><stop offset="0" stop-color="#FFB81C"/><stop offset=".25" stop-color="#FF5A36"/><stop offset=".5" stop-color="#FF5A36"/><stop offset=".75" stop-color="#8E97B0"/><stop offset="1" stop-color="#E6E9F0"/></linearGradient></defs>
+      <defs><linearGradient id="sxRuta" x1="0" x2="1"><stop offset="0" stop-color="#FFB81C"/><stop offset=".25" stop-color="#FF5A36"/><stop offset=".5" stop-color="#FF2E88"/><stop offset=".75" stop-color="#8C5CFF"/><stop offset="1" stop-color="#33E1FF"/></linearGradient></defs>
       <g class="sx-route-red"><path d="M18 92L136 30M136 30L256 22M206 46L306 52M78 66L206 46M256 22L340 94"/></g>
       <path class="sx-route-l" d="M18 92L78 66L136 30L206 46L256 22L306 52L340 94"/>
       <g class="sx-route-n"><circle cx="18" cy="92" r="3"/><circle cx="78" cy="66" r="3"/><circle cx="136" cy="30" r="3"/><circle cx="206" cy="46" r="3"/><circle cx="256" cy="22" r="3"/><circle cx="306" cy="52" r="3"/></g>
@@ -91,11 +93,11 @@
   </header>
 
   <div class="sx-grid">
-    <section id="srtPage" class="sx-a" aria-label="Cuenta atrás del sorteo"></section>
+    <section id="srtPage" class="sx-a sx-in" style="--i:1" aria-label="Cuenta atrás del sorteo"></section>
 
-    <aside class="sx-card sx-me" data-sx-me aria-label="Tu participación"></aside>
+    <aside class="sx-card sx-me sx-in" style="--i:2" data-sx-me aria-label="Tu participación"></aside>
 
-    <article class="sx-card sx-prize" aria-labelledby="sxPrizeH">
+    <article class="sx-card sx-prize sx-in" style="--i:3" aria-labelledby="sxPrizeH">
       <div class="sx-ct"><small class="sx-k">El premio</small><span class="sx-pill sx-pill--gold"><i></i>Gratis</span></div>
       <div class="sx-prize-in">
         <div class="sx-prize-txt">
@@ -120,7 +122,7 @@
       <p class="sx-fine">El premio es la entrada; el viaje y el alojamiento no van incluidos, aunque si quieres te los montamos nosotros.</p>
     </article>
 
-    <article class="sx-card sx-nums" aria-label="El sorteo en cifras">
+    <article class="sx-card sx-nums sx-in" style="--i:4" aria-label="El sorteo en cifras">
       <small class="sx-k">El sorteo en cifras</small>
       <dl>
         <div style="--i:0"><dt>para participar</dt><dd><b class="is-warm">0 €</b></dd></div>
@@ -213,6 +215,7 @@
         </ul>
       </div>
     </div>
+    <div class="footer-big" aria-hidden="true">ibe<b>rail</b></div>
     <div class="footer-bottom">
       <span>© <span id="year">2026</span> Iberail. Todos los derechos reservados.</span>
       <span class="footer-legal"><a href="aviso-legal.html">Aviso legal</a> · <a href="condiciones-generales.html">Condiciones</a> · <a href="politica-privacidad.html">Privacidad</a> · <a href="politica-cookies.html">Cookies</a> · <a href="bases-sorteo.html">Bases del sorteo</a></span>

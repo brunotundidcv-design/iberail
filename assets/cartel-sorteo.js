@@ -16,8 +16,8 @@
   function wrap(c, txt, maxW){ const out = []; let l = ''; txt.split(' ').forEach(w => { const t = l ? l + ' ' + w : w; if(c.measureText(t).width > maxW && l){ out.push(l); l = w; } else l = t; }); if(l) out.push(l); return out; }
   const ls = (c, v) => { try{ c.letterSpacing = v; }catch(e){} };
   const grad = (c, x0, x1, stops) => { const g = c.createLinearGradient(x0, 0, x1, 0); stops.forEach(([p, col]) => g.addColorStop(p, col)); return g; };
-  const warm = (c, x0, x1) => grad(c, x0, x1, [[0, '#FFB81C'], [.4, '#FFB81C'], [.75, '#FF5A36'], [1, '#FF5FA0']]);
-  const spec = (c, x0, x1) => grad(c, x0, x1, [[0, '#FFB81C'], [.25, '#FF5A36'], [.5, '#FF5A36'], [.75, '#8E97B0'], [1, '#E6E9F0']]);
+  const warm = (c, x0, x1) => grad(c, x0, x1, [[0, '#FFC23D'], [.4, '#FF7A2E'], [.75, '#FF3D7F'], [1, '#FF5FA0']]);
+  const spec = (c, x0, x1) => grad(c, x0, x1, [[0, '#FFB81C'], [.25, '#FF5A36'], [.5, '#FF2E88'], [.75, '#8C5CFF'], [1, '#33E1FF']]);
 
   function cuando(fecha, hora){
     if(!fecha) return null;
@@ -36,7 +36,7 @@
 
     /* ---------- fondo: noche con puntos y luces suaves (como la web) ---------- */
     c.fillStyle = '#06070C'; c.fillRect(0, 0, W, H);
-    [[140, 320, 900, 'rgba(142,151,176,.34)'], [1000, 860, 760, 'rgba(255,90,54,.20)'], [540, 1330, 700, 'rgba(255,184,28,.13)'], [80, 1820, 640, 'rgba(230,233,240,.10)']].forEach(([x, y, r, col]) => {
+    [[140, 320, 900, 'rgba(140,92,255,.34)'], [1000, 860, 760, 'rgba(255,46,136,.20)'], [540, 1330, 700, 'rgba(255,184,28,.13)'], [80, 1820, 640, 'rgba(51,225,255,.10)']].forEach(([x, y, r, col]) => {
       const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col); g.addColorStop(1, 'rgba(6,7,12,0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
     });
     c.fillStyle = 'rgba(255,255,255,.07)';
@@ -52,8 +52,8 @@
     ciu.forEach(([n, x, y], i) => {
       const fin = i === ciu.length - 1;
       if(fin){
-        c.save(); c.shadowColor = 'rgba(255,90,54,.9)'; c.shadowBlur = 24; c.fillStyle = '#FF5A36'; c.beginPath(); c.arc(x, y, 12, 0, 6.283); c.fill(); c.restore();
-        c.strokeStyle = 'rgba(255,90,54,.55)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 26, 0, 6.283); c.stroke();
+        c.save(); c.shadowColor = 'rgba(255,46,136,.9)'; c.shadowBlur = 24; c.fillStyle = '#FF2E88'; c.beginPath(); c.arc(x, y, 12, 0, 6.283); c.fill(); c.restore();
+        c.strokeStyle = 'rgba(255,46,136,.55)'; c.lineWidth = 3; c.beginPath(); c.arc(x, y, 26, 0, 6.283); c.stroke();
       } else { c.fillStyle = '#F3F5FB'; c.beginPath(); c.arc(x, y, 6, 0, 6.283); c.fill(); }
     });
     // nombres con fondo, como las etiquetas de un mapa (así la línea no los tacha)
@@ -73,7 +73,7 @@
     c.font = `800 62px ${FL}`; c.textBaseline = 'middle'; c.textAlign = 'left';
     const bx = M + (img ? 88 : 0), w1 = c.measureText('ibe').width;
     c.fillStyle = '#F3F5FB'; c.fillText('ibe', bx, my + 3); c.fillStyle = '#FFB81C'; c.fillText('rail', bx + w1, my + 3);
-    const live = q ? 'EN DIRECTO' : 'MUY PRONTO', liveCol = q ? ['rgba(60,203,138,.14)', '#5DFFC2'] : ['rgba(255,184,28,.16)', '#FFD27A'];
+    const live = q ? 'EN DIRECTO' : 'MUY PRONTO', liveCol = q ? ['rgba(61,255,180,.14)', '#5DFFC2'] : ['rgba(255,184,28,.16)', '#FFD27A'];
     c.font = `700 24px ${FM}`; ls(c, '3px'); const lw = c.measureText(live).width + 70;
     rr(c, W - M - lw, my - 28, lw, 56, 28); c.fillStyle = liveCol[0]; c.fill();
     c.fillStyle = liveCol[1]; c.beginPath(); c.arc(W - M - lw + 28, my, 8, 0, 6.283); c.fill();
@@ -92,15 +92,15 @@
     const cx = M, cy = 724, cw = W - M * 2, ch = 372;
     c.save(); rr(c, cx, cy, cw, ch, 44); c.clip();
     let g = c.createLinearGradient(cx, cy, cx + cw * .6, cy + ch); g.addColorStop(0, '#1d1436'); g.addColorStop(1, '#0b0b18'); c.fillStyle = g; c.fillRect(cx, cy, cw, ch);
-    [[cx + cw, cy, 'rgba(255,90,54,.40)'], [cx, cy + ch, 'rgba(142,151,176,.42)']].forEach(([x, y, col]) => { const r = c.createRadialGradient(x, y, 0, x, y, 560); r.addColorStop(0, col); r.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = r; c.fillRect(cx, cy, cw, ch); });
+    [[cx + cw, cy, 'rgba(255,46,136,.40)'], [cx, cy + ch, 'rgba(140,92,255,.42)']].forEach(([x, y, col]) => { const r = c.createRadialGradient(x, y, 0, x, y, 560); r.addColorStop(0, col); r.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = r; c.fillRect(cx, cy, cw, ch); });
     g = c.createLinearGradient(cx, cy, cx + cw, cy + ch); g.addColorStop(.35, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(255,255,255,.06)'); g.addColorStop(.62, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(cx, cy, cw, ch);
     c.restore();
     rr(c, cx, cy, cw, ch, 44); c.strokeStyle = 'rgba(255,255,255,.16)'; c.lineWidth = 2; c.stroke();
     c.textAlign = 'left'; c.font = `600 24px ${FM}`; ls(c, '4px'); c.fillStyle = '#DADEEA'; c.fillText('CUENTA ATRÁS', cx + 44, cy + 66);
     const pill = q ? (q.rel === 'hoy' ? 'HOY' : q.rel === 'mañana' ? 'MAÑANA' : q.dia.toUpperCase()) : 'PRONTO';
     c.font = `700 22px ${FM}`; const pw = c.measureText(pill).width + 64;
-    rr(c, cx + cw - 44 - pw, cy + 38, pw, 46, 23); c.fillStyle = q ? 'rgba(60,203,138,.14)' : 'rgba(255,184,28,.16)'; c.fill();
-    c.fillStyle = q ? '#3CCB8A' : '#FFD27A'; c.beginPath(); c.arc(cx + cw - 44 - pw + 25, cy + 61, 7, 0, 6.283); c.fill();
+    rr(c, cx + cw - 44 - pw, cy + 38, pw, 46, 23); c.fillStyle = q ? 'rgba(61,255,180,.14)' : 'rgba(255,184,28,.16)'; c.fill();
+    c.fillStyle = q ? '#3DFFB4' : '#FFD27A'; c.beginPath(); c.arc(cx + cw - 44 - pw + 25, cy + 61, 7, 0, 6.283); c.fill();
     c.fillStyle = q ? '#5DFFC2' : '#FFD27A'; c.textBaseline = 'middle'; c.fillText(pill, cx + cw - 44 - pw + 42, cy + 62); c.textBaseline = 'alphabetic'; ls(c, '0px');
     // «Hoy, a las 23:00 h»
     const [hA, hB] = q ? [(q.rel === 'hoy' ? 'Hoy' : q.rel === 'mañana' ? 'Mañana' : 'El ' + q.dia) + ', a las ', q.hora + ' h'] : ['Próximo sorteo, ', 'muy pronto'];
@@ -149,7 +149,7 @@
       const x = M + i * (pw2 + gap);
       rr(c, x, py, pw2, ph, 30); g = c.createLinearGradient(0, py, 0, py + ph); g.addColorStop(0, 'rgba(255,255,255,.09)'); g.addColorStop(1, 'rgba(255,255,255,.03)'); c.fillStyle = g; c.fill();
       c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 2; c.stroke();
-      rr(c, x + 24, py + 24, 50, 50, 16); c.fillStyle = [warm(c, x + 24, x + 74), grad(c, x + 24, x + 74, [[0, '#FF5A36'], [1, '#8E97B0']]), grad(c, x + 24, x + 74, [[0, '#8E97B0'], [1, '#E6E9F0']])][i]; c.fill();
+      rr(c, x + 24, py + 24, 50, 50, 16); c.fillStyle = [warm(c, x + 24, x + 74), grad(c, x + 24, x + 74, [[0, '#FF2E88'], [1, '#8C5CFF']]), grad(c, x + 24, x + 74, [[0, '#8C5CFF'], [1, '#33E1FF']])][i]; c.fill();
       c.fillStyle = '#FFFFFF'; c.textAlign = 'center'; c.font = `800 26px ${FD}`; c.fillText(String(i + 1), x + 49, py + 59);
       c.textAlign = 'left'; c.fillStyle = '#F3F5FB'; c.font = `600 29px ${FB}`;
       wrap(c, txt, pw2 - 44).slice(0, 2).forEach((l, j) => c.fillText(l, x + 24, py + 116 + j * 34));

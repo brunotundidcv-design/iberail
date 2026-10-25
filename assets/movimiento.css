@@ -7,8 +7,8 @@
      Al volver atrás, al revés (movimiento.js marca el tipo «atras»).
    - Portada: entrada en orden (titular por líneas desde una máscara, texto, buscador y mapa) y la cabecera se aleja al bajar.
    - Títulos que se revelan con máscara y piezas en cascada al llegar a ellas (movimiento.js añade .mv-* e .is-in).
-   - Detalles: flechas que salen y vuelven a entrar, tarjetas que se levantan, subrayados que crecen, pantallas del
-     móvil de «Cómo funciona» con barrido, cifras de la cuenta atrás que ruedan.
+   - Detalles: flechas que salen y vuelven a entrar, tarjetas que se levantan, subrayados que crecen.
+   Va encima del diseño v16 (v17.2): donde los dos animan lo mismo (móvil de «Cómo funciona», cuenta atrás, títulos) manda uno solo.
    ========================================================= */
 
 :root{
@@ -89,7 +89,6 @@
   :is(.btn,.link-arrow,.v16-more-go,.hero-srt,.v16-aviso-go,.dest-feat-go,.ticket-stub,.qz-acts a):hover > svg:last-child,
   .v16-more:hover .v16-more-go > svg:last-child,.dest-feat:hover .dest-feat-go > svg:last-child{animation:mv-flecha .5s var(--mv-cruza)}
   @keyframes mv-flecha{0%{transform:none}45%{transform:translateX(130%);opacity:0}46%{transform:translateX(-130%);opacity:0}100%{transform:none;opacity:1}}
-  .btn{transition:background-color .2s,color .2s,border-color .2s,transform .25s var(--mv-entra)}
   .btn:active{transform:scale(.97)}
   /* tarjetas que se levantan */
   .ticket,.v16-more,.v16-tile,.dest-feat,.contact-card{transition:transform .5s var(--mv-entra),border-color .25s}
@@ -99,25 +98,19 @@
   .dest-feat > img,.dest-feat > video{transition:transform 1.2s var(--mv-entra)}
   .dest-feat:hover > img,.dest-feat:hover > video{transform:scale(1.05)}
   /* subrayados que crecen desde la izquierda */
-  .link-arrow{border-bottom:0;background:linear-gradient(var(--sol),var(--sol)) 0 100%/100% 1px no-repeat;padding-bottom:2px;transition:background-size .5s var(--mv-cruza)}
-  .link-arrow:hover{background-size:0 1px;background-position:100% 100%}
-  .footer ul a,.footer-legal a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--mv-cruza),color .2s}
-  .footer ul a:hover,.footer-legal a:hover{background-size:100% 1px}
-  /* «Cómo funciona»: la pantalla nueva entra con un barrido de abajo arriba */
-  .v16-scr{clip-path:inset(100% 0 0 0 round 30px);transition:clip-path .8s var(--mv-cruza),opacity .4s}
-  .v16-scr.is-on{clip-path:inset(0 round 0);opacity:1}
-  .v16-steps b{transition:background-color .4s,color .4s,border-color .4s,transform .6s var(--mv-entra)}
-  .v16-steps li.is-on b{transform:scale(1.08)}
+  .link-arrow{border-bottom:0;border-image:none;background:var(--spectrum) 0 100%/100% 2px no-repeat;padding-bottom:2px;transition:background-size .5s var(--mv-cruza)}
+  .link-arrow:hover{background-size:0 2px;background-position:100% 100%}
+  .footer-legal a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;text-decoration:none;transition:background-size .4s var(--mv-cruza),color .2s}
+  .footer-legal a:hover{background-size:100% 1px}
   /* acordeón de dudas: el signo gira y la respuesta baja suave */
   .faq-a{transition:grid-template-rows .55s var(--mv-cruza)}
   .faq-a p{transform:translateY(-8px);opacity:0;transition:transform .5s var(--mv-entra),opacity .4s}
   .faq-item.is-open .faq-a p{transform:none;opacity:1;transition-delay:.12s}
   .plus{transition:transform .45s var(--mv-cruza),background-color .25s}
-  /* cuenta atrás: cada cifra nueva rueda desde arriba (movimiento.js añade .mv-rueda) */
-  .countdown b.mv-rueda{animation:mv-rueda .55s var(--mv-entra)}
-  @keyframes mv-rueda{from{transform:translateY(-.35em);opacity:0}}
   /* carrusel de destinos: se arrastra con el ratón */
   .v16-hs-track.mv-arrastra{cursor:grab}
   .v16-hs-track.is-arrastrando{cursor:grabbing;scroll-snap-type:none;user-select:none}
   .v16-hs-track.is-arrastrando a{pointer-events:none}
+  /* en ordenador grande el carrusel va fijo y lo mueve el scroll (v16.css): ahí no se arrastra */
+  @media (min-width:1021px) and (min-height:640px){.v16-hs-track.mv-arrastra{cursor:auto}}
 }

@@ -264,7 +264,9 @@ parezca hecha por un profesional (ver «v17» más abajo).
 - Para otro año: cambiar `HASTA` en `hispanidad.js` (y revisar la fecha del texto). Para quitarla del todo: borrar los dos
   archivos y sus dos líneas en el `<head>` de cada página.
 
-## v17 (25/10/2026): pulido «que no parezca hecha con IA»
+## v17 (25/10/2026): pulido «que no parezca hecha con IA» — DESHECHO en la v17.2 (no gustó: «queda muy poco guay»)
+
+- El aspecto sobrio de abajo ya no está: en la v17.2 vuelve el de la v16. Se queda solo como referencia (commit 281bc49).
 
 - Pedido: «que parezca hecha por un desarrollador profesional», sin quitar secciones (solo pulir). Base: la v16 publicada.
 - **Sistema visual**: fondo oscuro liso (`--bg #0B0C10`, superficies `--s1/--s2/--s3`), **un solo acento: el ámbar** `--sol #FFB81C`
@@ -305,6 +307,22 @@ parezca hecha por un profesional (ver «v17» más abajo).
   pantallas del móvil de «Cómo funciona» con barrido, cifras de la cuenta atrás que ruedan, cintas de ciudades que aceleran con el
   scroll y cambian de sentido al subir, carrusel de destinos que se arrastra con el ratón (con inercia y sin seleccionar texto).
 - Se quitaron las reglas antiguas de títulos con `clip-path` de `tema.css`/`v16.css` (pisaban `.mv-titulo`).
+
+## v17.2 (25/10/2026): vuelve el aspecto de la v16 + el movimiento de la v17.1
+
+- Pedido: «queda muy poco guay, antes estaba mejor» → elegida la «mezcla». Vuelven de la v16 (commit 5e25443) `v16.css`, `v16.js`,
+  `orbita.js`, `sorteo-v2.css`, `sorteo-pagina.js`, `cartel-sorteo.js`, `tema.js`, las letras Unbounded y las páginas (neón, degradados,
+  brillos, mapa 3D con estrellas y radar, «Cómo funciona» y destinos fijos al bajar, láseres, aurora, pie con el logotipo grande…).
+- Se queda de la v17/v17.1: la capa de movimiento (`movimiento.css/.js`, transiciones entre páginas, titular por líneas, títulos
+  con máscara, cascadas, flechas…) y estos arreglos: sin cortinilla entre páginas (`site.js`, también fuera de las páginas y de
+  `ib-nav` en cookies), sin pantalla de carga falsa en el sorteo (`intro()` solo hace entrar las tarjetas), título «Ultra Europe» de
+  `split.html` visible, órbitas recortadas en el móvil (`.v16-story{overflow-x:clip}`; antes la página medía 443 px en un móvil de 390),
+  etiqueta «Temporada 2027» del aviso con texto oscuro (contraste), campo «Otra ciudad» con etiqueta, fila `ib-hisp-…` fuera de cookies,
+  comentario de `v16-oscuro.css` sin caracteres rotos.
+- Donde la v16 y el movimiento animan lo mismo manda uno: la cuenta atrás gira como en la v16, el móvil de «Cómo funciona» hace el giro
+  de la v16, los títulos usan la máscara (movimiento.js les quita `.v16-rev`), el carrusel solo se arrastra cuando no va fijo.
+- Contraste: el análisis marca los botones ámbar (`--warm`, degradado) con 1,01:1, pero es un falso positivo: el script no sabe leer
+  fondos con degradado (texto oscuro sobre ámbar).
 
 ## Sorteo discreto (v9.2) y panel de demo
 

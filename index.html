@@ -21,6 +21,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
@@ -63,6 +64,8 @@
 <main id="main">
 <section class="hero hx v16-hero" data-orbita>
   <div class="v16-hero-fx" aria-hidden="true"></div>
+  <div class="v16-hud" aria-hidden="true"><i class="v16-hud-c v16-hud-c--tl"></i><i class="v16-hud-c v16-hud-c--tr"></i><i class="v16-hud-c v16-hud-c--bl"></i><i class="v16-hud-c v16-hud-c--br"></i>
+    <span class="v16-hud-t v16-hud-t--l">40.4168° N · 3.7038° W</span><span class="v16-hud-t v16-hud-t--r" data-orbita-info>Red Iberail</span></div>
   <div class="container v16-hero-in">
     <div class="hx-top">
       <div class="hx-meta" aria-hidden="true"><span class="hx-dot"></span><span>IBR · Salidas desde España</span><span class="hx-sep"></span><span data-tx-clock>--:--:--</span><span class="hx-tz">Madrid</span></div>
@@ -143,6 +146,7 @@
 </div>
 
 <section class="v16-story" id="como" data-story>
+  <div class="v16-story-pin">
     <div class="container v16-story-in">
       <div class="v16-story-copy">
         <span class="eyebrow" data-via="01">Cómo funciona</span>
@@ -156,6 +160,8 @@
         <div class="v16-rail" aria-hidden="true"><i></i><span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="3"/><path d="M4 10h16M8 20l-2 2M16 20l2 2M8.5 13.2h.01M15.5 13.2h.01"/></svg></span><em class="is-on" style="--x:0%">Idea</em><em style="--x:50%">Ruta</em><em style="--x:100%">Viaje</em></div>
       </div>
       <div class="v16-stage" aria-hidden="true">
+        <span class="v16-stage-n" data-story-n><span class="v16-roll"><b>01</b><b>02</b><b>03</b></span></span>
+        <div class="v16-orbs"><i><b></b></i><i><b></b></i><i><b></b></i></div>
         <div class="v16-phone">
           <div class="v16-phone-in">
             <div class="v16-phone-top"><span class="v16-av">ib</span><span><b>Iberail</b><small>en línea</small></span></div>
@@ -196,6 +202,7 @@
         <span class="v16-stage-tag">Ejemplo</span>
       </div>
     </div>
+  </div>
 </section>
 
 <section class="sheet v16-quiz" id="test">
@@ -215,6 +222,7 @@
 
 <section class="sheet v16-dest" id="destinos">
   <div class="v16-hs" data-hs>
+  <div class="v16-hs-pin">
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
@@ -310,13 +318,14 @@
   </div>
   <a class="ticket-stub" href="rutas.html?add=Roma" aria-label="Añadir a mi ruta"><span class="stub-label">Añadir a mi ruta</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </article>
-      <a class="v16-more" href="paises.html">
+      <a class="v16-more" href="paises.html" data-cursor="Ver todo">
         <span><span class="v16-more-n">+30</span><b>países a los que llega tu pase</b></span>
         <span class="v16-more-go">Ver todos los destinos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </a>
     </div>
     </div>
     <div class="container"><div class="v16-hs-foot" aria-hidden="true"><div class="v16-hs-bar"><i></i></div><span class="v16-hs-n" data-hs-n>01 <span>/ 08</span></span></div></div>
+  </div>
   </div>
 </section>
 
@@ -392,6 +401,7 @@
 <section class="section section--tight" id="sorteo">
   <div class="container">
     <div class="srt" data-reveal>
+      <div class="v16-lasers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
       <div class="srt-copy">
         <span class="srt-tag"><i></i><span data-srt-tag>Próximamente · Sorteo Iberail</span></span>
         <h2>Sorteamos entradas para el <em>Ultra Europe</em>.</h2>
@@ -519,6 +529,7 @@
         </ul>
       </div>
     </div>
+    <div class="footer-big" aria-hidden="true">ibe<b>rail</b></div>
     <div class="footer-bottom">
       <span>© <span id="year">2026</span> Iberail. Todos los derechos reservados.</span>
       <span class="footer-legal"><a href="aviso-legal.html">Aviso legal</a> · <a href="condiciones-generales.html">Condiciones</a> · <a href="politica-privacidad.html">Privacidad</a> · <a href="politica-cookies.html">Cookies</a> · <a href="bases-sorteo.html">Bases del sorteo</a></span>

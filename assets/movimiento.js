@@ -3,8 +3,8 @@
    hacia atrás se decide en «pagereveal», antes de que se pinte la página. Lo demás espera a que esté el HTML.
    - Transición entre páginas hacia atrás: marca el tipo «atras» para que la animación vaya al revés.
    - Títulos que se revelan con máscara (.mv-titulo), piezas en cascada (.mv-grupo > .mv-pieza) y fotos que se destapan (.mv-foto).
-   - Cuenta atrás: cada cifra nueva rueda. Cintas de ciudades: van más rápido mientras bajas y cambian de sentido si subes.
-   - Carrusel de destinos: se arrastra con el ratón y sigue un poco por inercia al soltar.
+   - Cintas de ciudades: van más rápido mientras bajas y cambian de sentido si subes.
+   - Carrusel de destinos (cuando no va fijo al bajar): se arrastra con el ratón y sigue un poco por inercia al soltar.
    Con «reducir movimiento» no hace nada (salvo marcar la transición, que el CSS ya no anima). */
 (function(){
   'use strict';
@@ -34,6 +34,7 @@
       es.forEach(function(e){ if(e.isIntersecting){ e.target._mvTitulo.classList.add('is-in'); ioT.unobserve(e.target); } });
     }, { rootMargin: '0px 0px -10% 0px' });
     $$('.section-head h2, .quiz-head h2, .home-faq-head h2, .season-top h2, .srt-copy h2, .v16-story h2, .container > .cta h2').forEach(function(h){
+      h.classList.remove('v16-rev', 'v16-in');   // el destello de v16.js no: la máscara ya hace la entrada
       h.classList.add('mv-titulo'); h.parentElement._mvTitulo = h; ioT.observe(h.parentElement);
     });
 
@@ -56,17 +57,6 @@
 
     /* ---------- fotos y vídeos que se destapan ---------- */
     $$('.video-frame').forEach(function(f){ f.removeAttribute('data-reveal'); f.classList.add('mv-foto'); io.observe(f); });
-
-    /* ---------- cuenta atrás: cada cifra nueva rueda ---------- */
-    if('MutationObserver' in window){
-      $$('.countdown b').forEach(function(b){
-        var antes = b.textContent;
-        new MutationObserver(function(){
-          if(b.textContent === antes) return; antes = b.textContent;
-          b.classList.remove('mv-rueda'); void b.offsetWidth; b.classList.add('mv-rueda');
-        }).observe(b, { childList: true, characterData: true, subtree: true });
-      });
-    }
 
     /* ---------- cintas: siguen a tu scroll ---------- */
     var cintas = $$('.tapes .marquee-track');
@@ -98,6 +88,7 @@
       p.addEventListener('selectstart', function(e){ if(abajo) e.preventDefault(); });
       p.addEventListener('pointerdown', function(e){
         if(e.pointerType !== 'mouse' || e.button !== 0) return;
+        if(getComputedStyle(p).overflowX === 'visible') return;   // en ordenador el carrusel lo mueve el scroll (v16.js)
         cancelAnimationFrame(raf);
         abajo = true; movido = false; x0 = ultX = e.clientX; s0 = p.scrollLeft; ultT = performance.now(); v = 0;
       });

@@ -1,10 +1,12 @@
-/* Iberail — lo que se mueve en las páginas públicas (estilos en assets/v16.css; Europa en 3D en assets/orbita.js).
+/* Iberail — diseño v16 «Órbita»: las piezas que se mueven (estilos en assets/v16.css; Europa en 3D en assets/orbita.js).
    Va al final del <body> de las páginas públicas, justo después de site.js (no en el panel).
    - Colores de la red de trenes de las cabeceras y del confeti (window.IB_TEMA, lo leen tema.js y fiesta.js)
-   - Aviso de temporada · cápsula del menú
-   - Portada: «Cómo funciona» [data-story] (pasa solo de un paso a otro mientras se ve), destinos en carrusel [data-hs],
-     chat de ejemplo [data-chat], rutas hechas [data-presets], trenes nocturnos [data-night-n], pase que gira [data-flip],
-     países [data-world]
+   - Títulos que entran con un destello · etiquetas que se «descifran» letra a letra
+   - Cursor de colores y luz que sigue al ratón (solo con ratón) · foco de luz dentro de las tarjetas
+   - Billetes holográficos que se inclinan · cápsula del menú · cintas que se tuercen al bajar rápido · cifras que cuentan
+   - Portada: «El viaje» [data-story], destinos en carrusel [data-hs], chat en directo [data-chat],
+     rutas hechas [data-presets], trenes nocturnos [data-night-n], pase que gira [data-flip], países [data-world]
+   - Cuenta atrás con paletas · pie con el logotipo que baila y una vía con un tren de luz
    Con «reducir movimiento» todo queda quieto y visible. */
 (function(){
   'use strict';
@@ -16,11 +18,11 @@
   var clamp = function(v, a, b){ return Math.max(a, Math.min(b, v)); };
   var IO = 'IntersectionObserver' in window;
 
-  // la red de trenes de las cabeceras (tema.js) y el confeti del sorteo (fiesta.js) con los colores de la marca
+  // la red de trenes de las cabeceras (tema.js) y el confeti del sorteo (fiesta.js) con los colores de v16
   var T = window.IB_TEMA = window.IB_TEMA || {};
-  if(!T.amb) T.amb = '255,184,28';
-  if(!T.rojo) T.rojo = '255,90,54';
-  if(!T.confeti) T.confeti = ['#FFB81C', '#FF5A36', '#FFFFFF', '#3CCB8A'];
+  if(!T.amb) T.amb = '51,225,255';
+  if(!T.rojo) T.rojo = '255,46,136';
+  if(!T.confeti) T.confeti = ['#FFB81C', '#FF5A36', '#FF2E88', '#8C5CFF', '#33E1FF', '#3DFFB4', '#FFFFFF'];
 
   var conDatos = function(cb){
     var listo = function(){
@@ -51,7 +53,7 @@
     if(!AVISO.on || dias < 0 || document.getElementById('admApp') || /rutas\.html$/.test(location.pathname)) return;
     try{ var c = +localStorage.getItem('ib-aviso-temp') || 0; if(Date.now() - c < 3 * 864e5) return; }catch(e){}
     var bar = document.createElement('div'); bar.className = 'v16-aviso'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Aviso de temporada');
-    bar.innerHTML = '<span class="v16-aviso-k">Temporada 2027</span>' +
+    bar.innerHTML = '<span class="v16-aviso-k"><i></i>Temporada 2027</span>' +
       '<span class="v16-aviso-t" aria-live="off">' + AVISO.frases.map(function(f, i){ return '<em' + (i ? '' : ' class="is-on"') + '>' + f + '</em>'; }).join('') + '</span>' +
       '<span class="v16-aviso-d"><b>' + dias + '</b> días para el Ultra</span>' +
       '<a class="v16-aviso-go" href="rutas.html">Reservar mi plaza <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>' +
@@ -68,6 +70,79 @@
     }
   })();
 
+  /* ---------- títulos que entran con un destello ---------- */
+  if(!quieto){
+    $$('.page-head h1, .section-head h2, .quiz-head h2, .home-faq-head h2, .srt-copy h2, .season-top h2, .v16-h').forEach(function(h){
+      if(h.closest('[data-view]')) return;
+      h.classList.add('v16-rev');
+      if(h.matches('.page-head h1')){ var va = function(){ h.classList.add('v16-in'); }; requestAnimationFrame(function(){ requestAnimationFrame(va); }); setTimeout(va, 140); }
+      else alVer(h, function(si){ if(si) h.classList.add('v16-in'); }, { threshold: .2, rootMargin: '0px 0px -6% 0px' });
+    });
+  }
+
+  /* ---------- etiquetas que se descifran letra a letra ---------- */
+  var GLIFOS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#/<>';
+  function descifra(el){
+    var nodos = [].filter.call(el.childNodes, function(n){ return n.nodeType === 3 && n.textContent.trim(); });
+    if(!nodos.length) return;
+    var fines = nodos.map(function(n){ return n.textContent; }), paso = 0, total = 14;
+    (function tic(){
+      paso++;
+      nodos.forEach(function(n, k){
+        var fin = fines[k], out = '';
+        for(var i = 0; i < fin.length; i++){ var c = fin[i]; out += (c === ' ' || c === '·' || i < (paso / total) * fin.length) ? c : GLIFOS.charAt(Math.floor(Math.random() * GLIFOS.length)); }
+        n.textContent = paso >= total ? fin : out;
+      });
+      if(paso < total) setTimeout(tic, 38);
+    })();
+  }
+  if(!quieto) $$('.eyebrow, .v16-k, .hx-meta > span:not([data-tx-clock])').forEach(function(el){ alVer(el, function(si){ if(si && !el.dataset.v16d){ el.dataset.v16d = '1'; descifra(el); } }, { threshold: .6 }); });
+
+  /* ---------- luz suave que sigue al ratón por el fondo (el puntero es el normal) ---------- */
+  if(raton && !quieto){
+    var luz = document.createElement('div'); luz.className = 'v16-luz'; luz.setAttribute('aria-hidden', 'true'); document.body.appendChild(luz);
+    var tx = -400, ty = -400, lx = -400, ly = -400, corre = false;
+    var mueve = function(){
+      lx += (tx - lx) * .08; ly += (ty - ly) * .08;
+      luz.style.transform = 'translate3d(' + lx.toFixed(1) + 'px,' + ly.toFixed(1) + 'px,0)';
+      if(Math.abs(tx - lx) > .3 || Math.abs(ty - ly) > .3) requestAnimationFrame(mueve); else corre = false;
+    };
+    addEventListener('pointermove', function(e){
+      if(e.pointerType !== 'mouse') return;
+      tx = e.clientX; ty = e.clientY;
+      if(!luz.classList.contains('is-on')){ lx = tx; ly = ty; luz.classList.add('is-on'); }
+      if(!corre){ corre = true; requestAnimationFrame(mueve); }
+    }, { passive: true });
+    document.addEventListener('mouseout', function(e){ if(!e.relatedTarget) luz.classList.remove('is-on'); });
+  }
+
+  /* ---------- foco de luz dentro de las tarjetas ---------- */
+  if(raton && !quieto){
+    $$('.v16-tile, .quiz-card, .faq, .hx-pick, .board, .dock .hero-stats > div, .srt, .v16-more, .contact-card, .pl-card, .gx-card, .rcard, .dash-links a, .info-list li, .v16-steps button').forEach(function(el){
+      if(el.querySelector(':scope > .v16-spot')) return;
+      if(getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      var s = document.createElement('span'); s.className = 'v16-spot'; s.setAttribute('aria-hidden', 'true'); el.appendChild(s);
+      el.addEventListener('pointermove', function(e){ var r = el.getBoundingClientRect(); el.style.setProperty('--mx', (e.clientX - r.left).toFixed(0) + 'px'); el.style.setProperty('--my', (e.clientY - r.top).toFixed(0) + 'px'); el.classList.add('is-spot'); });
+      el.addEventListener('pointerleave', function(){ el.classList.remove('is-spot'); });
+    });
+  }
+
+  /* ---------- billetes holográficos que se inclinan ---------- */
+  if(raton && !quieto){
+    $$('.ticket, .dest-feat, .v16-more, .srt-art').forEach(function(el){
+      var MAX = el.matches('.srt-art') ? 10 : 7;
+      el.style.transition = 'transform .7s cubic-bezier(.22,.9,.24,1), box-shadow .3s, border-color .2s';
+      el.addEventListener('pointermove', function(e){
+        if(el.closest('.is-board')) return;
+        var r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        el.style.transition = 'transform .12s linear, box-shadow .3s, border-color .2s';
+        el.style.transform = 'perspective(1100px) rotateX(' + ((.5 - py) * MAX).toFixed(2) + 'deg) rotateY(' + ((px - .5) * MAX).toFixed(2) + 'deg)' + (el.matches('.ticket, .v16-more') ? ' translateY(-6px)' : '');
+        el.style.setProperty('--gx', (px * 100).toFixed(1) + '%'); el.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
+      });
+      el.addEventListener('pointerleave', function(){ el.style.transition = 'transform .7s cubic-bezier(.22,.9,.24,1), box-shadow .3s, border-color .2s'; el.style.transform = ''; });
+    });
+  }
+
   /* ---------- menú: la cápsula se desliza bajo el enlace ---------- */
   var nav = document.querySelector('.topbar nav'), lista = nav && nav.querySelector('.nav');
   if(nav && lista && raton){
@@ -83,57 +158,124 @@
     lista.addEventListener('pointerleave', function(){ capsula.classList.remove('is-on'); });
   }
 
-  /* ---------- portada: «Cómo funciona» ----------
-     Mientras se ve, pasa sola al siguiente paso cada PASO_MS (la barra fina del paso activo lo marca).
-     Tocar un paso lo abre y vuelve a empezar la cuenta. */
-  var viaje = document.querySelector('[data-story]');
-  if(viaje){
-    var PASO_MS = 6500;
-    var pasos = $$('.v16-steps li', viaje), pantallas = $$('.v16-scr', viaje);
-    var via = viaje.querySelector('.v16-rail'), paradas = via ? $$('em', via) : [];
-    var actual = -1, viendo = false, tPaso = 0;
-    var pon = function(i){
-      if(i === actual) return; actual = i;
-      viaje.setAttribute('data-step', i);
-      pasos.forEach(function(li, k){ li.classList.toggle('is-on', k === i); });
-      pantallas.forEach(function(sc, k){ sc.classList.toggle('is-on', k === i); });
-      paradas.forEach(function(e, k){ e.classList.toggle('is-on', k <= i); });
-      if(via) via.style.setProperty('--p', pasos.length > 1 ? (i / (pasos.length - 1)).toFixed(3) : '1');
-    };
-    var programa = function(){
-      clearTimeout(tPaso); viaje.classList.remove('is-auto');
-      if(quieto || !viendo || document.hidden) return;
-      void viaje.offsetWidth; viaje.classList.add('is-auto');
-      tPaso = setTimeout(function(){ pon((actual + 1) % pasos.length); programa(); }, PASO_MS);
-    };
-    pasos.forEach(function(li, k){
-      var b = li.querySelector('button');
-      if(b) b.addEventListener('click', function(){ pon(k); programa(); });
-    });
-    pon(0);
-    alVer(viaje, function(si){ if(si !== viendo){ viendo = si; programa(); } }, { threshold: .25 });
-    document.addEventListener('visibilitychange', programa);
+  /* ---------- cintas: se tuercen con la velocidad al bajar ---------- */
+  var cintas = document.querySelector('.tapes');
+  if(cintas && !quieto){
+    var antes = scrollY, vuelta;
+    addEventListener('scroll', function(){
+      var v = scrollY - antes; antes = scrollY;
+      cintas.style.setProperty('--v16-sk', clamp(-v * .45, -14, 14).toFixed(2) + 'deg');
+      clearTimeout(vuelta); vuelta = setTimeout(function(){ cintas.style.setProperty('--v16-sk', '0deg'); }, 140);
+    }, { passive: true });
   }
 
-  /* ---------- portada: destinos en carrusel (se pasa con el dedo, la rueda o las flechas) ---------- */
+  /* ---------- cifras que cuentan ---------- */
+  $$('.hero-stats b').forEach(function(b){
+    var m = b.textContent.trim().match(/^(\D*)(\d+)(\D*)$/);
+    if(!m || quieto) return;
+    var fin = +m[2], hecho = false;
+    alVer(b, function(si){
+      if(!si || hecho) return; hecho = true;
+      var t0 = performance.now(), D = 1400;
+      (function paso(t){
+        var k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3);
+        b.textContent = m[1] + Math.round(fin * e) + m[3];
+        if(k < 1) requestAnimationFrame(paso);
+      })(t0);
+    }, { threshold: .6 });
+  });
+
+  /* ---------- portada: «El viaje» (se queda fijo mientras bajas) ---------- */
+  var viaje = document.querySelector('[data-story]');
+  if(viaje){
+    var pasos = $$('.v16-steps li', viaje), pantallas = $$('.v16-scr', viaje), num = viaje.querySelector('[data-story-n]');
+    var via = viaje.querySelector('.v16-rail'), paradas = via ? $$('em', via) : [];
+    var pin = viaje.querySelector('.v16-story-pin'), actual = -1, ciclo = null, viendo = false, tCambio = 0, tFin = 0;
+    var fijo = function(){ return pin && getComputedStyle(pin).position === 'sticky'; };
+    var pantalla = function(i){ pantallas.forEach(function(s, k){ s.classList.toggle('is-on', k === i); }); };
+    var pon = function(i){
+      if(i === actual) return; var primera = actual < 0; actual = i;
+      viaje.setAttribute('data-step', i);
+      pasos.forEach(function(li, k){ li.classList.toggle('is-on', k === i); });
+      paradas.forEach(function(e, k){ e.classList.toggle('is-on', k <= i); });
+      if(num) num.style.setProperty('--n', i);
+      if(primera || quieto){ pantalla(i); return; }
+      // el móvil gira y, a mitad del giro (cuando no se ve la pantalla), cambia de pantalla; un barrido de luz lo cruza
+      viaje.classList.remove('is-swap'); void viaje.offsetWidth; viaje.classList.add('is-swap');
+      clearTimeout(tCambio); clearTimeout(tFin);
+      tCambio = setTimeout(function(){ pantalla(actual); }, 330);
+      tFin = setTimeout(function(){ viaje.classList.remove('is-swap'); }, 900);
+    };
+    var alBajar = function(){
+      if(!fijo()) return;
+      var r = viaje.getBoundingClientRect(), tot = Math.max(1, r.height - innerHeight), p = clamp(-r.top / tot, 0, 1);
+      if(via) via.style.setProperty('--p', p.toFixed(4));
+      var paso = Math.min(pasos.length - 1, Math.floor(p * pasos.length));
+      pon(paso);
+      // dentro del paso activo, una barra que se llena mientras bajas
+      var dentro = clamp(p * pasos.length - paso, 0, 1);
+      if(pasos[paso]) pasos[paso].style.setProperty('--sp', dentro.toFixed(3));
+    };
+    var reinicia = function(){
+      clearInterval(ciclo);
+      viaje.classList.toggle('is-fijo', !!fijo());
+      if(fijo() || quieto) return;
+      ciclo = setInterval(function(){ if(viendo && !document.hidden) pon((actual + 1) % pasos.length); }, 5600);
+    };
+    pasos.forEach(function(li, k){
+      var b = li.querySelector('button'); if(!b) return;
+      b.addEventListener('click', function(){
+        if(fijo()){
+          var r = viaje.getBoundingClientRect(), tot = r.height - innerHeight;
+          scrollTo({ top: scrollY + r.top + tot * (k + .5) / pasos.length, behavior: quieto ? 'auto' : 'smooth' });
+        } else { pon(k); reinicia(); }
+      });
+    });
+    pon(0);
+    var rafV = 0;
+    addEventListener('scroll', function(){ if(!rafV) rafV = requestAnimationFrame(function(){ rafV = 0; alBajar(); }); }, { passive: true });
+    addEventListener('resize', function(){ alBajar(); reinicia(); });
+    alVer(viaje, function(si){ viendo = si; }, { threshold: .25 });
+    alBajar(); reinicia();
+  }
+
+  /* ---------- portada: destinos en carrusel horizontal ---------- */
   var hs = document.querySelector('[data-hs]');
   if(hs){
-    var pista = hs.querySelector('.v16-hs-track'), barra = hs.querySelector('.v16-hs-bar'), cuenta = hs.querySelector('[data-hs-n]');
-    var total = pista ? pista.children.length : 0, rafH = 0;
-    var pinta = function(){
-      rafH = 0;
-      var m = pista.scrollWidth - pista.clientWidth, p = m > 0 ? clamp(pista.scrollLeft / m, 0, 1) : 0;
+    var hsPin = hs.querySelector('.v16-hs-pin'), pista = hs.querySelector('.v16-hs-track');
+    var barra = hs.querySelector('.v16-hs-bar'), cuenta = hs.querySelector('[data-hs-n]');
+    var hsDist = 0, hsFijo = false, total = pista ? pista.children.length : 0;
+    var pinta = function(p){
       if(barra) barra.style.setProperty('--p', Math.max(.06, p).toFixed(4));
       if(cuenta) cuenta.innerHTML = ('0' + Math.min(total, Math.round(p * (total - 1)) + 1)).slice(-2) + ' <span>/ ' + ('0' + total).slice(-2) + '</span>';
     };
-    if(pista){
-      pista.addEventListener('scroll', function(){ if(!rafH) rafH = requestAnimationFrame(pinta); }, { passive: true });
-      addEventListener('resize', function(){ if(!rafH) rafH = requestAnimationFrame(pinta); });
-      pinta();
-    }
+    var hsMueve = function(){
+      var p;
+      if(hsFijo){ var r = hs.getBoundingClientRect(); p = clamp(-r.top / Math.max(1, hsDist), 0, 1); pista.style.setProperty('--hs-x', (-p * hsDist).toFixed(1) + 'px'); }
+      else { var m = pista.scrollWidth - pista.clientWidth; p = m > 0 ? pista.scrollLeft / m : 0; }
+      pinta(p);
+    };
+    var hsMide = function(){
+      if(!pista) return;
+      hsFijo = getComputedStyle(hsPin).position === 'sticky';
+      if(!hsFijo){ hs.style.removeProperty('--hs-h'); pista.style.removeProperty('--hs-x'); hsMueve(); return; }
+      var c = hs.querySelector('.container') || document.querySelector('.container');
+      var pad = Math.max(18, c.getBoundingClientRect().left + parseFloat(getComputedStyle(c).paddingLeft));
+      pista.style.setProperty('--hs-pad', pad + 'px'); pista.style.setProperty('--hs-x', '0px');
+      var ult = pista.lastElementChild.getBoundingClientRect();
+      hsDist = Math.max(0, ult.right + pad - innerWidth);
+      hs.style.setProperty('--hs-h', (innerHeight + hsDist) + 'px');
+      hsMueve();
+    };
+    var rafH = 0;
+    addEventListener('scroll', function(){ if(!rafH) rafH = requestAnimationFrame(function(){ rafH = 0; hsMueve(); }); }, { passive: true });
+    if(pista) pista.addEventListener('scroll', function(){ if(!hsFijo) hsMueve(); }, { passive: true });
+    var rt; addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(hsMide, 120); });
+    addEventListener('load', hsMide);
+    hsMide();
   }
 
-  /* ---------- «Todo lo que va en tu billete»: chat de ejemplo ---------- */
+  /* ---------- «Todo lo que va en tu billete»: chat en directo ---------- */
   $$('[data-chat]').forEach(function(caja){
     var M = [[1, '¿Qué pase nos conviene para 15 días?'], [0, 'Con vuestra ruta os sale mejor el Global. Os mandamos el detalle por aquí.'],
       [1, '¿Y si perdemos un tren?'], [0, 'Nos escribís y buscamos el siguiente con vosotros, a cualquier hora.'],
@@ -229,4 +371,28 @@
   /* pase que gira (con el dedo, al tocar) */
   $$('[data-flip]').forEach(function(b){ b.addEventListener('click', function(){ b.classList.toggle('is-flip'); }); });
 
+  /* ---------- cuenta atrás con paletas ---------- */
+  if(!quieto && 'MutationObserver' in window){
+    $$('.countdown b').forEach(function(b){
+      new MutationObserver(function(){ b.classList.remove('is-flip'); void b.offsetWidth; b.classList.add('is-flip'); })
+        .observe(b, { childList: true, characterData: true, subtree: true });
+    });
+  }
+
+  /* ---------- pie: letras que bailan y una vía con un tren de luz ---------- */
+  var grande = document.querySelector('.footer-big');
+  if(grande){
+    (function letras(nodo){
+      [].slice.call(nodo.childNodes).forEach(function(c){
+        if(c.nodeType === 3){
+          var frag = document.createDocumentFragment();
+          c.textContent.split('').forEach(function(ch){ var s = document.createElement('span'); s.className = 'v16-l'; s.textContent = ch; frag.appendChild(s); });
+          c.parentNode.replaceChild(frag, c);
+        } else if(c.nodeType === 1) letras(c);
+      });
+    })(grande);
+    var via2 = document.createElement('div'); via2.className = 'v16-frail'; via2.setAttribute('aria-hidden', 'true'); via2.innerHTML = '<i></i>';
+    grande.parentNode.insertBefore(via2, grande.nextSibling);
+    if(!quieto) alVer(via2, function(si){ via2.classList.toggle('is-in', si); });
+  }
 })();
