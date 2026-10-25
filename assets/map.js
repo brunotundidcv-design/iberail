@@ -279,5 +279,6 @@
     return null;
   }
 
-  window.IBMap = { draw, proj, city, _buildGeo: buildGeo };
+  // geo(): los países ya convertidos a caminos SVG ({ d, cc }), para otros mapas (p. ej. «Viajáis juntos»)
+  window.IBMap = { draw, proj, city, geo: loadGeo, _buildGeo: buildGeo };
 })();

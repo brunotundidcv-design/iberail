@@ -6,8 +6,8 @@
 <title>Iberail — Interrail a tu medida desde España</title>
 <meta name="description" content="Agencia de Interrail desde España: diseñamos tu ruta en tren por Europa a tu medida, con alojamiento y asistencia 24 h por WhatsApp. Split y Ultra Europe incluidos.">
 <link rel="canonical" href="https://iberail.com/">
-<meta name="theme-color" content="#0A0A0A">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#06070C">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Iberail">
 <meta property="og:locale" content="es_ES">
@@ -21,21 +21,21 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preload" href="assets/fonts/funnel-display-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/funnel-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
-<link rel="stylesheet" href="assets/hispanidad.css">
-<script src="assets/hispanidad.js"></script>
+<link rel="stylesheet" href="assets/v16-oscuro.css">
+<link rel="stylesheet" href="assets/v16.css">
 <script src="assets/data.js" defer></script>
+<script src="assets/orbita.js" defer></script>
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
-<script src="assets/cola.js"></script>
 <script>try{if(sessionStorage.getItem('ib-nav')){sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}catch(e){}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Iberail","alternateName":"Iberail Interrail","url":"https://iberail.com","logo":"https://iberail.com/assets/img/logo.png","image":"https://iberail.com/assets/img/og.jpg","description":"Agencia española especializada en rutas Interrail a medida por Europa.","areaServed":"ES","address":{"@type":"PostalAddress","addressCountry":"ES"},"sameAs":["https://www.instagram.com/iberailspain/"],"founder":{"@type":"Person","name":"Bruno Tundidor","jobTitle":"Founder","sameAs":["https://www.instagram.com/bruno.tm_/"]}}</script>
 </head>
-<body>
+<body class="v16-home">
 <div class="curtain" aria-hidden="true"><img src="assets/img/icon.svg" alt=""><span class="rail"></span></div>
 <a class="sr-only" href="#main">Saltar al contenido</a>
 <header class="topbar">
@@ -62,18 +62,20 @@
   </div>
 </div>
 <main id="main">
-<section class="hero hx">
-  <div class="container">
+<section class="hero hx v16-hero" data-orbita>
+  <div class="v16-hero-fx" aria-hidden="true"></div>
+  <div class="v16-hud" aria-hidden="true"><i class="v16-hud-c v16-hud-c--tl"></i><i class="v16-hud-c v16-hud-c--tr"></i><i class="v16-hud-c v16-hud-c--bl"></i><i class="v16-hud-c v16-hud-c--br"></i>
+    <span class="v16-hud-t v16-hud-t--l">40.4168° N · 3.7038° W</span><span class="v16-hud-t v16-hud-t--r" data-orbita-info>Red Iberail</span></div>
+  <div class="container v16-hero-in">
     <div class="hx-top">
-    <div class="hx-meta" aria-hidden="true"><span class="hx-dot"></span><span>IBR · Salidas desde España</span><span class="hx-sep"></span><span data-tx-clock>--:--:--</span><span class="hx-tz">Madrid</span></div>
-    <a class="hero-srt" href="sorteo.html"><span class="hero-srt-new">Gratis</span><span class="hero-srt-l">Sorteos de entradas para el Ultra</span><span class="hero-srt-s">Sorteo: entradas Ultra</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <div class="hx-meta" aria-hidden="true"><span class="hx-dot"></span><span>IBR · Salidas desde España</span><span class="hx-sep"></span><span data-tx-clock>--:--:--</span><span class="hx-tz">Madrid</span></div>
+      <a class="hero-srt" href="sorteo.html"><span class="hero-srt-new">Gratis</span><span class="hero-srt-l">Sorteos de entradas para el Ultra</span><span class="hero-srt-s">Sorteo: entradas Ultra</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     </div>
-    <p class="hisp-pill hisp-only"><i class="hisp-flag" aria-hidden="true"></i><span>12 de octubre · <b>Feliz Día de la Hispanidad</b></span></p>
-    <h1 class="hx-title"><span class="no-hisp">Europa en tren, <span class="hx-acc">a tu manera.</span></span><span class="hisp-only">Desde España,<br><span class="hx-acc">a toda Europa.</span></span></h1>
-    <div class="hx-grid">
-      <div class="hx-copy">
-        <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
-        <div class="hx-pick" data-hx-pick>
+    <div class="v16-hero-mid">
+      <h1 class="hx-title">Europa en tren, <span class="hx-acc">a tu manera.</span></h1>
+      <p class="hero-lead">Tú eliges los países y el ritmo. Nosotros montamos la ruta, reservamos el alojamiento junto a la estación y te acompañamos por WhatsApp de la primera a la última parada.</p>
+    </div>
+        <div class="hx-pick v16-dock" data-hx-pick>
           <div class="hx-pick-top">
             <p class="hx-pick-k">Toca las ciudades que te apetecen</p>
             <button type="button" class="hx-dice" data-hx-dice><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="15.5" cy="8.5" r="1.2"/><circle cx="8.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg>Sorpréndeme</button>
@@ -96,7 +98,30 @@
           </div>
         </div>
         <a class="hx-link" href="#test">¿No sabes a dónde ir? <b>Haz el test en 1 minuto</b> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</section>
+
+<section class="v16-cifras" aria-label="Iberail en cifras">
+  <div class="container">
+    <div class="hero-stats">
+      <div><b>24/7</b><span>atención por WhatsApp</span></div>
+      <div><b>30 min</b><span>de respuesta máxima</span></div>
+      <div><b>+30</b><span>países con un solo pase</span></div>
+      <div><b>100%</b><span>rutas hechas a medida</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="v16-salidas" id="salidas">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="eyebrow"><i class="v16-live"></i>En directo</span>
+        <h2>Salidas desde España</h2>
       </div>
+      <p>Un panel de ejemplo con trenes de verdad de la red. Toca ciudades arriba y tus paradas suben a los primeros puestos.</p>
+    </div>
+    <div class="v16-board-wrap">
       <div class="board" data-board aria-label="Panel de salidas de ejemplo con destinos de Interrail">
         <div class="board-top"><span><b>Salidas</b> · Departures</span><span class="board-clock" data-tx-clock>--:--</span></div>
         <div class="board-head" aria-hidden="true"><span>Hora</span><span>Destino</span><span>Tren</span><span>Vía</span><span>Estado</span></div>
@@ -114,51 +139,73 @@
     </div>
   </div>
 </section>
-<div class="dock">
-  <div class="container">
-    <div class="hero-stats">
-      <div><b>24/7</b><span>atención por WhatsApp</span></div>
-      <div><b>30 min</b><span>de respuesta máxima</span></div>
-      <div><b>+30</b><span>países con un solo pase</span></div>
-      <div><b>100%</b><span>rutas hechas a medida</span></div>
-    </div>
-  </div>
-</div>
 
 <div class="tapes" aria-hidden="true">
   <div class="tape tape--a"><div class="marquee-track"><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span><span>Ámsterdam</span><span>Berlín</span><span>Praga</span><span>Budapest</span><span>Split</span><span>Viena</span><span>Cracovia</span><span>Lisboa</span><span>París</span><span>Belgrado</span><span>Liubliana</span><span>Copenhague</span><span>Roma</span><span>Estambul</span></div></div>
+  <div class="tape tape--b"><div class="marquee-track"><span>Trenes nocturnos</span><span>Alojamiento junto a la estación</span><span>Pase Interrail</span><span>WhatsApp 24 h</span><span>Rutas a medida</span><span>Ultra Europe · Split</span><span>Más de 30 países</span><span>Desde España</span><span>Trenes nocturnos</span><span>Alojamiento junto a la estación</span><span>Pase Interrail</span><span>WhatsApp 24 h</span><span>Rutas a medida</span><span>Ultra Europe · Split</span><span>Más de 30 países</span><span>Desde España</span></div></div>
 </div>
 
-<section class="section" id="como">
-  <div class="container">
-    <div class="section-head" data-reveal>
-      <div>
+<section class="v16-story" id="como" data-story>
+  <div class="v16-story-pin">
+    <div class="container v16-story-in">
+      <div class="v16-story-copy">
         <span class="eyebrow" data-via="01">Cómo funciona</span>
-        <h2>De la idea al andén en tres pasos</h2>
+        <h2 class="v16-h">De la idea al andén en tres pasos</h2>
+        <p class="v16-story-sub">Sin paquetes cerrados ni letra pequeña: tú decides, nosotros resolvemos.</p>
+        <ol class="v16-steps">
+          <li class="is-on"><button type="button"><b>01</b><span><strong>Nos cuentas tu idea</strong><em>Países, días, presupuesto y con quién viajas. Con el planificador o directamente por WhatsApp.</em></span></button></li>
+          <li><button type="button"><b>02</b><span><strong>Te diseñamos la ruta</strong><em>Orden de paradas, trenes, pase que te conviene y alojamiento cerca de cada estación.</em></span></button></li>
+          <li><button type="button"><b>03</b><span><strong>Viajas acompañado</strong><em>Si algo cambia a mitad de viaje, nos escribes a cualquier hora y lo arreglamos.</em></span></button></li>
+        </ol>
+        <div class="v16-rail" aria-hidden="true"><i></i><span><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="3"/><path d="M4 10h16M8 20l-2 2M16 20l2 2M8.5 13.2h.01M15.5 13.2h.01"/></svg></span><em class="is-on" style="--x:0%">Idea</em><em style="--x:50%">Ruta</em><em style="--x:100%">Viaje</em></div>
       </div>
-      <p>Sin paquetes cerrados ni letra pequeña: tú decides, nosotros resolvemos.</p>
-    </div>
-    <div class="steps" data-reveal-group>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 01</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></span></div>
-        <h3>Nos cuentas tu idea</h3>
-        <p>Países, días, presupuesto y con quién viajas. Con el planificador o directamente por WhatsApp.</p>
-      </div>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 02</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span></div>
-        <h3>Te diseñamos la ruta</h3>
-        <p>Orden de paradas, trenes, pase que te conviene y alojamiento cerca de cada estación.</p>
-      </div>
-      <div class="step" data-reveal>
-        <div class="step-num"><b>PASO 03</b><span class="step-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg></span></div>
-        <h3>Viajas acompañado</h3>
-        <p>Si algo cambia a mitad de viaje, nos escribes a cualquier hora y lo arreglamos.</p>
+      <div class="v16-stage" aria-hidden="true">
+        <span class="v16-stage-n" data-story-n><span class="v16-roll"><b>01</b><b>02</b><b>03</b></span></span>
+        <div class="v16-orbs"><i><b></b></i><i><b></b></i><i><b></b></i></div>
+        <div class="v16-phone">
+          <div class="v16-phone-in">
+            <div class="v16-phone-top"><span class="v16-av">ib</span><span><b>Iberail</b><small>en línea</small></span></div>
+            <div class="v16-scr is-on">
+              <p class="v16-day">Hoy</p>
+              <p class="v16-msg is-me" style="--t:.15s">¡Hola! Somos 4 y tenemos 15 días en julio</p>
+              <p class="v16-msg is-me" style="--t:.7s">Queremos Ámsterdam, Praga y acabar en Split para el Ultra 🎉</p>
+              <p class="v16-msg is-typing" style="--t:1.3s"><i></i><i></i><i></i></p>
+              <p class="v16-msg" style="--t:2.6s">¡Planazo! Os montamos la ruta con trenes y alojamiento cerca de cada estación. ¿Desde qué ciudad salís?</p>
+            </div>
+            <div class="v16-scr">
+              <div class="v16-card">
+                <span class="v16-card-k">Tu ruta · Modo fiesta</span>
+                <b class="v16-card-t">14 noches · 5 paradas</b>
+                <ol class="v16-route">
+                  <li style="--t:.1s"><i></i><b>Ámsterdam</b><span>3 noches</span></li>
+                  <li class="v16-leg" style="--t:.22s">Tren · 6,3 h</li>
+                  <li style="--t:.34s"><i></i><b>Berlín</b><span>3 noches</span></li>
+                  <li class="v16-leg" style="--t:.46s">Tren · 4,3 h</li>
+                  <li style="--t:.58s"><i></i><b>Praga</b><span>2 noches</span></li>
+                  <li class="v16-leg" style="--t:.7s">Tren · 6,5 h</li>
+                  <li style="--t:.82s"><i></i><b>Budapest</b><span>2 noches</span></li>
+                  <li class="v16-leg" style="--t:.94s">Tren · 13 h vía Zagreb</li>
+                  <li class="is-end" style="--t:1.06s"><i></i><b>Split</b><span>4 noches · Ultra</span></li>
+                </ol>
+                <div class="v16-card-f"><span>Pase Interrail</span><span>Alojamiento cerca de la estación</span></div>
+              </div>
+            </div>
+            <div class="v16-scr">
+              <div class="v16-alert" style="--t:.1s"><b>Aviso</b>Tren Praga → Budapest cancelado</div>
+              <p class="v16-msg is-me" style="--t:.6s">Nos han cancelado el tren a Budapest 😩</p>
+              <p class="v16-msg is-typing" style="--t:1.1s"><i></i><i></i><i></i></p>
+              <p class="v16-msg" style="--t:2.4s">Lo vemos ahora. Hay otro a las 14:05 que entra con vuestro pase: os pasamos los detalles y avisamos al alojamiento.</p>
+              <p class="v16-msg is-me" style="--t:3.3s">¡Mil gracias! 🙌</p>
+            </div>
+          </div>
+        </div>
+        <span class="v16-stage-tag">Ejemplo</span>
       </div>
     </div>
   </div>
 </section>
 
-<section class="sheet sheet--amber" id="test">
+<section class="sheet v16-quiz" id="test">
   <div class="container">
     <div class="quiz" data-quiz>
       <div class="quiz-head" data-reveal>
@@ -173,7 +220,9 @@
   </div>
 </section>
 
-<section class="sheet sheet--light" id="destinos">
+<section class="sheet v16-dest" id="destinos">
+  <div class="v16-hs" data-hs>
+  <div class="v16-hs-pin">
   <div class="container">
     <div class="section-head" data-reveal>
       <div>
@@ -188,7 +237,9 @@
         </div>
       </div>
     </div>
-    <div class="dest-bento">
+  </div>
+    <div class="v16-hs-view">
+    <div class="v16-hs-track" id="topDest">
     <a class="dest-feat" href="split.html">
       <img src="assets/img/ultra.jpg" alt="" loading="lazy">
       <video muted loop playsinline preload="none" aria-hidden="true" data-src="assets/img/ultra.mp4"></video>
@@ -200,8 +251,6 @@
         <span class="dest-feat-go">Ver Split y Ultra <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
       </span>
     </a>
-    <p class="swipe-hint" aria-hidden="true">Desliza para ver más <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
-    <div class="dest-scroll" id="topDest">
       <article class="ticket" data-region="oeste" data-search="Países Bajos Ámsterdam Fiesta Ciudad">
   <div class="ticket-body">
     <span class="ticket-code" aria-hidden="true">NL</span>
@@ -269,15 +318,90 @@
   </div>
   <a class="ticket-stub" href="rutas.html?add=Roma" aria-label="Añadir a mi ruta"><span class="stub-label">Añadir a mi ruta</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </article>
+      <a class="v16-more" href="paises.html" data-cursor="Ver todo">
+        <span><span class="v16-more-n">+30</span><b>países a los que llega tu pase</b></span>
+        <span class="v16-more-go">Ver todos los destinos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </a>
     </div>
     </div>
-    <div class="dest-more"><a class="link-arrow" href="paises.html">Ver los más de 30 destinos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <div class="container"><div class="v16-hs-foot" aria-hidden="true"><div class="v16-hs-bar"><i></i></div><span class="v16-hs-n" data-hs-n>01 <span>/ 08</span></span></div></div>
+  </div>
+  </div>
+</section>
+
+<section class="section v16-incl" id="incluido">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="eyebrow" data-via="04">Todo incluido</span>
+        <h2>Todo lo que va en tu billete</h2>
+      </div>
+      <p>Lo que hacemos por ti antes de salir y mientras viajas, de la primera a la última parada.</p>
+    </div>
+    <div class="v16-bento" data-reveal-group>
+      <article class="v16-tile v16-tile--chat" data-reveal>
+        <div class="v16-tile-h">
+          <span class="v16-k"><i class="v16-live"></i>WhatsApp · 24 h</span>
+          <h3>Te acompañamos todo el viaje</h3>
+          <p>Antes de salir y a mitad de ruta: nos escribes a cualquier hora y lo resolvemos contigo.</p>
+        </div>
+        <div class="v16-chat" data-chat aria-hidden="true"></div>
+        <div class="v16-tile-f"><span>En Madrid son las <b data-tx-clock>--:--</b></span><a class="btn btn--wa btn--sm" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20tengo%20una%20duda%20sobre%20mi%20ruta%20Interrail" target="_blank" rel="noopener">Escribir por WhatsApp</a></div>
+      </article>
+      <article class="v16-tile v16-tile--presets" data-reveal data-presets>
+        <div class="v16-tile-h">
+          <span class="v16-k">Rutas para empezar</span>
+          <h3 data-p-t>Modo fiesta</h3>
+          <p data-p-s>Las noches más míticas de Europa y el Ultra Europe como final.</p>
+        </div>
+        <ol class="v16-mini" data-p-stops aria-label="Paradas de la ruta"></ol>
+        <div class="v16-tile-f"><div class="v16-dots" data-p-dots role="tablist" aria-label="Elige una ruta"></div><a class="btn btn--dark btn--sm" data-p-go href="rutas.html?preset=fiesta">Abrir en el planificador <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </article>
+      <article class="v16-tile v16-tile--night" data-reveal>
+        <div class="v16-sky" aria-hidden="true"><i class="v16-moon"></i><div class="v16-nt"><span></span></div></div>
+        <div class="v16-tile-h">
+          <span class="v16-k">Trenes nocturnos</span>
+          <h3>Duermes mientras viajas</h3>
+          <p>Y te ahorras noches de alojamiento. <b data-night-n>14</b> conexiones con tren nocturno en el planificador.</p>
+        </div>
+      </article>
+      <article class="v16-tile v16-tile--pass" data-reveal>
+        <div class="v16-tile-h">
+          <span class="v16-k">El pase</span>
+          <h3>El que te conviene</h3>
+          <p>Global o de un solo país: te decimos cuál encaja con tu ruta y cuándo comprarlo.</p>
+        </div>
+        <button type="button" class="v16-pass" data-flip aria-label="Girar el pase para ver el otro tipo"><span class="v16-pass-in"><span class="v16-pass-a"><small>Interrail</small><b>Global Pass</b><em>+30 países</em></span><span class="v16-pass-b"><small>Interrail</small><b>One Country</b><em>Un solo país</em></span></span></button>
+      </article>
+      <article class="v16-tile v16-tile--bed" data-reveal>
+        <div class="v16-tile-h">
+          <span class="v16-k">Alojamiento</span>
+          <h3>Dormir cerca de la estación</h3>
+          <p>Hostales, hoteles económicos o apartamentos, según vayáis en grupo o busquéis intimidad. Lo confirmamos contigo antes de reservar.</p>
+        </div>
+        <div class="v16-walk" aria-hidden="true">
+          <svg viewBox="0 0 400 82" preserveAspectRatio="none"><path d="M58 41 C 130 8, 180 74, 240 40 S 320 20, 342 41"/></svg>
+          <span class="v16-pin v16-pin--a"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M9 20l-2 2M15 20l2 2M9 13h.01M15 13h.01"/></svg></span>
+          <span class="v16-pin v16-pin--b"><svg viewBox="0 0 24 24"><path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 00-3-3h-7v5"/><circle cx="7" cy="11" r="1.6"/></svg></span>
+        </div>
+      </article>
+      <article class="v16-tile v16-tile--world" data-reveal data-world>
+        <div class="v16-tile-h">
+          <span class="v16-k">Un solo pase</span>
+          <h3><span class="v16-big">+30</span> países por descubrir</h3>
+        </div>
+        <div class="v16-flap" data-flap aria-hidden="true"></div>
+        <div class="v16-flags" aria-hidden="true"><div class="v16-flags-track"></div></div>
+        <a class="link-arrow" href="paises.html">Ver todos los destinos</a>
+      </article>
+    </div>
   </div>
 </section>
 
 <section class="section section--tight" id="sorteo">
   <div class="container">
     <div class="srt" data-reveal>
+      <div class="v16-lasers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
       <div class="srt-copy">
         <span class="srt-tag"><i></i><span data-srt-tag>Próximamente · Sorteo Iberail</span></span>
         <h2>Sorteamos entradas para el <em>Ultra Europe</em>.</h2>
@@ -294,8 +418,8 @@
         </div>
         <div class="srt-ig">
           <span class="srt-ig-x2">×2</span>
-          <div class="srt-ig-t"><b>Participación extra</b><span>Sube nuestro cartel a tu story mencionando a <a href="https://instagram.com/iberailspain" target="_blank" rel="noopener">@iberailspain</a> y entras dos veces.</span></div>
-          <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Compartir cartel</button>
+          <div class="srt-ig-t"><b>Participación extra</b><span>Sube nuestro cartel a tu story mencionando a <a href="https://instagram.com/iberailspain" target="_blank" rel="noopener">@iberailspain</a> y mándanos la captura con tu nombre completo por WhatsApp. Con más de 300 seguidores, entras dos veces.</span></div>
+          <button type="button" class="srt-ig-btn" data-srt-poster><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>Descargar cartel</button>
         </div>
       </div>
       <div class="srt-art" aria-hidden="true">
@@ -320,7 +444,7 @@
   <div class="container">
     <div class="home-faq">
       <div class="home-faq-head" data-reveal>
-        <span class="eyebrow" data-via="04">Dudas</span>
+        <span class="eyebrow" data-via="05">Dudas</span>
         <h2>Lo que más nos preguntan</h2>
         <p>¿Tienes otra? Escríbenos por WhatsApp y te contesta una persona del equipo.</p>
         <a class="btn btn--dark" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20tengo%20una%20duda" target="_blank" rel="noopener">Preguntar por WhatsApp <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -340,7 +464,7 @@
     <div class="season" data-season data-reveal>
       <div class="season-top">
         <div>
-          <span class="eyebrow eyebrow--light" data-via="05">Temporada <span data-season-year>2027</span></span>
+          <span class="eyebrow eyebrow--light" data-via="06">Temporada <span data-season-year>2027</span></span>
           <h2>El verano se reserva en invierno.</h2>
           <p class="season-lead">Julio y agosto son los meses con más demanda del año. Los hostales céntricos de Split, Praga o Ámsterdam son los primeros en llenarse, y los precios suben a medida que se llenan. Quien reserva antes, elige.</p>
         </div>
@@ -414,6 +538,7 @@
 </footer>
 <script src="assets/app.js"></script>
 <script src="assets/site.js"></script>
+<script src="assets/v16.js"></script>
 <script src="assets/sorteo.js"></script>
 <script src="assets/notif.js"></script>
 <script src="assets/live.js" defer></script>

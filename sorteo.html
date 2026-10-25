@@ -6,8 +6,8 @@
 <title>Sorteo Ultra Europe 2027 — Iberail</title>
 <meta name="description" content="Cuenta atrás del sorteo gratuito de entradas para el Ultra Europe 2027. Apúntate con tu cuenta de Iberail.">
 <link rel="canonical" href="https://iberail.com/sorteo.html">
-<meta name="theme-color" content="#0A0A0A">
-<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#06070C">
+<meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Iberail">
 <meta property="og:locale" content="es_ES">
@@ -21,15 +21,17 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/icon.svg">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<link rel="preload" href="assets/fonts/funnel-display-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/funnel-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/unbounded-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/tema.css">
-<link rel="stylesheet" href="assets/hispanidad.css">
-<script src="assets/hispanidad.js"></script>
+<link rel="stylesheet" href="assets/v16-oscuro.css">
+<link rel="stylesheet" href="assets/v16.css">
+<link rel="stylesheet" href="assets/sorteo-v2.css">
 <script src="assets/tema.js" defer></script>
 <script src="assets/config.js"></script>
 <script src="assets/mantenimiento.js"></script>
+<script>/* tarjetas ocultas hasta que acaba la intro (sorteo-pagina.js); si algo falla, se enseñan solas a los 4 s */(function(r){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;r.classList.add('sx-pre');setTimeout(function(){if(r.classList.contains('sx-pre')){r.classList.remove('sx-pre');r.classList.add('sx-go')}},4000)})(document.documentElement)</script>
 <script>try{if(sessionStorage.getItem('ib-nav')){sessionStorage.removeItem('ib-nav');if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('is-arriving')}}catch(e){}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Iberail","alternateName":"Iberail Interrail","url":"https://iberail.com","logo":"https://iberail.com/assets/img/logo.png","image":"https://iberail.com/assets/img/og.jpg","description":"Agencia española especializada en rutas Interrail a medida por Europa.","areaServed":"ES","address":{"@type":"PostalAddress","addressCountry":"ES"},"sameAs":["https://www.instagram.com/iberailspain/"],"founder":{"@type":"Person","name":"Bruno Tundidor","jobTitle":"Founder","sameAs":["https://www.instagram.com/bruno.tm_/"]}}</script>
 </head>
@@ -59,10 +61,127 @@
     <p><span class="live-dot"></span>Abiertos 24 h · respuesta en máx. 30 min</p>
   </div>
 </div>
-<main id="main" class="srt-page"><section id="srtPage" aria-label="Cuenta atrás del sorteo"></section></main>
-<div class="mbar" id="mbar">
-  <a class="mbar-wa" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20tengo%20una%20duda" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg><span>WhatsApp</span></a>
-  <a class="btn btn--primary" href="rutas.html">Diseñar mi ruta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<main id="main" class="srt-page sx-page">
+<div class="sx-stage" aria-hidden="true"><i class="sx-stage-a"></i><i class="sx-stage-b"></i><i class="sx-stage-floor"></i></div>
+<div class="container sx-wrap">
+  <header class="sx-head sx-in" style="--i:0">
+    <!-- la ruta en tren hasta Split (la misma del cartel): la línea fluye y un tren la recorre -->
+    <svg class="sx-route" viewBox="0 0 360 112" aria-hidden="true" data-sx-route>
+      <defs><linearGradient id="sxRuta" x1="0" x2="1"><stop offset="0" stop-color="#FFB81C"/><stop offset=".25" stop-color="#FF5A36"/><stop offset=".5" stop-color="#FF2E88"/><stop offset=".75" stop-color="#8C5CFF"/><stop offset="1" stop-color="#33E1FF"/></linearGradient></defs>
+      <g class="sx-route-red"><path d="M18 92L136 30M136 30L256 22M206 46L306 52M78 66L206 46M256 22L340 94"/></g>
+      <path class="sx-route-l" d="M18 92L78 66L136 30L206 46L256 22L306 52L340 94"/>
+      <g class="sx-route-n"><circle cx="18" cy="92" r="3"/><circle cx="78" cy="66" r="3"/><circle cx="136" cy="30" r="3"/><circle cx="206" cy="46" r="3"/><circle cx="256" cy="22" r="3"/><circle cx="306" cy="52" r="3"/></g>
+      <circle class="sx-route-ring" cx="340" cy="94" r="10"/>
+      <circle class="sx-route-split" cx="340" cy="94" r="5"/>
+      <circle class="sx-route-tren" r="3.4"><animateMotion dur="7s" repeatCount="indefinite" path="M18 92L78 66L136 30L206 46L256 22L306 52L340 94"/></circle>
+      <g class="sx-route-t">
+        <rect x="1" y="74" width="40" height="11" rx="3"/><text x="5" y="82">MADRID</text>
+        <rect x="50" y="73" width="58" height="11" rx="3"/><text x="54" y="81">BARCELONA</text>
+        <rect x="117" y="12" width="37" height="11" rx="3"/><text x="121" y="20">PARÍS</text>
+        <rect x="185" y="53" width="42" height="11" rx="3"/><text x="189" y="61">BERLÍN</text>
+        <rect x="237" y="4" width="37" height="11" rx="3"/><text x="241" y="12">PRAGA</text>
+        <rect x="279" y="59" width="54" height="11" rx="3"/><text x="283" y="67">BUDAPEST</text>
+        <rect class="is-split" x="287" y="88" width="40" height="13" rx="3"/><text class="is-split" x="291" y="97.5">SPLIT</text>
+      </g>
+    </svg>
+    <span class="sx-head-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 002-2h14a2 2 0 002 2v1a2 2 0 000 4v1a2 2 0 00-2 2H5a2 2 0 00-2-2v-1a2 2 0 000-4z"/><path d="M15 7v10" stroke-dasharray="2 2"/></svg></span>
+    <div class="sx-head-t">
+      <span class="sx-head-k"><i></i>Sorteo · Entradas gratis</span>
+      <h1><span>Sorteo</span> <em>Ultra Europe</em></h1>
+      <p>Entradas gratis para el festival, la cuenta atrás en directo y tu participación, todo aquí.</p>
+    </div>
+  </header>
+
+  <div class="sx-grid">
+    <section id="srtPage" class="sx-a sx-in" style="--i:1" aria-label="Cuenta atrás del sorteo"></section>
+
+    <aside class="sx-card sx-me sx-in" style="--i:2" data-sx-me aria-label="Tu participación"></aside>
+
+    <article class="sx-card sx-prize sx-in" style="--i:3" aria-labelledby="sxPrizeH">
+      <div class="sx-ct"><small class="sx-k">El premio</small><span class="sx-pill sx-pill--gold"><i></i>Gratis</span></div>
+      <div class="sx-prize-in">
+        <div class="sx-prize-txt">
+          <h3 id="sxPrizeH" class="sx-h3">Abono de 3 días para el <em>Ultra Europe 2027</em></h3>
+          <p>El festival más grande de los Balcanes, en Split, con el Adriático de fondo. Te lo regalamos nosotros.</p>
+          <ul class="sx-tags"><li>Split, Croacia</li><li>9, 10 y 11 jul 2027</li><li>Abono 3 días</li></ul>
+        </div>
+        <div class="sx-tk-wrap" data-sx-tilt>
+          <div class="sx-tk">
+            <div class="sx-tk-main">
+              <span class="sx-tk-k">Admit one · Pase 3 días</span>
+              <b class="sx-tk-h">Ultra Europe</b>
+              <span class="sx-tk-y">2027</span>
+              <div class="sx-tk-meta"><div><small>Lugar</small><b>Split, Croacia</b></div><div><small>Fechas</small><b>9 — 11 jul</b></div></div>
+            </div>
+            <div class="sx-tk-stub"><small>Nº</small><b>FREE</b><span class="sx-tk-bar" aria-hidden="true"></span></div>
+            <span class="sx-tk-holo" aria-hidden="true"></span>
+            <span class="sx-tk-glare" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+      <p class="sx-fine">El premio es la entrada; el viaje y el alojamiento no van incluidos, aunque si quieres te los montamos nosotros.</p>
+    </article>
+
+    <article class="sx-card sx-nums sx-in" style="--i:4" aria-label="El sorteo en cifras">
+      <small class="sx-k">El sorteo en cifras</small>
+      <dl>
+        <div style="--i:0"><dt>para participar</dt><dd><b class="is-warm">0 €</b></dd></div>
+        <div style="--i:1"><dt>de festival</dt><dd><b>3</b><i>días</i></dd></div>
+        <div style="--i:2"><dt>con la participación extra</dt><dd><b class="is-ig">×2</b></dd></div>
+        <div style="--i:3"><dt>te apuntas, y entras en todos</dt><dd><b>1</b><i>vez</i></dd></div>
+      </dl>
+    </article>
+
+    <article class="sx-card sx-list" data-sx-list data-sx-reveal aria-label="Tu checklist del sorteo"></article>
+
+    <article class="sx-card sx-x2" id="sxExtra" data-sx-reveal aria-label="Participación extra">
+      <small class="sx-k">Participación extra</small>
+      <b class="sx-h3">Sube el cartel a tu story y <em>entra dos veces</em></b>
+      <ol>
+        <li>Sube nuestro cartel a tu story mencionando a <b>@iberailspain</b>.</li>
+        <li>Mándanos la captura por WhatsApp con tu <b>nombre completo</b>.</li>
+        <li>Tu Instagram tiene que tener <b>más de 300 seguidores</b>.</li>
+      </ol>
+      <p>Lo revisamos a mano y, si todo está bien, te sumamos la participación en tu cuenta.</p>
+      <div class="sx-x2-acts">
+        <button type="button" class="sx-x2-go" data-srt-poster>Descargar el cartel <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg></button>
+        <a class="sx-x2-go sx-x2-go--line" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20he%20subido%20el%20cartel%20del%20sorteo%20a%20mi%20story%20mencionando%20a%20%40iberailspain.%20Os%20mando%20la%20captura.%20Mi%20nombre%20completo%20es%3A%20" target="_blank" rel="noopener">Mandar la captura</a>
+      </div>
+      <span class="sx-x2-phone" aria-hidden="true"><i>ib</i><b>Sorteamos entradas para el <em>Ultra</em></b><u></u><small>iberail.com</small></span>
+      <i class="sx-x2-rays" aria-hidden="true"></i>
+    </article>
+
+    <article class="sx-card sx-faq" data-sx-reveal aria-labelledby="sxFaqH">
+      <div class="sx-ct"><small class="sx-k" id="sxFaqH">Lo que nos preguntáis</small><a class="sx-link" href="bases-sorteo.html">Bases completas <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a></div>
+      <div class="sx-qs">
+        <details><summary>¿Tengo que pagar o contratar un viaje?</summary><p>No. Participar es gratis y no te compromete a nada. Solo necesitas una cuenta de Iberail y un móvil válido.</p></details>
+        <details><summary>¿Tengo que apuntarme a cada sorteo?</summary><p>No. Te apuntas una vez y entras en todos los sorteos que hagamos. Si no ganas en uno, sigues dentro para el siguiente.</p></details>
+        <details><summary>¿Cómo se elige a quien gana?</summary><p>Al azar entre todas las participaciones válidas, con una herramienta de sorteo aleatorio. La ruleta solo te enseña el resultado ya elegido: no influye en quién gana.</p></details>
+        <details><summary>¿Cómo sé si me ha tocado?</summary><p>A la hora del sorteo entras aquí con tu cuenta y lo ves al momento. Además, a quien gana le escribimos por WhatsApp y por correo.</p></details>
+        <details><summary>¿Quién puede participar?</summary><p>Personas mayores de 18 años con residencia en España, con una sola cuenta por persona.</p></details>
+      </div>
+    </article>
+
+    <a class="sx-card sx-split" data-sx-reveal href="split.html">
+      <small class="sx-k">Y si te toca…</small>
+      <b class="sx-h3">Nos vemos en <em>Split</em></b>
+      <p>Te montamos el viaje en tren hasta el festival, con alojamiento cerca de la estación.</p>
+      <ul class="sx-split-l">
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M8 21l2-4M16 21l-2-4"/></svg>Tren hasta Split con tu pase Interrail</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V9l9-5 9 5v11M9 20v-6h6v6"/></svg>Alojamiento cerca de la estación</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg>WhatsApp 24 h durante el viaje</li>
+      </ul>
+      <span class="sx-x2-go">Ver Split · Ultra <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <i class="sx-split-sun" aria-hidden="true"></i>
+    </a>
+  </div>
+  <small class="sx-foot">Sorteo gratuito para mayores de 18 años · <a href="bases-sorteo.html">Bases legales</a></small>
+</div>
+</main>
+<!-- en el móvil, la barra de abajo es del sorteo: cuenta atrás en pequeño y el botón que toca (lo pinta sorteo-pagina.js) -->
+<div class="mbar sx-mbar" id="mbar">
+  <a class="sx-mbar-t" href="#srtPage" aria-label="Ver la cuenta atrás"><small data-sx-mb-k>Ultra Europe en</small><b data-sx-mb-v>--</b></a>
+  <span class="sx-mbar-go" data-sx-mb-go><button type="button" class="btn btn--primary" data-srt-join>Participar gratis</button></span>
 </div>
 <a class="fab" href="https://wa.me/34930491439?text=Hola%20Iberail%2C%20tengo%20una%20duda" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
   <span class="fab-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-12.3 7.4L3 21l2.1-5.6A8.5 8.5 0 1121 11.5z"/></svg></span><span class="fab-label">¿Dudas? Escríbenos</span>
@@ -105,6 +224,7 @@
 </footer>
 <script src="assets/app.js"></script>
 <script src="assets/site.js"></script>
+<script src="assets/v16.js"></script>
 <script src="assets/fiesta.js"></script>
 <script src="assets/ruleta.js"></script>
 <script src="assets/musica.js"></script>

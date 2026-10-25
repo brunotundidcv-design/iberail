@@ -54,10 +54,11 @@ const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-mo
   els.forEach(el => io.observe(el));
 })();
 
-/* ---------- page transition: curtain with the Iberail mark ---------- */
+/* ---------- page transition: curtain with the Iberail mark ----------
+   Navegadores con transiciones nativas entre páginas (v15.css · @view-transition): sin cortinilla ni espera al pulsar. */
 (function(){
   const html = document.documentElement;
-  if(reduceMotion){ html.classList.remove('is-arriving'); return; }
+  if(reduceMotion || 'onpagereveal' in window){ html.classList.remove('is-arriving'); return; }
 
   // arriving from another page of the site: lift the curtain
   if(html.classList.contains('is-arriving')){

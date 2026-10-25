@@ -42,7 +42,8 @@
      Ciudades y tramos de IB_DATA (los del planificador) + las líneas principales de España. Trenes de luz que van de ciudad
      en ciudad; al pasar el ratón se ve el nombre de la ciudad. En la portada, la ruta que montas se dibuja encima (IBRed.ruta).
      Se para cuando no se ve; con «reducir movimiento», imagen quieta. */
-  var hosts = [].slice.call(document.querySelectorAll('.hero, .page-head:not(.page-head--photo)'));
+  // [data-orbita]: la portada v16 dibuja Europa en 3D (orbita.js); si el navegador no puede, orbita.js quita el atributo y se pinta esta
+  var hosts = [].slice.call(document.querySelectorAll('.hero:not([data-orbita]), .page-head:not(.page-head--photo)'));
   window.IBRed = { ruta: function(){} };
   if(hosts.length && window.HTMLCanvasElement){
     var conDatos = function(cb){
@@ -101,7 +102,7 @@
         bx.stroke();
       }
       nombres.forEach(function(n){ var p = P[n], es = ESPANA[n]; bx.fillStyle = es ? 'rgba(' + (n === 'Madrid' ? ROJO : AMB) + ',.95)' : 'rgba(255,255,255,.26)'; bx.beginPath(); bx.arc(p.x, p.y, es ? 3 : ROTULOS.indexOf(n) >= 0 ? 2.2 : 1.5, 0, 6.3); bx.fill(); });
-      bx.font = '600 10px "Funnel Sans", system-ui, sans-serif'; bx.fillStyle = 'rgba(255,255,255,.16)';
+      bx.font = '600 10px "Geist Mono", ui-monospace, monospace'; bx.fillStyle = 'rgba(255,255,255,.16)';
       if(W > 700) ROTULOS.forEach(function(n){ var p = P[n]; if(p) bx.fillText(n.toUpperCase(), p.x + 6, p.y - 6); });
     }
     function nuevoTren(desde){
@@ -136,7 +137,7 @@
         mia.forEach(function(n, j){ var p = P[n]; if(!p) return;
           cx.fillStyle = j === 0 ? 'rgb(' + ROJO + ')' : 'rgb(' + AMB + ')'; cx.beginPath(); cx.arc(p.x, p.y, j === 0 ? 4.5 : 5, 0, 6.3); cx.fill();
           cx.strokeStyle = 'rgba(' + AMB + ',.35)'; cx.lineWidth = 6; cx.beginPath(); cx.arc(p.x, p.y, 10 + Math.sin(ts / 300 + j) * 2, 0, 6.3); cx.stroke();
-          cx.font = '700 12px "Funnel Sans", system-ui, sans-serif'; cx.fillStyle = 'rgba(255,243,214,.95)'; cx.fillText(n, p.x + 10, p.y - 10);
+          cx.font = '700 12px "Geist Mono", ui-monospace, monospace'; cx.fillStyle = 'rgba(255,243,214,.95)'; cx.fillText(n, p.x + 10, p.y - 10);
         });
         cx.restore();
       }
@@ -158,7 +159,7 @@
         var best = null, bd = 46;
         nombres.forEach(function(n){ var p = P[n], d = Math.hypot(p.x - raton.x, p.y - raton.y); if(d < bd){ bd = d; best = n; } });
         if(best){ var p = P[best]; cx.strokeStyle = 'rgba(' + AMB + ',.8)'; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(p.x, p.y, 7, 0, 6.3); cx.stroke();
-          cx.font = '700 12px "Funnel Sans", system-ui, sans-serif'; cx.fillStyle = 'rgba(' + AMB + ',.95)'; cx.fillText(best, p.x + 11, p.y + 4);
+          cx.font = '700 12px "Geist Mono", ui-monospace, monospace'; cx.fillStyle = 'rgba(' + AMB + ',.95)'; cx.fillText(best, p.x + 11, p.y + 4);
           (vecinos[best] || []).forEach(function(v){ var q = P[v]; cx.strokeStyle = 'rgba(' + AMB + ',.28)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(q.x, q.y); cx.stroke(); });
         }
       }
