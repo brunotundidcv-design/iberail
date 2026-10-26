@@ -477,6 +477,10 @@ Asistente de WhatsApp con IA (API de Anthropic, modelo en `AI_MODEL`, por defect
 
 ## Otros proyectos de Bruno (guardados para más adelante)
 
+- **El Jaleo** (eljaleosessions.com): promotora de fiestas de Bruno; vende las entradas con **Fourvenues**. No tiene repositorio
+  aquí y desde el entorno de Claude no se pueden abrir eljaleosessions.com ni fourvenues.com (red bloqueada): para revisar sus
+  condiciones hay que pasar el texto, capturas o PDF.
+
 - ⭐ **NUEVO (29/09/2026): segunda agencia de viajes** con la misma titular (Andrea, IAE 755: mismo alta, REAV,
   registro y garantía; solo nombre comercial nuevo + marca OEPM + póliza RC que la incluya). Vende **todo menos Interrail**
   (exclusivo de Iberail): nieve, fin de curso, despedidas, festivales, escapadas, viajes a medida. **Nombre: ZARPING** (zarpar + -ing, como Vueling;
