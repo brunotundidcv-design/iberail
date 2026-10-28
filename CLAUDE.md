@@ -324,6 +324,24 @@ parezca hecha por un profesional (ver «v17» más abajo).
 - Contraste: el análisis marca los botones ámbar (`--warm`, degradado) con 1,01:1, pero es un falso positivo: el script no sabe leer
   fondos con degradado (texto oscuro sobre ámbar).
 
+## v17.3 (28/10/2026): plaza cancelada por impago + apelación; fuera los puntitos de fondo
+
+- **Cancelar por impago** (panel → ficha del grupo → Pagos, en cada persona que no lo tiene todo pagado): «Cancelar plaza por impago»
+  (dos toques). Motivo automático «No ha pagado a tiempo (faltaban X €)». La persona recibe un aviso personal (`avisos.user_id`).
+- **Lo que se ve**: junto al nombre, etiqueta roja «Cancelado por impago» (o «Cancelado · en apelación») en «Pagos del grupo» de
+  todos los del grupo (`cancelados_grupo`: solo el estado, nunca el motivo ni la apelación) y en el panel. En el menú del cliente,
+  «Pagos» dice «Plaza cancelada por impago».
+- **Apelación** (cliente, Mis grupos → Pagos, tarjeta `cxlBox` en `cuenta.js`): «Solicitar apelación» + texto (mín. 10 caracteres) →
+  RPC `apelar_cancelacion` (solo la suya, una vez, solo en estado `cancelado`; apunta `apelacion_impago` en `actividad`).
+  El equipo la ve en el grupo (etiqueta «N apelaciones pendientes» en la tarjeta del grupo y aviso emergente en directo) y la
+  **acepta** (se quita la cancelación) o la **rechaza** (se mantiene, ya no se puede volver a apelar), con respuesta opcional que le
+  llega al cliente como aviso. «Quitar la cancelación» la revoca en cualquier momento.
+- Tabla `cancelaciones` (estados `cancelado` → `apelada` → `confirmada` / `revocada`; las revocadas quedan de historial; una vigente
+  por persona y grupo), trigger que apunta quién y cuándo la resuelve. **SQL: `supabase/sql/impago.sql` (ejecutarlo una vez)**;
+  sin él no sale nada nuevo y todo funciona como antes. Estilos en `site.css` (común con Zarping, regenerado) y `v16.css` (oscuro).
+- Pedido de marketing: «los puntitos de detrás son muy IA» → fuera el patrón de puntos del fondo de la página (`body::before` de
+  `v16.css`) y las texturas de puntos de paneles, mapa del planificador, cuenta atrás y móvil de ejemplo.
+
 ## Sorteo discreto (v9.2) y panel de demo
 
 - **Sorteo «menos canteo»** (lo pidió marketing): fuera el aviso a pantalla completa; la barra de arriba solo sale la semana

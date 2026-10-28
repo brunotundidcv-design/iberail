@@ -375,6 +375,29 @@
         : `<a class="gx-pay-cta" href="${esc(IB.wa(`Hola ${IB.brand.nombre}, soy de «${g.nombre}». ¿Cómo os pago lo que me falta (${eur(falta)})?`))}" target="_blank" rel="noopener">¿Cómo pago?</a>`) : ''}
     </div>`;
   }
+  // plaza cancelada por impago: el motivo y la apelación (supabase/sql/impago.sql)
+  const CXL_TAG = { cancelado: 'Cancelado por impago', apelada: 'Cancelado · en apelación', confirmada: 'Cancelado por impago' };
+  const fdia = ts => ts ? new Date(ts).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Europe/Madrid' }) : '';
+  function cxlBox(g){
+    const c = V.cxl && V.cxl.mine[g.id]; if(!c) return '';
+    const cuando = fdia(c.created_at), wa = IB.wa(`Hola ${IB.brand.nombre}, soy de «${g.nombre}». Os escribo por la cancelación de mi plaza por impago.`);
+    const cuerpo = c.estado === 'apelada'
+      ? `<p>Enviaste tu apelación el ${esc(fdia(c.apelacion_at))}. La estamos revisando y te contestamos por aquí y por WhatsApp.</p>${c.apelacion ? `<blockquote>${esc(c.apelacion)}</blockquote>` : ''}`
+      : c.estado === 'confirmada'
+        ? `<p>Hemos revisado tu apelación y la cancelación se mantiene.</p>${c.respuesta ? `<blockquote>${esc(c.respuesta)}</blockquote>` : ''}<a class="gx-cxl-wa" href="${esc(wa)}" target="_blank" rel="noopener">Hablar con nosotros por WhatsApp</a>`
+        : `<p>Si crees que es un error o ya lo has pagado, pide una apelación: la revisa una persona del equipo y, si tienes razón, quitamos la cancelación.</p>
+          <details class="gx-cxl-ap"><summary>Solicitar apelación</summary>
+            <form data-apelar="${esc(c.id)}" novalidate>
+              <label for="ap${esc(c.id)}">Cuéntanos qué ha pasado</label>
+              <textarea class="pl-input" id="ap${esc(c.id)}" rows="4" maxlength="1000" placeholder="Ej.: hice la transferencia el día 3, os mando el justificante por WhatsApp."></textarea>
+              <div class="gx-cxl-acts"><button type="submit" class="btn btn--primary btn--sm">Enviar apelación</button><small class="gx-cxl-err" role="alert" hidden></small></div>
+            </form>
+          </details>`;
+    return `<div class="gx-card gx-cxl is-${esc(c.estado)}">
+      <div class="gx-cxl-h"><span class="gx-cxl-ic" aria-hidden="true">!</span><div><b>${c.estado === 'apelada' ? 'Tu apelación está en revisión' : 'Tu plaza está cancelada por impago'}</b><small>Desde el ${esc(cuando)} · ${esc(c.motivo || 'No ha pagado a tiempo')}</small></div></div>
+      ${cuerpo}
+    </div>`;
+  }
   // cómo va cada persona del grupo (solo totales; el grupo decide si se comparte)
   function teamBox(g){
     const rows = V.team[g.id];
@@ -394,16 +417,17 @@
       <ul class="gx-team-list">${sorted.map(r => {
         const imp = Number(r.importe || 0), pag = Number(r.pagado || 0), falta = Math.max(0, imp - pag), p = r.completo ? 100 : imp ? Math.min(100, Math.round(pag / imp * 100)) : 0;
         const st = r.completo ? `<span class="gx-st is-ok">${I_CHECK}Todo pagado</span>` : imp ? `<span class="gx-st is-due">Faltan ${eur(falta)}</span>` : '<span class="gx-st">Sin precio aún</span>';
-        return `<li class="${r.completo ? 'is-ok' : ''}${r.soy_yo ? ' is-me' : ''}">
+        const cx = ((V.cxl && V.cxl.grupo[g.id]) || {})[r.user_id];
+        return `<li class="${r.completo ? 'is-ok' : ''}${r.soy_yo ? ' is-me' : ''}${cx ? ' is-cxl' : ''}">
           <i class="gx-av" style="--c:${avColor(r.user_id)}">${esc(initials(r.nombre))}</i>
-          <div class="gx-team-main"><b>${esc(String(r.nombre).split(' ')[0])}${r.soy_yo ? ' <small>(tú)</small>' : ''}</b>${imp ? `<small>${eur(Math.min(pag, imp) || (r.completo ? imp : 0))} de ${eur(imp)}</small>` : ''}${imp || r.completo ? `<span class="gx-mini"><i style="width:${p}%"></i></span>` : ''}</div>
+          <div class="gx-team-main"><b>${esc(String(r.nombre).split(' ')[0])}${r.soy_yo ? ' <small>(tú)</small>' : ''}${cx ? ` <em class="gx-cxl-tag">${CXL_TAG[cx] || CXL_TAG.cancelado}</em>` : ''}</b>${imp ? `<small>${eur(Math.min(pag, imp) || (r.completo ? imp : 0))} de ${eur(imp)}</small>` : ''}${imp || r.completo ? `<span class="gx-mini"><i style="width:${p}%"></i></span>` : ''}</div>
           ${st}
         </li>`; }).join('')}</ul>
     </div>`;
   }
   function avisoItem(a, compact, preview){
     const seen = preview || V.read.has(String(a.id));
-    const from = a.para_todos ? IB.brand.nombre : a.user_id && !a.grupo_id && !a.ruta_id ? (/contrato/i.test(a.titulo || '') ? IB.brand.nombre : 'Invita y gana') : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `${RT.Ruta} ${r.ref}` : RT.tu; })();
+    const from = a.para_todos ? IB.brand.nombre : a.user_id && !a.grupo_id && !a.ruta_id ? (/contrato|impago|apelaci/i.test(a.titulo || '') ? IB.brand.nombre : 'Invita y gana') : a.grupo_id ? `Grupo «${(V.groups.find(g => String(g.id) === String(a.grupo_id)) || {}).nombre || ''}»` : (() => { const r = V.routes.find(x => String(x.id) === String(a.ruta_id)); return r ? `${RT.Ruta} ${r.ref}` : RT.tu; })();
     return `<article class="aviso${a.importante ? ' is-imp' : ''}${seen ? ' is-seen' : ''}" data-aviso="${esc(a.id)}">
       <div class="aviso-top">${compact ? '' : `<span>${I_BELL}${esc(from)}</span>`}<small>${esc(ago(a.created_at))}</small></div>
       <h4>${a.importante ? '<em>Importante</em>' : ''}${esc(a.titulo)}</h4>
@@ -735,7 +759,7 @@
       { t: 'inicio', i: I_HOME, l: 'Inicio', s: left > 0 ? `Faltan ${left} ${plural(left, 'día', 'días')} · cifras y novedades` : 'Vuestro viaje de un vistazo', d: 'La cuenta atrás, vuestro viaje en cifras y lo nuevo de la agencia.',
         h: `${hypeBox(g, main, pm, left, start, total, day)}${statsBox(main, pm)}${promoBox(g, pm, prev)}` },
       { t: 'pagos', i: I_EURO, l: 'Pagos', s: prev ? 'Cómo va el grupo' : pay.s, hot: !prev && pay.hot, ok: !prev && pay.ok, d: 'Lo que te queda por pagar, la fecha límite, el seguro y cómo va el grupo.',
-        h: `${prev ? '' : payBox(g)}${limBox(g, prev)}${prev ? '' : `<div class="sg-slot" data-seguro="${gid}"></div>`}${teamBox(g)}` },
+        h: `${prev ? '' : cxlBox(g)}${prev ? '' : payBox(g)}${limBox(g, prev)}${prev ? '' : `<div class="sg-slot" data-seguro="${gid}"></div>`}${teamBox(g)}` },
       { t: 'ruta', i: I_ROUTE, l: RT.Ruta, s: main ? `${cityName(main.salida)} → ${last} · ${pm.length} ${plural(pm.length, 'parada', 'paradas')}` : 'La estamos preparando', d: 'El recorrido parada a parada, el mapa y dónde dormís.',
         h: (routes.length ? routes.map(routeMapCard).join('') : soon(I_ROUTE, RT.prep, 'En cuanto esté lista, os aparece aquí a todos.')) + `<div class="al-slot" data-aloj="${gid}"></div>` },
       jun.length ? { t: 'juntos', i: I_JUNTOS, l: 'Viajáis juntos', s: `Con «${jun[0].otro_nombre}»${jun.length > 1 ? ` y ${jun.length - 1} más` : ''}`, cool: true, d: 'El otro grupo con el que hacéis el viaje: su ruta, sus fechas y dónde coincidís.',
@@ -782,6 +806,8 @@
   }
   // estado de cada apartado para el menú
   function payState(g){
+    const cx = V.cxl && V.cxl.mine[g.id];
+    if(cx) return { s: cx.estado === 'apelada' ? 'Plaza cancelada · apelación en revisión' : 'Plaza cancelada por impago', hot: true, ok: false };
     if(!V.v7) return { s: 'Aún sin pagos', hot: false, ok: false };
     const m = V.mine[g.id] || {}, imp = Number(m.importe || 0);
     const pag = V.pagos.filter(p => String(p.grupo_id) === String(g.id)).reduce((a, p) => a + Number(p.importe), 0);
@@ -961,7 +987,7 @@
     if(!quiet){ box.innerHTML = '<div class="auth-spin"></div>'; $('#myGroups').innerHTML = '<div class="auth-spin"></div>'; }
     const mem = await safe(IB.sb.from('grupo_miembros').select('*').eq('user_id', user.id));
     const gids = (mem.data || []).map(m => m.grupo_id);
-    const [own, grp, gr, mt, pg, av, rd, iv, jt] = await Promise.all([
+    const [own, grp, gr, mt, pg, av, rd, iv, jt, cx] = await Promise.all([
       IB.sb.from('rutas').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50),
       gids.length ? safe(IB.sb.from('rutas').select('*').in('grupo_id', gids).order('created_at', { ascending: false })) : { data: [] },
       gids.length ? safe(IB.sb.from('grupos').select('*').in('id', gids)) : { data: [] },
@@ -971,7 +997,9 @@
       safe(IB.sb.from('avisos_leidos').select('aviso_id').eq('user_id', user.id)),
       safe(IB.sb.rpc('mi_invita')),
       // grupos que viajan juntos (archivo 16; si aún no está, simplemente no sale)
-      gids.length ? safe(IB.sb.rpc('grupos_juntos')) : { data: [], error: true }
+      gids.length ? safe(IB.sb.rpc('grupos_juntos')) : { data: [], error: true },
+      // plazas canceladas por impago (supabase/sql/impago.sql; si aún no está, no sale nada)
+      safe(IB.sb.from('cancelaciones').select('*').eq('user_id', user.id))
     ]);
     if(own.error){ box.innerHTML = `<p class="dash-empty">${esc(IB.errMsg(own.error))}</p>`; return; }
     const routes = (grp.data || []).filter(r => !own.data.some(o => o.id === r.id)).concat(own.data)
@@ -1015,12 +1043,19 @@
       const res = await Promise.all(allg.map(g => safe(IB.sb.rpc('pagos_grupo', { g }))));
       allg.forEach((g, i) => { team[g] = res[i].error ? null : (res[i].data || []); });
     }
+    // quién del grupo está cancelado por impago (solo el estado; el motivo y la apelación son de cada uno)
+    const cxl = { on: !cx.error, mine: {}, grupo: {} };
+    (cx.data || []).filter(c => c.estado !== 'revocada').forEach(c => { cxl.mine[c.grupo_id] = c; });
+    if(cxl.on && allg.length){
+      const res = await Promise.all(allg.map(g => safe(IB.sb.rpc('cancelados_grupo', { g }))));
+      allg.forEach((g, i) => { const m = cxl.grupo[g] = {}; (res[i].data || []).forEach(r => { m[r.user_id] = r.estado; }); });
+    }
     // avisos «tuyos» (el equipo recibe todos: aquí solo cuentan los que te tocan como viajero)
     const myRids = new Set(routes.map(r => r.id));
     const allAvisos = av.data || [];
     const avisos = isAdmin ? allAvisos.filter(a => a.para_todos || gids.includes(a.grupo_id) || (a.ruta_id && myRids.has(a.ruta_id)) || a.user_id === user.id) : allAvisos;
     V = { routes, allRoutes: routes.concat(proutes), groups, docs, urls, mates, mine: myRows, team, pagos: pg.data || [], avisos, allAvisos, admin: isAdmin, previews: pgids.length, read: new Set((rd.data || []).map(x => String(x.aviso_id))), v7: !av.error,
-      inv: !iv.error && iv.data && iv.data.codigo ? iv.data : null, juntos: !jt.error && Array.isArray(jt.data) ? jt.data : [], juntosOn: !jt.error };
+      inv: !iv.error && iv.data && iv.data.codigo ? iv.data : null, juntos: !jt.error && Array.isArray(jt.data) ? jt.data : [], juntosOn: !jt.error, cxl };
     paintDash();
     // los enlaces a los archivos caducan en 1 h: se renuevan solos
     clearTimeout(refreshT); if(paths.length) refreshT = setTimeout(() => loadRoutes(user, true), 50 * 60 * 1000);
@@ -1036,6 +1071,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'avisos' }, again);
       // «Invita y gana» (archivo 9): cuando ganas o cobras una comisión
       if(V.juntosOn) chan = chan.on('postgres_changes', { event: '*', schema: 'public', table: 'grupo_enlaces' }, again);
+      if(V.cxl.on) chan = chan.on('postgres_changes', { event: '*', schema: 'public', table: 'cancelaciones' }, again);
       if(V.inv) chan = chan.on('postgres_changes', { event: '*', schema: 'public', table: 'comisiones', filter: `padrino=eq.${user.id}` }, again);
       chan.subscribe();
     }
@@ -1070,6 +1106,19 @@
     const okc = await IB.copy(b.dataset.copyLoc);
     b.classList.add('is-copied'); b.textContent = okc ? 'Copiado' : b.dataset.copyLoc;
     setTimeout(() => { b.classList.remove('is-copied'); b.textContent = b.dataset.copyLoc; }, 1600);
+  });
+  // «Solicitar apelación» de una plaza cancelada por impago
+  root.addEventListener('submit', async e => {
+    const f = e.target.closest('[data-apelar]'); if(!f) return;
+    e.preventDefault();
+    const txt = $('textarea', f).value.trim(), err = $('.gx-cxl-err', f), btn = $('button[type=submit]', f);
+    const fallo = m => { err.textContent = m; err.hidden = false; };
+    if(txt.length < 10) return fallo('Cuéntanos un poco más (mínimo 10 caracteres).');
+    btn.disabled = true; err.hidden = true;
+    const { error } = await IB.sb.rpc('apelar_cancelacion', { c: Number(f.dataset.apelar), texto: txt });
+    btn.disabled = false;
+    if(error) return fallo(String(error.message || '').replace(/^.*?:\s*/, '') || IB.errMsg(error));
+    if(me) loadRoutes(me, true);
   });
   // carrusel de novedades: los puntos siguen al deslizar y se para un rato si lo tocas
   root.addEventListener('scroll', e => {

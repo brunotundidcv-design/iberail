@@ -59,7 +59,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:radial-gradient(70vw 46vw at 6% -12%,rgba(140,92,255,.20),transparent 62%),
     radial-gradient(54vw 40vw at 104% 8%,rgba(255,46,136,.11),transparent 62%),
     radial-gradient(64vw 50vw at 50% 118%,rgba(51,225,255,.09),transparent 62%),
-    radial-gradient(rgba(255,255,255,.045) 1px,transparent 1.4px) 0 0/26px 26px,
     var(--bg)}
 h1,h2,h3,h4,h5{color:var(--t1);font-family:var(--display);font-weight:700;letter-spacing:-.03em}
 h1,h2{font-weight:800}
@@ -1335,3 +1334,14 @@ body.is-dash .auth{padding-top:clamp(18px,3vw,40px)}
   .gh-p.is-in,.ghd-l--a,.ghd-l--b,.ghd-pin.is-hit::before,.ghj-logo i,.gh-kick i,.gh-hype::after,.gh-hype-live i,.gh-cd b.is-tick,.gh-ad--ultra>i{animation:none!important}
   .ghd-l--a{stroke-dashoffset:0}
 }
+
+/* plaza cancelada por impago, en oscuro (las reglas base están en site.css) */
+.gx-cxl-tag{background:rgba(255,90,80,.16);color:#FF9A8F}
+.gx-team-list li.is-cxl{background:rgba(255,90,80,.06);border-color:rgba(255,90,80,.35)}
+.gx-cxl{background:rgba(255,90,80,.07)!important;border:1px solid rgba(255,90,80,.45)!important;color:var(--t1)}
+.gx-cxl.is-apelada{background:rgba(255,184,28,.07)!important;border-color:rgba(255,184,28,.5)!important}
+.gx-cxl-h small,.gx-cxl p{color:var(--t2)}
+.gx-cxl-err{color:#FF9A8F}
+
+/* sin texturas de puntitos (fondo de la página, paneles, mapa, cuenta atrás…): quedaban «muy IA» */
+.hx-route,.v16-phone-in,.pl-map-wrap,.countdown div,.cta-u,.dest-grid.is-board,.board{background-image:none!important}

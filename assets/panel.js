@@ -73,6 +73,8 @@
   let ng = null;             // formulario de nuevo grupo
   let na = null;             // formulario de nuevo aviso: { target: 'todos'|'grupo'|'ruta', grupoId, rutaId, importante }
   let pagos = [], pagosErr = '';
+  // plazas canceladas por impago y sus apelaciones (supabase/sql/impago.sql)
+  let cxls = [], cxlErr = '';
   const payDrafts = {};      // borrador del formulario de nuevo pago por persona (uid → {importe,fecha,nota})
   let avisos = [], leidos = [], avisosErr = '';
   let rr = { com: [], refs: [], codes: [], importe: 40, minimo: 5, err: '' };   // «Invita y gana»
@@ -242,12 +244,14 @@
     counts();
   }
   async function loadExtras(){
-    const [pg, av, al] = await Promise.all([
+    const [pg, av, al, , cx] = await Promise.all([
       IB.sb.from('pagos').select('*'),
       IB.sb.from('avisos').select('*').order('created_at', { ascending: false }),
       IB.sb.from('avisos_leidos').select('*'),
-      loadRrpp()
+      loadRrpp(),
+      IB.sb.from('cancelaciones').select('*').order('created_at', { ascending: false })
     ]);
+    if(cx.error){ cxlErr = setupErr(cx.error); cxls = []; } else { cxlErr = ''; cxls = cx.data || []; }
     if(pg.error){ pagosErr = setupErr(pg.error); pagos = []; } else { pagosErr = ''; pagos = pg.data || []; }
     // los avisos personales («¡Has ganado 40 €!») salen solos: no se mezclan con los que escribes tú
     if(av.error){ avisosErr = setupErr(av.error); avisos = []; } else { avisosErr = ''; avisos = (av.data || []).filter(a => !a.user_id); }
@@ -256,6 +260,17 @@
     if(!extraChan && !groupsErr){
       extraChan = IB.sb.channel('panel-extra')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'grupo_miembros' }, () => { clearTimeout(grT); grT = setTimeout(async () => { await loadGroups(); paintAll(); }, 600); });
+      // una apelación nueva (o un cambio hecho desde otro ordenador) se ve al momento
+      if(!cxlErr) extraChan = extraChan.on('postgres_changes', { event: '*', schema: 'public', table: 'cancelaciones' }, payload => {
+        const x = payload.new && payload.new.id ? payload.new : null, old = payload.old || {};
+        if(payload.eventType === 'DELETE') cxls = cxls.filter(c => c.id !== old.id);
+        else if(x){ const i = cxls.findIndex(c => c.id === x.id); if(i < 0) cxls.unshift(x); else cxls[i] = x; }
+        if(x && payload.eventType === 'UPDATE' && x.estado === 'apelada' && old.estado !== 'apelada'){
+          const c = clients.find(y => y.id === x.user_id), g = groupById(x.grupo_id);
+          toast(`<b>${esc(clientName(c))}</b> ha pedido una apelación${g ? ` en «${esc(g.nombre)}»` : ''}`, false, () => openDrawer({ kind: 'grupo', id: x.grupo_id }));
+        }
+        paintGroups(); if(drawer && !typing()) paintDrawer();
+      });
       if(!avisosErr) extraChan = extraChan.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'avisos_leidos' }, payload => {
         const x = payload.new; if(!x || leidos.some(l => String(l.aviso_id) === String(x.aviso_id) && l.user_id === x.user_id)) return;
         leidos.push(x); counts(); paintOverview(); if(view === 'avi') paintAvisos(); if(drawer && !typing()) paintDrawer();
@@ -728,6 +743,7 @@
       const money = m && m.total ? `<span class="adm-gcard-money"><span><b>${eur(m.cubierto)}</b> de ${eur(m.total)}${m.pend ? ` · ${m.pend} ${plural(m.pend, 'debe', 'deben')}` : ' · todo cobrado'}</span>${m.falta > 0 && gruSort === 'falta' ? `<em class="adm-gcard-due">Faltan ${eur(m.falta)}</em>` : ''}${m.extra > 0 ? `<em class="adm-gcard-extra">${eur(m.extra)} cobrados de más: revísalo</em>` : ''}<span class="adm-bar-p${m.falta ? '' : ' is-full'}"><i style="width:${pct}%"></i></span></span>` : '';
       return `<button type="button" class="adm-gcard${g.vip ? ' is-vip' : ''}" data-open-group="${esc(g.id)}">
         <span class="adm-gcard-top"><b>${g.vip ? `<i class="adm-gcard-vip" title="Grupo VIP">${I_STAR}VIP</i>` : ''}${zpTag(g)}${esc(g.nombre)}</b><small>${ms.length} ${plural(ms.length, 'persona', 'personas')}</small></span>
+        ${cxlApeladas(g.id) ? `<em class="adm-cxl-tag is-apelada">${cxlApeladas(g.id)} ${plural(cxlApeladas(g.id), 'apelación pendiente', 'apelaciones pendientes')}</em>` : ''}
         <span class="adm-avs">${ms.slice(0, 7).map(c => `<i>${esc(initials(clientName(c)))}</i>`).join('')}${ms.length > 7 ? `<i>+${ms.length - 7}</i>` : ''}</span>
         ${money}
         <span class="adm-gcard-foot">${rs.length ? esc(rs.map(r => ((r.paradas || []).slice(-1)[0] || {}).ciudad || r.salida).join(' · ')) : 'Sin ruta todavía'}</span>
@@ -998,6 +1014,61 @@
       <div class="adm-bar-p${m.total && !m.falta ? ' is-full' : ''}" role="img" aria-label="Cubierto el ${pct}%"><i style="width:${pct}%"></i></div>
       ${m.extra > 0 ? `<p class="adm-extra"><b>Hay ${eur(m.extra)} cobrados de más.</b> ${esc(who)}: ${m.deMas.length === 1 ? 'ha pagado' : 'han pagado'} más de lo que ${m.deMas.length === 1 ? 'le toca' : 'les toca'}. Revisa si hay un pago apuntado dos veces.</p>` : ''}`;
   }
+  /* ---------- plaza cancelada por impago ---------- */
+  // la cancelación vigente de una persona en un grupo (las revocadas son historial)
+  const cxlOf = (gid, uid) => cxls.find(x => String(x.grupo_id) === String(gid) && x.user_id === uid && x.estado !== 'revocada');
+  const cxlApeladas = gid => cxls.filter(x => String(x.grupo_id) === String(gid) && x.estado === 'apelada').length;
+  const CXL_LABEL = { cancelado: 'Cancelado por impago', apelada: 'Apelación pendiente', confirmada: 'Cancelado · apelación rechazada' };
+  const cxlTag = (gid, uid) => { const x = cxlOf(gid, uid); return x ? `<em class="adm-cxl-tag is-${esc(x.estado)}">${CXL_LABEL[x.estado]}</em>` : ''; };
+  function cxlHtml(g, c, full){
+    if(cxlErr) return '';
+    const x = cxlOf(g.id, c.id), id = x && esc(x.id);
+    if(!x && full) return '';   // si lo tiene todo pagado no hay nada que cancelar
+    if(!x) return `<div class="adm-cxl"><button type="button" class="pl-link dash-del" data-cxl-new="${esc(c.id)}" data-cxl-gid="${esc(g.id)}">Cancelar plaza por impago</button></div>`;
+    const desde = `desde el ${esc(fdate(String(x.created_at).slice(0, 10)))}`;
+    if(x.estado === 'apelada') return `<div class="adm-cxl is-apelada">
+      <p><b>Ha pedido una apelación</b> (${esc(fdate(String(x.apelacion_at).slice(0, 10)))}):</p>
+      <blockquote>${esc(x.apelacion || '')}</blockquote>
+      <textarea class="pl-input" rows="2" maxlength="1000" data-cxl-resp="${id}" placeholder="Respuesta para el cliente (opcional)"></textarea>
+      <div class="adm-cxl-acts"><button type="button" class="btn btn--primary btn--sm" data-cxl-ok="${id}">Aceptar y quitar la cancelación</button><button type="button" class="btn btn--ghost btn--sm" data-cxl-no="${id}">Rechazar</button></div>
+    </div>`;
+    return `<div class="adm-cxl is-${esc(x.estado)}"><p><b>${CXL_LABEL[x.estado]}</b> ${desde} · ${esc(x.motivo || '')}${x.estado === 'cancelado' ? ' · el cliente puede apelar desde su cuenta' : ''}</p>
+      <button type="button" class="pl-link" data-cxl-off="${id}">Quitar la cancelación</button></div>`;
+  }
+  // aviso solo para esa persona (sale en su campana y en «Avisos» de su cuenta)
+  async function cxlAviso(uid, titulo, cuerpo){
+    try{ await IB.sb.from('avisos').insert({ user_id: uid, titulo, cuerpo, importante: true, para_todos: false }); }catch(e){}
+  }
+  async function cxlNew(gid, uid, btn){
+    if(!armed(btn, '¿Cancelar su plaza? Toca otra vez')) return;
+    const g = groupById(gid), c = clients.find(y => y.id === uid);
+    const falta = Math.max(0, r2(r2((memberRow(gid, uid) || {}).importe) - pagadoOf(gid, uid)));
+    const motivo = falta > 0 ? `No ha pagado a tiempo (faltaban ${eur(falta)})` : 'No ha pagado a tiempo';
+    btn.disabled = true;
+    const { data, error } = await IB.sb.from('cancelaciones').insert({ grupo_id: Number(gid), user_id: uid, motivo, estado: 'cancelado' }).select().single();
+    btn.disabled = false;
+    if(error) return toast(setupErr(error), true);
+    cxls.unshift(data); paintDrawer(); paintGroups();
+    cxlAviso(uid, 'Tu plaza está cancelada por impago', `Hemos cancelado tu plaza en «${g ? g.nombre : 'tu grupo'}» porque no se ha pagado a tiempo. Si crees que es un error o ya lo has pagado, entra en Mis grupos → Pagos y pide una apelación.`);
+    toast(`${esc(clientName(c))}: plaza cancelada por impago`);
+  }
+  async function cxlResolve(id, ok, btn){
+    const x = cxls.find(y => String(y.id) === String(id)); if(!x) return;
+    const box = btn.closest('.adm-cxl'), ta = box && box.querySelector('[data-cxl-resp]');
+    const respuesta = ta ? ta.value.trim() || null : null;
+    // quién y cuándo lo resuelve lo apunta la base de datos (trigger de impago.sql)
+    const cambios = { estado: ok ? 'revocada' : 'confirmada', respuesta };
+    btn.disabled = true;
+    const { error } = await IB.sb.from('cancelaciones').update(cambios).eq('id', x.id);
+    btn.disabled = false;
+    if(error) return toast(setupErr(error), true);
+    const apelada = x.estado === 'apelada';
+    Object.assign(x, cambios); paintDrawer(); paintGroups();
+    const g = groupById(x.grupo_id), c = clients.find(y => y.id === x.user_id), en = `«${g ? g.nombre : 'tu grupo'}»`;
+    if(ok) cxlAviso(x.user_id, apelada ? 'Apelación aceptada: tu plaza sigue en pie' : 'Ya no tienes la plaza cancelada', `${apelada ? 'Hemos revisado tu apelación y quitamos' : 'Hemos quitado'} la cancelación por impago de tu plaza en ${en}.${respuesta ? ' ' + respuesta : ''}`);
+    else cxlAviso(x.user_id, 'Apelación revisada: se mantiene la cancelación', `Hemos revisado tu apelación sobre tu plaza en ${en} y la cancelación por impago se mantiene.${respuesta ? ' ' + respuesta : ''}`);
+    toast(ok ? `${esc(clientName(c))}: cancelación quitada` : `${esc(clientName(c))}: apelación rechazada`);
+  }
   function payRow(g, c){
     const m = memberRow(g.id, c.id) || { importe: 0 };
     const imp = r2(m.importe), pag = pagadoOf(g.id, c.id), full = !!m.pagado || (imp > 0 && pag >= imp), falta = full ? 0 : Math.max(0, r2(imp - pag));
@@ -1012,7 +1083,7 @@
     return `<li class="adm-pay${full ? ' is-paid' : ''}${over ? ' is-over' : ''}">
       <div class="adm-pay-top">
         <span class="adm-av">${esc(initials(clientName(c)))}</span>
-        <span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>Pagado ${eur(pag)}${imp ? ` de ${eur(imp)}` : ''}</small></span>
+        <span class="adm-cli-who"><b>${esc(clientName(c))}${cxlTag(g.id, c.id)}</b><small>Pagado ${eur(pag)}${imp ? ` de ${eur(imp)}` : ''}</small></span>
         ${state}
       </div>
       <div class="adm-pay-mid">
@@ -1020,6 +1091,7 @@
         ${falta > 0 && tel ? `<a class="btn btn--wa btn--sm" href="${esc(IB.wa(nudge, tel))}" target="_blank" rel="noopener">Recordar pago</a>` : falta > 0 ? `<button type="button" class="btn btn--ghost btn--sm" data-copy-notify="${esc(nudge)}">Copiar recordatorio</button>` : ''}
       </div>
       ${(full && !m.pagado) ? '' : mark}
+      ${cxlHtml(g, c, full)}
       ${list.length ? `<ul class="adm-pay-log">${list.map(p => `<li><span>${esc(fdate(p.fecha))}</span><b>${eur(p.importe)}</b><em>${esc(p.nota || '')}</em><button type="button" class="pl-link dash-del" data-pay-del="${esc(p.id)}">Borrar</button></li>`).join('')}</ul>` : ''}
       <details class="adm-pay-add" data-pay-uid="${esc(c.id)}"${dr.open ? ' open' : ''}>
         <summary>${I_PLUS}Apuntar un pago</summary>
@@ -1238,7 +1310,7 @@
       <label class="adm-switch adm-p-vip${g.vip ? ' is-on' : ''}"><input type="checkbox" id="grVip"${g.vip ? ' checked' : ''}><span></span><em><b><i class="adm-vip-ic">${I_STAR}</i>Grupo VIP</b>${g.vip ? 'Sus miembros ven su grupo en dorado, con el sello VIP y una línea directa por WhatsApp.' : 'Actívalo para grupos especiales: amigos, clientes que repiten o con trato preferente.'}</em></label>
       <section class="adm-sec">
         <div class="adm-sec-h"><h3>${I_USERS}Personas <small>${ms.length}</small></h3></div>
-        ${ms.length ? `<ul class="adm-members">${ms.map(c => `<li><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}</b><small>${esc(c.email)}${c.telefono ? ' · ' + esc(c.telefono) : ''}</small></span>${c.telefono ? `<a class="pl-link" href="${esc(IB.wa('', waPhone(c.telefono)))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}<button type="button" class="pl-link dash-del" data-rm-member="${esc(c.id)}">Quitar</button></li>`).join('')}</ul>` : '<p class="adm-docs-empty">Aún no hay nadie en este grupo.</p>'}
+        ${ms.length ? `<ul class="adm-members">${ms.map(c => `<li><span class="adm-av">${esc(initials(clientName(c)))}</span><span class="adm-cli-who"><b>${esc(clientName(c))}${cxlTag(g.id, c.id)}</b><small>${esc(c.email)}${c.telefono ? ' · ' + esc(c.telefono) : ''}</small></span>${c.telefono ? `<a class="pl-link" href="${esc(IB.wa('', waPhone(c.telefono)))}" target="_blank" rel="noopener">WhatsApp</a>` : ''}<button type="button" class="pl-link dash-del" data-rm-member="${esc(c.id)}">Quitar</button></li>`).join('')}</ul>` : '<p class="adm-docs-empty">Aún no hay nadie en este grupo.</p>'}
         <div class="adm-add-people">
           <div class="pl-search">${'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>'}<input id="grQ" type="search" placeholder="Añadir personas: busca por nombre o correo" value="${esc(drawer.q || '')}" aria-label="Buscar personas para añadir"></div>
           <div class="adm-cands" id="grCands">${clientsState === 'loading' ? '<div class="auth-spin"></div>' : clientsState === 'error' ? `<p class="adm-docs-empty is-err">${esc(clientsErr)}</p>` : candHtml ? candHtml : `<p class="adm-docs-empty">${q ? 'Nadie sin grupo coincide con esa búsqueda.' : 'No queda nadie sin grupo. Cada persona solo puede estar en un grupo.'}</p>`}</div>
@@ -1693,6 +1765,11 @@
     const pd = t.closest('[data-pay-del]'); if(pd){ if(armed(pd, '¿Borrar?')) deletePayment(pd.dataset.payDel); return; }
     const pall = t.closest('[data-pay-all]'); if(pall && drawer && drawer.kind === 'grupo') return setAllImporte(drawer.id, pall);
     const pmk = t.closest('[data-pay-mark]'); if(pmk) return markPaid(pmk.dataset.payGid, pmk.dataset.payMark, pmk);
+    // cancelación por impago y apelaciones
+    const cxn = t.closest('[data-cxl-new]'); if(cxn) return cxlNew(cxn.dataset.cxlGid, cxn.dataset.cxlNew, cxn);
+    const cxo = t.closest('[data-cxl-ok]'); if(cxo) return cxlResolve(cxo.dataset.cxlOk, true, cxo);
+    const cxr = t.closest('[data-cxl-no]'); if(cxr){ if(armed(cxr, '¿Rechazar? Toca otra vez')) cxlResolve(cxr.dataset.cxlNo, false, cxr); return; }
+    const cxf = t.closest('[data-cxl-off]'); if(cxf){ if(armed(cxf, '¿Quitarla? Toca otra vez')) cxlResolve(cxf.dataset.cxlOff, true, cxf); return; }
     // nueva ruta
     if(drawer && drawer.kind === 'nueva' && nf){
       const pa = t.closest('[data-para]'); if(pa){ nf.para = pa.dataset.para; if(nf.para === 'grupo'){ nf.uid = ''; nf.telefono = ''; } else { nf.gid = ''; } nf.nombre = ''; const s = srcRow(); if(s) applySrc(s); paintDrawer(); return; }

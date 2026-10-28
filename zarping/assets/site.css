@@ -3756,3 +3756,38 @@ body.srt-lock{overflow:hidden}
 /* «Añadir el viaje a mi calendario» (cuenta.js · routeIcs) */
 .gx-ics{margin-top:12px;gap:8px}
 .gx-ics svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* ---------- plaza cancelada por impago (cuenta.js · cxlBox / teamBox, panel.js · cxlHtml) ---------- */
+.gx-cxl-tag,.adm-cxl-tag{display:inline-flex;align-items:center;margin-left:8px;padding:2px 8px;border-radius:999px;background:rgba(192,57,43,.12);color:#A8301F;font:700 .7rem/1.5 var(--body);letter-spacing:.01em;vertical-align:middle;white-space:nowrap}
+.adm-cxl-tag.is-apelada{background:rgba(240,176,42,.2);color:#7A5200}
+.gx-team-list li.is-cxl{background:rgba(192,57,43,.06);border-color:rgba(192,57,43,.35)}
+.gx-team-list li.is-cxl .gx-av{opacity:.55;filter:grayscale(1)}
+.gx-team-list li.is-cxl .gx-team-main > b{text-decoration:none}
+.gx-card.gx-cxl{display:block;border:1.5px solid rgba(192,57,43,.45);background:rgba(192,57,43,.06)}
+.gx-cxl.is-apelada{border-color:rgba(240,176,42,.55);background:rgba(240,176,42,.07)}
+.gx-cxl-h{display:flex;gap:12px;align-items:flex-start}
+.gx-cxl-h b{display:block;font-size:1.05rem}
+.gx-cxl-h small{display:block;margin-top:2px;color:var(--muted)}
+.gx-cxl-ic{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#C0392B;color:#fff;font-weight:800}
+.gx-cxl.is-apelada .gx-cxl-ic{background:#F0B02A;color:#1A1614}
+.gx-cxl p{margin:12px 0 0}
+.gx-cxl blockquote{margin:10px 0 0;padding:10px 14px;border-left:3px solid currentColor;border-radius:0 10px 10px 0;background:rgba(127,127,127,.08);font-style:italic;white-space:pre-line}
+.gx-cxl-ap{margin-top:14px}
+.gx-cxl-ap summary{display:inline-flex;align-items:center;min-height:42px;padding:0 18px;white-space:nowrap;border-radius:999px;background:#C0392B;color:#fff;font-weight:700;cursor:pointer;list-style:none}
+.gx-cxl-ap summary::-webkit-details-marker{display:none}
+.gx-cxl-ap[open] summary{background:transparent;color:inherit;border:1.5px solid currentColor}
+.gx-cxl-ap form{display:grid;gap:8px;margin-top:12px}
+.gx-cxl-ap label{font-weight:600;font-size:.9rem}
+.gx-cxl-ap textarea{width:100%;resize:vertical;min-height:96px}
+.gx-cxl-acts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.gx-cxl-err{color:#C0392B;font-weight:600}
+.gx-cxl-wa{display:inline-block;margin-top:12px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.adm-cxl{margin-top:10px;padding:10px 12px;border-radius:12px;font-size:.86rem}
+.adm-cxl:not(.is-apelada):not(.is-cancelado):not(.is-confirmada){padding:0}
+.adm-cxl.is-cancelado,.adm-cxl.is-confirmada{background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.3)}
+.adm-cxl.is-apelada{background:rgba(240,176,42,.12);border:1px solid rgba(240,176,42,.5)}
+.adm-cxl p{margin:0 0 6px}
+.adm-cxl blockquote{margin:0 0 8px;padding:8px 12px;border-left:3px solid #F0B02A;background:#fff;border-radius:0 8px 8px 0;white-space:pre-line}
+.adm-cxl textarea{width:100%;margin-bottom:8px}
+.adm-cxl-acts{display:flex;gap:8px;flex-wrap:wrap}
+.adm-gcard .adm-cxl-tag{margin:2px 0 0}
